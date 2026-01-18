@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class 7 Public Exam Result</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 10px;
+}
+
+h2 {
+    text-align: center;
+    font-size: 22px;
+}
+
+input[type="text"] {
+    display: block;
+    margin: 10px auto;
+    padding: 6px;
+    width: 50%;
+    font-size: 14px;
+}
+
+.result-box {
+    display: none;
+    margin-top: 20px;
+    border: 1px solid black;
+    padding: 10px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.result-box h3 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.result-grid div {
+    padding: 6px;
+    border-bottom: 1px solid #ccc;
+}
+
+.result-grid .header {
+    font-weight: bold;
+}
+
+/* STATUS COLORS */
+.status {
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: black;
+}
+
+.status.failed {
+    color: red;
+}
+
+footer {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Class 7 Public Exam Result</h2>
+
+<input type="text" id="studentSearch" placeholder="Enter Student Name">
+
+<div class="result-box" id="resultBox">
+    <h3 id="studentName"></h3>
+
+    <div class="result-grid" id="resultGrid"></div>
+
+    <div class="status" id="studentStatus"></div>
+</div>
+
+<script>
+const students = [
+    {name:"RAZI", LISAN:27, THAREEKH:20, FIQH:50, DUROOS:50},
+    {name:"NISHAN", LISAN:40, THAREEKH:96, FIQH:98, DUROOS:99},
+    {name:"HAMDAN", LISAN:43, THAREEKH:50, FIQH:50, DUROOS:50},
+    {name:"JAZLAN", LISAN:89, THAREEKH:50, FIQH:50, DUROOS:50},
+    {name:"FAHEEM", LISAN:24, THAREEKH:50, FIQH:50, DUROOS:50},
+    {name:"SHAZIN", LISAN:41, THAREEKH:50, FIQH:50, DUROOS:50},
+    {name:"ASLAHA", LISAN:41, THAREEKH:50, FIQH:50, DUROOS:50},
+    {name:"FATHIMA", LISAN:83, THAREEKH:50, FIQH:50, DUROOS:50},
+    {name:"SUHAILA", LISAN:50, THAREEKH:50, FIQH:50, DUROOS:50},
+    {name:"SANA", LISAN:33, THAREEKH:50, FIQH:50, DUROOS:50},
+    {name:"RANA", LISAN:35, THAREEKH:50, FIQH:50, DUROOS:50}
+];
+
+const studentSearch = document.getElementById("studentSearch");
+const resultBox = document.getElementById("resultBox");
+const studentNameEl = document.getElementById("studentName");
+const resultGrid = document.getElementById("resultGrid");
+const studentStatus = document.getElementById("studentStatus");
+
+/* STATUS LOGIC – IMAGE RULE */
+function calculateStatus(student){
+    const marks = [
+        student.LISAN,
+        student.THAREEKH,
+        student.FIQH,
+        student.DUROOS
+    ];
+
+    const total = marks.reduce((a,b)=>a+b,0);
+    let status = "";
+
+    if (marks.some(m => m < 30)) {
+        status = "FAILED";
+    }
+    else if (marks.every(m => m >= 97)) {
+        status = "TOP PLUS";
+    }
+    else if (marks.every(m => m >= 80)) {
+        status = "DISTINCTION";
+    }
+    else if (marks.every(m => m >= 60)) {
+        status = "FIRST CLASS";
+    }
+    else if (marks.every(m => m >= 50)) {
+        status = "SECOND CLASS";
+    }
+    else {
+        status = "THIRD CLASS";
+    }
+
+    return { total, status };
+}
+
+studentSearch.addEventListener("input", function(){
+    const name = this.value.trim().toUpperCase();
+    const student = students.find(s => s.name === name);
+
+    if(student){
+        const { total, status } = calculateStatus(student);
+
+        studentNameEl.innerText = student.name;
+
+        resultGrid.innerHTML = `
+            <div class="header">Subject</div><div class="header">Marks</div>
+            <div>LISAN</div><div>${student.LISAN}</div>
+            <div>THAREEKH</div><div>${student.THAREEKH}</div>
+            <div>FIQH</div><div>${student.FIQH}</div>
+            <div>DUROOS</div><div>${student.DUROOS}</div>
+            <div><b>Total</b></div><div><b>${total}</b></div>
+        `;
+
+        studentStatus.innerText = "Status : " + status;
+        studentStatus.classList.remove("failed");
+
+        if(status === "FAILED"){
+            studentStatus.classList.add("failed");
+        }
+
+        resultBox.style.display = "block";
+    } else {
+        resultBox.style.display = "none";
+    }
+});
+</script>
+
+<footer>
+    MUHSIN MANNANI | 7559950633
+</footer>
+
+</body>
+</html>
