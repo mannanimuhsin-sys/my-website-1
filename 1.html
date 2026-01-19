@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Result</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f2f2f2;
+    padding:20px;
+}
+
+.container{
+    max-width:720px;
+    margin:auto;
+    background:#fff;
+    padding:20px;
+    border:1px solid #ccc;
+}
+
+select{
+    padding:6px;
+    margin:5px 0 15px 0;
+    width:100%;
+}
+
+/* TABLE STYLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:15px;
+}
+
+td{
+    border:1px solid #000;
+    padding:10px;
+    font-size:14px;
+}
+
+/* TITLES */
+.subject-title{
+    text-align:center;
+    font-weight:bold;
+    background:#f0f0f0;
+}
+
+.total-row td{
+    font-weight:bold;
+    font-size:16px;
+    background:#f5f5f5;
+}
+
+/* PASS / FAIL */
+.result{
+    text-align:center;
+    font-size:20px;
+    font-weight:bold;
+    color:#1e7e34;
+    background:#e9f7ef;
+    border:2px solid #28a745;
+}
+
+/* ATTENDANCE */
+.attendance td:first-child{
+    font-weight:bold;
+}
+.attendance td:last-child{
+    text-align:center;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- CLASS SELECT -->
+<label><b>Select Class</b></label>
+<select id="classSelect" onchange="loadStudents()">
+    <option value="">-- Select Class --</option>
+    <option value="1">Class 1</option>
+    <option value="2">Class 2</option>
+    <option value="3">Class 3</option>
+    <option value="4">Class 4</option>
+    <option value="6">Class 6</option>
+    <option value="8">Class 8</option>
+    <option value="9">Class 9</option>
+</select>
+
+<!-- STUDENT SELECT -->
+<label><b>Select Student</b></label>
+<select id="studentSelect" onchange="showResult()">
+    <option value="">-- Select Student --</option>
+</select>
+
+<!-- RESULT AREA -->
+<div id="resultArea" style="display:none;">
+
+<table>
+<tr>
+    <td><b>NAME</b></td>
+    <td id="sname"></td>
+</tr>
+<tr>
+    <td><b>CLASS</b></td>
+    <td id="sclass"></td>
+</tr>
+</table>
+
+<table>
+<tr>
+    <td colspan="2" class="subject-title">SUBJECTS</td>
+</tr>
+<tr><td>DUROOS</td><td id="duroos"></td></tr>
+<tr><td>FIQH</td><td id="fiqh"></td></tr>
+<tr><td>AQEEDA</td><td id="aqeeda"></td></tr>
+<tr><td>THAJVEED</td><td id="thajveed"></td></tr>
+
+<tr class="total-row">
+    <td>TOTAL</td>
+    <td id="total"></td>
+</tr>
+<tr>
+    <td colspan="2" class="result" id="status"></td>
+</tr>
+</table>
+
+<table class="attendance">
+<tr>
+    <td>ATTENDANCE</td>
+    <td id="attendance"></td>
+</tr>
+<tr>
+    <td>PRESENT</td>
+    <td id="present"></td>
+</tr>
+</table>
+
+</div>
+
+</div>
+
+<script>
+/* CLASS WISE STUDENTS */
+const classStudents = {
+    "1":[
+        "MUHAMMED SHADIL","NASIH SUNEER K P C","AYAN ASIF",
+        "INAAYA FATHIMA T K","HIZA FATHIMA","ARWA AFSAL"
+    ],
+    "2":[
+        "DULQUER AZAN","MUHAMMED HANIH M","MUHAMMED SWALIH K P",
+        "MUHAMMED HANAN C P","MUHAMMED HADHI K","ZIFRAN P P",
+        "MUHAMMED FAIZAN","IMAD T.K","AJVA FATHIMA V V",
+        "JUWAIRIYA MUHAMMED","RINSHA FATHIMA C P","AYISHA M V",
+        "HANA FATHIMA K","RINZA RASHEED","ZAHRA FATHIMA"
+    ],
+    "3":[
+        "MUHAMMED MAZLAN","MUHAMMED T K","FAIZAN K V",
+        "MUHAMMED FAIZAN K C","MUHAMMED SHAHAN K S","FAHAD B NOOR",
+        "MUHAMMED HAMDAN E K","HANI ABDULLA M","MUHAMMED C A",
+        "JAZLAN MUHAMMAD M P","MUHAMMED QASIM K M","IMRAN",
+        "LAIBA FATHIMA","AYISHA JUMANA","MARIYAMBI",
+        "MIHRA MARIYAM M K","KHADEEJATHUL KUBRA M",
+        "FATHIMATH ZANHA SHAFEEK","HUSNA ASHRAF O.V","ZAINAB AFSAL"
+    ],
+    "4":[
+        "MUHAMMAD C","MUHAMMED RAZEEN C K","BISHRUL HAFI O",
+        "MUHAMMAD HASAN K K","MUHAMMAD ASIF T P",
+        "MUHAMMAD SHEZIN K S","FATHIMA SAYEED","FATHIMA HIBA A M",
+        "NAJIYA YASMIN","FATHIMA P C","FATHIMA C P","NADIYA O",
+        "FATHIMATHU JUMANA KP","FATHIMATH ZAHRA"
+    ]
+};
+
+/* SAMPLE RESULT (only if exists) */
+const students = {
+    "MUHSIN":{
+        class:"1",
+        marks:{duroos:30,fiqh:50,aqeeda:50,thajveed:18},
+        attendance:180,
+        present:174
+    }
+};
+
+function loadStudents(){
+    const classVal=document.getElementById("classSelect").value;
+    const studentSelect=document.getElementById("studentSelect");
+    studentSelect.innerHTML=`<option value="">-- Select Student --</option>`;
+    document.getElementById("resultArea").style.display="none";
+
+    if(classStudents[classVal]){
+        classStudents[classVal].forEach(name=>{
+            studentSelect.innerHTML+=`<option value="${name}">${name}</option>`;
+        });
+    }
+}
+
+function showResult(){
+    const name=document.getElementById("studentSelect").value;
+    const classVal=document.getElementById("classSelect").value;
+    if(!name) return;
+
+    document.getElementById("resultArea").style.display="block";
+    document.getElementById("sname").innerText=name;
+    document.getElementById("sclass").innerText=classVal;
+
+    if(students[name]){
+        const m=students[name].marks;
+        document.getElementById("duroos").innerText=m.duroos;
+        document.getElementById("fiqh").innerText=m.fiqh;
+        document.getElementById("aqeeda").innerText=m.aqeeda;
+        document.getElementById("thajveed").innerText=m.thajveed;
+        document.getElementById("total").innerText=m.duroos+m.fiqh+m.aqeeda+m.thajveed;
+        document.getElementById("status").innerText="PASSED";
+        document.getElementById("attendance").innerText=students[name].attendance;
+        document.getElementById("present").innerText=students[name].present;
+    }else{
+        ["duroos","fiqh","aqeeda","thajveed","total","attendance","present"].forEach(id=>{
+            document.getElementById(id).innerText="";
+        });
+        document.getElementById("status").innerText="";
+    }
+}
+</script>
+<footer>
+  MUHSIN MANNANI | 7559950633
+  <span>Executive / Designed this System</span>
+</footer>
+</body>
+</html>

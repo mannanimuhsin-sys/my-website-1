@@ -3,181 +3,232 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Class 7 Public Exam Result</title>
+<title>Misbahul Uloom Annual Result</title>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 10px;
+body{
+    font-family:"Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background:#f4f6f8;
+    margin:0; padding:0;
 }
-
-h2 {
-    text-align: center;
-    font-size: 22px;
+.container{
+    max-width:900px;
+    margin:40px auto;
+    background:#fff;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
-
-input[type="text"] {
-    display: block;
-    margin: 10px auto;
-    padding: 6px;
-    width: 50%;
-    font-size: 14px;
+h1{
+    text-align:center;
+    font-size:28px;
+    margin-bottom:10px;
 }
-
-.result-box {
-    display: none;
-    margin-top: 20px;
-    border: 1px solid black;
-    padding: 10px;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
+h2{
+    text-align:center;
+    font-size:20px;
+    margin-bottom:30px;
+    color:#555;
 }
-
-.result-box h3 {
-    text-align: center;
-    margin-bottom: 10px;
+.select-box{
+    text-align:center;
+    margin-bottom:30px;
 }
-
-.result-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+select{
+    padding:10px 15px;
+    font-size:16px;
+    border-radius:8px;
+    border:2px solid #3498db;
 }
-
-.result-grid div {
-    padding: 6px;
-    border-bottom: 1px solid #ccc;
+.card-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:15px;
 }
-
-.result-grid .header {
-    font-weight: bold;
+.student-card{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 20px;
+    border-radius:12px;
+    background:#f0f0f0;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    font-weight:600;
 }
-
-/* STATUS COLORS */
-.status {
-    margin-top: 10px;
-    text-align: center;
-    font-weight: bold;
-    color: black;
+.status-badge{
+    padding:6px 20px;
+    border-radius:50px;
+    color:#fff;
+    font-weight:700;
+    font-size:14px;
+    min-width:100px;
+    text-align:center;
 }
+.pass{background:#28a745;}
+.fail{background:#e74c3c;}
 
-.status.failed {
-    color: red;
-}
-
-footer {
-    margin-top: 30px;
-    text-align: center;
-    font-size: 14px;
+footer{
+    text-align:center;
+    padding:20px;
+    margin-top:40px;
+    background:linear-gradient(135deg,#4facfe,#00f2fe);
+    color:#fff;
+    font-weight:700;
+    border-radius:12px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Class 7 Public Exam Result</h2>
+<div class="container">
+    <h1>MISBAHUL ULOOM MADRASA PERUVANA</h1>
+    <h2>Annual Exam Result @ 2025-2026</h2>
 
-<input type="text" id="studentSearch" placeholder="Enter Student Name">
+    <div class="select-box">
+        <b>Select Class:</b>
+        <select id="classSelect" onchange="loadStudents()">
+            <option value="">-- Select Class --</option>
+            <option value="1">Class - 1</option>
+            <option value="2">Class - 2</option>
+            <option value="3">Class - 3</option>
+            <option value="4">Class - 4</option>
+            <option value="6">Class - 6</option>
+            <option value="8">Class - 8</option>
+            <option value="9">Class - 9</option>
+        </select>
+    </div>
 
-<div class="result-box" id="resultBox">
-    <h3 id="studentName"></h3>
-
-    <div class="result-grid" id="resultGrid"></div>
-
-    <div class="status" id="studentStatus"></div>
+    <div id="studentList" class="card-grid"></div>
 </div>
-
-<script>
-const students = [
-    {name:"RAZI", LISAN:27, THAREEKH:30, FIQH:50, DUROOS:50},
-    {name:"NISHAN", LISAN:40, THAREEKH:96, FIQH:98, DUROOS:99},
-    {name:"HAMDAN", LISAN:43, THAREEKH:50, FIQH:50, DUROOS:50},
-    {name:"JAZLAN", LISAN:89, THAREEKH:50, FIQH:50, DUROOS:50},
-    {name:"FAHEEM", LISAN:24, THAREEKH:50, FIQH:50, DUROOS:50},
-    {name:"SHAZIN", LISAN:41, THAREEKH:50, FIQH:50, DUROOS:50},
-    {name:"ASLAHA", LISAN:41, THAREEKH:50, FIQH:50, DUROOS:50},
-    {name:"FATHIMA", LISAN:83, THAREEKH:50, FIQH:50, DUROOS:50},
-    {name:"SUHAILA", LISAN:50, THAREEKH:50, FIQH:50, DUROOS:50},
-    {name:"SANA", LISAN:33, THAREEKH:50, FIQH:50, DUROOS:50},
-    {name:"RANA", LISAN:35, THAREEKH:50, FIQH:50, DUROOS:50}
-];
-
-const studentSearch = document.getElementById("studentSearch");
-const resultBox = document.getElementById("resultBox");
-const studentNameEl = document.getElementById("studentName");
-const resultGrid = document.getElementById("resultGrid");
-const studentStatus = document.getElementById("studentStatus");
-
-/* STATUS LOGIC – IMAGE RULE */
-function calculateStatus(student){
-    const marks = [
-        student.LISAN,
-        student.THAREEKH,
-        student.FIQH,
-        student.DUROOS
-    ];
-
-    const total = marks.reduce((a,b)=>a+b,0);
-    let status = "";
-
-    if (marks.some(m => m < 30)) {
-        status = "FAILED";
-    }
-    else if (marks.every(m => m >= 97)) {
-        status = "TOP PLUS";
-    }
-    else if (marks.every(m => m >= 80)) {
-        status = "DISTINCTION";
-    }
-    else if (marks.every(m => m >= 60)) {
-        status = "FIRST CLASS";
-    }
-    else if (marks.every(m => m >= 50)) {
-        status = "SECOND CLASS";
-    }
-    else {
-        status = "THIRD CLASS";
-    }
-
-    return { total, status };
-}
-
-studentSearch.addEventListener("input", function(){
-    const name = this.value.trim().toUpperCase();
-    const student = students.find(s => s.name === name);
-
-    if(student){
-        const { total, status } = calculateStatus(student);
-
-        studentNameEl.innerText = student.name;
-
-        resultGrid.innerHTML = `
-            <div class="header">Subject</div><div class="header">Marks</div>
-            <div>LISAN</div><div>${student.LISAN}</div>
-            <div>THAREEKH</div><div>${student.THAREEKH}</div>
-            <div>FIQH</div><div>${student.FIQH}</div>
-            <div>DUROOS</div><div>${student.DUROOS}</div>
-            <div><b>Total</b></div><div><b>${total}</b></div>
-        `;
-
-        studentStatus.innerText = "Status : " + status;
-        studentStatus.classList.remove("failed");
-
-        if(status === "FAILED"){
-            studentStatus.classList.add("failed");
-        }
-
-        resultBox.style.display = "block";
-    } else {
-        resultBox.style.display = "none";
-    }
-});
-</script>
 
 <footer>
     MUHSIN MANNANI | 7559950633
+    <div style="font-size:14px;">Designer &  Developer of this System</div>
 </footer>
+
+<script>
+const classStudents = {
+
+"1":[
+ {name:"MUHAMMED SHADIL"},
+ {name:"NASIH SUNEER K P C - f"},
+ {name:"AYAN ASIF"},
+ {name:"INAAYA FATHIMA T K"},
+ {name:"HIZA FATHIMA"},
+ {name:"ARWA AFSAL"}
+],
+
+"2":[
+ {name:"DULQUER AZAN"},
+ {name:"MUHAMMED HANIH M"},
+ {name:"MUHAMMED SWALIH K P"},
+ {name:"MUHAMMED HANAN C P"},
+ {name:"MUHAMMED HADHI K"},
+ {name:"ZIFRAN P P"},
+ {name:"MUHAMMED FAIZAN"},
+ {name:"IMAD T K"},
+ {name:"AJVA FATHIMA V V"},
+ {name:"JUWAIRIYA MUHAMMED"},
+ {name:"RINSHA FATHIMA C P"},
+ {name:"AYISHA M V"},
+ {name:"HANA FATHIMA K"},
+ {name:"RINZA RASHEED"},
+ {name:"ZAHRA FATHIMA"}
+],
+
+"3":[
+ {name:"MUHAMMED ADIL T P"},
+ {name:"SHEZIN"},
+ {name:"SHAHANA FATHIMA P M"},
+ {name:"FATHIMATH NAFLA P M"},
+ {name:"MUHAMMED SHAHAN K S"},
+ {name:"FAHAD B NOOR"},
+ {name:"MUHAMMED HAMDAN E K"},
+ {name:"HANI ABDULLA M"},
+ {name:"MUHAMMED C A"},
+ {name:"JAZLAN MUHAMMAD M P"},
+ {name:"MUHAMMED QASIM K M"},
+ {name:"IMRAN"},
+ {name:"LAIBA FATHIMA"},
+ {name:"AYISHA JUMANA"},
+ {name:"MARIYAMBI"},
+ {name:"MIHRA MARIYAM M K"},
+ {name:"KHADEEJATHUL KUBRA M"},
+ {name:"FATHIMATH ZANHA SHAFEEK"},
+ {name:"HUSNA ASHRAF O V"},
+ {name:"ZAINAB AFSAL"}
+],
+
+"4":[
+ {name:"MUHAMMAD C"},
+ {name:"MUHAMMED RAZEEN C K"},
+ {name:"BISHRUL HAFI O"},
+ {name:"MUHAMMAD HASAN K K"},
+ {name:"MUHAMMAD ASIF T P"},
+ {name:"MUHAMMAD SHEZIN K S"},
+ {name:"FATHIMA SAYEED - f"},
+ {name:"FATHIMA HIBA A M"},
+ {name:"NAJIYA YASMIN"},
+ {name:"FATHIMA P C"},
+ {name:"FATHIMA C P"},
+ {name:"NADIYA O - f"},
+ {name:"FATHIMATHU JUMANA K P"},
+ {name:"FATHIMATH ZAHRA - f"}
+],
+
+"6":[
+ {name:"MUHAMMED ADIL T P"},
+ {name:"SHEZIN"},
+ {name:"SHAHANA FATHIMA P M"},
+ {name:"FATHIMATH NAFLA P M"}
+],
+
+"8":[
+ {name:"FADIY SAYEED"},
+ {name:"MUHAMMED NIHAL O K"},
+ {name:"MUHAMMED NABHAN O"},
+ {name:"KAMAL SHAHARUZE"},
+ {name:"MUHAMMED JALAL K K"},
+ {name:"UMMARUL FAROOQ"},
+ {name:"AYISHABI C"},
+ {name:"FATHIMA FIDA A M"},
+ {name:"FATHIMA AFRA"},
+ {name:"AYISHA T K"},
+ {name:"FATHIMA RILA"},
+ {name:"FAHMI O"},
+ {name:"ZIYA FATHIMA P P"}
+],
+
+"9":[
+ {name:"MUHAMMED JALAL M"},
+ {name:"SALMABI C P"},
+ {name:"ASMABI C P"},
+ {name:"NAJA FATHIMA O V"},
+ {name:"AYISHABI T"}
+]
+
+};
+
+function loadStudents(){
+    const cls=document.getElementById("classSelect").value;
+    const box=document.getElementById("studentList");
+    box.innerHTML="";
+    if(!cls) return;
+
+    classStudents[cls].forEach(s=>{
+        const fail=s.name.toLowerCase().includes("- f");
+        const card=document.createElement("div");
+        card.className="student-card";
+        card.innerHTML=`
+        <span>${s.name.replace(" - f","")}</span>
+        <span class="status-badge ${fail?"fail":"pass"}">
+            ${fail?"FAIL":"PASS"}
+        </span>`;
+        box.appendChild(card);
+    });
+}
+</script>
 
 </body>
 </html>
