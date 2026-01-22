@@ -49,22 +49,17 @@ footer span{
     font-weight:600;
 }
 
-/* =========================
-   📱 MOBILE HEADER FIX
-   ========================= */
+/* MOBILE FIX */
 @media (max-width: 768px){
-
     .jumbotron{
-        padding:40px 15px;   /* header height കുറയ്ക്കുന്നു */
+        padding:40px 15px;
     }
-
     .jumbotron h1{
-        font-size:24px;     /* madrasa name size */
+        font-size:24px;
         margin-bottom:5px;
     }
-
     .jumbotron h2{
-        font-size:16px;     /* place name size */
+        font-size:16px;
         margin-top:0;
     }
 }
@@ -73,7 +68,6 @@ footer span{
 
 <body>
 
-<!-- HEADER WITH PHOTO BACKGROUND -->
 <div style="background-color: rgb(38, 9, 227);" class="jumbotron text-center">
     <h1>MISBAHUL ULOOM MADRASA</h1>
     <h2>PERUVANA</h2>
@@ -82,12 +76,14 @@ footer span{
 <div class="container">
 <div class="row">
 
-<!-- ABOUT -->
+<!-- ABOUT / DASHBOARD -->
 <div class="col-sm-4">
 <div class="box">
 <h3>📘 മദ്റസ വിവരം</h3>
 <p>ഇത് Misbahul Uloom Madrasa Peruvana യുടെ ഔദ്യോഗിക വെബ് പേജാണ്.</p>
-<button class="btn btn-primary btn-block" onclick="openResult()">Dashboard</button>
+
+<!-- ✅ Dashboard button -->
+<button class="btn btn-primary btn-block" onclick="openDashboard()">Dashboard</button>
 </div>
 </div>
 
@@ -157,8 +153,13 @@ function openResult(){
     }
 }
 
-/* 🔒 HIDDEN ADMIN PASSWORD CHANGE
-   (double-click jumbotron) */
+/* ✅ DASHBOARD OPEN (NO PASSWORD) */
+function openDashboard(){
+    window.location.href =
+    "https://mannanimuhsin-sys.github.io/my-website/index_6.html";
+}
+
+/* ADMIN PASSWORD CHANGE */
 document.querySelector(".jumbotron").ondblclick = function(){
     let oldPass = prompt("Enter Current Password");
     if(oldPass === password){
