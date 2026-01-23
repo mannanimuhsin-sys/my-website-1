@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Live Excel Scoreboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{
+ font-family:Arial;
+ background:#0b132b;
+ color:white;
+ padding:20px;
+}
+select{
+ width:100%;
+ padding:12px;
+ margin:8px 0;
+ border-radius:8px;
+}
+.card{
+ background:#1c2541;
+ padding:20px;
+ border-radius:12px;
+ margin-top:15px;
+}
+.rank{
+ padding:10px;
+ margin:8px 0;
+ border-radius:6px;
+}
+.first{background:#FFD700;color:#000;}
+.second{background:#C0C0C0;color:#000;}
+.third{background:#CD7F32;color:#000;}
+</style>
+</head>
+
+<body>
+
+<h2>📊 Live Nabidina Scoreboard</h2>
+
+<select id="category"></select>
+<select id="gender"></select>
+<select id="program"></select>
+
+<div id="result" class="card"></div>
+
+<script>
+const SHEET_ID = "PASTE_YOUR_SHEET_ID_HERE";
+const URL = `https://opensheet.elk.sh/${SHEET_ID}/Sheet1`;
+
+let data=[];
+
+fetch(URL)
+.then(res=>res.json())
+.then(json=>{
+ data=json;
+ loadFilters();
+});
+
+function loadFilters(){
+ fill("category","Category");
+ fill("gender","Gender");
+ fill("program","Program");
+}
+
+function fill(id,key){
+ let s=document.getElementById(id);
+ let v=[...new Set(data.map(d=>d[key]))];
+ s.innerHTML='<option value="">Select '+key+'</option>';
+ v.forEach(x=>s.innerHTML+=`<option>${x}</option>`);
+ s.onchange=showResult;
+}
+
+function showResult(){
+ let c=category.value,g=gender.value,p=program.value;
+ if(!c||!g||!p) return;
+
+ let r=data.filter(d=>d.Category==c && d.Gender==g && d.Program==p);
+ let out=`<h3>${p} Result</h3>`;
+
+ r.forEach(d=>{
+   let cls=d.Rank==1?'first':d.Rank==2?'second':'third';
+   let mark=d.Rank==1?10:d.Rank==2?5:3;
+   out+=`
+   <div class="rank ${cls}">
+   Rank ${d.Rank} (${mark}) – ${d.Student} | ${d.Team}
+   </div>`;
+ });
+
+ document.getElementById("result").innerHTML=out;
+}
+</script>
+
+</body>
+</html>
