@@ -80,7 +80,7 @@ footer span{ color:#f1c40f; font-weight:600; }
     <!-- Blood Bank Section BELOW Location -->
     <div class="col-sm-12">
       <div class="box">
-        <h3>🩸 Blood Bank Registration & Notification</h3>
+        <h3>🩸 Blood Bank – Donor Add & View</h3>
         <div class="consent-box">
           <strong>Notification Consent:</strong>  
           Blood donors will be notified when their blood type is required.  
@@ -88,31 +88,19 @@ footer span{ color:#f1c40f; font-weight:600; }
         </div>
 
         <form id="bloodBankForm">
-          <div class="form-group">
-            <label>പേര്</label>
-            <input type="text" class="form-control" id="bbName" required>
-          </div>
-          <div class="form-group">
-            <label>മൊബൈൽ നമ്പർ</label>
-            <input type="text" class="form-control" id="bbPhone" required>
-          </div>
-          <div class="form-group">
-            <label>പൂർണ്ണ വിലാസം</label>
-            <input type="text" class="form-control" id="bbAddress" required>
-          </div>
-          <div class="form-group">
-            <label>Blood Group</label>
-            <select class="form-control" id="bbGroup" required>
-              <option value="">Select</option>
-              <option>A+</option><option>A-</option>
-              <option>B+</option><option>B-</option>
-              <option>AB+</option><option>AB-</option>
-              <option>O+</option><option>O-</option>
-            </select>
-          </div>
+          <input type="text" class="form-control" id="bbName" placeholder="Full Name" required><br>
+          <input type="text" class="form-control" id="bbPhone" placeholder="Mobile Number" required><br>
+          <input type="text" class="form-control" id="bbAddress" placeholder="Full Address" required><br>
+          <select class="form-control" id="bbGroup" required>
+            <option value="">Select Blood Group</option>
+            <option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option>
+            <option>O+</option><option>O-</option>
+          </select><br>
           <div class="checkbox">
             <label><input type="checkbox" id="bbConsent" required> I agree to be notified when my blood type is needed.</label>
-          </div>
+          </div><br>
           <button type="submit" class="btn btn-success btn-block">Add Donor</button>
         </form>
 
@@ -138,6 +126,10 @@ footer span{ color:#f1c40f; font-weight:600; }
 <footer>
 © 2026 | Designed & Developed by <span>Muhsin Mannani</span>
 </footer>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
 /* ===== RESULT SWITCH ===== */
@@ -172,75 +164,109 @@ document.body.appendChild(overlay);
 function openDashboard(){ window.location.href="https://mannanimuhsin-sys.github.io/my-website/index_6.html"; }
 function openLocation(){ window.location.href="https://maps.app.goo.gl/SZLnKkTARKPHvsVR8?g_st=aw"; }
 
-/* ===== Blood Bank Logic ===== */
-let donors=[];
-const form=document.getElementById("bloodBankForm");
-const listDiv=document.getElementById("bloodBankList");
-const highlightSelect=document.getElementById("highlightGroup");
+/* ===== Firebase Blood Bank ===== */
+/* 🔥 Firebase config paste here */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const form = document.getElementById("bloodBankForm");
+const donorList = document.getElementById("bloodBankList");
+const highlightSelect = document.getElementById("highlightGroup");
 
 form.addEventListener("submit", e=>{
   e.preventDefault();
-  const name=document.getElementById("bbName").value;
-  const phone=document.getElementById("bbPhone").value;
-  const address=document.getElementById("bbAddress").value;
-  const group=document.getElementById("bbGroup").value;
-  const consent=document.getElementById("bbConsent").checked;
-  donors.push({name, phone, address, group, consent});
+  const name = document.getElementById("bbName").value;
+  const phone = document.getElementById("bbPhone").value;
+  const address = document.getElementById("bbAddress").value;
+  const group = document.getElementById("bbGroup").value;
+  const consent = document.getElementById("bbConsent").checked;
+
+  db.collection("donors").add({ name, phone, address, group, consent, time: Date.now() });
+
   form.reset();
-  alert("Blood donor added! You will be notified when your blood type is required.");
-  renderDonors();
+  alert("Donor added! You will be notified when your blood type is required.");
 });
 
 highlightSelect.addEventListener("change", ()=>{
-  const type=highlightSelect.value;
-  if(type){
-    alert(`Blood type ${type} is now marked as needed. Contact these donors urgently!`);
-  }
-  renderDonors();
+  const type = highlightSelect.value;
+  renderDonors(type);
 });
 
-function renderDonors(){
-  const typeNeeded=highlightSelect.value;
-  listDiv.innerHTML="";
-  let groups=[...new Set(donors.map(d=>d.group))];
-  groups.forEach(g=>{
-    let filtered=donors.filter(d=>d.group===g);
-    if(filtered.length===0) return;
-    let groupDiv=document.createElement("div");
-    groupDiv.className="box";
-    groupDiv.innerHTML=`<h4>Blood Group: ${g}</h4>`;
-    filtered.forEach(d=>{
-      let card=document.createElement("div");
-      card.className="blood-card";
-      if(typeNeeded && d.group===typeNeeded) card.classList.add("highlight");
-      card.innerHTML=`<h5>${d.name}</h5>
-        <p>Address: ${d.address}</p>
-        <p>Consent Given: ${d.consent?"Yes":"No"}</p>`;
-      let icons=document.createElement("div");
+function renderDonors(highlightType=""){
+  db.collection("donors").orderBy("time","desc").get().then(snapshot=>{
+    donorList.innerHTML = "";
+    snapshot.forEach(doc=>{
+      const d = doc.data();
+      const card = document.createElement("div");
+      card.className = "blood-card";
+      if(highlightType && d.group===highlightType) card.classList.add("highlight");
+      card.innerHTML = `<h5>${d.name}</h5>
+                        <p>Address: ${d.address}</p>
+                        <p>Blood Group: ${d.group}</p>
+                        <p>Consent: ${d.consent?"Yes":"No"}</p>`;
+      const icons = document.createElement("div");
       icons.className="contact-icons";
-      let callLink=document.createElement("a");
-      callLink.href=`tel:${d.phone}`;
-      callLink.title="Call"; callLink.innerHTML='<i class="fas fa-phone"></i>';
-      let waLink=document.createElement("a");
-      waLink.href=`https://wa.me/${d.phone}`;
-      waLink.target="_blank"; waLink.title="WhatsApp";
+      const callLink = document.createElement("a");
+      callLink.href=`tel:${d.phone}`; callLink.title="Call"; callLink.innerHTML='<i class="fas fa-phone"></i>';
+      const waLink = document.createElement("a");
+      waLink.href=`https://wa.me/91${d.phone}`; waLink.target="_blank"; waLink.title="WhatsApp";
       waLink.innerHTML='<i class="fab fa-whatsapp"></i>';
       icons.appendChild(callLink); icons.appendChild(waLink);
       card.appendChild(icons);
-      groupDiv.appendChild(card);
+      donorList.appendChild(card);
     });
-    listDiv.appendChild(groupDiv);
   });
 }
 
+// Auto-render real-time
+db.collection("donors").orderBy("time","desc").onSnapshot(snapshot=>{
+  const type = highlightSelect.value;
+  donorList.innerHTML = "";
+  snapshot.forEach(doc=>{
+    const d = doc.data();
+    const card = document.createElement("div");
+    card.className = "blood-card";
+    if(type && d.group===type) card.classList.add("highlight");
+    card.innerHTML = `<h5>${d.name}</h5>
+                      <p>Address: ${d.address}</p>
+                      <p>Blood Group: ${d.group}</p>
+                      <p>Consent: ${d.consent?"Yes":"No"}</p>`;
+    const icons = document.createElement("div");
+    icons.className="contact-icons";
+    const callLink = document.createElement("a");
+    callLink.href=`tel:${d.phone}`; callLink.title="Call"; callLink.innerHTML='<i class="fas fa-phone"></i>';
+    const waLink = document.createElement("a");
+    waLink.href=`https://wa.me/91${d.phone}`; waLink.target="_blank"; waLink.title="WhatsApp";
+    waLink.innerHTML='<i class="fab fa-whatsapp"></i>';
+    icons.appendChild(callLink); icons.appendChild(waLink);
+    card.appendChild(icons);
+    donorList.appendChild(card);
+  });
+});
+
+// CSV download
 document.getElementById("downloadCSV").addEventListener("click", ()=>{
-  if(donors.length===0){ alert("No donors to download!"); return; }
-  let csv="Name,Phone,Address,Blood Group,Consent\n";
-  donors.forEach(d=>{ csv+=`${d.name},${d.phone},${d.address},${d.group},${d.consent?"Yes":"No"}\n`; });
-  let blob=new Blob([csv],{type:"text/csv"});
-  let url=URL.createObjectURL(blob);
-  let a=document.createElement("a");
-  a.href=url; a.download="blood_donors.csv"; a.click(); URL.revokeObjectURL(url);
+  db.collection("donors").get().then(snapshot=>{
+    let csv="Name,Phone,Address,Blood Group,Consent\n";
+    snapshot.forEach(d=>{
+      const data = d.data();
+      csv += `${data.name},${data.phone},${data.address},${data.group},${data.consent?"Yes":"No"}\n`;
+    });
+    const blob = new Blob([csv],{type:"text/csv"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href=url; a.download="blood_donors.csv"; a.click();
+    URL.revokeObjectURL(url);
+  });
 });
 </script>
 </body>
