@@ -1,183 +1,156 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ml">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Class 7 Public Exam Result</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Misbahul Uloom Madrasa</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 10px;
+body{ background:#f4f6f8; font-family:Arial,sans-serif; }
+.jumbotron{
+  background-image: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url("madrasa.jpg");
+  background-size:cover; background-position:center; background-repeat:no-repeat;
+  color:white; margin-bottom:25px; padding:80px 10px;
 }
+.box{ background:white; padding:20px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.08); margin-bottom:20px; }
+.exec-link{ display:block; margin-top:12px; padding:15px; border-radius:10px; background:linear-gradient(135deg,#198754,#20c997); color:#fff; text-decoration:none; }
+.exec-link:hover{ text-decoration:none; color:#fff; opacity:0.95; }
+.exec-link h4{ margin:0; font-size:16px; font-weight:600; }
+.exec-link p{ margin:3px 0 0; font-size:13px; opacity:0.9; }
+footer{ background:#2c3e50; color:#fff; margin-top:40px; padding:15px 0; text-align:center; font-size:14px; }
+footer span{ color:#f1c40f; font-weight:600; }
+@media(max-width:768px){ .jumbotron{ padding:45px 15px; } .jumbotron h1{ font-size:24px; } .jumbotron h2{ font-size:16px; } }
 
-h2 {
-    text-align: center;
-    font-size: 22px;
-}
-
-input[type="text"] {
-    display: block;
-    margin: 10px auto;
-    padding: 6px;
-    width: 50%;
-    font-size: 14px;
-}
-
-.result-box {
-    display: none;
-    margin-top: 20px;
-    border: 1px solid black;
-    padding: 10px;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.result-box h3 {
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.result-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.result-grid div {
-    padding: 6px;
-    border-bottom: 1px solid #ccc;
-}
-
-.result-grid .header {
-    font-weight: bold;
-}
-
-/* STATUS COLORS */
-.status {
-    margin-top: 10px;
-    text-align: center;
-    font-weight: bold;
-    color: black;
-}
-
-.status.failed {
-    color: red;
-}
-
-footer {
-    margin-top: 30px;
-    text-align: center;
-    font-size: 14px;
-}
+/* Blood Bank Styles */
+.blood-card{ border:1px solid #ddd; padding:12px; border-radius:8px; margin-bottom:10px; background:#f8f9fa; display:flex; justify-content:space-between; align-items:center; }
+.blood-card h5{ margin:0; font-weight:600; color: #d9534f; }
+.contact-icons{ display:flex; flex-direction:column; gap:5px; }
+.contact-icons a{ font-size:20px; color:#198754; padding:5px 8px; border:1px solid #198754; border-radius:6px; text-align:center; }
+.highlight{ background:#f8d7da !important; border-color:#dc3545 !important; }
 </style>
 </head>
-
 <body>
 
-<h2>Class 7 Public Exam Result</h2>
-
-<input type="text" id="studentSearch" placeholder="Enter Student Name">
-
-<div class="result-box" id="resultBox">
-    <h3 id="studentName"></h3>
-
-    <div class="result-grid" id="resultGrid"></div>
-
-    <div class="status" id="studentStatus"></div>
+<div class="jumbotron text-center">
+<h1>MISBAHUL ULOOM MADRASA</h1>
+<h2>PERUVANA</h2>
+<p>Under, Samastha Kerala Islam Matha Vidyabhyasa Board (SKIMVB) Reg.No:4224</p>
 </div>
 
+<div class="container">
+  <div class="row">
+    <div class="col-sm-4">
+      <div class="box">
+        <h3>📘 മദ്റസ വിവരം</h3>
+        <p>ഇത് Misbahul Uloom Madrasa Peruvana യുടെ ഔദ്യോഗിക വെബ് പേജാണ്.</p>
+        <button class="btn btn-primary btn-block" onclick="openDashboard()">📊 Dashboard</button>
+        <a href="https://mannanimuhsin-sys.github.io/my-website/index_7.html" target="_blank" class="exec-link">
+          <h4>📋 ക്ലാസ് വിദ്യാർത്ഥി വിവരങ്ങൾ</h4>
+          <p>Class-wise student strength & details</p>
+        </a>
+      </div>
+    </div>
+
+    <div class="col-sm-4">
+      <div class="box text-center">
+        <h3>📊 പരീക്ഷ ഫലം</h3>
+        <p>2026 വാർഷിക പരീക്ഷയുടെ ഫലങ്ങൾ ഇവിടെ പ്രസിദ്ധീകരിക്കും.</p>
+        <button class="btn btn-primary btn-block" onclick="openResult()">Result View</button>
+      </div>
+    </div>
+
+    <div class="col-sm-4">
+      <div class="box text-center">
+        <h3>📍 Location View</h3>
+        <p>Misbahul Uloom Madrasa Peruvana – Map View</p>
+        <button class="btn btn-primary btn-block" onclick="openLocation()">Location View</button>
+      </div>
+    </div>
+
+    <div class="col-sm-12">
+      <div class="box">
+        <h3>🩸 Blood Bank – Donor Registration</h3>
+        <form id="bloodBankForm">
+          <input type="text" class="form-control" id="bbName" placeholder="Full Name" required><br>
+          <input type="text" class="form-control" id="bbPhone" placeholder="Mobile Number" required><br>
+          <input type="text" class="form-control" id="bbAddress" placeholder="Address" required><br>
+          <select class="form-control" id="bbGroup" required>
+            <option value="">Select Blood Group</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+          </select><br>
+          <button type="submit" class="btn btn-success btn-block">Add Donor</button>
+        </form>
+        <hr>
+        <h4>സന്നദ്ധരായവർ:</h4>
+        <div id="bloodBankList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 | Designed & Developed by <span>Muhsin Mannani</span></footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <script>
-const students = [
-    {name:"RAZI", LISAN:27, THAREEKH:60, FIQH:52, DUROOS:60},
-    {name:"NISHAN", LISAN:40, THAREEKH:86, FIQH:82, DUROOS:89},
-    {name:"HAMDAN", LISAN:43, THAREEKH:39, FIQH:70, DUROOS:55},
-    {name:"JAZLAN", LISAN:89, THAREEKH:98, FIQH:96, DUROOS:97},
-    {name:"FAHEEM", LISAN:24, THAREEKH:61, FIQH:47, DUROOS:45},
-    {name:"SHAZIN", LISAN:41, THAREEKH:75, FIQH:67, DUROOS:78},
-    {name:"ASLAHA", LISAN:41, THAREEKH:85, FIQH:52, DUROOS:60},
-    {name:"FATHIMA", LISAN:83, THAREEKH:100, FIQH:96, DUROOS:100},
-    {name:"SUHAILA", LISAN:50, THAREEKH:86, FIQH:81, DUROOS:78},
-    {name:"SANA", LISAN:33, THAREEKH:70, FIQH:67, DUROOS:88},
-    {name:"RANA", LISAN:35, THAREEKH:70, FIQH:76, DUROOS:75}
-];
+/* പഴയ ഫംഗ്ഷനുകൾ */
+function openResult(){ alert("Result not yet published"); }
+function openDashboard(){ window.location.href="https://mannanimuhsin-sys.github.io/my-website/index_6.html"; }
+function openLocation(){ window.location.href="https://maps.google.com/?q=Peruvana"; }
 
-const studentSearch = document.getElementById("studentSearch");
-const resultBox = document.getElementById("resultBox");
-const studentNameEl = document.getElementById("studentName");
-const resultGrid = document.getElementById("resultGrid");
-const studentStatus = document.getElementById("studentStatus");
+/* നിങ്ങൾ പുതുതായി ഉണ്ടാക്കിയ ഫയർബേസ് കോൺഫിഗറേഷൻ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
+  authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
+  projectId: "misbahul-uloom-madrasa-4830c",
+  storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app",
+  messagingSenderId: "370558703441",
+  appId: "1:370558703441:web:dc68dbdbd685c9d07ea570",
+  measurementId: "G-Q2GZ1R1CTL"
+};
 
-/* STATUS LOGIC – IMAGE RULE */
-function calculateStatus(student){
-    const marks = [
-        student.LISAN,
-        student.THAREEKH,
-        student.FIQH,
-        student.DUROOS
-    ];
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-    const total = marks.reduce((a,b)=>a+b,0);
-    let status = "";
+/* ഡാറ്റ സേവ് ചെയ്യാൻ */
+document.getElementById("bloodBankForm").addEventListener("submit", e => {
+  e.preventDefault();
+  db.collection("donors").add({
+    name: document.getElementById("bbName").value,
+    phone: document.getElementById("bbPhone").value,
+    address: document.getElementById("bbAddress").value,
+    group: document.getElementById("bbGroup").value,
+    time: Date.now()
+  }).then(() => {
+    document.getElementById("bloodBankForm").reset();
+    alert("വിവരങ്ങൾ ചേർത്തു!");
+  });
+});
 
-    if (marks.some(m => m < 30)) {
-        status = "FAILED";
-    }
-    else if (marks.every(m => m >= 97)) {
-        status = "TOP PLUS";
-    }
-    else if (marks.every(m => m >= 80)) {
-        status = "DISTINCTION";
-    }
-    else if (marks.every(m => m >= 60)) {
-        status = "FIRST CLASS";
-    }
-    else if (marks.every(m => m >= 50)) {
-        status = "SECOND CLASS";
-    }
-    else {
-        status = "THIRD CLASS";
-    }
-
-    return { total, status };
-}
-
-studentSearch.addEventListener("input", function(){
-    const name = this.value.trim().toUpperCase();
-    const student = students.find(s => s.name === name);
-
-    if(student){
-        const { total, status } = calculateStatus(student);
-
-        studentNameEl.innerText = student.name;
-
-        resultGrid.innerHTML = `
-            <div class="header">Subject</div><div class="header">Marks</div>
-            <div>LISAN</div><div>${student.LISAN}</div>
-            <div>THAREEKH</div><div>${student.THAREEKH}</div>
-            <div>FIQH</div><div>${student.FIQH}</div>
-            <div>DUROOS</div><div>${student.DUROOS}</div>
-            <div><b>Total</b></div><div><b>${total}</b></div>
-        `;
-
-        studentStatus.innerText = "Status : " + status;
-        studentStatus.classList.remove("failed");
-
-        if(status === "FAILED"){
-            studentStatus.classList.add("failed");
-        }
-
-        resultBox.style.display = "block";
-    } else {
-        resultBox.style.display = "none";
-    }
+/* ഡാറ്റ ലിസ്റ്റ് ചെയ്യാൻ */
+db.collection("donors").orderBy("time", "desc").onSnapshot(snapshot => {
+  const list = document.getElementById("bloodBankList");
+  list.innerHTML = "";
+  snapshot.forEach(doc => {
+    const d = doc.data();
+    const card = document.createElement("div");
+    card.className = "blood-card";
+    card.innerHTML = `
+      <div>
+        <h5>${d.name} (${d.group})</h5>
+        <p>${d.address}</p>
+      </div>
+      <div class="contact-icons">
+        <a href="tel:${d.phone}"><i class="fas fa-phone"></i></a>
+        <a href="https://wa.me/91${d.phone.replace(/\s/g, '')}" target="_blank"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    `;
+    list.appendChild(card);
+  });
 });
 </script>
-
-<footer>
-    MUHSIN MANNANI | 7559950633
-</footer>
-
 </body>
 </html>
