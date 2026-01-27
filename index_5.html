@@ -5,7 +5,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Bootstrap 3 -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 
 <style>
@@ -13,7 +12,6 @@ body{
     background:#f4f6f8;
 }
 
-/* JUMBOTRON */
 .jumbotron{
     background-image:
       linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
@@ -26,7 +24,6 @@ body{
     padding:80px 10px;
 }
 
-/* CONTENT BOX */
 .box{
     background:white;
     padding:20px;
@@ -35,7 +32,6 @@ body{
     margin-bottom:20px;
 }
 
-/* EXECUTIVE LINK CARD */
 .exec-link{
     display:block;
     margin-top:12px;
@@ -61,7 +57,6 @@ body{
     opacity:0.9;
 }
 
-/* FOOTER */
 footer{
     background:#2c3e50;
     color:#fff;
@@ -75,7 +70,6 @@ footer span{
     font-weight:600;
 }
 
-/* MOBILE FIX */
 @media (max-width: 768px){
     .jumbotron{
         padding:45px 15px;
@@ -93,46 +87,37 @@ footer span{
 <body>
 
 <div style="background-color: rgb(38, 9, 227);" class="jumbotron text-center">
-    <h1>MISBAHUL ULOOM MADRASA</h1>
-    <h2>PERUVANA</h2>
-    <p>Under,Samastha Kerala Islam Matha Vidyabhyasa Board (SKIMVB) Reg.No:4224</p>
+<h1>MISBAHUL ULOOM MADRASA</h1>
+<h2>PERUVANA</h2>
+<p>Under, Samastha Kerala Islam Matha Vidyabhyasa Board (SKIMVB) Reg.No:4224</p>
 </div>
 
 <div class="container">
 <div class="row">
 
-<!-- ABOUT / DASHBOARD -->
 <div class="col-sm-4">
 <div class="box">
 <h3>📘 മദ്റസ വിവരം</h3>
 <p>ഇത് Misbahul Uloom Madrasa Peruvana യുടെ ഔദ്യോഗിക വെബ് പേജാണ്.</p>
 
-<button class="btn btn-primary btn-block" onclick="openDashboard()">
-📊 Dashboard
-</button>
+<button class="btn btn-primary btn-block" onclick="openDashboard()">📊 Dashboard</button>
 
-<a href="https://mannanimuhsin-sys.github.io/my-website/index_7.html"
-   target="_blank"
-   class="exec-link">
+<a href="https://mannanimuhsin-sys.github.io/my-website/index_7.html" target="_blank" class="exec-link">
 <h4>📋 ക്ലാസ് വിദ്യാർത്ഥി വിവരങ്ങൾ</h4>
 <p>Class-wise student strength & details</p>
 </a>
-
 </div>
 </div>
 
-<!-- RESULT -->
 <div class="col-sm-4">
 <div class="box text-center">
 <h3>📊 പരീക്ഷ ഫലം</h3>
 <p>2026 വാർഷിക പരീക്ഷയുടെ ഫലങ്ങൾ ഇവിടെ പ്രസിദ്ധീകരിക്കും.</p>
-<p>🔒 Result page is password protected</p>
+<p>🔔 Result will be announced soon</p>
 <button class="btn btn-primary btn-block" onclick="openResult()">Result View</button>
 </div>
 </div>
 
-
-<!-- LOCATION VIEW -->
 <div class="col-sm-4">
 <div class="box text-center">
 <h3>📍 Location View</h3>
@@ -141,38 +126,26 @@ footer span{
 </div>
 </div>
 
-<!-- CONTACT -->
 <div class="col-sm-4">
 <div class="box">
+
 <h3>📞 ബന്ധപ്പെടുക</h3>
 
 <h4>സദർ മുഅല്ലിം</h4>
 <p><b>മുഹ്സിൻ മന്നാനി</b></p>
 <p>7559950633</p>
-<p>
-<a href="tel:7559950633">📞 Call</a> |
-<a href="https://wa.me/917559950633" target="_blank">💬 WhatsApp</a>
-</p>
 
 <hr>
 
 <h4>സെക്രട്ടറി</h4>
 <p><b>മൊയിദു പി. കെ</b></p>
 <p>8304016701</p>
-<p>
-<a href="tel:8304016701">📞 Call</a> |
-<a href="https://wa.me/918304016701" target="_blank">💬 WhatsApp</a>
-</p>
 
 <hr>
 
 <h4>മദ്റസ ഇൻചാർജ്</h4>
 <p><b>ജംഷീർ ദാരിമി</b></p>
 <p>9746969716</p>
-<p>
-<a href="tel:9746969716">📞 Call</a> |
-<a href="https://wa.me/9746969716" target="_blank">💬 WhatsApp</a>
-</p>
 
 </div>
 </div>
@@ -185,39 +158,74 @@ footer span{
 </footer>
 
 <script>
-let password = localStorage.getItem("resPass") || "7559";
+
+/* ===== RESULT SWITCH ===== */
+/* false = show notification */
+/* true  = open result page */
+
+let resultPublished = false;
 
 function openResult(){
-    let p = prompt("Enter Result Password");
-    if(p === password){
-        window.location.href =
-        "https://mannanimuhsin-sys.github.io/my-website/index_3.html";
-    }else{
-        alert("Wrong Password");
-    }
+
+if(resultPublished){
+window.location.href =
+"https://mannanimuhsin-sys.github.io/my-website/index_3.html";
+return;
+}
+
+let overlay = document.createElement("div");
+overlay.style.position="fixed";
+overlay.style.top=0;
+overlay.style.left=0;
+overlay.style.width="100%";
+overlay.style.height="100%";
+overlay.style.background="rgba(0,0,0,0.6)";
+overlay.style.display="flex";
+overlay.style.alignItems="center";
+overlay.style.justifyContent="center";
+overlay.style.zIndex="9999";
+
+overlay.innerHTML = `
+<div style="
+background:#fff;
+padding:30px;
+border-radius:16px;
+max-width:360px;
+width:90%;
+text-align:center;
+box-shadow:0 10px 25px rgba(0,0,0,.3);
+">
+<h3 style="color:#dc3545;">ക്ഷമിക്കണം</h3>
+<p style="line-height:1.7;">
+ദയവായി കാത്തിരിക്കു...<br>
+നിലവിൽ റിസൽട്ട് പ്രസിദ്ധീകരിച്ചിട്ടില്ല<br>
+<b>പ്രസിദ്ധീകരണ തീയതിയും സമയവും പിന്നീട് അറിയിക്കും</b>
+</p>
+<button onclick="this.parentElement.parentElement.remove()" style="
+background:#198754;
+border:none;
+color:white;
+padding:10px 25px;
+border-radius:25px;
+">
+OK
+</button>
+</div>
+`;
+
+document.body.appendChild(overlay);
 }
 
 function openDashboard(){
-    window.location.href =
-    "https://mannanimuhsin-sys.github.io/my-website/index_6.html";
+window.location.href =
+"https://mannanimuhsin-sys.github.io/my-website/index_6.html";
 }
 
 function openLocation(){
-    window.location.href =
-    "https://maps.app.goo.gl/SZLnKkTARKPHvsVR8?g_st=aw";
+window.location.href =
+"https://maps.app.goo.gl/SZLnKkTARKPHvsVR8?g_st=aw";
 }
 
-document.querySelector(".jumbotron").ondblclick = function(){
-    let oldPass = prompt("Enter Current Password");
-    if(oldPass === password){
-        let newPass = prompt("Enter New Password");
-        if(newPass){
-            password = newPass;
-            localStorage.setItem("resPass", newPass);
-            alert("Password Changed Successfully");
-        }
-    }
-};
 </script>
 
 </body>
