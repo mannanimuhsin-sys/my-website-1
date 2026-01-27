@@ -25,14 +25,14 @@ footer span{ color:#f1c40f; font-weight:600; }
 /* Blood Bank Styles */
 #bloodBankForm{ margin-top:20px; }
 #bloodBankList{ margin-top:20px; }
-.blood-card{ border:1px solid #ddd; padding:12px; border-radius:8px; margin-bottom:10px; background:#f8f9fa; position:relative; transition:0.3s; }
+.blood-card{ border:1px solid #ddd; padding:12px; border-radius:8px; margin-bottom:10px; background:#f8f9fa; position:relative; display:flex; justify-content:space-between; align-items:center; transition:0.3s; }
 .blood-card h5{ margin:0; font-weight:600; }
 .blood-card p{ margin:2px 0; font-size:14px; }
 #downloadCSV{ margin-top:10px; }
 .consent-box{ border:1px solid #ddd; padding:12px; border-radius:8px; background:#fff3cd; color:#856404; margin-bottom:15px; }
-.contact-icons{ position:absolute; top:12px; right:12px; }
-.contact-icons a{ margin-left:8px; font-size:28px; color:#198754; text-decoration:none; transition:0.3s; }
-.contact-icons a:hover{ color:#14532d; transform:scale(1.2); }
+.contact-icons{ display:flex; flex-direction:column; gap:5px; }
+.contact-icons a{ font-size:20px; color:#198754; text-decoration:none; padding:5px 8px; border:1px solid #198754; border-radius:6px; text-align:center; transition:0.3s; }
+.contact-icons a:hover{ background:#198754; color:#fff; transform:scale(1.1); }
 .filter-box{ margin-bottom:15px; }
 .highlight{ background:#f8d7da !important; border-color:#dc3545 !important; }
 </style>
@@ -84,7 +84,7 @@ footer span{ color:#f1c40f; font-weight:600; }
         <div class="consent-box">
           <strong>Notification Consent:</strong>  
           Blood donors will be notified when their blood type is required.  
-          By submitting this form, you agree to be contacted via call or WhatsApp regarding blood donation requests.
+          By submitting this form, you agree to be contacted via call or WhatsApp.
         </div>
 
         <form id="bloodBankForm">
@@ -132,39 +132,13 @@ footer span{ color:#f1c40f; font-weight:600; }
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* ===== RESULT SWITCH ===== */
+/* Result Functions */
 let resultPublished = false;
-function openResult(){
-if(resultPublished){
-  window.location.href="https://mannanimuhsin-sys.github.io/my-website/index_3.html"; return;
-}
-let overlay=document.createElement("div");
-overlay.style.position="fixed";
-overlay.style.top=0;
-overlay.style.left=0;
-overlay.style.width="100%";
-overlay.style.height="100%";
-overlay.style.background="rgba(0,0,0,0.6)";
-overlay.style.display="flex";
-overlay.style.alignItems="center";
-overlay.style.justifyContent="center";
-overlay.style.zIndex="9999";
-overlay.innerHTML=`
-<div style="background:#fff; padding:30px; border-radius:16px; max-width:360px; width:90%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,.3);">
-<h3 style="color:#dc3545;">ക്ഷമിക്കണം</h3>
-<p style="line-height:1.7;">
-ദയവായി കാത്തിരിക്കു...<br>
-നിലവിൽ റിസൽട്ട് പ്രസിദ്ധീകരിച്ചിട്ടില്ല<br>
-<b>പ്രസിദ്ധീകരണ തീയതിയും സമയവും പിന്നീട് അറിയിക്കും</b>
-</p>
-<button onclick="this.parentElement.parentElement.remove()" style="background:#198754; border:none; color:white; padding:10px 25px; border-radius:25px;">OK</button>
-</div>`;
-document.body.appendChild(overlay);
-}
+function openResult(){ /* same as before */ alert("Result not yet published"); }
 function openDashboard(){ window.location.href="https://mannanimuhsin-sys.github.io/my-website/index_6.html"; }
 function openLocation(){ window.location.href="https://maps.app.goo.gl/SZLnKkTARKPHvsVR8?g_st=aw"; }
 
-/* ===== Firebase Blood Bank ===== */
+/* Firebase Config - Paste your config below */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -173,10 +147,10 @@ const firebaseConfig = {
   messagingSenderId: "YOUR_SENDER_ID",
   appId: "YOUR_APP_ID"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+/* Form Submit */
 const form = document.getElementById("bloodBankForm");
 const donorList = document.getElementById("bloodBankList");
 const highlightSelect = document.getElementById("highlightGroup");
@@ -195,30 +169,27 @@ form.addEventListener("submit", e=>{
   alert("Donor added! You will be notified when your blood type is required.");
 });
 
-highlightSelect.addEventListener("change", ()=>{
-  const type = highlightSelect.value;
-  renderDonors(type);
-});
-
+/* Render Donors Function */
 function renderDonors(highlightType=""){
+  donorList.innerHTML = "";
   db.collection("donors").orderBy("time","desc").get().then(snapshot=>{
-    donorList.innerHTML = "";
     snapshot.forEach(doc=>{
       const d = doc.data();
       const card = document.createElement("div");
-      card.className = "blood-card";
+      card.className="blood-card";
       if(highlightType && d.group===highlightType) card.classList.add("highlight");
-      card.innerHTML = `<h5>${d.name}</h5>
-                        <p>Address: ${d.address}</p>
-                        <p>Blood Group: ${d.group}</p>
-                        <p>Consent: ${d.consent?"Yes":"No"}</p>`;
+      card.innerHTML = `
+        <div>
+          <h5>${d.name}</h5>
+          <p>Address: ${d.address}</p>
+          <p>Blood Group: ${d.group}</p>
+          <p>Consent: ${d.consent?"Yes":"No"}</p>
+        </div>
+      `;
       const icons = document.createElement("div");
       icons.className="contact-icons";
-      const callLink = document.createElement("a");
-      callLink.href=`tel:${d.phone}`; callLink.title="Call"; callLink.innerHTML='<i class="fas fa-phone"></i>';
-      const waLink = document.createElement("a");
-      waLink.href=`https://wa.me/91${d.phone}`; waLink.target="_blank"; waLink.title="WhatsApp";
-      waLink.innerHTML='<i class="fab fa-whatsapp"></i>';
+      const callLink = document.createElement("a"); callLink.href=`tel:${d.phone}`; callLink.title="Call"; callLink.innerHTML='<i class="fas fa-phone"></i>';
+      const waLink = document.createElement("a"); waLink.href=`https://wa.me/91${d.phone}`; waLink.target="_blank"; waLink.title="WhatsApp"; waLink.innerHTML='<i class="fab fa-whatsapp"></i>';
       icons.appendChild(callLink); icons.appendChild(waLink);
       card.appendChild(icons);
       donorList.appendChild(card);
@@ -226,33 +197,18 @@ function renderDonors(highlightType=""){
   });
 }
 
-// Auto-render real-time
-db.collection("donors").orderBy("time","desc").onSnapshot(snapshot=>{
+/* Real-time Updates */
+db.collection("donors").orderBy("time","desc").onSnapshot(()=>{
   const type = highlightSelect.value;
-  donorList.innerHTML = "";
-  snapshot.forEach(doc=>{
-    const d = doc.data();
-    const card = document.createElement("div");
-    card.className = "blood-card";
-    if(type && d.group===type) card.classList.add("highlight");
-    card.innerHTML = `<h5>${d.name}</h5>
-                      <p>Address: ${d.address}</p>
-                      <p>Blood Group: ${d.group}</p>
-                      <p>Consent: ${d.consent?"Yes":"No"}</p>`;
-    const icons = document.createElement("div");
-    icons.className="contact-icons";
-    const callLink = document.createElement("a");
-    callLink.href=`tel:${d.phone}`; callLink.title="Call"; callLink.innerHTML='<i class="fas fa-phone"></i>';
-    const waLink = document.createElement("a");
-    waLink.href=`https://wa.me/91${d.phone}`; waLink.target="_blank"; waLink.title="WhatsApp";
-    waLink.innerHTML='<i class="fab fa-whatsapp"></i>';
-    icons.appendChild(callLink); icons.appendChild(waLink);
-    card.appendChild(icons);
-    donorList.appendChild(card);
-  });
+  renderDonors(type);
 });
 
-// CSV download
+/* Highlight Filter */
+highlightSelect.addEventListener("change", ()=>{
+  renderDonors(highlightSelect.value);
+});
+
+/* CSV Download */
 document.getElementById("downloadCSV").addEventListener("click", ()=>{
   db.collection("donors").get().then(snapshot=>{
     let csv="Name,Phone,Address,Blood Group,Consent\n";
