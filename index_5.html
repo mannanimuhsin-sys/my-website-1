@@ -23,17 +23,10 @@ footer span{ color:#f1c40f; font-weight:600; }
 @media(max-width:768px){ .jumbotron{ padding:45px 15px; } .jumbotron h1{ font-size:24px; } .jumbotron h2{ font-size:16px; } }
 
 /* Blood Bank Styles */
-#bloodBankForm{ margin-top:20px; }
-#bloodBankList{ margin-top:20px; }
-.blood-card{ border:1px solid #ddd; padding:12px; border-radius:8px; margin-bottom:10px; background:#f8f9fa; position:relative; display:flex; justify-content:space-between; align-items:center; transition:0.3s; }
-.blood-card h5{ margin:0; font-weight:600; }
-.blood-card p{ margin:2px 0; font-size:14px; }
-#downloadCSV{ margin-top:10px; }
-.consent-box{ border:1px solid #ddd; padding:12px; border-radius:8px; background:#fff3cd; color:#856404; margin-bottom:15px; }
+.blood-card{ border:1px solid #ddd; padding:12px; border-radius:8px; margin-bottom:10px; background:#f8f9fa; display:flex; justify-content:space-between; align-items:center; }
+.blood-card h5{ margin:0; font-weight:600; color: #d9534f; }
 .contact-icons{ display:flex; flex-direction:column; gap:5px; }
-.contact-icons a{ font-size:20px; color:#198754; text-decoration:none; padding:5px 8px; border:1px solid #198754; border-radius:6px; text-align:center; transition:0.3s; }
-.contact-icons a:hover{ background:#198754; color:#fff; transform:scale(1.1); }
-.filter-box{ margin-bottom:15px; }
+.contact-icons a{ font-size:20px; color:#198754; padding:5px 8px; border:1px solid #198754; border-radius:6px; text-align:center; }
 .highlight{ background:#f8d7da !important; border-color:#dc3545 !important; }
 </style>
 </head>
@@ -47,7 +40,6 @@ footer span{ color:#f1c40f; font-weight:600; }
 
 <div class="container">
   <div class="row">
-    <!-- Existing Sections -->
     <div class="col-sm-4">
       <div class="box">
         <h3>📘 മദ്റസ വിവരം</h3>
@@ -64,7 +56,6 @@ footer span{ color:#f1c40f; font-weight:600; }
       <div class="box text-center">
         <h3>📊 പരീക്ഷ ഫലം</h3>
         <p>2026 വാർഷിക പരീക്ഷയുടെ ഫലങ്ങൾ ഇവിടെ പ്രസിദ്ധീകരിക്കും.</p>
-        <p>🔔 Result will be announced soon</p>
         <button class="btn btn-primary btn-block" onclick="openResult()">Result View</button>
       </div>
     </div>
@@ -77,150 +68,87 @@ footer span{ color:#f1c40f; font-weight:600; }
       </div>
     </div>
 
-    <!-- Blood Bank Section BELOW Location -->
     <div class="col-sm-12">
       <div class="box">
-        <h3>🩸 Blood Bank – Donor Add & View</h3>
-        <div class="consent-box">
-          <strong>Notification Consent:</strong>  
-          Blood donors will be notified when their blood type is required.  
-          By submitting this form, you agree to be contacted via call or WhatsApp.
-        </div>
-
+        <h3>🩸 Blood Bank – Donor Registration</h3>
         <form id="bloodBankForm">
           <input type="text" class="form-control" id="bbName" placeholder="Full Name" required><br>
           <input type="text" class="form-control" id="bbPhone" placeholder="Mobile Number" required><br>
-          <input type="text" class="form-control" id="bbAddress" placeholder="Full Address" required><br>
+          <input type="text" class="form-control" id="bbAddress" placeholder="Address" required><br>
           <select class="form-control" id="bbGroup" required>
             <option value="">Select Blood Group</option>
-            <option>A+</option><option>A-</option>
-            <option>B+</option><option>B-</option>
-            <option>AB+</option><option>AB-</option>
-            <option>O+</option><option>O-</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
           </select><br>
-          <div class="checkbox">
-            <label><input type="checkbox" id="bbConsent" required> I agree to be notified when my blood type is needed.</label>
-          </div><br>
           <button type="submit" class="btn btn-success btn-block">Add Donor</button>
         </form>
-
-        <div class="filter-box">
-          <label>Highlight Blood Type Needed:</label>
-          <select class="form-control" id="highlightGroup">
-            <option value="">Select Blood Type</option>
-            <option>A+</option><option>A-</option>
-            <option>B+</option><option>B-</option>
-            <option>AB+</option><option>AB-</option>
-            <option>O+</option><option>O-</option>
-          </select>
-        </div>
-
+        <hr>
+        <h4>സന്നദ്ധരായവർ:</h4>
         <div id="bloodBankList"></div>
-        <button class="btn btn-info" id="downloadCSV">Download CSV</button>
       </div>
     </div>
-
   </div>
 </div>
 
-<footer>
-© 2026 | Designed & Developed by <span>Muhsin Mannani</span>
-</footer>
+<footer>© 2026 | Designed & Developed by <span>Muhsin Mannani</span></footer>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* Result Functions */
-let resultPublished = false;
-function openResult(){ /* same as before */ alert("Result not yet published"); }
+/* പഴയ ഫംഗ്ഷനുകൾ */
+function openResult(){ alert("Result not yet published"); }
 function openDashboard(){ window.location.href="https://mannanimuhsin-sys.github.io/my-website/index_6.html"; }
-function openLocation(){ window.location.href="https://maps.app.goo.gl/SZLnKkTARKPHvsVR8?g_st=aw"; }
+function openLocation(){ window.location.href="https://maps.google.com/?q=Peruvana"; }
 
-/* Firebase Config - Paste your config below */
+/* നിങ്ങൾ പുതുതായി ഉണ്ടാക്കിയ ഫയർബേസ് കോൺഫിഗറേഷൻ */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
+  authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
+  projectId: "misbahul-uloom-madrasa-4830c",
+  storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app",
+  messagingSenderId: "370558703441",
+  appId: "1:370558703441:web:dc68dbdbd685c9d07ea570",
+  measurementId: "G-Q2GZ1R1CTL"
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* Form Submit */
-const form = document.getElementById("bloodBankForm");
-const donorList = document.getElementById("bloodBankList");
-const highlightSelect = document.getElementById("highlightGroup");
-
-form.addEventListener("submit", e=>{
+/* ഡാറ്റ സേവ് ചെയ്യാൻ */
+document.getElementById("bloodBankForm").addEventListener("submit", e => {
   e.preventDefault();
-  const name = document.getElementById("bbName").value;
-  const phone = document.getElementById("bbPhone").value;
-  const address = document.getElementById("bbAddress").value;
-  const group = document.getElementById("bbGroup").value;
-  const consent = document.getElementById("bbConsent").checked;
-
-  db.collection("donors").add({ name, phone, address, group, consent, time: Date.now() });
-
-  form.reset();
-  alert("Donor added! You will be notified when your blood type is required.");
-});
-
-/* Render Donors Function */
-function renderDonors(highlightType=""){
-  donorList.innerHTML = "";
-  db.collection("donors").orderBy("time","desc").get().then(snapshot=>{
-    snapshot.forEach(doc=>{
-      const d = doc.data();
-      const card = document.createElement("div");
-      card.className="blood-card";
-      if(highlightType && d.group===highlightType) card.classList.add("highlight");
-      card.innerHTML = `
-        <div>
-          <h5>${d.name}</h5>
-          <p>Address: ${d.address}</p>
-          <p>Blood Group: ${d.group}</p>
-          <p>Consent: ${d.consent?"Yes":"No"}</p>
-        </div>
-      `;
-      const icons = document.createElement("div");
-      icons.className="contact-icons";
-      const callLink = document.createElement("a"); callLink.href=`tel:${d.phone}`; callLink.title="Call"; callLink.innerHTML='<i class="fas fa-phone"></i>';
-      const waLink = document.createElement("a"); waLink.href=`https://wa.me/91${d.phone}`; waLink.target="_blank"; waLink.title="WhatsApp"; waLink.innerHTML='<i class="fab fa-whatsapp"></i>';
-      icons.appendChild(callLink); icons.appendChild(waLink);
-      card.appendChild(icons);
-      donorList.appendChild(card);
-    });
+  db.collection("donors").add({
+    name: document.getElementById("bbName").value,
+    phone: document.getElementById("bbPhone").value,
+    address: document.getElementById("bbAddress").value,
+    group: document.getElementById("bbGroup").value,
+    time: Date.now()
+  }).then(() => {
+    document.getElementById("bloodBankForm").reset();
+    alert("വിവരങ്ങൾ ചേർത്തു!");
   });
-}
-
-/* Real-time Updates */
-db.collection("donors").orderBy("time","desc").onSnapshot(()=>{
-  const type = highlightSelect.value;
-  renderDonors(type);
 });
 
-/* Highlight Filter */
-highlightSelect.addEventListener("change", ()=>{
-  renderDonors(highlightSelect.value);
-});
-
-/* CSV Download */
-document.getElementById("downloadCSV").addEventListener("click", ()=>{
-  db.collection("donors").get().then(snapshot=>{
-    let csv="Name,Phone,Address,Blood Group,Consent\n";
-    snapshot.forEach(d=>{
-      const data = d.data();
-      csv += `${data.name},${data.phone},${data.address},${data.group},${data.consent?"Yes":"No"}\n`;
-    });
-    const blob = new Blob([csv],{type:"text/csv"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href=url; a.download="blood_donors.csv"; a.click();
-    URL.revokeObjectURL(url);
+/* ഡാറ്റ ലിസ്റ്റ് ചെയ്യാൻ */
+db.collection("donors").orderBy("time", "desc").onSnapshot(snapshot => {
+  const list = document.getElementById("bloodBankList");
+  list.innerHTML = "";
+  snapshot.forEach(doc => {
+    const d = doc.data();
+    const card = document.createElement("div");
+    card.className = "blood-card";
+    card.innerHTML = `
+      <div>
+        <h5>${d.name} (${d.group})</h5>
+        <p>${d.address}</p>
+      </div>
+      <div class="contact-icons">
+        <a href="tel:${d.phone}"><i class="fas fa-phone"></i></a>
+        <a href="https://wa.me/91${d.phone.replace(/\s/g, '')}" target="_blank"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    `;
+    list.appendChild(card);
   });
 });
 </script>
