@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Portal | Misbahul Uloom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f0f4f8; font-family: 'Poppins', sans-serif; padding: 15px; }
+        .main-card { background: #ffffff; max-width: 500px; margin: 20px auto; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 8px solid #198754; }
+        .nav-tabs { border-bottom: none; margin-bottom: 20px; }
+        .nav-tabs > li { width: 50%; text-align: center; }
+        .nav-tabs > li > a { border-radius: 10px; font-weight: 600; color: #555; background: #eee; margin: 5px; }
+        .nav-tabs > li.active > a { background: #198754 !important; color: white !important; border: none; }
+        .form-label { font-weight: 600; color: #333; margin-top: 10px; display: block; }
+        .form-control { border-radius: 10px; height: 45px; }
+        .btn-action { background: #198754; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 16px; font-weight: 600; width: 100%; margin-top: 20px; }
+        .upload-box { border: 2px dashed #198754; border-radius: 12px; padding: 15px; text-align: center; background: #f9fffb; cursor: pointer; }
+        .profile-result { background: white; padding: 20px; border-radius: 20px; text-align: center; border: 1px solid #ddd; display: none; margin-top: 20px; }
+        .profile-result img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #198754; margin-bottom: 15px; }
+        #loading { display: none; text-align: center; color: #198754; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="main-card" id="authCard">
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#loginTab">ലോഗിൻ</a></li>
+        <li><a data-toggle="tab" href="#regTab">ക്രിയേറ്റ്</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="loginTab" class="tab-pane fade in active">
+            <h4 class="text-center">പ്രൊഫൈൽ കാണാൻ ലോഗിൻ ചെയ്യുക</h4>
+            <form id="loginForm">
+                <label class="form-label">മൊബൈൽ നമ്പർ</label>
+                <input type="tel" id="lPhone" class="form-control" required>
+                <label class="form-label">പാസ്‌വേഡ്</label>
+                <input type="password" id="lPass" class="form-control" required>
+                <button type="submit" class="btn-action">ലോഗിൻ</button>
+            </form>
+        </div>
+
+        <div id="regTab" class="tab-pane fade">
+            <h4 class="text-center">പുതിയ കുട്ടിയെ ചേർക്കുക</h4>
+            <form id="regForm">
+                <label class="form-label">പേര്</label>
+                <input type="text" id="rName" class="form-control" required>
+                <label class="form-label">ക്ലാസ്</label>
+                <input type="text" id="rClass" class="form-control" required>
+                <label class="form-label">മൊബൈൽ നമ്പർ</label>
+                <input type="tel" id="rPhone" class="form-control" required>
+                
+                <p style="color:red; font-size:11px; margin-top:10px;">പാസ്‌വേഡ് നമ്പർ മാത്രം നൽകുക</p>
+                <label class="form-label">പാസ്‌വേഡ്</label>
+                <input type="number" id="rPass" class="form-control" required>
+                <label class="form-label">കൺഫോം പാസ്‌വേഡ്</label>
+                <input type="number" id="rcPass" class="form-control" required>
+
+                <label class="form-label">ഫോട്ടോ (Max 2MB)</label>
+                <div class="upload-box" onclick="document.getElementById('rPhoto').click()">
+                    <i class="fas fa-camera"></i> <span id="fileTxt">ഫോട്ടോ തിരഞ്ഞെടുക്കുക</span>
+                    <input type="file" id="rPhoto" style="display:none" accept="image/*" required onchange="checkFile(this)">
+                </div>
+                <button type="submit" id="regBtn" class="btn-action">സബ്മിറ്റ്</button>
+                <div id="loading">അപ്‌ലോഡ് ചെയ്യുന്നു...</div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="main-card profile-result" id="profileBox">
+    <img id="pImg" src="">
+    <h3 id="pName" style="color:#198754; margin:0;"></h3>
+    <p id="pDetails" style="color:#555; margin-top:10px;"></p>
+    <hr>
+    <button onclick="location.reload()" class="btn btn-default">തിരികെ പോകുക</button>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
+  authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
+  projectId: "misbahul-uloom-madrasa-4830c",
+  storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app",
+  messagingSenderId: "370558703441",
+  appId: "1:370558703441:web:dc68dbdbd685c9d07ea570"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const API_KEY = "6d207e02198a847aa98d0a2a901485a5";
+
+function checkFile(input) {
+    if(input.files[0] && input.files[0].size > 2 * 1024 * 1024) { alert("ഫയൽ വലുതാണ്!"); input.value=""; }
+    else if(input.files[0]) document.getElementById("fileTxt").innerText = input.files[0].name;
+}
+
+// രജിസ്‌ട്രേഷൻ ലോജിക്
+document.getElementById("regForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if(document.getElementById("rPass").value !== document.getElementById("rcPass").value) return alert("പാസ്‌വേഡ് മാറിക്കിടക്കുന്നു!");
+    
+    document.getElementById("regBtn").disabled = true;
+    document.getElementById("loading").style.display = "block";
+
+    try {
+        const file = document.getElementById("rPhoto").files[0];
+        const formData = new FormData(); formData.append("image", file);
+        const imgRes = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, { method: "POST", body: formData });
+        const imgData = await imgRes.json();
+
+        await db.collection("students").add({
+            name: document.getElementById("rName").value,
+            class: document.getElementById("rClass").value,
+            phone: document.getElementById("rPhone").value,
+            password: document.getElementById("rPass").value,
+            photo: imgData.data.url,
+            time: Date.now()
+        });
+        alert("വിജയകരമായി രജിസ്റ്റർ ചെയ്തു! ഇനി ലോഗിൻ ചെയ്യാം.");
+        location.reload();
+    } catch (err) { alert("Error: " + err.message); }
+});
+
+// ലോഗിൻ ലോജിക്
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const phone = document.getElementById("lPhone").value;
+    const pass = document.getElementById("lPass").value;
+
+    const snapshot = await db.collection("students")
+        .where("phone", "==", phone)
+        .where("password", "==", pass)
+        .get();
+
+    if (snapshot.empty) {
+        alert("തെറ്റായ നമ്പറോ പാസ്‌വേഡോ ആണ്!");
+    } else {
+        const user = snapshot.docs[0].data();
+        document.getElementById("authCard").style.display = "none";
+        document.getElementById("profileBox").style.display = "block";
+        document.getElementById("pImg").src = user.photo;
+        document.getElementById("pName").innerText = user.name;
+        document.getElementById("pDetails").innerHTML = "ക്ലാസ്: " + user.class + "<br>മൊബൈൽ: " + user.phone;
+    }
+});
+</script>
+</body>
+</html>
