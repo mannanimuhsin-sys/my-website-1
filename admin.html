@@ -3,42 +3,191 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Advanced Admin Panel | Misbahul Uloom</title>
+    <title>Admin Panel | Misbahul Uloom</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { background: #f0f2f5; font-family: 'Poppins', sans-serif; padding: 10px; }
-        .admin-header { background: #198754; color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        body { background: #f0f2f5; font-family: 'Poppins', sans-serif; padding-bottom: 80px; }
+        .admin-header { background: #198754; color: white; padding: 25px 15px; text-align: center; margin-bottom: 25px; border-radius: 0 0 30px 30px; }
         
-        /* ക്ലാസ് സെക്ഷൻ ഡിസൈൻ */
-        .class-group { margin-bottom: 15px; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .class-header { background: #fff; padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f2f5; transition: 0.3s; }
-        .class-header:hover { background: #f9f9f9; }
-        .class-header h3 { margin: 0; font-size: 18px; color: #198754; font-weight: 600; }
-        .student-list { display: none; padding: 10px; background: #fafafa; }
-
-        /* സ്റ്റുഡന്റ് കാർഡ് */
-        .student-card { background: white; border: 1px solid #eee; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; position: relative; }
-        .std-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-right: 15px; border: 2px solid #198754; }
+        /* ഓരോ ക്ലാസ് ബോക്സും */
+        .class-box { background: #fff; margin: 15px auto; max-width: 500px; border-radius: 12px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .class-btn { width: 100%; padding: 18px; border: none; background: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; }
+        .class-btn h3 { margin: 0; font-size: 17px; color: #198754; font-weight: 600; }
+        .student-count { background: #e8f5e9; color: #198754; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        
+        .student-list { display: none; padding: 10px; border-top: 1px solid #f0f0f0; background: #fafafa; }
+        .student-card { background: white; border: 1px solid #eee; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; }
+        .std-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 1px solid #198754; }
         .std-info { flex-grow: 1; }
-        .std-info h4 { margin: 0; font-size: 15px; font-weight: 600; }
-        .std-info p { margin: 2px 0; font-size: 12px; color: #666; }
-
-        .btn-edit { background: #ffc107; color: #000; border: none; padding: 5px 12px; border-radius: 5px; font-size: 12px; margin-left: 5px; }
-        .btn-download { background: #0d6efd; color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-bottom: 20px; width: 100%; font-weight: 600; }
+        .std-info h4 { margin: 0; font-size: 14px; font-weight: 600; }
+        .std-info p { margin: 1px 0; font-size: 11px; color: #666; }
         
-        /* എഡിറ്റ് മോഡൽ സ്റ്റൈൽ */
-        .edit-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; justify-content:center; align-items:center; }
-        .edit-box { background:white; padding:20px; border-radius:15px; width:90%; max-width:400px; }
+        .btn-edit { background: #f0ad4e; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 11px; }
+        
+        /* ഡൗൺലോഡ് ബട്ടൺ പേജിന്റെ താഴെ */
+        .footer-actions { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); text-align: center; }
+        .btn-download { background: #0d6efd; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 600; width: 90%; max-width: 400px; }
+        
+        /* എഡിറ്റ് ബോക്സ് */
+        .edit-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center; }
+        .edit-box { background:white; padding:20px; border-radius:15px; width:90%; max-width:350px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="admin-header">
-        <h2>മിസ്ബാഹുൽ ഉലൂം അഡ്മിൻ പാനൽ</h2>
-        <p>ക്ലാസ് അടിസ്ഥാനത്തിലുള്ള വിവരങ്ങൾ</p>
-    </div>
+<div class="admin-header">
+    <h3>മിസ്ബാഹുൽ ഉലൂം അഡ്മിൻ പാനൽ</h3>
+    <p>ക്ലാസ് അടിസ്ഥാനത്തിൽ കുട്ടികളുടെ വിവരങ്ങൾ</p>
+</div>
 
-    <button class="btn-download" onclick="downloadCSV()"><i class="glyphicon glyphicon-download-alt"></i> മുഴുവൻ വിവരങ്ങളും Excel/CSV ആക്കാം</button>
+<div class="container" id="classContainer">
+    <p class="text-center">വിവരങ്ങൾ ശേഖരിക്കുന്നു...</p>
+</div>
+
+<div class="edit-overlay" id="editModal">
+    <div class="edit-box">
+        <h4 style="color:#198754; font-weight:600;">വിവരങ്ങൾ തിരുത്തുക</h4>
+        <input type="hidden" id="editId">
+        <div class="form-group">
+            <label>പേര്:</label> <input type="text" id="editName" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>പിതാവ്:</label> <input type="text" id="editFather" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>ക്ലാസ്:</label> <input type="text" id="editClass" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>മൊബൈൽ:</label> <input type="tel" id="editPhone" class="form-control">
+        </div>
+        <button class="btn btn-success btn-block" onclick="updateStudent()">Update</button>
+        <button class="btn btn-default btn-block" onclick="closeEdit()">Cancel</button>
+    </div>
+</div>
+
+<div class="footer-actions">
+    <button class="btn-download" onclick="downloadCSV()">Excel ഫയൽ (CSV) ഡൗൺലോഡ് ചെയ്യുക</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
+  authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
+  projectId: "misbahul-uloom-madrasa-4830c",
+  storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app",
+  messagingSenderId: "370558703441",
+  appId: "1:370558703441:web:dc68dbdbd685c9d07ea570"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let allData = [];
+
+async function loadDashboard() {
+    const container = document.getElementById("classContainer");
+    try {
+        const snapshot = await db.collection("students").orderBy("class").get();
+        container.innerHTML = "";
+        allData = [];
+        let studentsByClass = {};
+
+        snapshot.forEach(doc => {
+            let data = doc.data();
+            data.id = doc.id;
+            allData.push(data);
+            let cName = data.class || "Others";
+            if (!studentsByClass[cName]) studentsByClass[cName] = [];
+            studentsByClass[cName].push(data);
+        });
+
+        for (let className in studentsByClass) {
+            let box = document.createElement("div");
+            box.className = "class-box";
+            box.innerHTML = `
+                <button class="class-btn" onclick="toggleList('${className}')">
+                    <h3>ക്ലാസ്: ${className}</h3>
+                    <span class="student-count">${studentsByClass[className].length} കുട്ടികൾ</span>
+                </button>
+                <div class="student-list" id="list-${className}">
+                    ${studentsByClass[className].map(s => `
+                        <div class="student-card">
+                            <img src="${s.photo}" class="std-img">
+                            <div class="std-info">
+                                <h4>${s.name}</h4>
+                                <p>പിതാവ്: ${s.father || 'N/A'}</p>
+                                <p>ഫോൺ: ${s.phone}</p>
+                            </div>
+                            <button class="btn-edit" onclick="openEdit('${s.id}', '${s.name}', '${s.father}', '${s.class}', '${s.phone}')">Edit</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(box);
+        }
+    } catch (err) { container.innerHTML = "Error loading data."; }
+}
+
+function toggleList(id) {
+    let list = document.getElementById("list-" + id);
+    list.style.display = list.style.display === "block" ? "none" : "block";
+}
+
+function openEdit(id, name, father, cls, phone) {
+    document.getElementById("editId").value = id;
+    document.getElementById("editName").value = name;
+    document.getElementById("editFather").value = father;
+    document.getElementById("editClass").value = cls;
+    document.getElementById("editPhone").value = phone;
+    document.getElementById("editModal").style.display = "flex";
+}
+
+function closeEdit() { document.getElementById("editModal").style.display = "none"; }
+
+async function updateStudent() {
+    let id = document.getElementById("editId").value;
+    try {
+        await db.collection("students").doc(id).update({
+            name: document.getElementById("editName").value,
+            father: document.getElementById("editFather").value,
+            class: document.getElementById("editClass").value,
+            phone: document.getElementById("editPhone").value
+        });
+        alert("തിരുത്തലുകൾ സേവ് ചെയ്തു!");
+        location.reload();
+    } catch (e) { alert("Error updating."); }
+}
+
+// CSV ഡൗൺലോഡ് ലോജിക് (Excel-ൽ തുറക്കാൻ സാധിക്കും)
+function downloadCSV() {
+    if (allData.length === 0) return alert("ഡാറ്റ ലഭ്യമല്ല!");
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Name,Father,Class,Phone,Blood,Gender\n"; // ഹെഡർ
+
+    allData.forEach(row => {
+        let name = row.name || "";
+        let father = row.father || "";
+        let cls = row.class || "";
+        let phone = row.phone || "";
+        let blood = row.blood || "";
+        let gender = row.gender || "";
+        csvContent += `${name},${father},${cls},${phone},${blood},${gender}\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Students_List.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+loadDashboard();
+</script>
+</body>
+</html>
