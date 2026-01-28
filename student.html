@@ -47,16 +47,41 @@
         <div id="regTab" class="tab-pane fade">
             <h4 class="text-center">പുതിയ കുട്ടിയെ ചേർക്കുക</h4>
             <form id="regForm">
-                <label class="form-label">പേര്</label>
+                <label class="form-label">കുട്ടിയുടെ പേര്</label>
                 <input type="text" id="rName" class="form-control" required>
+                
+                <label class="form-label">പിതാവിന്റെ പേര്</label>
+                <input type="text" id="rFather" class="form-control" required>
+                
+                <label class="form-label">ലിംഗഭേദം (Gender)</label>
+                <select id="rGender" class="form-control" required>
+                    <option value="">തിരഞ്ഞെടുക്കുക</option>
+                    <option value="പുരുഷൻ">പുരുഷൻ (Male)</option>
+                    <option value="സ്ത്രീ">സ്ത്രീ (Female)</option>
+                </select>
+
                 <label class="form-label">ക്ലാസ്</label>
                 <input type="text" id="rClass" class="form-control" required>
+                
+                <label class="form-label">ബ്ലഡ് ഗ്രൂപ്പ്</label>
+                <select id="rBlood" class="form-control">
+                    <option value="">തിരഞ്ഞെടുക്കുക</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                </select>
+
                 <label class="form-label">മൊബൈൽ നമ്പർ</label>
                 <input type="tel" id="rPhone" class="form-control" required>
                 
-                <p style="color:red; font-size:11px; margin-top:10px;">പാസ്‌വേഡ് നമ്പർ മാത്രം നൽകുക</p>
                 <label class="form-label">പാസ്‌വേഡ്</label>
                 <input type="number" id="rPass" class="form-control" required>
+                
                 <label class="form-label">കൺഫോം പാസ്‌വേഡ്</label>
                 <input type="number" id="rcPass" class="form-control" required>
 
@@ -67,7 +92,7 @@
                     <input type="file" id="rPhoto" style="display:none" accept="image/*" required onchange="checkFile(this)">
                 </div>
                 <button type="submit" id="regBtn" class="btn-action">സബ്മിറ്റ്</button>
-                <div id="loading"><i class="fas fa-spinner fa-spin"></i> വിവരങ്ങൾ സമർപ്പിക്കുന്നു... ദയവായി കാത്തിരിക്കൂ...</div>
+                <div id="loading"><i class="fas fa-spinner fa-spin"></i> വിവരങ്ങൾ സമർപ്പിക്കുന്നു...</div>
             </form>
         </div>
     </div>
@@ -76,7 +101,7 @@
 <div class="main-card profile-result" id="profileBox">
     <img id="pImg" src="">
     <h3 id="pName" style="color:#198754; margin:0;"></h3>
-    <p id="pDetails" style="color:#555; margin-top:10px;"></p>
+    <div id="pDetails" style="color:#555; margin-top:15px; text-align: left; padding: 0 20px;"></div>
     <hr>
     <button onclick="location.reload()" class="btn btn-default">തിരികെ പോകുക</button>
 </div>
@@ -87,7 +112,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
   authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
@@ -99,22 +123,18 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ImgBB API Key
 const API_KEY = "a0ec42450bb0e87699896f33dbd7c471";
 
-// ഫയൽ വലിപ്പം പരിശോധിക്കാനുള്ള ഫങ്ക്ഷൻ (5 MB)
 function checkFile(input) {
-    if(input.files[0] && input.files[0].size > 5 * 1024 * 1024) { 
+    if(input.files[0] && input.files[0].size > 5 * 1024 * 1024) {
         alert("ഫയൽ വലിപ്പം കൂടുതലാണ്! 5 MB-യിൽ താഴെയുള്ള ഫോട്ടോ ഉപയോഗിക്കുക."); 
         input.value=""; 
         document.getElementById("fileTxt").innerText = "ഫോട്ടോ തിരഞ്ഞെടുക്കുക";
-    }
-    else if(input.files[0]) {
+    } else if(input.files[0]) {
         document.getElementById("fileTxt").innerText = input.files[0].name;
     }
 }
 
-// രജിസ്‌ട്രേഷൻ ലോജിക്
 document.getElementById("regForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     if(document.getElementById("rPass").value !== document.getElementById("rcPass").value) {
@@ -131,38 +151,37 @@ document.getElementById("regForm").addEventListener("submit", async (e) => {
         const formData = new FormData();
         formData.append("image", file);
 
-        // ImgBB Upload
         const imgRes = await fetch("https://api.imgbb.com/1/upload?key=" + API_KEY, {
             method: "POST",
             body: formData
         });
         
-        if (!imgRes.ok) throw new Error("ഫോട്ടോ അപ്‌ലോഡ് പരാജയപ്പെട്ടു. ഇന്റർനെറ്റ് പരിശോധിക്കുക.");
+        if (!imgRes.ok) throw new Error("ഫോട്ടോ അപ്‌ലോഡ് പരാജയപ്പെട്ടു.");
         
         const imgData = await imgRes.json();
         const photoUrl = imgData.data.url;
 
-        // Save to Firestore
         await db.collection("students").add({
             name: document.getElementById("rName").value,
+            father: document.getElementById("rFather").value,
+            gender: document.getElementById("rGender").value,
             class: document.getElementById("rClass").value,
+            blood: document.getElementById("rBlood").value,
             phone: document.getElementById("rPhone").value,
             password: document.getElementById("rPass").value,
             photo: photoUrl,
             time: Date.now()
         });
         
-        alert("രജിസ്‌ട്രേഷൻ വിജയകരമായി പൂർത്തിയായി! ഇനി ലോഗിൻ ടാബിൽ പോയി നോക്കാം.");
+        alert("രജിസ്‌ട്രേഷൻ വിജയകരമായി പൂർത്തിയായി!");
         location.reload();
     } catch (err) { 
-        console.error(err);
-        alert("പിശക്: " + err.message + ". Firestore Rules Publish ചെയ്തിട്ടുണ്ടെന്ന് ഉറപ്പുവരുത്തുക.");
+        alert("പിശക്: " + err.message);
         btn.disabled = false;
         loader.style.display = "none";
     }
 });
 
-// ലോഗിൻ ലോജിക്
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const phone = document.getElementById("lPhone").value;
@@ -182,10 +201,16 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
             document.getElementById("profileBox").style.display = "block";
             document.getElementById("pImg").src = user.photo;
             document.getElementById("pName").innerText = user.name;
-            document.getElementById("pDetails").innerHTML = "<b>ക്ലാസ്:</b> " + user.class + "<br><b>മൊബൈൽ:</b> " + user.phone;
+            document.getElementById("pDetails").innerHTML = `
+                <p><b>പിതാവ്:</b> ${user.father}</p>
+                <p><b>ലിംഗം:</b> ${user.gender || 'നൽകിയിട്ടില്ല'}</p>
+                <p><b>ക്ലാസ്:</b> ${user.class}</p>
+                <p><b>ബ്ലഡ്:</b> ${user.blood || 'നൽകിയിട്ടില്ല'}</p>
+                <p><b>മൊബൈൽ:</b> ${user.phone}</p>
+            `;
         }
     } catch (err) {
-        alert("ലോഗിൻ പരാജയപ്പെട്ടു: " + err.message);
+        alert("ലോഗിൻ പരാജയപ്പെട്ടു.");
     }
 });
 </script>
