@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Admin Manager</title>
+    <style>
+        body { font-family: sans-serif; padding: 30px; background: #eef2f3; }
+        .box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input, button { padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; }
+        button { cursor: pointer; background: #198754; color: white; border: none; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #f4f4f4; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Add New Quiz Question</h2>
+    <input type="text" id="adminQ" style="width: 80%;" placeholder="Enter Question Here"><br>
+    <input type="text" id="adminOpts" style="width: 80%;" placeholder="Options (comma separated: Option1, Option2, Option3)"><br>
+    <button onclick="publishQuiz()">Publish Quiz Now</button>
+</div>
+
+<div class="box">
+    <h2>Students Responses (Fastest First)</h2>
+    <table id="resTable">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Photo</th>
+                <th>Student Name</th>
+                <th>Answer</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="resBody"></tbody>
+    </table>
+</div>
+
+<button style="background: #d32f2f;" onclick="resetQuiz()">Clear All Responses (New Week)</button>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+    apiKey:"AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
+    authDomain:"misbahul-uloom-madrasa-4830c.firebaseapp.com",
+    projectId:"misbahul-uloom-madrasa-4830c"
+});
+const db = firebase.firestore();
+
+async function publishQuiz() {
+    const q = document.getElementById("adminQ").value;
+    const opts = document.getElementById("adminOpts").value.split(",");
+    await db.collection("quiz_config").doc("current").set({
+        question: q,
+        options: opts,
+        status: "open",
+        winnerId: ""
+    });
+    alert("Quiz is LIVE!");
+}
+
+db.collection("quiz_responses").orderBy("time", "asc").onSnapshot(snap => {
+    let html = "";
+    snap.forEach(doc => {
+        const d = doc.data();
+        html += `<tr>
+            <td>${d.time ? d.time.toDate().toLocaleTimeString() : '...'}</td>
+            <td><img src="${d.photo}" width="40"></td>
+            <td>${d.name} (${d.regNo})</td>
+            <td>${d.answer}</td>
+            <td><button onclick="declareWinner('${d.regNo}')">Make Winner</button></td>
+        </tr>`;
+    });
+    document.getElementById("resBody").innerHTML = html;
+});
+
+async function declareWinner(id) {
+    if(confirm("ഈ വിദ്യാർത്ഥിയെ വിജയിയായി പ്രഖ്യാപിക്കട്ടെ?")) {
+        await db.collection("quiz_config").doc("current").update({
+            status: "closed",
+            winnerId: id
+        });
+        alert("വിജയിയെ പ്രഖ്യാപിച്ചു!");
+    }
+}
+
+async function resetQuiz() {
+    if(confirm("എല്ലാ ഉത്തരങ്ങളും ഡിലീറ്റ് ചെയ്യട്ടെ?")) {
+        const snap = await db.collection("quiz_responses").get();
+        snap.forEach(doc => doc.ref.delete());
+        alert("Cleared!");
+    }
+}
+</script>
+</body>
+</html>

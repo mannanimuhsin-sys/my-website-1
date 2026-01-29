@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madrasa Online Quiz Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #198754; --bg: #f0f2f5; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: auto; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
+        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--primary); color: white; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        .student-preview img { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--primary); object-fit: cover; }
+        .option-btn { background: white; color: #333; border: 2px solid #eee; margin-bottom: 10px; transition: 0.3s; }
+        .option-btn:hover { border-color: var(--primary); background: #f9fffb; }
+        #winnerBox { border: 3px solid #FFD700; background: #fffdf0; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2 style="color: var(--primary); margin-bottom: 5px;">ONLINE QUIZ</h2>
+        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">മിസ്ബാഹുൽ ഉലൂം മദ്രസ പെരുവണ</p>
+
+        <div id="step1">
+            <label>നിങ്ങളുടെ ഐഡി നമ്പർ നൽകുക</label>
+            <input type="text" id="regInput" placeholder="Reg Number (eg: 101)">
+            <button class="btn" onclick="checkID()">തുടരുക</button>
+        </div>
+
+        <div id="step2" class="hidden student-preview">
+            <img id="sPhoto" src="" alt="Photo">
+            <h3 id="sName" style="margin: 10px 0 5px;"></h3>
+            <p id="sInfo" style="font-size: 14px; color: #555;"></p>
+            <button class="btn" onclick="startQuiz()">ശരിയാണ്, ക്വിസിലേക്ക് പ്രവേശിക്കാം</button>
+            <button class="btn" style="background:#888" onclick="location.reload()">ഇതല്ല എന്റെ പേര്</button>
+        </div>
+
+        <div id="step3" class="hidden">
+            <div id="quizClosed" class="hidden">
+                <div id="winnerBox" class="card">
+                    <h2 style="color: #d4af37;">🏆 WEEKLY WINNER 🏆</h2>
+                    <img id="wPhoto" src="" style="width:130px; height:130px; border-radius:50%; border:5px solid #FFD700;">
+                    <h3 id="wName"></h3>
+                    <p id="wDetails" style="font-weight: 600; color: #555;"></p>
+                    <div style="background:#eee; padding:5px; border-radius:5px; font-size:12px;">Mentor: <span id="wMentor"></span></div>
+                    <p style="color: #198754; font-weight: bold; margin-top: 15px;">CONGRATULATIONS!</p>
+                </div>
+            </div>
+            <div id="quizOpen" class="hidden">
+                <h3 id="displayQ" style="line-height: 1.5; margin-bottom: 20px;"></h3>
+                <div id="options"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+    apiKey:"AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
+    authDomain:"misbahul-uloom-madrasa-4830c.firebaseapp.com",
+    projectId:"misbahul-uloom-madrasa-4830c"
+});
+const db = firebase.firestore();
+let userData = null;
+
+async function checkID() {
+    const id = document.getElementById("regInput").value;
+    const snap = await db.collection("students").where("number", "==", id).limit(1).get();
+    
+    if(snap.empty) {
+        alert("ഐഡി നമ്പർ തെറ്റാണ്! ദയവായി ശരിയായ നമ്പർ നൽകുക.");
+        return;
+    }
+    userData = snap.docs[0].data();
+    document.getElementById("step1").classList.add("hidden");
+    document.getElementById("step2").classList.remove("hidden");
+    document.getElementById("sPhoto").src = userData.photo;
+    document.getElementById("sName").innerText = userData.name;
+    document.getElementById("sInfo").innerText = `Class: ${userData.class} | Mentor: ${userData.mentor}`;
+}
+
+async function startQuiz() {
+    document.getElementById("step2").classList.add("hidden");
+    document.getElementById("step3").classList.remove("hidden");
+    
+    db.collection("quiz_config").doc("current").onSnapshot(async (doc) => {
+        const quiz = doc.data();
+        if(quiz.status === "closed") {
+            document.getElementById("quizOpen").classList.add("hidden");
+            document.getElementById("quizClosed").classList.remove("hidden");
+            loadWinner(quiz.winnerId);
+        } else {
+            document.getElementById("quizClosed").classList.add("hidden");
+            document.getElementById("quizOpen").classList.remove("hidden");
+            document.getElementById("displayQ").innerText = quiz.question;
+            let optHtml = "";
+            quiz.options.forEach(opt => {
+                optHtml += `<button class="btn option-btn" onclick="submitAns('${opt}')">${opt}</button>`;
+            });
+            document.getElementById("options").innerHTML = optHtml;
+        }
+    });
+}
+
+async function submitAns(ans) {
+    await db.collection("quiz_responses").add({
+        name: userData.name,
+        regNo: userData.number,
+        mentor: userData.mentor,
+        photo: userData.photo,
+        answer: ans,
+        time: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert("നിങ്ങളുടെ ഉത്തരം ലഭിച്ചു. വിജയിയെ ഉടൻ പ്രഖ്യാപിക്കും!");
+}
+
+async function loadWinner(wID) {
+    const sSnap = await db.collection("students").where("number", "==", wID).limit(1).get();
+    if(!sSnap.empty) {
+        const w = sSnap.docs[0].data();
+        document.getElementById("wPhoto").src = w.photo;
+        document.getElementById("wName").innerText = w.name;
+        document.getElementById("wDetails").innerText = `Reg No: ${w.number} | Class: ${w.class}`;
+        document.getElementById("wMentor").innerText = w.mentor;
+    }
+}
+</script>
+</body>
+</html>

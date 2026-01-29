@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eid Greetings Maker - Misbahul Uloom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; text-align: center; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h2 { color: #198754; }
+        input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { background: #198754; color: white; border: none; font-weight: bold; cursor: pointer; }
+        #canvas-container { margin-top: 20px; display: none; }
+        canvas { max-width: 100%; border-radius: 10px; border: 2px solid #198754; }
+        /* Cropper Modal */
+        #cropperModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
+        .crop-box { background: white; padding: 10px; border-radius: 10px; max-width: 90%; }
+        #cropImagePreview { max-width: 100%; max-height: 70vh; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>പെരുന്നാൾ ആശംസകൾ</h2>
+    <p>നിങ്ങളുടെ പേരും ഫോട്ടോയും ചേർത്ത് പോസ്റ്റർ നിർമ്മിക്കൂ</p>
+    
+    <input type="text" id="userName" placeholder="നിങ്ങളുടെ പേര് ടൈപ്പ് ചെയ്യുക">
+    <input type="file" id="userPhoto" accept="image/*">
+    <button onclick="document.getElementById('userPhoto').click()" style="background: #6c757d;">ഫോട്ടോ തിരഞ്ഞെടുക്കുക</button>
+    <button id="generateBtn" style="margin-top: 20px;">പോസ്റ്റർ നിർമ്മിക്കുക</button>
+
+    <div id="canvas-container">
+        <canvas id="posterCanvas"></canvas>
+        <button onclick="downloadPoster()" style="background: #28a745; margin-top: 10px;">ഡൗൺലോഡ് ചെയ്യുക</button>
+    </div>
+</div>
+
+<div id="cropperModal">
+    <div class="crop-box">
+        <img id="cropImagePreview">
+    </div>
+    <button onclick="startCrop()" style="width: 200px; margin-top: 15px;">Crop & Save</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+    const canvas = document.getElementById('posterCanvas');
+    const ctx = canvas.getContext('2d');
+    const generateBtn = document.getElementById('generateBtn');
+    let cropper;
+    let croppedImageDataURL = '';
+
+    // നിങ്ങളുടെ പോസ്റ്റർ ചിത്രത്തിന്റെ URL ഇവിടെ നൽകുക
+    const posterImageURL = 'poster.jpg'; 
+
+    // ഫോട്ടോ സെലക്ട് ചെയ്യുമ്പോൾ ക്രോപ്പിംഗ് ഓപ്ഷൻ വരാൻ
+    document.getElementById('userPhoto').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('cropImagePreview').src = event.target.result;
+                document.getElementById('cropperModal').style.display = 'flex';
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(document.getElementById('cropImagePreview'), {
+                    aspectRatio: 1,
+                    viewMode: 1
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function startCrop() {
+        croppedImageDataURL = cropper.getCroppedCanvas({ width: 400, height: 400 }).toDataURL();
+        document.getElementById('cropperModal').style.display = 'none';
+        alert("ഫോട്ടോ സെറ്റ് ആയിട്ടുണ്ട്!");
+    }
+
+    generateBtn.addEventListener('click', function() {
+        const name = document.getElementById('userName').value;
+        if (!name || !croppedImageDataURL) {
+            alert("പേരും ഫോട്ടോയും നിർബന്ധമാണ്!");
+            return;
+        }
+
+        const baseImg = new Image();
+        baseImg.crossOrigin = "anonymous";
+        baseImg.src = posterImageURL;
+
+        baseImg.onload = function() {
+            canvas.width = baseImg.width;
+            canvas.height = baseImg.height;
+            ctx.drawImage(baseImg, 0, 0);
+
+            // ഫോട്ടോ ചേർക്കുന്നു (പോസ്റ്ററിലെ വൈറ്റ് ബോക്സ് ഏരിയയിൽ)
+            const userImg = new Image();
+            userImg.src = croppedImageDataURL;
+            userImg.onload = function() {
+                // ഇവിടെ x, y, width, height എന്നിവ പോസ്റ്ററിന് അനുസരിച്ച് അഡ്ജസ്റ്റ് ചെയ്യുക
+                ctx.drawImage(userImg, 600, 700, 300, 300); 
+
+                // പേര് ചേർക്കുന്നു
+                ctx.fillStyle = "#8b4513"; // ബ്രൗൺ നിറം
+                ctx.font = "bold 40px 'Poppins'";
+                ctx.textAlign = "center";
+                ctx.fillText(name, 750, 1050); // x=750, y=1050 (അഡ്ജസ്റ്റ് ചെയ്യാം)
+
+                document.getElementById('canvas-container').style.display = 'block';
+                window.scrollTo(0, document.body.scrollHeight);
+            };
+        };
+    });
+
+    function downloadPoster() {
+        const link = document.createElement('a');
+        link.download = 'Eid_Greeting_Misbahul_Uloom.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    }
+</script>
+
+</body>
+</html>
