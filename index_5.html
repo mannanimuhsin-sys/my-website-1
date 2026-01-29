@@ -6,6 +6,7 @@
 <title>Misbahul Uloom Madrasa | Peruvana</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
     body{ background:#f4f7f6; font-family: 'Poppins', sans-serif; }
     .jumbotron{
@@ -14,16 +15,19 @@
     }
     .box{ background:white; padding:20px; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.05); margin-bottom:20px; border-top: 4px solid #198754; }
     
-    .portal-card { background: linear-gradient(135deg, #198754, #20c997); color: white; padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 25px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(25,135,84,0.3); }
+    /* Executive Card Designs */
+    .portal-card { background: linear-gradient(135deg, #198754, #20c997); color: white; padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 20px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(25,135,84,0.3); }
     .portal-card:hover { transform: translateY(-3px); }
+
+    .class-card { background: linear-gradient(135deg, #6a11cb, #2575fc); color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(37,117,252,0.3); }
+    .class-card:hover { transform: translateY(-3px); }
+
+    .quiz-card { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(245,87,108,0.3); }
+    .quiz-card:hover { transform: translateY(-3px); }
 
     .blood-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
     .blood-btn { background: #fff; border: 2px solid #d9534f; color: #d9534f; padding: 15px 5px; border-radius: 10px; text-align: center; font-weight: bold; cursor: pointer; }
     .blood-btn:hover { background: #d9534f; color: white; }
-
-    .table-custom { width: 100%; background: white; border-radius: 10px; overflow: hidden; margin-top: 10px; border: 1px solid #ddd; }
-    .table-custom th { background: #198754; color: white; padding: 12px; text-align: center; }
-    .table-custom td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; }
 
     .contact-card { background: white; padding: 15px; border-radius: 12px; border-left: 5px solid #198754; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-bottom: 15px; }
     .contact-btn-group { display: flex; gap: 10px; margin-top: 10px; }
@@ -41,38 +45,47 @@
 </div>
 
 <div class="container">
+    
     <div class="portal-card" onclick="window.location.href='https://mannanimuhsin-sys.github.io/my-website/student.html'">
         <i class="fas fa-id-card-alt fa-3x"></i>
         <h2>Student Registration & ID Portal</h2>
-        <p>വിദ്യാർത്ഥികളുടെ വിവരങ്ങൾ രെജിസ്റ്റർചെയ്യാനും ഐഡികാഡ് ലഭിക്കാനും ഇവിടെ ക്ലിക്ക് ചെയ്യുക</p>
+        <p>വിദ്യാർത്ഥികളുടെ വിവരങ്ങൾ രജിസ്റ്റർ ചെയ്യാനും ഐഡി കാർഡ് ലഭിക്കാനും ഇവിടെ ക്ലിക്ക് ചെയ്യുക</p>
+    </div>
+
+    <div class="class-card" onclick="window.location.href='https://mannanimuhsin-sys.github.io/my-website/index_6.html'">
+        <i class="fas fa-users fa-3x"></i>
+        <h2>Class & Mentors Directory</h2>
+        <p>ക്ലാസ്സുകളിലെ വിവരങ്ങളും അധ്യാപകരുടെ പേരും ഫോൺ നമ്പറും കാണുന്നതിനായി ഇവിടെ ക്ലിക്ക് ചെയ്യുക</p>
     </div>
 
     <div class="row">
-        <div class="col-sm-4">
+        <div class="col-sm-6">
             <div class="box text-center">
-                <i class="fas fa-chart-pie fa-2x text-success"></i>
-                <h4>Dashboard</h4>
-                <button class="btn btn-success btn-block" onclick="openDashboard()">Open Dashboard</button>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <div class="box text-center">
-                <i class="fas fa-map-marked-alt fa-2x text-primary"></i>
-                <h4>Location</h4>
-                <button class="btn btn-primary btn-block" onclick="openLocation()">Map View</button>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <div class="box text-center">
-                <i class="fas fa-file-alt fa-2x text-info"></i>
-                <h4>Exam Result</h4>
+                <i class="fas fa-file-invoice fa-2x text-info"></i>
+                <h4>Exam Results</h4>
+                <p><small>പരീക്ഷാ ഫലങ്ങൾ അറിയാൻ</small></p>
                 <button class="btn btn-info btn-block" onclick="showResultAlert()">View Results</button>
             </div>
         </div>
+        <div class="col-sm-6">
+            <div class="box text-center">
+                <i class="fas fa-map-marked-alt fa-2x text-primary"></i>
+                <h4>Madrasa Location</h4>
+                <p><small>മദ്രസയുടെ ലൊക്കേഷൻ കാണാൻ</small></p>
+                <button class="btn btn-primary btn-block" onclick="openLocation()">Map View</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="quiz-card" onclick="window.location.href='https://mannanimuhsin-sys.github.io/my-website/quiz.html'">
+        <i class="fas fa-lightbulb fa-3x"></i>
+        <h2>Weekly Online Quiz</h2>
+        <p>ആഴ്ചതോറുമുള്ള ഓൺലൈൻ ക്വിസ് മത്സരത്തിൽ പങ്കെടുക്കാൻ ഇവിടെ ക്ലിക്ക് ചെയ്യുക. ലോഗിൻ ചെയ്യാൻ നിങ്ങളുടെ ഐഡി നമ്പർ ഉപയോഗിക്കുക.</p>
     </div>
 
     <div class="box">
         <h3 class="text-center">🩸 Blood Bank</h3>
+        <p class="text-center" style="color: #666;"><small>രക്തദാതാക്കളുടെ ലിസ്റ്റ് കാണാൻ ഗ്രൂപ്പ് സെലക്ട് ചെയ്യുക</small></p>
         <div class="blood-grid">
             <div class="blood-btn" onclick="openDonorList('A+')">A+</div>
             <div class="blood-btn" onclick="openDonorList('A-')">A-</div>
@@ -85,15 +98,15 @@
             <div class="blood-btn" style="border-color:#777; color:#777" onclick="document.getElementById('bbName').focus()">Add</div>
         </div>
         <hr>
-        <h4>🩸 രജിസ്റ്റർ ചെയ്യുക</h4>
+        <h4>🩸 പുതിയ ദാതാക്കളെ രജിസ്റ്റർ ചെയ്യുക</h4>
         <form id="bloodBankForm">
             <div class="row">
                 <div class="col-sm-6"><input type="text" class="form-control" id="bbName" placeholder="പേര്" required><br></div>
-                <div class="col-sm-6"><input type="tel" class="form-control" id="bbPhone" placeholder="മൊബൈൽ" required><br></div>
+                <div class="col-sm-6"><input type="tel" class="form-control" id="bbPhone" placeholder="മൊബൈൽ നമ്പർ" required><br></div>
                 <div class="col-sm-12"><input type="text" class="form-control" id="bbAddress" placeholder="സ്ഥലം" required><br></div>
                 <div class="col-sm-12">
                     <select class="form-control" id="bbGroup" required>
-                        <option value="">ബ്ലഡ് ഗ്രൂപ്പ്</option>
+                        <option value="">ബ്ലഡ് ഗ്രൂപ്പ് തിരഞ്ഞെടുക്കുക</option>
                         <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
                         <option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
                     </select><br>
@@ -143,9 +156,14 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script>
-function openDashboard(){ window.location.href="https://mannanimuhsin-sys.github.io/my-website/index_6.html"; }
-function openLocation(){ window.open("https://maps.google.com", "_blank"); }
+function openLocation(){ window.open("https://maps.google.com/?q=Misbahul+Uloom+Madrasa+Peruvana", "_blank"); }
 function showResultAlert(){ alert("നിലവിൽ റിസൽട്ടുകൾ ലഭ്യമല്ല."); }
+
+// ബ്ലഡ് ബാങ്ക് ഫീച്ചറുകൾ നിലനിർത്താൻ ആവശ്യമായ സ്ക്രിപ്റ്റുകൾ ഇവിടെ ചേർക്കാം
+function openDonorList(group) {
+    alert(group + " ഗ്രൂപ്പിലുള്ളവരുടെ ലിസ്റ്റ് ലോഡ് ചെയ്യുന്നു...");
+    // നിങ്ങളുടെ ഡാറ്റാബേസ് കണക്ഷൻ അനുസരിച്ച് ഇവിടെ മാറ്റം വരുത്താം
+}
 </script>
 </body>
 </html>
