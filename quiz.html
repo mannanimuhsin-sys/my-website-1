@@ -13,44 +13,33 @@
         .container { max-width: 450px; margin: auto; }
         .card { background: var(--white); border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
         
-        /* Executive Winner Poster (Designed for IG/WhatsApp Status Size when downloaded) */
+        /* Winner Poster */
         #downloadArea { width: 100%; background: #fff; }
         .winner-header { background: linear-gradient(to bottom, #1a1a1a, #333); padding: 40px 10px; color: var(--gold); text-align: center; }
-        .winner-header i { font-size: 35px; margin-bottom: 10px; display: block; }
         .winner-body { padding: 40px 20px; text-align: center; background: radial-gradient(circle, #fff 60%, #fffdf0 100%); }
-        
         .photo-frame { position: relative; display: inline-block; margin-bottom: 25px; }
-        .winner-img { 
-            width: 180px; height: 180px; border-radius: 50%; 
-            border: 6px solid var(--white); box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
-            object-fit: cover; z-index: 2; position: relative;
-        }
-        .photo-frame::after {
-            content: ''; position: absolute; top: -12px; left: -12px; right: -12px; bottom: -12px;
-            border-radius: 50%; border: 3px dashed var(--gold); animation: rotate 10s linear infinite;
-        }
+        .winner-img { width: 180px; height: 180px; border-radius: 50%; border: 6px solid var(--white); box-shadow: 0 0 30px rgba(212, 175, 55, 0.5); object-fit: cover; z-index: 2; position: relative; }
+        .photo-frame::after { content: ''; position: absolute; top: -12px; left: -12px; right: -12px; bottom: -12px; border-radius: 50%; border: 3px dashed var(--gold); animation: rotate 10s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        .winner-name { font-size: 30px; color: #1a1a1a; font-weight: 800; margin: 10px 0; letter-spacing: -0.5px; }
+        .winner-name { font-size: 30px; color: #1a1a1a; font-weight: 800; margin: 10px 0; }
         
+        /* Stats */
         .stats-container { display: flex; flex-direction: column; gap: 15px; margin: 25px auto; text-align: left; background: #f9f9f9; padding: 25px; border-radius: 20px; border: 1px solid #eee; max-width: 320px; }
         .stat-item { display: flex; align-items: center; gap: 15px; }
         .stat-item i { color: var(--gold); font-size: 18px; width: 25px; }
-        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; font-weight: 600; display: block; }
-        .stat-value { font-size: 16px; color: #333; font-weight: 700; display: block; }
+        .stat-value { font-size: 16px; color: #333; font-weight: 700; }
 
-        .congrats-text { font-size: 24px; font-weight: 800; color: var(--gold); margin-top: 15px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
-        .madrasa-footer { font-size: 12px; color: #999; margin-top: 20px; font-weight: 600; }
+        /* Quiz Options Style */
+        .opt-btn { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #ddd; background: white; color: #333; margin-bottom: 12px; font-weight: 600; text-align: left; transition: 0.3s; cursor: pointer; display: block; }
+        .opt-btn.selected { background: var(--primary) !important; color: white !important; border-color: var(--primary); }
+        .submit-area { margin-top: 20px; display: none; }
 
-        /* Timer and Download Button */
-        .timer-box { background: #1a1a1a; color: white; padding: 20px; border-radius: 20px; margin: 20px; }
+        .timer-box { background: #1a1a1a; color: white; padding: 20px; border-radius: 20px; margin: 20px; text-align: center; }
         .timer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
         .timer-unit { background: #333; padding: 10px; border-radius: 12px; }
-        .timer-val { font-size: 20px; font-weight: 700; color: var(--gold); display: block; }
-        .timer-label { font-size: 10px; text-transform: uppercase; opacity: 0.7; }
-
-        .download-btn { background: #007bff; color: white; padding: 15px; border-radius: 15px; border: none; width: calc(100% - 40px); margin: 0 20px 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .timer-val { font-size: 20px; font-weight: 700; color: var(--gold); }
         
+        .download-btn { background: #007bff; color: white; padding: 15px; border-radius: 15px; border: none; width: calc(100% - 40px); margin: 0 20px 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .hidden { display: none; }
         .btn { width: 100%; padding: 18px; border-radius: 15px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; transition: 0.3s; }
     </style>
@@ -59,52 +48,35 @@
 
 <div class="container">
     <div class="card">
-        
         <div id="winnerSection" class="hidden">
             <div id="downloadArea">
                 <div class="winner-header">
                     <i class="fa-solid fa-trophy"></i>
                     <h2 style="margin:0; font-size: 20px; letter-spacing: 4px;">WEEKLY WINNER</h2>
                 </div>
-                
                 <div class="winner-body">
                     <div class="photo-frame">
-                        <img id="wPhoto" class="winner-img" src="" crossorigin="anonymous">
+                        <img id="wPhoto" class="winner-img" src="" fetchpriority="high">
                     </div>
                     <div class="winner-name" id="wName"></div>
-                    
                     <div class="stats-container">
-                        <div class="stat-item">
-                            <i class="fa-solid fa-id-card"></i>
-                            <div><span class="stat-label">Register ID</span><span class="stat-value" id="wReg"></span></div>
-                        </div>
-                        <div class="stat-item">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                            <div><span class="stat-label">Class</span><span class="stat-value" id="wClass"></span></div>
-                        </div>
-                        <div class="stat-item">
-                            <i class="fa-solid fa-chalkboard-user"></i>
-                            <div><span class="stat-label">Mentor</span><span class="stat-value" id="wMentor"></span></div>
-                        </div>
+                        <div class="stat-item"><i class="fa-solid fa-id-card"></i><div><span id="wReg" class="stat-value"></span></div></div>
+                        <div class="stat-item"><i class="fa-solid fa-graduation-cap"></i><div><span id="wClass" class="stat-value"></span></div></div>
+                        <div class="stat-item"><i class="fa-solid fa-chalkboard-user"></i><div><span id="wMentor" class="stat-value"></span></div></div>
                     </div>
-
-                    <div class="congrats-text">CONGRATULATIONS!</div>
-                    <div class="madrasa-footer">MISBAHUL ULOOM MADRASA, PERUVANA</div>
+                    <div style="color:var(--gold); font-weight:800; font-size:20px;">CONGRATULATIONS!</div>
+                    <div style="font-size:12px; color:#999; margin-top:10px;">MISBAHUL ULOOM MADRASA, PERUVANA</div>
                 </div>
             </div>
-            
-            <button class="download-btn" onclick="downloadPoster()">
-                <i class="fa-solid fa-download"></i> Download Poster (Image)
-            </button>
-
+            <button class="download-btn" onclick="downloadPoster()"><i class="fa-solid fa-download"></i> Download Poster</button>
             <div class="timer-box">
-                <p style="font-size: 12px; margin: 0 0 10px; opacity: 0.8; text-align: center;">Next Quiz Starts In:</p>
+                <p style="font-size:12px; opacity:0.8;">Next Quiz Starts In:</p>
                 <div class="timer-grid">
-                    <div class="timer-unit"><span id="days" class="timer-val">00</span><span class="timer-label">Days</span></div>
-                    <div class="timer-unit"><span id="hours" class="timer-val">00</span><span class="timer-label">Hrs</span></div>
-                    <div class="timer-unit"><span id="mins" class="timer-val">00</span><span class="timer-label">Mins</span></div>
+                    <div class="timer-unit"><span id="days" class="timer-val">00</span></div>
+                    <div class="timer-unit"><span id="hours" class="timer-val">00</span></div>
+                    <div class="timer-unit"><span id="mins" class="timer-val">00</span></div>
                 </div>
-                <div id="secs" style="font-size: 12px; color: var(--gold); margin-top: 10px; font-weight: 600; text-align: center;"></div>
+                <div id="secs" style="font-size:11px; color:var(--gold); margin-top:10px;"></div>
             </div>
         </div>
 
@@ -113,19 +85,25 @@
                 <h1 style="color: var(--primary); margin:0;">Online Quiz</h1>
                 <p style="color: #666; font-size: 14px;">Misbahul Uloom Madrasa, Peruvana</p>
             </div>
+            
             <div id="loginStep">
                 <input type="text" id="regInput" placeholder="Enter Registration ID" style="width:100%; padding:15px; border-radius:12px; border:1px solid #ddd; margin-bottom:15px; box-sizing:border-box;">
                 <button class="btn" id="loginBtn" onclick="checkID()">Continue</button>
             </div>
+
             <div id="confirmStep" class="hidden" style="text-align:center;">
-                <img id="sPhoto" style="width:140px; height:140px; border-radius:50%; border:5px solid #fff; box-shadow:0 10px 20px rgba(0,0,0,0.1); margin-bottom:15px; object-fit:cover;">
+                <img id="sPhoto" style="width:140px; height:140px; border-radius:50%; border:5px solid #fff; box-shadow:0 10px 20px rgba(0,0,0,0.1); margin-bottom:15px; object-fit:cover;" fetchpriority="high">
                 <h3 id="sName" style="color:var(--primary); margin:0;"></h3>
                 <p id="sInfo" style="color:#888; margin-bottom:20px;"></p>
-                <button class="btn" onclick="showQuizArea()">Enter Quiz</button>
+                <button class="btn" onclick="showQuizArea()">Enter Quiz Area</button>
             </div>
+
             <div id="questionStep" class="hidden">
                 <h3 id="displayQ" style="line-height:1.6; margin-bottom:25px; color:#1a1a1a;"></h3>
                 <div id="options"></div>
+                <div id="submitArea" class="submit-area">
+                    <button class="btn" id="finalSubmitBtn" onclick="finalSubmit()">Submit Answer</button>
+                </div>
             </div>
         </div>
     </div>
@@ -135,7 +113,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase Config
 firebase.initializeApp({
     apiKey:"AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
     authDomain:"misbahul-uloom-madrasa-4830c.firebaseapp.com",
@@ -143,12 +120,16 @@ firebase.initializeApp({
 });
 const db = firebase.firestore();
 let userData = null;
-let countdownTimer;
+let selectedOption = null;
+let currentQuizID = "";
 
 // Real-time Update
 db.collection("quiz_config").doc("current").onSnapshot(async (doc) => {
     const quiz = doc.data();
-    if (quiz && quiz.status === "closed") {
+    if(!quiz) return;
+    currentQuizID = quiz.quizId || "default"; // ഓരോ ക്വിസ്സിനും തനതായ ID
+
+    if (quiz.status === "closed") {
         document.getElementById("quizSection").classList.add("hidden");
         document.getElementById("winnerSection").classList.remove("hidden");
         loadWinnerPoster(quiz.winnerId);
@@ -156,57 +137,48 @@ db.collection("quiz_config").doc("current").onSnapshot(async (doc) => {
     } else {
         document.getElementById("quizSection").classList.remove("hidden");
         document.getElementById("winnerSection").classList.add("hidden");
+        document.getElementById("displayQ").innerText = quiz.question;
+        renderOptions(quiz.options);
     }
 });
 
-// Download Function
-function downloadPoster() {
-    const area = document.getElementById('downloadArea');
-    const btn = document.querySelector('.download-btn');
-    btn.innerText = "Generating Image...";
-    
-    html2canvas(area, {
-        scale: 3, // High Quality
-        useCORS: true, // For images from other domains
-        logging: false,
-        backgroundColor: "#ffffff"
-    }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = `Winner_Poster_${document.getElementById('wName').innerText}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-        btn.innerHTML = '<i class="fa-solid fa-download"></i> Download Poster (Image)';
+function renderOptions(options) {
+    let html = "";
+    options.forEach(opt => {
+        html += `<button class="opt-btn" onclick="selectOption(this, '${opt}')">${opt}</button>`;
     });
+    document.getElementById("options").innerHTML = html;
 }
 
-function startCountdown(endTime) {
-    clearInterval(countdownTimer);
-    const destination = new Date(endTime).getTime();
-    countdownTimer = setInterval(() => {
-        const now = new Date().getTime();
-        const diff = destination - now;
-        if (diff <= 0) { clearInterval(countdownTimer); return; }
-        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((diff % (1000 * 60)) / 1000);
-        document.getElementById("days").innerText = d < 10 ? '0'+d : d;
-        document.getElementById("hours").innerText = h < 10 ? '0'+h : h;
-        document.getElementById("mins").innerText = m < 10 ? '0'+m : m;
-        document.getElementById("secs").innerText = s + " Seconds Remaining";
-    }, 1000);
+function selectOption(btn, val) {
+    document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedOption = val;
+    document.getElementById("submitArea").style.display = "block";
 }
 
-// Student & Quiz Logic
 async function checkID() {
-    const id = document.getElementById("regInput").value;
+    const id = document.getElementById("regInput").value.trim();
     if(!id) return;
     const btn = document.getElementById("loginBtn");
     btn.innerText = "Checking..."; btn.disabled = true;
-    const resSnap = await db.collection("quiz_responses").where("regNo", "==", id).get();
-    if(!resSnap.empty) { alert("Already Participated!"); btn.innerText = "Continue"; btn.disabled = false; return; }
+
+    // നിലവിലെ ക്വിസ്സിൽ പങ്കെടുത്തിട്ടുണ്ടോ എന്ന് മാത്രം പരിശോധിക്കുന്നു
+    const resSnap = await db.collection("quiz_responses")
+                        .where("regNo", "==", id)
+                        .where("quizId", "==", currentQuizID)
+                        .get();
+
+    if(!resSnap.empty) { 
+        alert("നിങ്ങൾ ഈ ആഴ്ച്ചയിലെ ക്വിസ്സിൽ പങ്കെടുത്തു കഴിഞ്ഞു!"); 
+        btn.innerText = "Continue"; btn.disabled = false; return; 
+    }
+
     const snap = await db.collection("students").where("number", "==", id).limit(1).get();
-    if(snap.empty) { alert("Invalid ID!"); btn.innerText = "Continue"; btn.disabled = false; return; }
+    if(snap.empty) { 
+        alert("ID തെറ്റാണ്!"); btn.innerText = "Continue"; btn.disabled = false; return; 
+    }
+
     userData = snap.docs[0].data();
     document.getElementById("loginStep").classList.add("hidden");
     document.getElementById("confirmStep").classList.remove("hidden");
@@ -215,37 +187,67 @@ async function checkID() {
     document.getElementById("sInfo").innerText = `Class: ${userData.class} | Mentor: ${userData.mentor}`;
 }
 
-async function showQuizArea() {
-    const qDoc = await db.collection("quiz_config").doc("current").get();
-    const quiz = qDoc.data();
+function showQuizArea() {
     document.getElementById("confirmStep").classList.add("hidden");
     document.getElementById("questionStep").classList.remove("hidden");
-    document.getElementById("displayQ").innerText = quiz.question;
-    let optHtml = "";
-    quiz.options.forEach(opt => {
-        optHtml += `<button class="btn" style="background:white; color:#333; border:1px solid #ddd; margin-bottom:12px;" onclick="submitAns('${opt}')">${opt}</button>`;
-    });
-    document.getElementById("options").innerHTML = optHtml;
 }
 
-async function submitAns(ans) {
-    await db.collection("quiz_responses").add({
-        name: userData.name, regNo: userData.number, mentor: userData.mentor,
-        photo: userData.photo, answer: ans, time: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    alert("Submitted!"); location.reload();
+async function finalSubmit() {
+    if(!selectedOption) return;
+    const sBtn = document.getElementById("finalSubmitBtn");
+    sBtn.innerText = "Submitting..."; sBtn.disabled = true;
+
+    try {
+        await db.collection("quiz_responses").add({
+            name: userData.name, 
+            regNo: userData.number, 
+            mentor: userData.mentor,
+            photo: userData.photo, 
+            answer: selectedOption,
+            quizId: currentQuizID, // ഓരോ ക്വിസ്സിനെയും തിരിച്ചറിയാൻ
+            time: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert("വിജയകരമായി സബ്മിറ്റ് ചെയ്തു!"); 
+        location.reload();
+    } catch(e) {
+        alert("Error submitting. Try again.");
+        sBtn.innerText = "Submit Answer"; sBtn.disabled = false;
+    }
 }
 
 async function loadWinnerPoster(wID) {
+    if(!wID) return;
     const sSnap = await db.collection("students").where("number", "==", wID).limit(1).get();
     if(!sSnap.empty) {
         const w = sSnap.docs[0].data();
         document.getElementById("wPhoto").src = w.photo;
         document.getElementById("wName").innerText = w.name;
-        document.getElementById("wReg").innerText = w.number;
-        document.getElementById("wClass").innerText = w.class;
-        document.getElementById("wMentor").innerText = w.mentor;
+        document.getElementById("wReg").innerText = "ID: " + w.number;
+        document.getElementById("wClass").innerText = "Class: " + w.class;
+        document.getElementById("wMentor").innerText = "Mentor: " + w.mentor;
     }
+}
+
+function downloadPoster() {
+    const area = document.getElementById('downloadArea');
+    html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `Winner_${document.getElementById('wName').innerText}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+    });
+}
+
+function startCountdown(endTime) {
+    const destination = new Date(endTime).getTime();
+    setInterval(() => {
+        const diff = destination - new Date().getTime();
+        if (diff <= 0) return;
+        document.getElementById("days").innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+        document.getElementById("hours").innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        document.getElementById("mins").innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        document.getElementById("secs").innerText = Math.floor((diff % (1000 * 60)) / 1000) + " Seconds Remaining";
+    }, 1000);
 }
 </script>
 </body>
