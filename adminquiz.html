@@ -1,189 +1,174 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Misbahul Uloom Quiz</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Quiz Admin - Responses & Controls</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #198754; --danger: #dc3545; --warning: #ffc107; --dark: #1e293b; }
-        body { font-family: 'Poppins', sans-serif; background: #f1f5f9; margin: 0; padding: 20px; }
-        .admin-box { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        h2 { color: var(--dark); border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-top: 0; display: flex; align-items: center; gap: 10px; }
+        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
+        .admin-container { max-width: 800px; margin: auto; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2, h3 { color: #198754; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
-        .form-section { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 30px; }
-        .input-group { display: flex; flex-direction: column; gap: 8px; }
-        label { font-weight: 600; font-size: 14px; color: #64748b; }
-        input, select { padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.1); }
+        /* Form Styling */
+        label { font-weight: 600; display: block; margin-top: 15px; font-size: 14px; color: #555; }
+        input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; margin-top: 5px; }
+        .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f8fafc; padding: 20px; border-radius: 15px; }
-        .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
-        .btn { padding: 14px 24px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; flex: 1; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-update { background: #198754; }
+        .btn-close { background: #d9534f; }
         
-        .btn-publish { background: var(--primary); color: white; }
-        .btn-pause { background: var(--warning); color: #000; }
-        .btn-reset { background: var(--danger); color: white; }
-        .btn-winner { background: #6366f1; color: white; font-size: 12px; padding: 8px 15px; }
-
-        .status-card { background: #f8fafc; padding: 15px 25px; border-radius: 15px; margin: 20px 0; display: flex; justify-content: space-between; align-items: center; }
-        .badge { padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
-        .open { background: #dcfce7; color: #166534; }
-        .paused { background: #fef9c3; color: #854d0e; }
-        .closed { background: #fee2e2; color: #991b1b; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        th { color: #64748b; font-weight: 600; }
-        .student-row:hover { background: #f8fafc; }
+        /* Response Table Styling */
+        .response-list { margin-top: 20px; }
+        .response-item { 
+            background: white; border-radius: 15px; padding: 15px; margin-bottom: 10px; 
+            display: flex; align-items: center; justify-content: space-between;
+            border-left: 5px solid #198754; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .res-info { display: flex; align-items: center; gap: 15px; }
+        .res-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #eee; }
+        .res-details p { margin: 0; font-size: 13px; }
+        .res-name { font-weight: 700; color: #333; }
+        .res-ans { color: #198754; font-weight: 600; }
+        .res-time { font-size: 11px !important; color: #999; }
+        .copy-id { background: #eee; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
     </style>
 </head>
 <body>
 
-<div class="admin-box">
-    <h2><i class="fa-solid fa-gauge-high"></i> Quiz Control Center</h2>
+<div class="admin-container">
+    <div class="card">
+        <h2><i class="fas fa-cog"></i> Quiz Control</h2>
+        
+        <label>Quiz Number / ID (ഉദാഹരണത്തിന്: 1, 2, 3...)</label>
+        <input type="number" id="quizId">
 
-    <div class="form-section">
-        <div class="input-group">
-            <label>Weekly Question</label>
-            <input type="text" id="adminQ" placeholder="Enter the quiz question here...">
+        <label>ചോദ്യം (Question)</label>
+        <textarea id="question" rows="2"></textarea>
+
+        <label>ഓപ്ഷനുകൾ (Options)</label>
+        <div class="opt-grid">
+            <input type="text" id="opt1" placeholder="Option 1">
+            <input type="text" id="opt2" placeholder="Option 2">
+            <input type="text" id="opt3" placeholder="Option 3">
+            <input type="text" id="opt4" placeholder="Option 4">
         </div>
 
-        <div class="input-group">
-            <label>Quiz Options</label>
-            <div class="options-grid">
-                <input type="text" id="opt1" placeholder="Option 1">
-                <input type="text" id="opt2" placeholder="Option 2">
-                <input type="text" id="opt3" placeholder="Option 3">
-                <input type="text" id="opt4" placeholder="Option 4">
-            </div>
-        </div>
+        <label>വിന്നർ ഐഡി (Winner Student ID)</label>
+        <input type="text" id="winnerId" placeholder="വിജയിയുടെ ID ഇവിടെ നൽകുക">
 
-        <div class="input-group">
-            <label>Next Quiz Opening Time</label>
-            <input type="datetime-local" id="nextQuizTime">
+        <label>അടുത്ത ക്വിസ് സമയം (Next Quiz Date)</label>
+        <input type="datetime-local" id="nextDate">
+
+        <div class="btn-group">
+            <button class="btn btn-update" onclick="updateQuiz('open')">Update & Open</button>
+            <button class="btn btn-close" onclick="updateQuiz('closed')">Close & Show Winner</button>
         </div>
     </div>
 
-    <div class="btn-row">
-        <button class="btn btn-publish" onclick="updateStatus('open')"><i class="fa-solid fa-paper-plane"></i> Publish Live</button>
-        <button class="btn btn-pause" onclick="updateStatus('paused')"><i class="fa-solid fa-pause"></i> Pause Quiz</button>
-        <button class="btn btn-reset" onclick="resetQuizData()"><i class="fa-solid fa-trash-can"></i> Clear All Data</button>
+    <div class="card">
+        <h3><i class="fas fa-users"></i> User Responses</h3>
+        <p style="font-size: 12px; color: #666;">ഏറ്റവും ആദ്യം അയച്ചവർ മുകളിൽ വരും.</p>
+        <div id="responseList" class="response-list">
+            Loading responses...
+        </div>
     </div>
-
-    <div class="status-card">
-        <div><strong>Live Status:</strong> <span id="currentStatus" class="badge">Loading...</span></div>
-        <div id="activeNextDate" style="font-size: 13px; color: #64748b;"></div>
-    </div>
-
-    <hr style="border: 0; border-top: 2px solid #f1f5f9; margin: 40px 0;">
-
-    <h2><i class="fa-solid fa-users-viewfinder"></i> Student Submissions</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Submission Time</th>
-                <th>Student Info</th>
-                <th>Answer</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="resBody"></tbody>
-    </table>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase Config
+// Firebase Initialization
 firebase.initializeApp({
-    apiKey:"AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
-    authDomain:"misbahul-uloom-madrasa-4830c.firebaseapp.com",
-    projectId:"misbahul-uloom-madrasa-4830c"
+    apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
+    authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
+    projectId: "misbahul-uloom-madrasa-4830c"
 });
 const db = firebase.firestore();
 
-// Update Quiz Status (Open/Pause)
-async function updateStatus(status) {
-    const q = document.getElementById("adminQ").value;
+// 1. ക്വിസ് വിവരങ്ങൾ ലോഡ് ചെയ്യാൻ
+db.collection("quiz_config").doc("current").onSnapshot((doc) => {
+    const data = doc.data();
+    if (data) {
+        document.getElementById("quizId").value = data.quizId || "";
+        document.getElementById("question").value = data.question || "";
+        document.getElementById("opt1").value = data.options[0] || "";
+        document.getElementById("opt2").value = data.options[1] || "";
+        document.getElementById("opt3").value = data.options[2] || "";
+        document.getElementById("opt4").value = data.options[3] || "";
+        document.getElementById("winnerId").value = data.winnerId || "";
+        document.getElementById("nextDate").value = data.nextDate || "";
+        
+        // ലോഡ് ആയ ഉടനെ ആ ക്വിസ്സിനുള്ള മറുപടികൾ കാണിക്കുക
+        loadResponses(data.quizId);
+    }
+});
+
+// 2. മറുപടികൾ കാണിക്കാൻ (സമയക്രമത്തിൽ - ആദ്യം വന്നവർ മുകളിൽ)
+function loadResponses(qId) {
+    db.collection("quiz_responses")
+      .where("quizId", "==", qId)
+      .orderBy("time", "asc") // 'asc' എന്നാൽ ആദ്യം അയച്ചവർ ആദ്യം
+      .onSnapshot((snapshot) => {
+        const listDiv = document.getElementById("responseList");
+        listDiv.innerHTML = "";
+        
+        if (snapshot.empty) {
+            listDiv.innerHTML = "<p>മറുപടികളൊന്നും ലഭിച്ചിട്ടില്ല.</p>";
+            return;
+        }
+
+        snapshot.forEach((doc) => {
+            const res = doc.data();
+            const time = res.time ? new Date(res.time.seconds * 1000).toLocaleString('en-IN') : "Just now";
+            
+            listDiv.innerHTML += `
+                <div class="response-item">
+                    <div class="res-info">
+                        <img src="${res.photo}" class="res-img">
+                        <div class="res-details">
+                            <p class="res-name">${res.name}</p>
+                            <p>Ans: <span class="res-ans">${res.answer}</span></p>
+                            <p class="res-time">${time}</p>
+                        </div>
+                    </div>
+                    <button class="copy-id" onclick="copyId('${res.regNo}')">ID: ${res.regNo}</button>
+                </div>
+            `;
+        });
+    });
+}
+
+function copyId(id) {
+    document.getElementById("winnerId").value = id;
+    alert("വിജയിയുടെ ID കോപ്പി ചെയ്തു!");
+}
+
+// 3. ക്വിസ് അപ്‌ഡേറ്റ് ചെയ്യാൻ
+async function updateQuiz(status) {
     const opts = [
         document.getElementById("opt1").value,
         document.getElementById("opt2").value,
         document.getElementById("opt3").value,
         document.getElementById("opt4").value
     ];
-    const nDate = document.getElementById("nextQuizTime").value;
 
-    if(status === 'open' && (!q || opts.some(o => !o))) {
-        alert("Please enter the question and all 4 options!");
-        return;
-    }
-
-    await db.collection("quiz_config").doc("current").set({
-        question: q,
+    const data = {
+        quizId: document.getElementById("quizId").value,
+        question: document.getElementById("question").value,
         options: opts,
-        status: status,
-        winnerId: "",
-        nextDate: nDate ? new Date(nDate).toString() : "TBA"
-    }, { merge: true });
+        winnerId: document.getElementById("winnerId").value,
+        nextDate: document.getElementById("nextDate").value,
+        status: status
+    };
 
-    alert("Quiz is now " + status.toUpperCase());
-}
-
-// Monitor Status & Responses
-db.collection("quiz_config").doc("current").onSnapshot(doc => {
-    const data = doc.data();
-    if(!data) return;
-    const s = document.getElementById("currentStatus");
-    s.innerText = data.status;
-    s.className = "badge " + data.status;
-    document.getElementById("activeNextDate").innerText = "Scheduled: " + (data.nextDate || "Not Set");
-});
-
-db.collection("quiz_responses").orderBy("time", "asc").onSnapshot(snap => {
-    let html = "";
-    snap.forEach(doc => {
-        const d = doc.data();
-        const t = d.time ? d.time.toDate().toLocaleTimeString() : "...";
-        html += `<tr class="student-row">
-            <td>${t}</td>
-            <td><strong>${d.name}</strong><br><small>${d.regNo} | ${d.mentor}</small></td>
-            <td><span style="color:var(--primary); font-weight:bold;">${d.answer}</span></td>
-            <td><button class="btn btn-winner" onclick="declareWinner('${d.regNo}', '${d.name}')">Select Winner</button></td>
-        </tr>`;
-    });
-    document.getElementById("resBody").innerHTML = html;
-});
-
-// Declare Winner
-async function declareWinner(id, name) {
-    if(confirm("Confirm " + name + " as the winner? This will show the poster to everyone.")) {
-        await db.collection("quiz_config").doc("current").update({
-            status: "closed",
-            winnerId: id
-        });
-        alert("Winner Declared! Poster is now live.");
-    }
-}
-
-// Reset Everything
-async function resetQuizData() {
-    if(confirm("DANGER: This will delete all current student answers. Use this only when starting a new quiz week. Continue?")) {
-        const snap = await db.collection("quiz_responses").get();
-        const batch = db.batch();
-        snap.forEach(doc => batch.delete(doc.ref));
-        await batch.commit();
-
-        await db.collection("quiz_config").doc("current").update({
-            status: "ready",
-            winnerId: "",
-            question: ""
-        });
-        alert("All student data cleared!");
-        location.reload();
-    }
+    await db.collection("quiz_config").doc("current").set(data, { merge: true });
+    alert("Quiz updated as " + status);
 }
 </script>
 </body>
