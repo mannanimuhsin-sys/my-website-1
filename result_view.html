@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madrasa Result View</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #198754; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        
+        /* Header Style */
+        .header-card { background: white; margin: 20px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; border-top: 5px solid var(--primary); }
+        .m-name { font-size: 26px; font-weight: 800; color: #1a1a1a; text-transform: uppercase; margin-bottom: 5px; }
+        .exam-title { color: #666; font-size: 16px; margin-bottom: 25px; font-weight: 600; }
+        
+        /* Selection Style */
+        .select-box { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; }
+        select { padding: 12px 20px; border-radius: 12px; border: 2px solid #ddd; font-size: 16px; font-weight: 600; outline: none; width: 220px; cursor: pointer; }
+        select:focus { border-color: var(--primary); }
+
+        /* Result List Style */
+        .result-container { padding: 20px; max-width: 600px; margin: auto; }
+        .student-card { background: #ffffff; padding: 18px 25px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        .student-name { font-weight: 700; color: #333; font-size: 17px; }
+        .status-badge { background: var(--primary); color: white; padding: 8px 22px; border-radius: 50px; font-weight: 800; font-size: 13px; min-width: 80px; text-align: center; }
+        .status-fail { background: #dc3545; }
+
+        /* Footer Style */
+        footer { background: linear-gradient(135deg, #11998e, #38ef7d); margin: 20px; padding: 25px; border-radius: 20px; text-align: center; color: white; box-shadow: 0 10px 20px rgba(25,135,84,0.2); }
+        .dev-name { font-weight: 800; font-size: 18px; margin-bottom: 8px; }
+        footer a { color: white; text-decoration: none; font-weight: bold; font-size: 15px; border: 1px solid white; padding: 8px 15px; border-radius: 10px; display: inline-block; margin-top: 10px; }
+        
+        #loader { text-align: center; padding: 100px 20px; font-weight: bold; color: var(--primary); font-size: 20px; }
+    </style>
+</head>
+<body>
+
+<div id="loader">വിവരങ്ങൾ ശേഖരിക്കുന്നു... <br><small style="color:#888; font-size: 12px;">ദയവായി കാത്തിരിക്കുക</small></div>
+
+<div id="mainContent" style="display:none;">
+    <div class="header-card">
+        <div class="m-name" id="mName">MADRASA NAME</div>
+        <div class="exam-title">Annual Exam Result @ 2025-2026</div>
+        <div class="select-box">
+            <select id="classSelect" onchange="displayResults()">
+                <option value="">Select Class / ക്ലാസ്സ്</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="result-container" id="resultsArea">
+        </div>
+
+    <footer>
+        <div class="dev-name">MUHSIN MANNANI</div>
+        <div style="font-size: 14px; opacity: 0.9;">System Developer & Designer</div>
+        <a href="https://wa.me/917559950633"><i class="fab fa-whatsapp"></i> Contact via WhatsApp</a>
+    </footer>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAUkOIp33p7sMviItKLEP6EGyPQvFBuQeY",
+  authDomain: "result-aedec.firebaseapp.com",
+  projectId: "result-aedec",
+  storageBucket: "result-aedec.firebasestorage.app",
+  messagingSenderId: "654773450983",
+  appId: "1:654773450983:web:463a919c5c83ec55134a42"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let madrasaData = null;
+const urlParams = new URLSearchParams(window.location.search);
+const mId = urlParams.get('id');
+
+// Fetching Data from Firestore
+if(mId) {
+    db.collection("exam_results_final").where("secretId", "==", mId).get().then((querySnapshot) => {
+        if (!querySnapshot.empty) {
+            madrasaData = querySnapshot.docs[0].data();
+            document.getElementById('mName').innerText = madrasaData.madrasa;
+            
+            const sel = document.getElementById('classSelect');
+            // Sorting classes in order
+            Object.keys(madrasaData.results).sort((a,b)=>a-b).forEach(cls => {
+                let opt = document.createElement('option');
+                opt.value = cls;
+                opt.innerText = "Class - " + cls;
+                sel.appendChild(opt);
+            });
+
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        } else {
+            document.getElementById('loader').innerHTML = "<span style='color:red;'>ലിങ്ക് ലഭ്യമല്ല!</span><br>അഡ്മിനുമായി ബന്ധപ്പെടുക.";
+        }
+    }).catch(err => {
+        document.getElementById('loader').innerText = "Error loading data.";
+    });
+} else {
+    document.getElementById('loader').innerText = "അസാധുവായ ലിങ്ക് (Invalid ID)";
+}
+
+// Display Students based on selected class
+function displayResults() {
+    const cls = document.getElementById('classSelect').value;
+    const area = document.getElementById('resultsArea');
+    area.innerHTML = "";
+    
+    if(!cls || !madrasaData.results[cls]) return;
+
+    madrasaData.results[cls].forEach(student => {
+        const card = document.createElement('div');
+        card.className = 'student-card';
+        const statusClass = student.status === 'PASS' ? '' : 'status-fail';
+        card.innerHTML = `
+            <div class="student-name">${student.name}</div>
+            <div class="status-badge ${statusClass}">${student.status}</div>
+        `;
+        area.appendChild(card);
+    });
+}
+</script>
+</body>
+</html>
