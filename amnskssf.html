@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <title>QUIZ MASTER ADMIN</title>
+    <style>
+        body { font-family: sans-serif; background: #1a1a1a; color: #fff; padding: 20px; }
+        .card { background: #2d2d2d; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #444; }
+        input, select { padding: 12px; margin: 5px; border-radius: 8px; border: 1px solid #444; background: #1a1a1a; color: #fff; width: 200px; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
+        .btn-green { background: #2e7d32; }
+        .btn-red { background: #c62828; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #2d2d2d; }
+        th, td { padding: 15px; border: 1px solid #444; text-align: left; }
+    </style>
+</head>
+<body>
+
+    <h1>SKSSF QUIZ ADMIN</h1>
+
+    <div class="card">
+        <h3>ക്വിസ് കൺട്രോൾ (Time & Status)</h3>
+        തുടങ്ങേണ്ട സമയം: <input type="datetime-local" id="startTime">
+        <button class="btn btn-green" onclick="updateSettings(false)">SAVE & START</button>
+        <button class="btn btn-red" onclick="updateSettings(true)">STOP QUIZ</button>
+    </div>
+
+    <div class="card">
+        <h3>ചോദ്യം ചേർക്കുക</h3>
+        <input type="text" id="qText" placeholder="ചോദ്യം" style="width: 80%;"><br><br>
+        1. <input type="text" id="opt0"> <input type="radio" name="correct" value="0"> ശരി <br>
+        2. <input type="text" id="opt1"> <input type="radio" name="correct" value="1"> ശരി <br>
+        3. <input type="text" id="opt2"> <input type="radio" name="correct" value="2"> ശരി <br>
+        4. <input type="text" id="opt3"> <input type="radio" name="correct" value="3"> ശരി <br><br>
+        <button class="btn btn-green" onclick="addQuestion()">ADD QUESTION</button>
+    </div>
+
+    <div class="card">
+        <h3>വിജയികളെ കണ്ടെത്തുക</h3>
+        <button class="btn btn-green" onclick="calculateWinners()">GENERATE WINNERS</button>
+        <table id="winnerTable">
+            <thead>
+                <tr><th>Rank</th><th>Reg ID</th><th>Name</th><th>Branch</th><th>Score</th><th>Time</th><th>Action</th></tr>
+            </thead>
+            <tbody id="winnerBody"></tbody>
+        </table>
+    </div>
+
+    <canvas id="posterCanvas" width="1000" height="1050" style="display:none;"></canvas>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o",
+  authDomain: "skssf-quiz.firebaseapp.com",
+  projectId: "skssf-quiz",
+  storageBucket: "skssf-quiz.firebasestorage.app",
+  messagingSenderId: "999161549501",
+  appId: "1:999161549501:web:7be9c98c287b92881a5dd4"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+async function updateSettings(isClosed) {
+    const time = document.getElementById('startTime').value;
+    await db.collection("quiz_settings").doc("status").set({ startTime: time, closed: isClosed });
+    alert("ക്രമീകരണങ്ങൾ സേവ് ചെയ്തു!");
+}
+
+async function addQuestion() {
+    const text = document.getElementById('qText').value;
+    const options = [document.getElementById('opt0').value, document.getElementById('opt1').value, document.getElementById('opt2').value, document.getElementById('opt3').value];
+    const correct = document.querySelector('input[name="correct"]:checked').value;
+    await db.collection("questions").add({ text, options, correct });
+    alert("ചോദ്യം ചേർത്തു!");
+    location.reload();
+}
+
+async function calculateWinners() {
+    const qSnap = await db.collection("questions").get();
+    let correctAnswers = {};
+    qSnap.forEach(doc => correctAnswers[doc.id] = doc.data().correct);
+    const rSnap = await db.collection("results").get();
+    let results = [];
+    rSnap.forEach(doc => {
+        const data = doc.data();
+        let score = 0;
+        for(let qid in correctAnswers) if(data.answers[qid] == correctAnswers[qid]) score++;
+        results.push({...data, score});
+    });
+    results.sort((a,b) => b.score - a.score || a.submitTime - b.submitTime);
+    const body = document.getElementById('winnerBody');
+    body.innerHTML = "";
+    results.forEach((r, i) => {
+        const timeStr = r.submitTime ? r.submitTime.toDate().toLocaleTimeString() : "N/A";
+        body.innerHTML += `<tr><td>${i+1}</td><td>${r.regId}</td><td>${r.name}</td><td>${r.branch}</td><td>${r.score}</td><td>${timeStr}</td><td><button onclick="generatePoster('${r.name}', '${r.branch}', '${r.regId}', '${r.mobile}')">Poster</button></td></tr>`;
+    });
+}
+
+function generatePoster(name, branch, regId, mobile) {
+    const canvas = document.getElementById('posterCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = "#004d00"; ctx.fillRect(0, 0, 1000, 1050);
+    ctx.strokeStyle = "#D4AF37"; ctx.lineWidth = 25; ctx.strokeRect(50, 50, 900, 950);
+    ctx.fillStyle = "#D4AF37"; ctx.font = "bold 35px Arial"; ctx.textAlign = "center";
+    ctx.fillText("SKSSF CHAPPARAPPADAV ZONE", 500, 150);
+    ctx.fillStyle = "#fff"; ctx.font = "bold 65px Arial"; ctx.fillText("SAMASTHA ONLINE QUIZ", 500, 250);
+    ctx.fillStyle = "#fff"; ctx.font = "40px Arial"; ctx.fillText("CONGRATULATIONS", 500, 420);
+    ctx.fillStyle = "#D4AF37"; ctx.font = "bold 85px Arial"; ctx.fillText(name.toUpperCase(), 500, 560);
+    ctx.fillStyle = "#fff"; ctx.font = "bold 50px Arial"; ctx.fillText(branch, 500, 660);
+    ctx.font = "35px Arial"; ctx.fillText("Reg No: " + regId, 500, 750);
+    const masked = "XXXXXX" + mobile.substring(6);
+    ctx.fillText("Mob: " + masked, 500, 810);
+    ctx.font = "20px Arial"; ctx.fillText("Developed by: Muhsin Mannani", 500, 950);
+    const link = document.createElement('a');
+    link.download = `Winner_${name}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAMASTHA QUIZ PROGRAM - SKSSF</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #006400; --gold: #D4AF37; --bg: #f0f4f0; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        .header { background: linear-gradient(135deg, #004d00, #008000); color: white; text-align: center; padding: 40px 20px; border-radius: 0 0 40px 40px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .header h1 { margin: 0; font-size: 28px; letter-spacing: 1px; }
+        .header p { margin: 10px 0 0; font-size: 14px; opacity: 0.9; font-weight: bold; }
+        
+        .container { max-width: 500px; margin: -30px auto 50px; background: white; padding: 25px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-top: 5px solid var(--gold); }
+        .tab-box { display: flex; gap: 10px; margin-bottom: 25px; background: #eee; padding: 5px; border-radius: 15px; }
+        .tab-box button { flex: 1; padding: 12px; border: none; background: transparent; font-weight: bold; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .tab-box button.active { background: var(--primary); color: white; }
+
+        input, select { width: 100%; padding: 14px; margin-bottom: 15px; border: 1.5px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 15px; outline: none; }
+        input:focus { border-color: var(--primary); }
+        
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; font-size: 16px; background: var(--primary); box-shadow: 0 4px 10px rgba(0,100,0,0.2); }
+        .btn:active { transform: scale(0.98); }
+        
+        #regNumBox { display: none; text-align: center; padding: 20px; background: #fffde7; border: 2px dashed var(--gold); border-radius: 15px; margin-top: 20px; animation: slideIn 0.5s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #countdown { font-size: 32px; font-weight: 800; color: #d32f2f; text-align: center; margin: 20px 0; }
+        .q-box { margin-bottom: 20px; padding: 15px; border-radius: 12px; background: #f9f9f9; border: 1px solid #eee; }
+        .option-label { display: block; padding: 12px; background: white; margin-bottom: 8px; border-radius: 10px; cursor: pointer; border: 1.5px solid #eee; }
+        
+        footer { text-align: center; padding: 30px 20px; background: white; margin-top: 50px; border-top: 1px solid #eee; }
+        .footer-icons { margin-top: 15px; }
+        .footer-icons a { margin: 0 15px; font-size: 24px; color: var(--primary); text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <p>SKSSF CHAPPARAPPADAV ZONE PRESENTS</p>
+    <h1>SAMASTHA QUIZ PROGRAM</h1>
+</div>
+
+<div class="container" id="mainApp">
+    <div id="authPanel">
+        <div class="tab-box">
+            <button id="regTab" class="active" onclick="showTab('reg')">രജിസ്റ്റർ</button>
+            <button id="logTab" onclick="showTab('log')">ലോഗിൻ</button>
+        </div>
+
+        <div id="regPart">
+            <input type="text" id="regName" placeholder="പേര്">
+            <input type="number" id="regMobile" placeholder="മൊബൈൽ നമ്പർ">
+            <select id="regBranch">
+                <option value="">ശാഖ തിരഞ്ഞെടുക്കുക</option>
+                <option>KARUVANCHAL</option><option>VILAKKANNOOR</option><option>CHAPPARAPPADAV</option>
+                <option>NADUVIL</option><option>PADAPPENGAD</option><option>PERUVANA</option>
+                <option>ELAMBERAM PARA</option><option>ERUVATTI</option><option>NHANDUMBALAM</option>
+                <option>PERUMALABAD</option><option>MANGARA BADARIYYA</option><option>THADIKKADAV</option>
+                <option>SHANTHIGIRI</option><option>NEDUVOODE</option>
+            </select>
+            <button class="btn" onclick="handleRegister()">രജിസ്റ്റർ ചെയ്യുക</button>
+            
+            <div id="regNumBox">
+                <p style="margin:0; font-weight:bold; color:#555;">രജിസ്ട്രേഷൻ വിജയിച്ചു!</p>
+                <small>നിങ്ങളുടെ രജിസ്റ്റർ നമ്പർ:</small>
+                <h2 id="displayRegNum" style="color:#d32f2f; font-size:40px; margin: 5px 0;"></h2>
+                <p style="font-size:12px; color:#666;">ഈ നമ്പർ ഉപയോഗിച്ച് ലോഗിൻ ചെയ്യുക.</p>
+            </div>
+        </div>
+
+        <div id="logPart" style="display:none;">
+            <input type="number" id="logId" placeholder="രജിസ്റ്റർ നമ്പർ നൽകുക">
+            <button class="btn" onclick="handleLogin()">ലോഗിൻ & കൺഫോം</button>
+        </div>
+    </div>
+
+    <div id="quizView" style="display:none;">
+        <div id="userInfoShow" style="text-align:center; padding:15px; background:#e8f5e9; border-radius:15px; border:1px solid #c8e6c9; margin-bottom:20px;"></div>
+        <div id="timerDisplay">
+            <p style="text-align:center; font-weight:bold;">മത്സരം തുടങ്ങാൻ ഇനി:</p>
+            <div id="countdown">00:00:00:00</div>
+        </div>
+        <div id="quizArea" style="display:none;">
+            <div id="questionList"></div>
+            <button class="btn" onclick="submitQuiz()">സബ്മിറ്റ് ചെയ്യുക</button>
+        </div>
+    </div>
+    
+    <div id="closedMessage" style="display:none; text-align:center; padding:40px;">
+        <h2 style="color:red;">ക്വിസ് പ്രോഗ്രാം അവസാനിച്ചിരിക്കുന്നു!</h2>
+    </div>
+</div>
+
+<footer>
+    <div style="font-size:14px; font-weight:bold;">Developed By: MUHSIN MANNANI</div>
+    <div class="footer-icons">
+        <a href="https://wa.me/917559950633"><i class="fab fa-whatsapp"></i></a>
+        <a href="tel:917559950633"><i class="fa-solid fa-phone"></i></a>
+    </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+// Your Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o",
+  authDomain: "skssf-quiz.firebaseapp.com",
+  projectId: "skssf-quiz",
+  storageBucket: "skssf-quiz.firebasestorage.app",
+  messagingSenderId: "999161549501",
+  appId: "1:999161549501:web:7be9c98c287b92881a5dd4"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function showTab(t) {
+    document.getElementById('regPart').style.display = (t==='reg')?'block':'none';
+    document.getElementById('logPart').style.display = (t==='log')?'block':'none';
+    document.getElementById('regTab').classList.toggle('active', t==='reg');
+    document.getElementById('logTab').classList.toggle('active', t==='log');
+}
+
+// പരിഷ്കരിച്ച രജിസ്ട്രേഷൻ ഫങ്ക്ഷൻ
+async function handleRegister() {
+    const name = document.getElementById('regName').value.trim();
+    const mob = document.getElementById('regMobile').value.trim();
+    const branch = document.getElementById('regBranch').value;
+
+    if(!name || !mob || !branch) return alert("ദയവായി എല്ലാ വിവരങ്ങളും നൽകുക!");
+
+    try {
+        // മൊബൈൽ നമ്പർ ഡ്യൂപ്ലിക്കേഷൻ പരിശോധന
+        const checkMob = await db.collection("participants").where("mobile", "==", mob).get();
+        if(!checkMob.empty) return alert("ഈ മൊബൈൽ നമ്പർ മുമ്പ് ഉപയോഗിച്ചുകഴിഞ്ഞു!");
+
+        // പുതിയ രജിസ്റ്റർ നമ്പർ കണ്ടെത്തുന്നു (101 മുതൽ)
+        const snap = await db.collection("participants").orderBy("regId", "desc").limit(1).get();
+        let nextId = 101;
+        if(!snap.empty) {
+            nextId = parseInt(snap.docs[0].data().regId) + 1;
+        }
+
+        const userData = {
+            name: name,
+            mobile: mob,
+            branch: branch,
+            regId: nextId,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        // ഡാറ്റാബേസിലേക്ക് സേവ് ചെയ്യുന്നു
+        await db.collection("participants").doc(nextId.toString()).set(userData);
+        
+        // വിജയിച്ചാൽ നമ്പർ കാണിക്കുന്നു
+        document.getElementById('displayRegNum').innerText = nextId;
+        document.getElementById('regNumBox').style.display = 'block';
+        document.getElementById('regPart').querySelectorAll('input, select, button').forEach(el => el.disabled = true);
+        
+        alert("അഭിനന്ദനങ്ങൾ! നിങ്ങളുടെ രജിസ്റ്റർ നമ്പർ: " + nextId);
+    } catch (error) {
+        console.error(error);
+        alert("രജിസ്ട്രേഷൻ പരാജയപ്പെട്ടു. വീണ്ടും ശ്രമിക്കുക.");
+    }
+}
+
+async function handleLogin() {
+    const id = document.getElementById('logId').value;
+    if(!id) return alert("രജിസ്റ്റർ നമ്പർ നൽകുക!");
+
+    const doc = await db.collection("participants").doc(id).get();
+    if(!doc.exists) return alert("രജിസ്റ്റർ നമ്പർ തെറ്റാണ് അല്ലെങ്കിൽ ലഭ്യമല്ല!");
+    
+    const currentUser = doc.data();
+    window.sessionStorage.setItem('quiz_user', JSON.stringify(currentUser));
+    
+    document.getElementById('authPanel').style.display = 'none';
+    document.getElementById('quizView').style.display = 'block';
+    document.getElementById('userInfoShow').innerHTML = `സ്വാഗതം, <b>${currentUser.name}</b><br>ശാഖ: ${currentUser.branch} | ID: ${currentUser.regId}`;
+    
+    // ക്വിസ് സെറ്റിങ്‌സ് നിരീക്ഷിക്കുന്നു
+    db.collection("quiz_settings").doc("status").onSnapshot(doc => {
+        if(doc.exists) {
+            const settings = doc.data();
+            if(settings.closed) {
+                document.getElementById('quizView').style.display = 'none';
+                document.getElementById('closedMessage').style.display = 'block';
+            } else {
+                runTimer(settings.startTime);
+            }
+        }
+    });
+}
+
+function runTimer(startTime) {
+    const target = new Date(startTime).getTime();
+    const x = setInterval(() => {
+        const now = new Date().getTime();
+        const dist = target - now;
+        if(dist <= 0) {
+            clearInterval(x);
+            document.getElementById('timerDisplay').style.display = 'none';
+            document.getElementById('quizArea').style.display = 'block';
+            loadQuestions();
+        } else {
+            const d = Math.floor(dist / (1000 * 60 * 60 * 24));
+            const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((dist % (1000 * 60)) / 1000);
+            document.getElementById('countdown').innerHTML = `${d}d ${h}h ${m}m ${s}s`;
+        }
+    }, 1000);
+}
+
+async function loadQuestions() {
+    const snap = await db.collection("questions").get();
+    let html = "";
+    snap.forEach(doc => {
+        const q = doc.data();
+        html += `<div class="q-box" data-id="${doc.id}">
+            <div style="font-weight:bold; margin-bottom:10px;">${q.text}</div>
+            ${q.options.map((opt, i) => `<label class="option-label"><input type="radio" name="q_${doc.id}" value="${i}"> ${opt}</label>`).join('')}
+        </div>`;
+    });
+    document.getElementById('questionList').innerHTML = html;
+}
+
+async function submitQuiz() {
+    const user = JSON.parse(window.sessionStorage.getItem('quiz_user'));
+    let answers = {};
+    document.querySelectorAll('.q-box').forEach(box => {
+        const qid = box.getAttribute('data-id');
+        const sel = box.querySelector('input:checked');
+        answers[qid] = sel ? sel.value : null;
+    });
+
+    await db.collection("results").doc(user.regId.toString()).set({
+        ...user, 
+        answers: answers, 
+        submitTime: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert("താങ്കൾ വിജയകരമായി സബ്മിറ്റ് ചെയ്തിരിക്കുന്നു!");
+    location.reload();
+}
+</script>
+</body>
+</html>
