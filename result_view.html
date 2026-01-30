@@ -3,48 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Madrasa Result View</title>
+    <title>Madrasa Result Online</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #198754; --bg: #f8f9fa; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        :root { --primary: #00897b; --accent: #ffd700; --bg: #f4f7f6; }
+        body { font-family: 'Poppins', 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; }
         
-        /* Header Style */
-        .header-card { background: white; margin: 20px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; border-top: 5px solid var(--primary); }
-        .m-name { font-size: 26px; font-weight: 800; color: #1a1a1a; text-transform: uppercase; margin-bottom: 5px; }
-        .exam-title { color: #666; font-size: 16px; margin-bottom: 25px; font-weight: 600; }
+        /* Premium Header */
+        .header-card { background: white; margin: 15px; padding: 25px 15px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; border-bottom: 4px solid var(--primary); }
+        .m-name { font-size: 24px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
+        .m-place { font-size: 15px; color: #666; font-weight: 600; margin-bottom: 8px; display: block; }
+        .sadr-info { font-size: 12px; color: #888; background: #f9f9f9; display: inline-block; padding: 5px 15px; border-radius: 50px; border: 1px solid #eee; margin-bottom: 15px; }
+        .sadr-info b { color: #444; }
         
-        /* Selection Style */
-        .select-box { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; }
-        select { padding: 12px 20px; border-radius: 12px; border: 2px solid #ddd; font-size: 16px; font-weight: 600; outline: none; width: 220px; cursor: pointer; }
+        .exam-tag { display: block; font-size: 13px; font-weight: 700; color: #555; margin-bottom: 15px; }
+
+        /* Selection Box */
+        .select-wrapper { margin-bottom: 10px; }
+        select { padding: 12px 15px; border-radius: 15px; border: 2px solid #e0e0e0; font-size: 15px; font-weight: 600; width: 100%; max-width: 250px; outline: none; background: #fff; cursor: pointer; color: #444; }
         select:focus { border-color: var(--primary); }
 
-        /* Result List Style */
-        .result-container { padding: 20px; max-width: 600px; margin: auto; }
-        .student-card { background: #ffffff; padding: 18px 25px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        .student-name { font-weight: 700; color: #333; font-size: 17px; }
-        .status-badge { background: var(--primary); color: white; padding: 8px 22px; border-radius: 50px; font-weight: 800; font-size: 13px; min-width: 80px; text-align: center; }
-        .status-fail { background: #dc3545; }
+        /* Result Cards */
+        .result-container { padding: 10px 15px; max-width: 500px; margin: auto; }
+        .student-card { background: #ffffff; padding: 15px 20px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: 0.3s; border: 1px solid #f0f0f0; }
+        .student-name { font-weight: 700; color: #2c3e50; font-size: 16px; text-transform: uppercase; }
+        .status-badge { background: var(--primary); color: white; padding: 7px 18px; border-radius: 50px; font-weight: 800; font-size: 12px; min-width: 60px; text-align: center; box-shadow: 0 4px 10px rgba(0,137,123,0.2); }
+        .status-fail { background: #e53935; box-shadow: 0 4px 10px rgba(229,57,53,0.2); }
 
-        /* Footer Style */
-        footer { background: linear-gradient(135deg, #11998e, #38ef7d); margin: 20px; padding: 25px; border-radius: 20px; text-align: center; color: white; box-shadow: 0 10px 20px rgba(25,135,84,0.2); }
-        .dev-name { font-weight: 800; font-size: 18px; margin-bottom: 8px; }
-        footer a { color: white; text-decoration: none; font-weight: bold; font-size: 15px; border: 1px solid white; padding: 8px 15px; border-radius: 10px; display: inline-block; margin-top: 10px; }
+        /* Executive Footer */
+        footer { margin: 20px 15px; padding: 15px; border-radius: 20px; text-align: center; background: #1a1a1a; color: #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .dev-box { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .dev-name { font-weight: 700; font-size: 14px; letter-spacing: 1px; color: var(--accent); }
+        .dev-tag { font-size: 10px; opacity: 0.7; text-transform: uppercase; }
+        .wa-btn { text-decoration: none; color: #1a1a1a; background: var(--accent); font-weight: 800; font-size: 11px; padding: 6px 15px; border-radius: 8px; margin-top: 8px; display: inline-flex; align-items: center; gap: 5px; }
         
-        #loader { text-align: center; padding: 100px 20px; font-weight: bold; color: var(--primary); font-size: 20px; }
+        /* Loader */
+        #loader { text-align: center; padding: 120px 20px; font-weight: bold; color: var(--primary); font-size: 18px; }
+        .spinner { margin: 0 auto 15px; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div id="loader">വിവരങ്ങൾ ശേഖരിക്കുന്നു... <br><small style="color:#888; font-size: 12px;">ദയവായി കാത്തിരിക്കുക</small></div>
+<div id="loader">
+    <div class="spinner"></div>
+    റിസൾട്ടിനായി ദയവായി കാത്തിരിക്കൂ...
+</div>
 
 <div id="mainContent" style="display:none;">
     <div class="header-card">
         <div class="m-name" id="mName">MADRASA NAME</div>
-        <div class="exam-title">Annual Exam Result @ 2025-2026</div>
-        <div class="select-box">
+        <div class="m-place" id="mPlace">LOCATION</div>
+        
+        <div class="sadr-info">
+            <i class="fa-solid fa-user-tie"></i> Contact: <b id="sadrName">Sadr Name</b> | <i class="fa-solid fa-phone"></i> <b id="sadrPhone">0000</b>
+        </div>
+
+        <div class="exam-tag"><i class="fa-solid fa-calendar-check"></i> Annual Exam Result 2025-26</div>
+        
+        <div class="select-wrapper">
             <select id="classSelect" onchange="displayResults()">
-                <option value="">Select Class / ക്ലാസ്സ്</option>
+                <option value="">-- Select Class --</option>
             </select>
         </div>
     </div>
@@ -53,9 +72,13 @@
         </div>
 
     <footer>
-        <div class="dev-name">MUHSIN MANNANI</div>
-        <div style="font-size: 14px; opacity: 0.9;">System Developer & Designer</div>
-        <a href="https://wa.me/917559950633"><i class="fab fa-whatsapp"></i> Contact via WhatsApp</a>
+        <div class="dev-box">
+            <div class="dev-tag">Developed By</div>
+            <div class="dev-name">MUHSIN MANNANI</div>
+            <a href="https://wa.me/917559950633" class="wa-btn">
+                <i class="fab fa-whatsapp"></i> WHATSAPP
+            </a>
+        </div>
     </footer>
 </div>
 
@@ -63,7 +86,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAUkOIp33p7sMviItKLEP6EGyPQvFBuQeY",
   authDomain: "result-aedec.firebaseapp.com",
@@ -79,15 +101,18 @@ let madrasaData = null;
 const urlParams = new URLSearchParams(window.location.search);
 const mId = urlParams.get('id');
 
-// Fetching Data from Firestore
 if(mId) {
     db.collection("exam_results_final").where("secretId", "==", mId).get().then((querySnapshot) => {
         if (!querySnapshot.empty) {
             madrasaData = querySnapshot.docs[0].data();
+            
+            // Setting Data
             document.getElementById('mName').innerText = madrasaData.madrasa;
+            document.getElementById('mPlace').innerText = madrasaData.place || "";
+            document.getElementById('sadrName').innerText = madrasaData.sadr || "Sadr";
+            document.getElementById('sadrPhone').innerText = madrasaData.mobile || "";
             
             const sel = document.getElementById('classSelect');
-            // Sorting classes in order
             Object.keys(madrasaData.results).sort((a,b)=>a-b).forEach(cls => {
                 let opt = document.createElement('option');
                 opt.value = cls;
@@ -98,16 +123,11 @@ if(mId) {
             document.getElementById('loader').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
         } else {
-            document.getElementById('loader').innerHTML = "<span style='color:red;'>ലിങ്ക് ലഭ്യമല്ല!</span><br>അഡ്മിനുമായി ബന്ധപ്പെടുക.";
+            document.getElementById('loader').innerHTML = "<b style='color:red;'>ലിങ്ക് അസാധുവാണ്!</b>";
         }
-    }).catch(err => {
-        document.getElementById('loader').innerText = "Error loading data.";
     });
-} else {
-    document.getElementById('loader').innerText = "അസാധുവായ ലിങ്ക് (Invalid ID)";
 }
 
-// Display Students based on selected class
 function displayResults() {
     const cls = document.getElementById('classSelect').value;
     const area = document.getElementById('resultsArea');
