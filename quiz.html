@@ -6,65 +6,35 @@
     <title>Ramadan Special Quiz - Misbahul Uloom</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root { --primary: #198754; --gold: #D4AF37; --dark: #121212; --light: #ffffff; }
         body { font-family: 'Poppins', sans-serif; background: #eef2f3; margin: 0; padding: 15px; }
         .main-container { max-width: 450px; margin: auto; }
-
-        .executive-header {
-            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
-            padding: 35px 20px; text-align: center; border-radius: 30px 30px 0 0;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2); border-bottom: 4px solid var(--gold);
-        }
+        .executive-header { background: linear-gradient(135deg, #1a1a1a 0%, #333 100%); padding: 35px 20px; text-align: center; border-radius: 30px 30px 0 0; border-bottom: 4px solid var(--gold); }
         .m-name { color: #ccc; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
-        .q-title { color: var(--gold); font-size: 26px; font-weight: 800; margin: 8px 0 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-
-        .content-card {
-            background: var(--light); border-radius: 0 0 30px 30px;
-            padding: 30px 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); text-align: center; min-height: 400px;
-        }
-
-        .timer-display { 
-            background: #000; color: var(--gold); padding: 15px; border-radius: 15px; 
-            margin-bottom: 25px; border: 2px solid var(--gold); display: flex; justify-content: space-around;
-        }
+        .q-title { color: var(--gold); font-size: 26px; font-weight: 800; margin: 8px 0 0; }
+        .content-card { background: var(--light); border-radius: 0 0 30px 30px; padding: 30px 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); text-align: center; min-height: 400px; }
+        .timer-display { background: #000; color: var(--gold); padding: 15px; border-radius: 15px; margin-bottom: 25px; border: 2px solid var(--gold); display: flex; justify-content: space-around; }
         .timer-unit span { display: block; font-size: 22px; font-weight: bold; color: #fff; }
         .timer-unit small { font-size: 10px; opacity: 0.8; }
-
-        .input-group { position: relative; margin-bottom: 20px; text-align: left; }
+        .input-group { position: relative; margin-bottom: 20px; }
         .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #888; }
-        .executive-input {
-            width: 100%; padding: 16px 16px 16px 45px; border: 2px solid #eee;
-            border-radius: 15px; font-size: 16px; box-sizing: border-box; background: #fafafa;
-        }
-
-        .btn-executive {
-            width: 100%; padding: 16px; background: var(--primary); color: white; border: none;
-            border-radius: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-
+        .executive-input { width: 100%; padding: 16px 16px 16px 45px; border: 2px solid #eee; border-radius: 15px; font-size: 16px; box-sizing: border-box; }
+        .btn-executive { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .question-box { background: #f9f9f9; padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: left; border-left: 6px solid var(--primary); }
-        .opt-btn { width: 100%; padding: 14px; margin: 10px 0; border: 1.5px solid #ddd; border-radius: 12px; background: #fff; cursor: pointer; text-align: left; }
-        .opt-btn.selected { background: var(--primary); color: white; font-weight: 600; }
-
-        .profile-ring { width: 120px; height: 120px; border-radius: 50%; padding: 5px; background: linear-gradient(var(--gold), var(--primary)); margin: 0 auto 15px; overflow: hidden; }
+        .opt-btn { width: 100%; padding: 14px; margin: 8px 0; border: 1.5px solid #ddd; border-radius: 12px; background: #fff; cursor: pointer; text-align: left; }
+        .opt-btn.selected { background: var(--primary); color: white; }
+        .profile-ring { width: 120px; height: 120px; border-radius: 50%; padding: 5px; background: linear-gradient(var(--gold), var(--primary)); margin: 0 auto 15px; }
         .stud-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid white; }
-        
-        .winner-card { background: #fff; border-radius: 20px; padding: 20px; border: 2px solid var(--gold); box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2); }
-        .id-badge { background: #d32f2f; color: white; padding: 4px 12px; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block; margin-bottom: 10px; }
-
+        .winner-card { border: 2px solid var(--gold); border-radius: 20px; padding: 25px; background: #fff; }
+        .id-badge { background: #d32f2f; color: white; padding: 4px 12px; border-radius: 8px; font-weight: bold; margin-bottom: 10px; display: inline-block; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
 <div class="main-container">
-    <div class="executive-header">
-        <p class="m-name">Misbahul Uloom Madrasa Peruvana</p>
-        <h1 class="q-title">RAMADAN SPECIAL QUIZ</h1>
-    </div>
-
+    <div class="executive-header"><p class="m-name">Misbahul Uloom Madrasa Peruvana</p><h1 class="q-title">RAMADAN SPECIAL QUIZ</h1></div>
     <div class="content-card">
         <div id="countdownArea" class="timer-display">
             <div class="timer-unit"><span id="days">00</span><small>DAYS</small></div>
@@ -74,75 +44,49 @@
         </div>
 
         <div id="loginStep">
-            <div class="input-group">
-                <i class="fa-solid fa-id-card-clip"></i>
-                <input type="text" id="regId" class="executive-input" placeholder="Enter Registration ID">
-            </div>
+            <div class="input-group"><i class="fa-solid fa-id-card-clip"></i><input type="text" id="regId" class="executive-input" placeholder="Enter Student ID"></div>
             <button class="btn-executive" onclick="verifyStudent()">തുടരുക <i class="fa-solid fa-arrow-right"></i></button>
         </div>
 
         <div id="confirmStep" class="hidden">
             <div class="profile-ring"><img id="studImg" class="stud-img"></div>
             <div class="id-badge">ID: <span id="studIdDisp"></span></div>
-            <h2 id="studName" style="margin: 0;"></h2>
-            <p id="studInfo" style="color: #666; font-size: 13px; margin: 8px 0 20px;"></p>
+            <h2 id="studName" style="margin:0;"></h2>
+            <p id="studInfo" style="color:#666; font-size:13px; margin:8px 0 20px;"></p>
             <button class="btn-executive" onclick="startQuiz()">START QUIZ <i class="fa-solid fa-rocket"></i></button>
         </div>
 
         <div id="quizArea" class="hidden">
             <div id="questionsContainer"></div>
-            <button class="btn-executive" style="background: #222;" onclick="submitAnswers()">SUBMIT <i class="fa-solid fa-paper-plane"></i></button>
+            <button class="btn-executive" style="background:#222;" onclick="submitAll()">SUBMIT <i class="fa-solid fa-paper-plane"></i></button>
         </div>
 
         <div id="winnerArea" class="hidden">
-            <div class="winner-card" id="winnerUI">
-                </div>
-            <button class="btn-executive" style="background: #007bff; margin-top: 20px;" onclick="downloadPoster()">
-                DOWNLOAD POSTER <i class="fa-solid fa-download"></i>
-            </button>
+            <div class="winner-card" id="winnerUI"></div>
         </div>
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <script>
-// Firebase Config
-const firebaseConfig = {
+firebase.initializeApp({
     apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
     authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
     projectId: "misbahul-uloom-madrasa-4830c"
-};
-firebase.initializeApp(firebaseConfig);
+});
 const db = firebase.firestore();
+let quizQ = [], live = false, picks = {}, student = null;
 
-let quizQuestions = [];
-let isLive = false;
-let selections = {};
-let student = null;
-
-// അഡ്മിൻ പാനലിലെ മാറ്റങ്ങൾ ശ്രദ്ധിക്കുന്നു
 db.collection("quiz_config").doc("current").onSnapshot(doc => {
-    const data = doc.data();
-    
-    // 1. ഡാറ്റ ഇല്ലെങ്കിൽ അല്ലെങ്കിൽ റീസെറ്റ് ചെയ്താൽ ലോഗിൻ പേജിലേക്ക് മാറ്റുന്നു
-    if (!data || data.status === "active") {
-        resetUIPage();
-        if(data) {
-            quizQuestions = data.questions || [];
-            startTimer(data.startTime);
-        }
-        return;
-    }
-
-    // 2. വിജയിയെ പ്രഖ്യാപിച്ചിട്ടുണ്ടെങ്കിൽ പോസ്റ്റർ കാണിക്കുന്നു
-    if (data.status === "winner") {
-        showWinnerDetails(data.winnerId);
-    }
+    const d = doc.data();
+    if (!d || d.status === "active") {
+        resetUI();
+        if(d) { quizQ = d.questions || []; startT(d.startTime); }
+    } else if (d.status === "winner") { showWinner(d.winnerId); }
 });
 
-function resetUIPage() {
+function resetUI() {
     document.getElementById("winnerArea").classList.add("hidden");
     document.getElementById("quizArea").classList.add("hidden");
     document.getElementById("confirmStep").classList.add("hidden");
@@ -150,33 +94,23 @@ function resetUIPage() {
     document.getElementById("countdownArea").classList.remove("hidden");
 }
 
-function startTimer(startTime) {
-    const target = new Date(startTime).getTime();
+function startT(st) {
+    const target = new Date(st).getTime();
     const x = setInterval(() => {
-        const now = new Date().getTime();
-        const diff = target - now;
-        if (diff <= 0) {
-            clearInterval(x);
-            isLive = true;
-            document.getElementById("countdownArea").innerHTML = "<h3 style='color:var(--gold);margin:0;'>QUIZ IS LIVE!</h3>";
-            return;
-        }
-        document.getElementById("days").innerText = Math.floor(diff/(1000*60*60*24)).toString().padStart(2,'0');
-        document.getElementById("hours").innerText = Math.floor((diff%(1000*60*60*24))/(1000*60*60)).toString().padStart(2,'0');
-        document.getElementById("mins").innerText = Math.floor((diff%(1000*60*60))/(1000*60)).toString().padStart(2,'0');
-        document.getElementById("secs").innerText = Math.floor((diff%(1000*60))/1000).toString().padStart(2,'0');
+        const diff = target - new Date().getTime();
+        if (diff <= 0) { clearInterval(x); live = true; document.getElementById("countdownArea").innerHTML = "<h3>QUIZ IS LIVE!</h3>"; return; }
+        document.getElementById("days").innerText = Math.floor(diff/86400000).toString().padStart(2,'0');
+        document.getElementById("hours").innerText = Math.floor((diff%86400000)/3600000).toString().padStart(2,'0');
+        document.getElementById("mins").innerText = Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
+        document.getElementById("secs").innerText = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
     }, 1000);
 }
 
 async function verifyStudent() {
     const id = document.getElementById("regId").value.trim();
     if(!id) return;
-    const check = await db.collection("quiz_responses").where("studentId", "==", id).get();
-    if(!check.empty) return alert("നിങ്ങൾ ഇതിനോടകം പങ്കെടുത്തു!");
-
-    const snap = await db.collection("students").where("number", "==", id).get();
+    const snap = await db.collection("students").where("number","==",id).get();
     if(snap.empty) return alert("ID തെറ്റാണ്!");
-
     student = snap.docs[0].data();
     document.getElementById("loginStep").classList.add("hidden");
     document.getElementById("confirmStep").classList.remove("hidden");
@@ -187,49 +121,40 @@ async function verifyStudent() {
 }
 
 function startQuiz() {
-    if(!isLive) return alert("ക്വിസ് ആരംഭിച്ചിട്ടില്ല!");
+    if(!live) return alert("ക്വിസ് തുടങ്ങിയിട്ടില്ല!");
     document.getElementById("confirmStep").classList.add("hidden");
     document.getElementById("quizArea").classList.remove("hidden");
-    let html = "";
-    quizQuestions.forEach((q, i) => {
-        html += `<div class="question-box"><p><strong>Q${i+1}. ${q.text}</strong></p>
-        ${q.options.map(o => `<button class="opt-btn" onclick="optSelect(this, ${i}, '${o}')">${o}</button>`).join('')}</div>`;
+    let h = "";
+    quizQ.forEach((q,i) => {
+        h += `<div class="question-box"><p><strong>Q${i+1}. ${q.text}</strong></p>
+        ${q.options.map(o => `<button class="opt-btn" onclick="sel(this,${i},'${o}')">${o}</button>`).join('')}</div>`;
     });
-    document.getElementById("questionsContainer").innerHTML = html;
+    document.getElementById("questionsContainer").innerHTML = h;
 }
 
-function optSelect(btn, i, v) {
-    btn.parentElement.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selections[i] = v;
+function sel(b,i,v) { b.parentElement.querySelectorAll('.opt-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); picks[i]=v; }
+
+async function submitAll() {
+    if(Object.keys(picks).length < quizQ.length) return alert("എല്ലാം പൂരിപ്പിക്കുക!");
+    await db.collection("quiz_responses").add({ studentId: student.number, studentName: student.name, answers: picks, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+    alert("Submitted!"); location.reload();
 }
 
-async function submitAnswers() {
-    if(Object.keys(selections).length < quizQuestions.length) return alert("എല്ലാ ചോദ്യങ്ങൾക്കും ഉത്തരം നൽകുക!");
-    await db.collection("quiz_responses").add({
-        studentId: student.number, studentName: student.name,
-        answers: selections, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    alert("വിജയകരമായി സബ്മിറ്റ് ചെയ്തു!");
-    location.reload();
-}
-
-async function showWinnerDetails(wId) {
-    const snap = await db.collection("students").where("number", "==", wId).get();
+async function showWinner(wId) {
+    const snap = await db.collection("students").where("number","==",wId).get();
     if(!snap.empty) {
         const w = snap.docs[0].data();
-        resetUIPage();
+        resetUI();
         document.getElementById("loginStep").classList.add("hidden");
         document.getElementById("countdownArea").classList.add("hidden");
         document.getElementById("winnerArea").classList.remove("hidden");
         document.getElementById("winnerUI").innerHTML = `
-            <div class="profile-ring" style="width:150px; height:150px;"><img src="${w.photo}" class="stud-img"></div>
+            <div class="profile-ring" style="width:140px; height:140px;"><img src="${w.photo}" class="stud-img"></div>
             <h1 style="color:var(--gold); margin:5px 0;">WINNER</h1>
             <h2 style="margin:5px 0;">${w.name}</h2>
             <div class="id-badge">ID: ${w.number}</div>
-            <p style="margin:5px 0; font-weight:600; color:#444;">Class: ${w.class}</p>
-            <p style="margin:0; color:#777;">Mentor: ${w.mentor}</p>
-            <h3 style="color:var(--primary); margin-top:15px; font-style:italic;">Congratulations!</h3>
+            <p style="margin:5px 0; font-weight:bold;">Class: ${w.class}</p>
+            <p style="margin:0; color:#666;">Mentor: ${w.mentor}</p>
         `;
     }
 }
