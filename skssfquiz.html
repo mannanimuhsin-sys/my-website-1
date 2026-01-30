@@ -5,34 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SAMASTHA QUIZ PROGRAM - SKSSF</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #006400; --gold: #D4AF37; --bg: #f0f4f0; }
         body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding: 0; }
-        .header { background: linear-gradient(135deg, #004d00, #008000); color: white; text-align: center; padding: 40px 20px; border-radius: 0 0 40px 40px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .header h1 { margin: 0; font-size: 28px; letter-spacing: 1px; }
-        .header p { margin: 10px 0 0; font-size: 14px; opacity: 0.9; font-weight: bold; }
         
-        .container { max-width: 500px; margin: -30px auto 50px; background: white; padding: 25px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-top: 5px solid var(--gold); }
-        .tab-box { display: flex; gap: 10px; margin-bottom: 25px; background: #eee; padding: 5px; border-radius: 15px; }
-        .tab-box button { flex: 1; padding: 12px; border: none; background: transparent; font-weight: bold; border-radius: 12px; cursor: pointer; transition: 0.3s; }
-        .tab-box button.active { background: var(--primary); color: white; }
+        /* Header Design */
+        .header { background: linear-gradient(135deg, #004d00, #008000); color: white; text-align: center; padding: 50px 20px; border-radius: 0 0 50px 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .header h1 { margin: 0; font-size: 30px; letter-spacing: 1px; font-weight: 800; }
+        .header p { margin: 10px 0 0; font-size: 14px; opacity: 0.9; font-weight: bold; color: var(--gold); }
+        
+        /* Main Container */
+        .container { max-width: 500px; margin: -40px auto 50px; background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); border-top: 6px solid var(--gold); position: relative; }
+        
+        /* Tabs */
+        .tab-box { display: flex; gap: 10px; margin-bottom: 30px; background: #f0f0f0; padding: 6px; border-radius: 18px; }
+        .tab-box button { flex: 1; padding: 14px; border: none; background: transparent; font-weight: 800; border-radius: 14px; cursor: pointer; transition: 0.3s; font-size: 15px; }
+        .tab-box button.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(0,100,0,0.2); }
 
-        input, select { width: 100%; padding: 14px; margin-bottom: 15px; border: 1.5px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 15px; outline: none; }
-        input:focus { border-color: var(--primary); }
+        /* Forms */
+        input, select { width: 100%; padding: 15px; margin-bottom: 18px; border: 2px solid #eee; border-radius: 15px; box-sizing: border-box; font-size: 15px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--primary); background: #f9fff9; }
         
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; font-size: 16px; background: var(--primary); box-shadow: 0 4px 10px rgba(0,100,0,0.2); }
-        .btn:active { transform: scale(0.98); }
+        .btn { width: 100%; padding: 18px; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; color: white; font-size: 17px; background: var(--primary); box-shadow: 0 6px 15px rgba(0,100,0,0.2); transition: 0.3s; }
+        .btn:hover { background: #004d00; transform: translateY(-2px); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
         
-        #regNumBox { display: none; text-align: center; padding: 20px; background: #fffde7; border: 2px dashed var(--gold); border-radius: 15px; margin-top: 20px; animation: slideIn 0.5s ease; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Register Number Box */
+        #regNumBox { display: none; text-align: center; padding: 30px; background: #fffde7; border: 3px solid var(--gold); border-radius: 25px; margin-top: 25px; animation: fadeInUp 0.5s ease; }
+        #displayRegNum { color: #d32f2f; font-size: 60px; margin: 10px 0; font-weight: 800; }
         
-        #countdown { font-size: 32px; font-weight: 800; color: #d32f2f; text-align: center; margin: 20px 0; }
-        .q-box { margin-bottom: 20px; padding: 15px; border-radius: 12px; background: #f9f9f9; border: 1px solid #eee; }
-        .option-label { display: block; padding: 12px; background: white; margin-bottom: 8px; border-radius: 10px; cursor: pointer; border: 1.5px solid #eee; }
-        
-        footer { text-align: center; padding: 30px 20px; background: white; margin-top: 50px; border-top: 1px solid #eee; }
-        .footer-icons { margin-top: 15px; }
-        .footer-icons a { margin: 0 15px; font-size: 24px; color: var(--primary); text-decoration: none; }
+        /* Quiz Section */
+        #countdown { font-size: 35px; font-weight: 800; color: #d32f2f; text-align: center; margin: 25px 0; font-family: monospace; }
+        .q-box { margin-bottom: 25px; padding: 20px; border-radius: 15px; background: #f9f9f9; border: 1px solid #eee; }
+        .option-label { display: block; padding: 15px; background: white; margin-bottom: 10px; border-radius: 12px; cursor: pointer; border: 2px solid #eee; font-weight: 600; }
+        .option-label:hover { border-color: var(--primary); }
+
+        /* Footer */
+        footer { text-align: center; padding: 40px 20px; background: white; margin-top: 50px; border-top: 1px solid #eee; }
+        .footer-icons { margin-top: 20px; }
+        .footer-icons a { margin: 0 20px; font-size: 28px; color: var(--primary); text-decoration: none; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -60,13 +74,13 @@
                 <option>PERUMALABAD</option><option>MANGARA BADARIYYA</option><option>THADIKKADAV</option>
                 <option>SHANTHIGIRI</option><option>NEDUVOODE</option>
             </select>
-            <button class="btn" onclick="handleRegister()">രജിസ്റ്റർ ചെയ്യുക</button>
+            <button class="btn" id="regBtn" onclick="handleRegister()">രജിസ്റ്റർ ചെയ്യുക</button>
             
             <div id="regNumBox">
-                <p style="margin:0; font-weight:bold; color:#555;">രജിസ്ട്രേഷൻ വിജയിച്ചു!</p>
-                <small>നിങ്ങളുടെ രജിസ്റ്റർ നമ്പർ:</small>
-                <h2 id="displayRegNum" style="color:#d32f2f; font-size:40px; margin: 5px 0;"></h2>
-                <p style="font-size:12px; color:#666;">ഈ നമ്പർ ഉപയോഗിച്ച് ലോഗിൻ ചെയ്യുക.</p>
+                <p style="margin:0; font-weight:800; color:green; font-size: 20px;">രജിസ്ട്രേഷൻ വിജയിച്ചു!</p>
+                <p style="color:#555; margin: 10px 0;">താങ്കളുടെ രജിസ്റ്റർ നമ്പർ:</p>
+                <h2 id="displayRegNum">---</h2>
+                <p style="font-size:14px; color:#d32f2f; font-weight: bold; background: #ffeaec; padding: 10px; border-radius: 10px;">ലോഗിൻ ചെയ്യാൻ ഈ നമ്പർ ആവശ്യമാണ്. ദയവായി ഇത് കുറിച്ചുവെക്കുക.</p>
             </div>
         </div>
 
@@ -77,9 +91,9 @@
     </div>
 
     <div id="quizView" style="display:none;">
-        <div id="userInfoShow" style="text-align:center; padding:15px; background:#e8f5e9; border-radius:15px; border:1px solid #c8e6c9; margin-bottom:20px;"></div>
+        <div id="userInfoShow" style="text-align:center; padding:20px; background:#e8f5e9; border-radius:20px; border:2px solid #c8e6c9; margin-bottom:25px;"></div>
         <div id="timerDisplay">
-            <p style="text-align:center; font-weight:bold;">മത്സരം തുടങ്ങാൻ ഇനി:</p>
+            <p style="text-align:center; font-weight:bold; color: #555;">മത്സരം തുടങ്ങാൻ ഇനി:</p>
             <div id="countdown">00:00:00:00</div>
         </div>
         <div id="quizArea" style="display:none;">
@@ -88,13 +102,15 @@
         </div>
     </div>
     
-    <div id="closedMessage" style="display:none; text-align:center; padding:40px;">
-        <h2 style="color:red;">ക്വിസ് പ്രോഗ്രാം അവസാനിച്ചിരിക്കുന്നു!</h2>
+    <div id="closedMessage" style="display:none; text-align:center; padding:50px 20px;">
+        <i class="fa-solid fa-circle-exclamation" style="font-size: 50px; color: #d32f2f; margin-bottom: 20px;"></i>
+        <h2 style="color:#d32f2f;">ക്വിസ് പ്രോഗ്രാം അവസാനിച്ചിരിക്കുന്നു!</h2>
     </div>
 </div>
 
 <footer>
-    <div style="font-size:14px; font-weight:bold;">Developed By: MUHSIN MANNANI</div>
+    <div style="font-size:15px; font-weight:800; color: #333;">System Developed By</div>
+    <div style="font-size:18px; font-weight:800; color: var(--primary); margin-top: 5px;">MUHSIN MANNANI</div>
     <div class="footer-icons">
         <a href="https://wa.me/917559950633"><i class="fab fa-whatsapp"></i></a>
         <a href="tel:917559950633"><i class="fa-solid fa-phone"></i></a>
@@ -103,6 +119,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <script>
 // Your Firebase Configuration
 const firebaseConfig = {
@@ -123,7 +140,7 @@ function showTab(t) {
     document.getElementById('logTab').classList.toggle('active', t==='log');
 }
 
-// പരിഷ്കരിച്ച രജിസ്ട്രേഷൻ ഫങ്ക്ഷൻ
+// Fixed Registration Logic
 async function handleRegister() {
     const name = document.getElementById('regName').value.trim();
     const mob = document.getElementById('regMobile').value.trim();
@@ -131,16 +148,30 @@ async function handleRegister() {
 
     if(!name || !mob || !branch) return alert("ദയവായി എല്ലാ വിവരങ്ങളും നൽകുക!");
 
-    try {
-        // മൊബൈൽ നമ്പർ ഡ്യൂപ്ലിക്കേഷൻ പരിശോധന
-        const checkMob = await db.collection("participants").where("mobile", "==", mob).get();
-        if(!checkMob.empty) return alert("ഈ മൊബൈൽ നമ്പർ മുമ്പ് ഉപയോഗിച്ചുകഴിഞ്ഞു!");
+    const btn = document.getElementById('regBtn');
+    btn.disabled = true;
+    btn.innerText = "പ്രോസസ്സിംഗ്...";
 
-        // പുതിയ രജിസ്റ്റർ നമ്പർ കണ്ടെത്തുന്നു (101 മുതൽ)
-        const snap = await db.collection("participants").orderBy("regId", "desc").limit(1).get();
+    try {
+        // Step 1: Check mobile
+        const checkMob = await db.collection("participants").where("mobile", "==", mob).get();
+        if(!checkMob.empty) {
+            alert("ഈ മൊബൈൽ നമ്പർ മുമ്പ് ഉപയോഗിച്ചുകഴിഞ്ഞു!");
+            btn.disabled = false;
+            btn.innerText = "രജിസ്റ്റർ ചെയ്യുക";
+            return;
+        }
+
+        // Step 2: Generate Next ID (Simple loop to avoid Index errors)
         let nextId = 101;
+        const snap = await db.collection("participants").get();
         if(!snap.empty) {
-            nextId = parseInt(snap.docs[0].data().regId) + 1;
+            let maxId = 100;
+            snap.forEach(doc => {
+                const id = parseInt(doc.id);
+                if(id > maxId) maxId = id;
+            });
+            nextId = maxId + 1;
         }
 
         const userData = {
@@ -151,18 +182,21 @@ async function handleRegister() {
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        // ഡാറ്റാബേസിലേക്ക് സേവ് ചെയ്യുന്നു
+        // Step 3: Save Data
         await db.collection("participants").doc(nextId.toString()).set(userData);
         
-        // വിജയിച്ചാൽ നമ്പർ കാണിക്കുന്നു
+        // Step 4: Show Result
         document.getElementById('displayRegNum').innerText = nextId;
         document.getElementById('regNumBox').style.display = 'block';
-        document.getElementById('regPart').querySelectorAll('input, select, button').forEach(el => el.disabled = true);
+        btn.style.display = 'none';
+        document.getElementById('regPart').querySelectorAll('input, select').forEach(i => i.disabled = true);
         
-        alert("അഭിനന്ദനങ്ങൾ! നിങ്ങളുടെ രജിസ്റ്റർ നമ്പർ: " + nextId);
-    } catch (error) {
-        console.error(error);
-        alert("രജിസ്ട്രേഷൻ പരാജയപ്പെട്ടു. വീണ്ടും ശ്രമിക്കുക.");
+        alert("രജിസ്ട്രേഷൻ വിജയിച്ചു! നിങ്ങളുടെ ഐഡി: " + nextId);
+    } catch (e) {
+        console.error(e);
+        alert("പിശക്! ഫയർബേസ് Rules സെറ്റ് ചെയ്തിട്ടുണ്ടോ എന്ന് പരിശോധിക്കുക.");
+        btn.disabled = false;
+        btn.innerText = "രജിസ്റ്റർ ചെയ്യുക";
     }
 }
 
@@ -171,7 +205,7 @@ async function handleLogin() {
     if(!id) return alert("രജിസ്റ്റർ നമ്പർ നൽകുക!");
 
     const doc = await db.collection("participants").doc(id).get();
-    if(!doc.exists) return alert("രജിസ്റ്റർ നമ്പർ തെറ്റാണ് അല്ലെങ്കിൽ ലഭ്യമല്ല!");
+    if(!doc.exists) return alert("രജിസ്റ്റർ നമ്പർ തെറ്റാണ്!");
     
     const currentUser = doc.data();
     window.sessionStorage.setItem('quiz_user', JSON.stringify(currentUser));
@@ -180,14 +214,13 @@ async function handleLogin() {
     document.getElementById('quizView').style.display = 'block';
     document.getElementById('userInfoShow').innerHTML = `സ്വാഗതം, <b>${currentUser.name}</b><br>ശാഖ: ${currentUser.branch} | ID: ${currentUser.regId}`;
     
-    // ക്വിസ് സെറ്റിങ്‌സ് നിരീക്ഷിക്കുന്നു
     db.collection("quiz_settings").doc("status").onSnapshot(doc => {
         if(doc.exists) {
             const settings = doc.data();
             if(settings.closed) {
                 document.getElementById('quizView').style.display = 'none';
                 document.getElementById('closedMessage').style.display = 'block';
-            } else {
+            } else if(settings.startTime) {
                 runTimer(settings.startTime);
             }
         }
@@ -220,17 +253,22 @@ async function loadQuestions() {
     snap.forEach(doc => {
         const q = doc.data();
         html += `<div class="q-box" data-id="${doc.id}">
-            <div style="font-weight:bold; margin-bottom:10px;">${q.text}</div>
-            ${q.options.map((opt, i) => `<label class="option-label"><input type="radio" name="q_${doc.id}" value="${i}"> ${opt}</label>`).join('')}
+            <div style="font-weight:bold; margin-bottom:15px; font-size: 17px;">${q.text}</div>
+            ${q.options.map((opt, i) => `
+                <label class="option-label">
+                    <input type="radio" name="q_${doc.id}" value="${i}"> ${opt}
+                </label>
+            `).join('')}
         </div>`;
     });
-    document.getElementById('questionList').innerHTML = html;
+    document.getElementById('questionList').innerHTML = html || "<p>ചോദ്യങ്ങൾ ലഭ്യമല്ല.</p>";
 }
 
 async function submitQuiz() {
     const user = JSON.parse(window.sessionStorage.getItem('quiz_user'));
     let answers = {};
-    document.querySelectorAll('.q-box').forEach(box => {
+    const boxes = document.querySelectorAll('.q-box');
+    boxes.forEach(box => {
         const qid = box.getAttribute('data-id');
         const sel = box.querySelector('input:checked');
         answers[qid] = sel ? sel.value : null;
