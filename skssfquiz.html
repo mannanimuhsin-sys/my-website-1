@@ -3,66 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAMASTHA QUIZ PROGRAM - SKSSF</title>
+    <title>SKSSF SAMASTHA QUIZ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #006400; --gold: #D4AF37; --bg: #f0f4f0; }
-        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding: 0; }
-        
-        /* Header Design */
-        .header { background: linear-gradient(135deg, #004d00, #008000); color: white; text-align: center; padding: 50px 20px; border-radius: 0 0 50px 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .header h1 { margin: 0; font-size: 30px; letter-spacing: 1px; font-weight: 800; }
-        .header p { margin: 10px 0 0; font-size: 14px; opacity: 0.9; font-weight: bold; color: var(--gold); }
-        
-        /* Main Container */
-        .container { max-width: 500px; margin: -40px auto 50px; background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); border-top: 6px solid var(--gold); position: relative; }
-        
-        /* Tabs */
-        .tab-box { display: flex; gap: 10px; margin-bottom: 30px; background: #f0f0f0; padding: 6px; border-radius: 18px; }
-        .tab-box button { flex: 1; padding: 14px; border: none; background: transparent; font-weight: 800; border-radius: 14px; cursor: pointer; transition: 0.3s; font-size: 15px; }
-        .tab-box button.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(0,100,0,0.2); }
-
-        /* Forms */
-        input, select { width: 100%; padding: 15px; margin-bottom: 18px; border: 2px solid #eee; border-radius: 15px; box-sizing: border-box; font-size: 15px; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--primary); background: #f9fff9; }
-        
-        .btn { width: 100%; padding: 18px; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; color: white; font-size: 17px; background: var(--primary); box-shadow: 0 6px 15px rgba(0,100,0,0.2); transition: 0.3s; }
-        .btn:hover { background: #004d00; transform: translateY(-2px); }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
-        
-        /* Register Number Box */
-        #regNumBox { display: none; text-align: center; padding: 30px; background: #fffde7; border: 3px solid var(--gold); border-radius: 25px; margin-top: 25px; animation: fadeInUp 0.5s ease; }
-        #displayRegNum { color: #d32f2f; font-size: 60px; margin: 10px 0; font-weight: 800; }
-        
-        /* Quiz Section */
-        #countdown { font-size: 35px; font-weight: 800; color: #d32f2f; text-align: center; margin: 25px 0; font-family: monospace; }
-        .q-box { margin-bottom: 25px; padding: 20px; border-radius: 15px; background: #f9f9f9; border: 1px solid #eee; }
-        .option-label { display: block; padding: 15px; background: white; margin-bottom: 10px; border-radius: 12px; cursor: pointer; border: 2px solid #eee; font-weight: 600; }
-        .option-label:hover { border-color: var(--primary); }
-
-        /* Footer */
-        footer { text-align: center; padding: 40px 20px; background: white; margin-top: 50px; border-top: 1px solid #eee; }
-        .footer-icons { margin-top: 20px; }
-        .footer-icons a { margin: 0 20px; font-size: 28px; color: var(--primary); text-decoration: none; }
-
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        :root { --primary: #004d00; --gold: #D4AF37; --bg: #f8f9fa; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; }
+        .header { background: linear-gradient(135deg, #004d00, #007d00); color: white; text-align: center; padding: 40px 20px; border-radius: 0 0 40px 40px; }
+        .container { max-width: 500px; margin: -30px auto 50px; background: white; padding: 25px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid var(--gold); }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; background: var(--primary); margin-top: 10px; transition: 0.3s; }
+        .btn:disabled { background: #ccc; }
+        input, select { width: 100%; padding: 14px; margin-bottom: 15px; border: 1.5px solid #ddd; border-radius: 12px; box-sizing: border-box; }
+        #countdown { font-size: 35px; font-weight: 800; color: #d32f2f; text-align: center; margin: 20px 0; }
+        .q-box { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; }
+        #poster-zone { display: none; text-align: center; margin-top: 20px; border: 2px solid var(--gold); padding: 20px; border-radius: 15px; background: #fffdf0; }
+        canvas { width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        footer { text-align: center; padding: 20px; font-size: 13px; color: #444; border-top: 1px solid #eee; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <p>SKSSF CHAPPARAPPADAV ZONE PRESENTS</p>
-    <h1>SAMASTHA QUIZ PROGRAM</h1>
+    <h1 style="margin:0; font-size:24px;">SAMASTHA QUIZ PROGRAM</h1>
+    <p style="color:var(--gold); margin:5px 0; font-weight:bold;">SKSSF CHAPPARAPPADAV ZONE</p>
 </div>
 
-<div class="container" id="mainApp">
+<div class="container">
     <div id="authPanel">
-        <div class="tab-box">
-            <button id="regTab" class="active" onclick="showTab('reg')">രജിസ്റ്റർ</button>
-            <button id="logTab" onclick="showTab('log')">ലോഗിൻ</button>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <button class="btn" onclick="showTab('reg')">രജിസ്റ്റർ</button>
+            <button class="btn" style="background:#444;" onclick="showTab('log')">ലോഗിൻ</button>
         </div>
-
+        
         <div id="regPart">
             <input type="text" id="regName" placeholder="പേര്">
             <input type="number" id="regMobile" placeholder="മൊബൈൽ നമ്പർ">
@@ -75,53 +46,53 @@
                 <option>SHANTHIGIRI</option><option>NEDUVOODE</option>
             </select>
             <button class="btn" id="regBtn" onclick="handleRegister()">രജിസ്റ്റർ ചെയ്യുക</button>
-            
-            <div id="regNumBox">
-                <p style="margin:0; font-weight:800; color:green; font-size: 20px;">രജിസ്ട്രേഷൻ വിജയിച്ചു!</p>
-                <p style="color:#555; margin: 10px 0;">താങ്കളുടെ രജിസ്റ്റർ നമ്പർ:</p>
-                <h2 id="displayRegNum">---</h2>
-                <p style="font-size:14px; color:#d32f2f; font-weight: bold; background: #ffeaec; padding: 10px; border-radius: 10px;">ലോഗിൻ ചെയ്യാൻ ഈ നമ്പർ ആവശ്യമാണ്. ദയവായി ഇത് കുറിച്ചുവെക്കുക.</p>
+            <div id="regNumBox" style="display:none; text-align:center; padding:15px; background:#fff9c4; margin-top:15px; border-radius:12px; border: 2px dashed var(--gold);">
+                നിങ്ങളുടെ രജിസ്റ്റർ നമ്പർ: <h2 id="displayRegNum" style="margin:5px 0; color:#d32f2f; font-size: 40px;"></h2>
+                <p style="font-size: 12px; color: #555;">ലോഗിൻ ചെയ്യാൻ ഈ നമ്പർ ഉപയോഗിക്കുക.</p>
             </div>
         </div>
 
         <div id="logPart" style="display:none;">
             <input type="number" id="logId" placeholder="രജിസ്റ്റർ നമ്പർ നൽകുക">
-            <button class="btn" onclick="handleLogin()">ലോഗിൻ & കൺഫോം</button>
+            <button class="btn" onclick="handleLogin()">പ്രവേശിക്കുക (Login)</button>
         </div>
     </div>
 
     <div id="quizView" style="display:none;">
-        <div id="userInfoShow" style="text-align:center; padding:20px; background:#e8f5e9; border-radius:20px; border:2px solid #c8e6c9; margin-bottom:25px;"></div>
+        <div id="userInfo" style="background:#e8f5e9; padding:15px; border-radius:12px; text-align:center; margin-bottom:20px; font-weight:bold; border: 1px solid #c8e6c9;"></div>
+        
         <div id="timerDisplay">
-            <p style="text-align:center; font-weight:bold; color: #555;">മത്സരം തുടങ്ങാൻ ഇനി:</p>
-            <div id="countdown">00:00:00:00</div>
+            <p style="text-align:center; font-weight:bold; color: #666;">മത്സരം തുടങ്ങാൻ ഇനി:</p>
+            <div id="countdown">00:00:00</div>
         </div>
+
         <div id="quizArea" style="display:none;">
             <div id="questionList"></div>
-            <button class="btn" onclick="submitQuiz()">സബ്മിറ്റ് ചെയ്യുക</button>
+            <button class="btn" id="submitBtn" onclick="submitQuiz()">സബ്മിറ്റ് ചെയ്യുക</button>
         </div>
-    </div>
-    
-    <div id="closedMessage" style="display:none; text-align:center; padding:50px 20px;">
-        <i class="fa-solid fa-circle-exclamation" style="font-size: 50px; color: #d32f2f; margin-bottom: 20px;"></i>
-        <h2 style="color:#d32f2f;">ക്വിസ് പ്രോഗ്രാം അവസാനിച്ചിരിക്കുന്നു!</h2>
+
+        <div id="poster-zone">
+            <h3 style="color:#004d00; font-size: 24px;">അഭിനന്ദനങ്ങൾ! 🎉</h3>
+            <p style="font-weight: bold;">താങ്കൾ ഈ മത്സരത്തിലെ വിജയിയാണ്.</p>
+            <canvas id="winnerCanvas" width="1000" height="1200"></canvas>
+            <button class="btn" style="background: #D4AF37; color: black; font-size: 18px;" onclick="downloadPoster()">
+                <i class="fa fa-download"></i> POSTER ഡൗൺലോഡ് ചെയ്യുക
+            </button>
+        </div>
+
+        <div id="endMessage" style="display:none; text-align:center; padding:30px;">
+            <i class="fa fa-clock-o" style="font-size: 50px; color: #ccc; margin-bottom: 15px;"></i>
+            <h3 id="endTitle">മത്സരം അവസാനിച്ചിരിക്കുന്നു!</h3>
+            <p id="endDesc">ഫലങ്ങൾക്കായി കാത്തിരിക്കുക.</p>
+        </div>
     </div>
 </div>
 
-<footer>
-    <div style="font-size:15px; font-weight:800; color: #333;">System Developed By</div>
-    <div style="font-size:18px; font-weight:800; color: var(--primary); margin-top: 5px;">MUHSIN MANNANI</div>
-    <div class="footer-icons">
-        <a href="https://wa.me/917559950633"><i class="fab fa-whatsapp"></i></a>
-        <a href="tel:917559950633"><i class="fa-solid fa-phone"></i></a>
-    </div>
-</footer>
+<footer><b>Developed By: MUHSIN MANNANI</b></footer>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <script>
-// Your Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o",
   authDomain: "skssf-quiz.firebaseapp.com",
@@ -133,154 +104,213 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+let currentUser = null;
+
 function showTab(t) {
     document.getElementById('regPart').style.display = (t==='reg')?'block':'none';
     document.getElementById('logPart').style.display = (t==='log')?'block':'none';
-    document.getElementById('regTab').classList.toggle('active', t==='reg');
-    document.getElementById('logTab').classList.toggle('active', t==='log');
 }
 
-// Fixed Registration Logic
 async function handleRegister() {
     const name = document.getElementById('regName').value.trim();
     const mob = document.getElementById('regMobile').value.trim();
     const branch = document.getElementById('regBranch').value;
-
-    if(!name || !mob || !branch) return alert("ദയവായി എല്ലാ വിവരങ്ങളും നൽകുക!");
+    if(!name || !mob || !branch) return alert("എല്ലാ വിവരങ്ങളും നൽകുക!");
 
     const btn = document.getElementById('regBtn');
     btn.disabled = true;
-    btn.innerText = "പ്രോസസ്സിംഗ്...";
 
-    try {
-        // Step 1: Check mobile
-        const checkMob = await db.collection("participants").where("mobile", "==", mob).get();
-        if(!checkMob.empty) {
-            alert("ഈ മൊബൈൽ നമ്പർ മുമ്പ് ഉപയോഗിച്ചുകഴിഞ്ഞു!");
-            btn.disabled = false;
-            btn.innerText = "രജിസ്റ്റർ ചെയ്യുക";
-            return;
-        }
-
-        // Step 2: Generate Next ID (Simple loop to avoid Index errors)
-        let nextId = 101;
-        const snap = await db.collection("participants").get();
-        if(!snap.empty) {
-            let maxId = 100;
-            snap.forEach(doc => {
-                const id = parseInt(doc.id);
-                if(id > maxId) maxId = id;
-            });
-            nextId = maxId + 1;
-        }
-
-        const userData = {
-            name: name,
-            mobile: mob,
-            branch: branch,
-            regId: nextId,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        // Step 3: Save Data
-        await db.collection("participants").doc(nextId.toString()).set(userData);
-        
-        // Step 4: Show Result
-        document.getElementById('displayRegNum').innerText = nextId;
-        document.getElementById('regNumBox').style.display = 'block';
-        btn.style.display = 'none';
-        document.getElementById('regPart').querySelectorAll('input, select').forEach(i => i.disabled = true);
-        
-        alert("രജിസ്ട്രേഷൻ വിജയിച്ചു! നിങ്ങളുടെ ഐഡി: " + nextId);
-    } catch (e) {
-        console.error(e);
-        alert("പിശക്! ഫയർബേസ് Rules സെറ്റ് ചെയ്തിട്ടുണ്ടോ എന്ന് പരിശോധിക്കുക.");
+    // Mobile Check
+    const mobCheck = await db.collection("participants").where("mobile", "==", mob).get();
+    if(!mobCheck.empty) {
+        alert("ഈ മൊബൈൽ നമ്പർ ഉപയോഗിച്ച് നേരത്തെ രജിസ്റ്റർ ചെയ്തതാണ്!");
         btn.disabled = false;
-        btn.innerText = "രജിസ്റ്റർ ചെയ്യുക";
+        return;
     }
+
+    const snap = await db.collection("participants").get();
+    let nextId = 101;
+    if(!snap.empty) {
+        let ids = snap.docs.map(d => parseInt(d.id));
+        nextId = Math.max(...ids) + 1;
+    }
+
+    await db.collection("participants").doc(nextId.toString()).set({ name, mobile: mob, branch, regId: nextId });
+    document.getElementById('displayRegNum').innerText = nextId;
+    document.getElementById('regNumBox').style.display = 'block';
+    btn.style.display = 'none';
 }
 
 async function handleLogin() {
-    const id = document.getElementById('logId').value;
-    if(!id) return alert("രജിസ്റ്റർ നമ്പർ നൽകുക!");
-
+    const id = document.getElementById('logId').value.trim();
+    if(!id) return alert("ഐഡി നൽകുക!");
+    
     const doc = await db.collection("participants").doc(id).get();
-    if(!doc.exists) return alert("രജിസ്റ്റർ നമ്പർ തെറ്റാണ്!");
-    
-    const currentUser = doc.data();
-    window.sessionStorage.setItem('quiz_user', JSON.stringify(currentUser));
-    
+    if(!doc.exists) return alert("തെറ്റായ ഐഡി!");
+
+    // Check if already submitted
+    const resCheck = await db.collection("results").doc(id).get();
+    if(resCheck.exists) {
+        alert("നിങ്ങൾ ഈ ഐഡി ഉപയോഗിച്ച് മത്സരം പൂർത്തിയാക്കിയതാണ്. ഇനി പങ്കെടുക്കാൻ സാധിക്കില്ല!");
+        return;
+    }
+
+    currentUser = doc.data();
     document.getElementById('authPanel').style.display = 'none';
     document.getElementById('quizView').style.display = 'block';
-    document.getElementById('userInfoShow').innerHTML = `സ്വാഗതം, <b>${currentUser.name}</b><br>ശാഖ: ${currentUser.branch} | ID: ${currentUser.regId}`;
-    
-    db.collection("quiz_settings").doc("status").onSnapshot(doc => {
-        if(doc.exists) {
-            const settings = doc.data();
-            if(settings.closed) {
-                document.getElementById('quizView').style.display = 'none';
-                document.getElementById('closedMessage').style.display = 'block';
-            } else if(settings.startTime) {
-                runTimer(settings.startTime);
-            }
+    document.getElementById('userInfo').innerText = `സ്വാഗതം: ${currentUser.name} | ശാഖ: ${currentUser.branch}`;
+
+    db.collection("quiz_settings").doc("status").onSnapshot(d => {
+        const s = d.data();
+        if(s.closed) {
+            checkWinnerStatus();
+        } else {
+            runTimer(s.startTime, s.published);
         }
     });
 }
 
-function runTimer(startTime) {
+function runTimer(startTime, published) {
     const target = new Date(startTime).getTime();
-    const x = setInterval(() => {
+    const timer = setInterval(() => {
         const now = new Date().getTime();
         const dist = target - now;
         if(dist <= 0) {
-            clearInterval(x);
+            clearInterval(timer);
             document.getElementById('timerDisplay').style.display = 'none';
-            document.getElementById('quizArea').style.display = 'block';
-            loadQuestions();
+            if(published) {
+                document.getElementById('quizArea').style.display = 'block';
+                loadQuestions();
+            } else {
+                document.getElementById('endMessage').style.display = 'block';
+                document.getElementById('endTitle').innerText = "തയ്യാറെടുക്കുക...";
+                document.getElementById('endDesc').innerText = "അഡ്മിൻ പബ്ലിഷ് ചെയ്ത ശേഷം ചോദ്യങ്ങൾ കാണാം.";
+            }
         } else {
-            const d = Math.floor(dist / (1000 * 60 * 60 * 24));
-            const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((dist % (1000 * 60)) / 1000);
-            document.getElementById('countdown').innerHTML = `${d}d ${h}h ${m}m ${s}s`;
+            const h = Math.floor(dist/(1000*60*60));
+            const m = Math.floor((dist%(1000*60*60))/(1000*60));
+            const s = Math.floor((dist%(1000*60))/1000);
+            document.getElementById('countdown').innerHTML = `${h}:${m}:${s}`;
         }
     }, 1000);
 }
 
 async function loadQuestions() {
     const snap = await db.collection("questions").get();
-    let html = "";
+    let h = "";
     snap.forEach(doc => {
         const q = doc.data();
-        html += `<div class="q-box" data-id="${doc.id}">
-            <div style="font-weight:bold; margin-bottom:15px; font-size: 17px;">${q.text}</div>
-            ${q.options.map((opt, i) => `
-                <label class="option-label">
-                    <input type="radio" name="q_${doc.id}" value="${i}"> ${opt}
-                </label>
-            `).join('')}
+        h += `<div class="q-box"><p style="font-weight:bold; margin-top:0;">${q.text}</p>
+        ${q.options.map((o,i) => `<label style="display:block; margin:8px 0; cursor:pointer;"><input type="radio" name="q_${doc.id}" value="${i}"> ${o}</label>`).join('')}
         </div>`;
     });
-    document.getElementById('questionList').innerHTML = html || "<p>ചോദ്യങ്ങൾ ലഭ്യമല്ല.</p>";
+    document.getElementById('questionList').innerHTML = h;
 }
 
 async function submitQuiz() {
-    const user = JSON.parse(window.sessionStorage.getItem('quiz_user'));
-    let answers = {};
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerText = "അയക്കുന്നു...";
+
+    let ans = {};
     const boxes = document.querySelectorAll('.q-box');
     boxes.forEach(box => {
-        const qid = box.getAttribute('data-id');
         const sel = box.querySelector('input:checked');
-        answers[qid] = sel ? sel.value : null;
+        const qid = box.querySelector('input').name.split('_')[1];
+        ans[qid] = sel ? sel.value : null;
     });
 
-    await db.collection("results").doc(user.regId.toString()).set({
-        ...user, 
-        answers: answers, 
-        submitTime: firebase.firestore.FieldValue.serverTimestamp()
+    await db.collection("results").doc(currentUser.regId.toString()).set({ 
+        ...currentUser, 
+        answers: ans, 
+        submitTime: firebase.firestore.FieldValue.serverTimestamp() 
     });
-    alert("താങ്കൾ വിജയകരമായി സബ്മിറ്റ് ചെയ്തിരിക്കുന്നു!");
+    
+    alert("നിങ്ങളുടെ ഉത്തരങ്ങൾ വിജയകരമായി സബ്മിറ്റ് ചെയ്തു!");
     location.reload();
+}
+
+async function checkWinnerStatus() {
+    document.getElementById('timerDisplay').style.display = 'none';
+    document.getElementById('quizArea').style.display = 'none';
+    
+    const winDoc = await db.collection("winners").doc("list").get();
+    if(winDoc.exists) {
+        const winners = winDoc.data().winnerIds || [];
+        if(winners.includes(currentUser.regId.toString())) {
+            showWinnerPoster();
+        } else {
+            document.getElementById('endMessage').style.display = 'block';
+            document.getElementById('endTitle').innerText = "മത്സരം അവസാനിച്ചു";
+            document.getElementById('endDesc').innerText = "മറ്റൊരു മത്സരത്തിൽ വീണ്ടും കാണാം.";
+        }
+    } else {
+        document.getElementById('endMessage').style.display = 'block';
+    }
+}
+
+function showWinnerPoster() {
+    document.getElementById('poster-zone').style.display = 'block';
+    const canvas = document.getElementById('winnerCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Gradient Background
+    let grad = ctx.createLinearGradient(0,0,0,1200);
+    grad.addColorStop(0, "#002b00");
+    grad.addColorStop(1, "#004d00");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,1000,1200);
+    
+    // Golden Frame
+    ctx.strokeStyle = "#D4AF37";
+    ctx.lineWidth = 25;
+    ctx.strokeRect(50,50,900,1100);
+    
+    // Header
+    ctx.fillStyle = "#D4AF37";
+    ctx.font = "bold 35px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("SKSSF CHAPPARAPPADAV ZONE", 500, 150);
+    
+    ctx.fillStyle = "white";
+    ctx.font = "bold 75px Arial";
+    ctx.fillText("SAMASTHA QUIZ", 500, 260);
+    
+    // Congratulation Text
+    ctx.fillStyle = "#D4AF37";
+    ctx.font = "italic 45px Arial";
+    ctx.fillText("CONGRATULATIONS", 500, 420);
+    
+    // Winner Name
+    ctx.fillStyle = "white";
+    ctx.font = "bold 90px Arial";
+    ctx.fillText(currentUser.name.toUpperCase(), 500, 580);
+    
+    // Branch
+    ctx.font = "50px Arial";
+    ctx.fillText("BRANCH: " + currentUser.branch.toUpperCase(), 500, 680);
+    
+    // Badge
+    ctx.fillStyle = "#D4AF37";
+    ctx.beginPath();
+    ctx.arc(500, 880, 120, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = "#004d00";
+    ctx.font = "bold 50px Arial";
+    ctx.fillText("WINNER", 500, 895);
+    
+    // Footer
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.font = "20px Arial";
+    ctx.fillText("Technical Support: Muhsin Mannani", 500, 1150);
+}
+
+function downloadPoster() {
+    const link = document.createElement('a');
+    link.download = `Winner_${currentUser.name}.png`;
+    link.href = document.getElementById('winnerCanvas').toDataURL("image/png", 1.0);
+    link.click();
 }
 </script>
 </body>
