@@ -2,32 +2,27 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <title>Quiz Master - Professional Admin</title>
+    <title>Quiz Master - Admin Panel (With Time)</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <style>
         :root { --green: #198754; --red: #dc3545; --blue: #0d6efd; --orange: #fd7e14; }
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
-        .admin-card { max-width: 950px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        
-        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .control-bar { display: flex; gap: 10px; margin-bottom: 20px; background: #eee; padding: 15px; border-radius: 10px; }
-        
-        .q-card { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 15px; position: relative; }
-        input[type="text"], input[type="datetime-local"] { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        
-        .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .opt-row { display: flex; align-items: center; gap: 8px; background: white; padding: 5px; border-radius: 5px; border: 1px solid #eee; }
-        
-        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
-        .btn-add { background: var(--blue); }
-        .btn-save { background: var(--green); flex: 1; }
+        .admin-card { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .control-bar { display: flex; gap: 15px; margin-bottom: 20px; background: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #eee; }
+        .q-card { background: #fff; border: 1px solid #ddd; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        input[type="text"], input[type="datetime-local"] { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; }
+        .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .opt-row { display: flex; align-items: center; gap: 10px; background: #f1f3f5; padding: 8px; border-radius: 8px; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
+        .btn-save { background: var(--green); }
         .btn-reset { background: var(--orange); }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 25px; }
-        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
-        th { background: #333; color: white; }
-        .score-badge { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 5px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; }
+        th, td { padding: 15px; border: 1px solid #eee; text-align: left; font-size: 14px; }
+        th { background: #343a40; color: white; }
+        .score-badge { background: #e8f5e9; color: #2e7d32; padding: 5px 10px; border-radius: 6px; font-weight: bold; }
+        .time-text { color: #555; font-weight: 600; font-family: monospace; }
     </style>
 </head>
 <body>
@@ -35,7 +30,7 @@
 <div class="admin-card">
     <div class="top-nav">
         <h2 style="color: var(--green); margin:0;">Quiz Admin Panel</h2>
-        <button class="btn btn-reset" onclick="resetFullQuiz()">RESET & START NEW QUIZ</button>
+        <button class="btn btn-reset" onclick="resetFullQuiz()">RESET & NEW QUIZ</button>
     </div>
 
     <div class="control-bar">
@@ -44,27 +39,23 @@
             <input type="datetime-local" id="startTime">
         </div>
         <div style="display: flex; align-items: flex-end; gap: 10px;">
-            <button class="btn" style="background: var(--green);" onclick="updateStatus('live')">LIVE</button>
+            <button class="btn" style="background: var(--green);" onclick="updateStatus('active')">SET ACTIVE</button>
             <button class="btn" style="background: var(--red);" onclick="updateStatus('off')">OFF</button>
         </div>
     </div>
 
-    <div id="qContainer">
-        </div>
+    <div id="qContainer"></div>
 
-    <div style="display: flex; gap: 10px; margin-top: 15px;">
-        <button class="btn btn-add" onclick="addNewQuestionUI()">+ Add Question</button>
-        <button class="btn btn-save" onclick="saveQuizToDB()">SAVE & UPDATE QUIZ</button>
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button class="btn" style="background: var(--blue);" onclick="addNewQuestionUI()">+ Add Question</button>
+        <button class="btn btn-save" onclick="saveQuizToDB()">SAVE & PUBLISH</button>
     </div>
 
-    <hr style="margin: 40px 0;">
-
-    <h3>Student Responses & Marks</h3>
+    <h3 style="margin-top: 40px;">Student Marks & Submission Time</h3>
     <table>
         <thead>
             <tr>
-                <th>Time</th>
-                <th>Student</th>
+                <th>Submitted Time</th> <th>Student Name</th>
                 <th>ID</th>
                 <th>Score</th>
                 <th>Action</th>
@@ -75,18 +66,15 @@
 </div>
 
 <script>
-// Firebase Config
 firebase.initializeApp({
     apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
     authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
     projectId: "misbahul-uloom-madrasa-4830c"
 });
 const db = firebase.firestore();
-
 let qCount = 0;
 let correctAnswers = [];
 
-// 1. പേജ് തുറക്കുമ്പോൾ നിലവിലുള്ള ചോദ്യങ്ങൾ ലോഡ് ചെയ്യുന്നു
 window.onload = async () => {
     const doc = await db.collection("quiz_config").doc("current").get();
     if (doc.exists) {
@@ -97,94 +85,78 @@ window.onload = async () => {
             correctAnswers = data.questions.map(q => q.correct);
         }
         loadResponses();
-    } else {
-        addNewQuestionUI(); // ഡാറ്റ ഒന്നുമില്ലെങ്കിൽ ഒരെണ്ണം കാണിക്കുക
-    }
+    } else { addNewQuestionUI(); }
 };
 
 function addNewQuestionUI(data = null) {
     qCount++;
     const qText = data ? data.text : "";
     const opts = data ? data.options : ["", "", "", ""];
-    const correctVal = data ? opts.indexOf(data.correct) : -1;
-
-    const html = `
-        <div class="q-card" id="q-block-${qCount}">
-            <h4>Question ${qCount}</h4>
-            <input type="text" class="q-txt" value="${qText}" placeholder="Type Question here...">
-            <div class="opt-grid">
-                ${opts.map((opt, i) => `
-                    <div class="opt-row">
-                        <input type="radio" name="ans-${qCount}" value="${i}" ${i === correctVal ? 'checked' : ''}>
-                        <input type="text" class="opt" value="${opt}" placeholder="Option ${i+1}">
-                    </div>
-                `).join('')}
-            </div>
-        </div>`;
+    const corIdx = data ? opts.indexOf(data.correct) : 0;
+    const html = `<div class="q-card">
+        <h4>Question ${qCount}</h4>
+        <input type="text" class="q-txt" value="${qText}" placeholder="Type Question...">
+        <div class="opt-grid">
+            ${opts.map((opt, i) => `<div class="opt-row">
+                <input type="radio" name="ans-${qCount}" value="${i}" ${i===corIdx?'checked':''}>
+                <input type="text" class="opt" value="${opt}" placeholder="Option ${i+1}">
+            </div>`).join('')}
+        </div>
+    </div>`;
     document.getElementById('qContainer').insertAdjacentHTML('beforeend', html);
 }
 
-// 2. ക്വിസ് സേവ് ചെയ്യുന്നു (പഴയ ഉത്തരങ്ങൾ കളയില്ല)
 async function saveQuizToDB() {
     let qData = [];
     document.querySelectorAll('.q-card').forEach((card, idx) => {
         const text = card.querySelector('.q-txt').value;
         const opts = Array.from(card.querySelectorAll('.opt')).map(i => i.value);
         const cor = card.querySelector(`input[name="ans-${idx+1}"]:checked`);
-        if(text && cor) {
-            qData.push({ text: text, options: opts, correct: opts[parseInt(cor.value)] });
-        }
+        if(text && cor) qData.push({ text: text, options: opts, correct: opts[parseInt(cor.value)] });
     });
-
     await db.collection("quiz_config").doc("current").set({
         startTime: document.getElementById('startTime').value,
-        questions: qData,
-        status: "active"
-    }, { merge: true });
-    alert("ചോദ്യങ്ങൾ സേവ് ചെയ്തു!");
+        questions: qData, status: "active"
+    });
+    alert("Quiz Saved!");
     location.reload();
 }
 
-// 3. ക്വിസ് റീസെറ്റ് ചെയ്യുന്നു (ചോദ്യങ്ങളും ഉത്തരങ്ങളും പൂർണ്ണമായി ഒഴിവാകും)
 async function resetFullQuiz() {
-    if(confirm("ശ്രദ്ധിക്കുക! ഇത് ക്ലിക്ക് ചെയ്താൽ നിലവിലുള്ള എല്ലാ ചോദ്യങ്ങളും വിദ്യാർത്ഥികളുടെ ഉത്തരങ്ങളും (Marks) പൂർണ്ണമായും ഡിലീറ്റ് ആകും. പുതിയ ക്വിസ് തുടങ്ങാൻ തയ്യാറാണോ?")) {
-        // Responses ഡിലീറ്റ് ചെയ്യുന്നു
+    if(confirm("പഴയ ചോദ്യങ്ങളും മാർക്കുകളും ഡിലീറ്റ് ചെയ്യണോ?")) {
         const resSnap = await db.collection("quiz_responses").get();
         const batch = db.batch();
-        resSnap.forEach(doc => batch.delete(doc.ref));
+        resSnap.forEach(d => batch.delete(d.ref));
         await batch.commit();
-
-        // Config റീസെറ്റ് ചെയ്യുന്നു
         await db.collection("quiz_config").doc("current").delete();
-        
-        alert("എല്ലാം ക്ലിയർ ചെയ്തു! ഇനി പുതിയ ചോദ്യങ്ങൾ നൽകാം.");
         location.reload();
     }
 }
 
 async function updateStatus(s) {
     await db.collection("quiz_config").doc("current").update({ status: s });
-    alert("Status: " + s);
+    alert("Status Updated: " + s);
 }
 
 function loadResponses() {
+    // സമയം അനുസരിച്ച് സോർട്ട് ചെയ്യുന്നു (ആദ്യം സബ്മിറ്റ് ചെയ്തവർ ആദ്യം വരും)
     db.collection("quiz_responses").orderBy("timestamp", "asc").onSnapshot(snap => {
         const list = document.getElementById('resList');
         list.innerHTML = "";
         snap.forEach(doc => {
             const d = doc.data();
             let score = 0;
-            if (d.answers && correctAnswers.length > 0) {
-                Object.keys(d.answers).forEach(i => {
-                    if (d.answers[i] === correctAnswers[i]) score++;
-                });
-            }
+            if (d.answers) Object.keys(d.answers).forEach(i => { if (d.answers[i] === correctAnswers[i]) score++; });
+            
+            // സമയം ഫോർമാറ്റ് ചെയ്യുന്നു
+            const time = d.timestamp ? d.timestamp.toDate().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }) : "---";
+
             list.innerHTML += `<tr>
-                <td>${d.timestamp?.toDate().toLocaleTimeString()}</td>
+                <td class="time-text">${time}</td>
                 <td>${d.studentName}</td>
                 <td>${d.studentId}</td>
                 <td><span class="score-badge">${score} / ${correctAnswers.length}</span></td>
-                <td><button onclick="setWinner('${d.studentId}')" style="background:orange; color:white; border:none; padding:5px; border-radius:5px; cursor:pointer;">Winner</button></td>
+                <td><button onclick="setWinner('${d.studentId}')" style="background:orange; border:none; color:white; padding:8px; border-radius:5px; cursor:pointer;">Winner</button></td>
             </tr>`;
         });
     });
