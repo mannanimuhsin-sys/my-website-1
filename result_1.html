@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madrasa Executive Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #198754; --gold: #D4AF37; --danger: #dc3545; --dark: #2c3e50; }
+        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
+        .container { max-width: 480px; margin: 20px auto; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-top: 6px solid var(--gold); }
+        .tab-box { display: flex; gap: 10px; margin-bottom: 25px; background: #eee; padding: 5px; border-radius: 15px; }
+        .tab-box button { flex: 1; padding: 12px; border: none; background: transparent; color: var(--dark); font-weight: bold; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .tab-box button.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(25,135,84,0.3); }
+        .form-section { display: none; }
+        .active { display: block; }
+        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group i { position: absolute; left: 15px; top: 15px; color: #888; }
+        input, select { width: 100%; padding: 14px 14px 14px 45px; border: 1.5px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 15px; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; font-size: 16px; transition: 0.3s; }
+        .btn-primary { background: var(--primary); }
+        .st-row { display: flex; gap: 8px; margin-bottom: 10px; background: #f9f9f9; padding: 10px; border-radius: 12px; border: 1px solid #eee; }
+        .status-btn { width: 90px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; color: white; font-size: 12px; }
+        .bg-pass { background: var(--primary); } .bg-fail { background: var(--danger); }
+        .waiting-box { text-align: center; padding: 25px; background: #fff8e1; border-radius: 20px; border: 2px dashed #ffc107; }
+        .approved-box { background: #e7f3ef; padding: 25px; border-radius: 20px; text-align: center; border: 2px solid var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align:center; color: var(--primary); margin-bottom: 5px;">MADRASA ADMIN</h2>
+    <div id="authTabs" class="tab-box">
+        <button id="loginTabBtn" class="active" onclick="switchTab('login')">ലോഗിൻ</button>
+        <button id="regTabBtn" onclick="switchTab('register')">രജിസ്ട്രേഷൻ</button>
+    </div>
+
+    <div id="registerPart" class="form-section">
+        <div class="input-group"><i class="fa-solid fa-mosque"></i><input type="text" id="regMadrasa" placeholder="മദ്രസയുടെ പേര്"></div>
+        <div class="input-group"><i class="fa-solid fa-location-dot"></i><input type="text" id="regPlace" placeholder="സ്ഥലം"></div>
+        <div class="input-group"><i class="fa-solid fa-user-tie"></i><input type="text" id="regSadr" placeholder="സദർ ഉസ്താദിന്റെ പേര്"></div>
+        <div class="input-group"><i class="fa-solid fa-phone"></i><input type="number" id="regMobile" placeholder="മൊബൈൽ നമ്പർ"></div>
+        <div class="input-group"><i class="fa-solid fa-lock"></i><input type="password" id="regPass" placeholder="പാസ്സ്‌വേർഡ്"></div>
+        <button class="btn btn-primary" onclick="doRegister()">രജിസ്റ്റർ ചെയ്യുക</button>
+    </div>
+
+    <div id="loginPart" class="form-section active">
+        <div class="input-group"><i class="fa-solid fa-phone"></i><input type="number" id="logMobile" placeholder="മൊബൈൽ നമ്പർ"></div>
+        <div class="input-group"><i class="fa-solid fa-lock"></i><input type="password" id="logPass" placeholder="പാസ്സ്‌വേർഡ്"></div>
+        <button class="btn btn-primary" onclick="doLogin()">ലോഗിൻ ചെയ്യുക</button>
+    </div>
+
+    <div id="dashPart" class="form-section">
+        <h3 id="mNameDisplay" style="text-align:center; color:var(--primary);"></h3>
+        
+        <div id="approvedView" style="display:none;" class="approved-box">
+            <i class="fa-solid fa-circle-check" style="font-size:50px; color:var(--primary); margin-bottom:15px;"></i>
+            <h3>അപ്രൂവ് ചെയ്തിരിക്കുന്നു!</h3>
+            <p style="font-size:14px;">റിസൾട്ട് ലിങ്ക്:</p>
+            <input type="text" id="shareLink" readonly style="text-align:center; font-weight: bold; color: blue; padding:12px 10px; margin-bottom:10px; width:100%; border-radius:10px; border:1px solid #ccc;">
+            <button onclick="copyLink()" class="btn btn-primary" style="margin-bottom:10px;"><i class="fa-solid fa-copy"></i> കോപ്പി ലിങ്ക്</button>
+            <button onclick="shareWhatsapp()" class="btn" style="background:#25D366;"><i class="fa-brands fa-whatsapp"></i> വാട്സാപ്പിൽ അയക്കുക</button>
+        </div>
+
+        <div id="submittedView" style="display:none;" class="waiting-box">
+            <h4 style="color:#856404;">അപ്രൂവിനായി കാത്തിരിക്കൂ...</h4>
+            <a href="https://wa.me/917559950633" class="btn" style="background:#25D366; text-decoration:none; display:block; margin-top:10px;">വാട്സാപ്പിൽ ബന്ധപ്പെടുക</a>
+        </div>
+
+        <div id="entryView">
+            <select id="selClass" onchange="loadClassData()" style="padding-left:15px; margin-bottom:10px;">
+                <option value="">ക്ലാസ്സ് തിരഞ്ഞെടുക്കുക</option>
+                <script>for(let i=1; i<=12; i++) document.write(`<option value="${i}">ക്ലാസ്സ് ${i}</option>`);</script>
+            </select>
+            <div id="listArea"></div>
+            <button class="btn" style="background:#6c757d; margin-bottom:10px;" onclick="addRow()">+ പേര് ചേർക്കുക</button>
+            <button class="btn" style="background:var(--gold); color:var(--dark);" onclick="saveClass()">സേവ് ചെയ്യുക</button>
+            <hr>
+            <button class="btn" style="background:var(--danger);" onclick="finalSubmit()">ഫൈനൽ സബ്മിറ്റ് (SUBMIT)</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAUkOIp33p7sMviItKLEP6EGyPQvFBuQeY",
+  authDomain: "result-aedec.firebaseapp.com",
+  projectId: "result-aedec",
+  storageBucket: "result-aedec.firebasestorage.app",
+  messagingSenderId: "654773450983",
+  appId: "1:654773450983:web:463a919c5c83ec55134a42"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+let user = null;
+
+// നിങ്ങളുടെ കൃത്യമായ ഗിറ്റ്ഹബ് ലിങ്ക് താഴെ നൽകിയിരിക്കുന്നു
+const SITE_URL = "https://mannanimuhsin-sys.github.io/my-website/result_view.html";
+
+function switchTab(t) {
+    document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-box button').forEach(b => b.classList.remove('active'));
+    document.getElementById(t + 'Part').classList.add('active');
+    document.getElementById(t + 'TabBtn').classList.add('active');
+}
+
+async function doRegister() {
+    const m = document.getElementById('regMobile').value;
+    const n = document.getElementById('regMadrasa').value;
+    const pl = document.getElementById('regPlace').value;
+    const s = document.getElementById('regSadr').value;
+    const p = document.getElementById('regPass').value;
+    if(!m || !n || !p) return alert("വിവരങ്ങൾ നൽകുക!");
+    
+    // ഡാറ്റാബേസ് പേര് 'exam_results_final' എന്ന് തന്നെയാണെന്ന് ഉറപ്പാക്കുക
+    const secretId = "MDR-" + Math.floor(1000 + Math.random() * 9000);
+    await db.collection("exam_results_final").doc(m).set({
+        madrasa: n, place: pl, sadr: s, mobile: m, pass: p, 
+        status: 'pending', results: {}, secretId: secretId
+    });
+    alert("രജിസ്ട്രേഷൻ വിജയകരം!");
+    switchTab('login');
+}
+
+async function doLogin() {
+    const m = document.getElementById('logMobile').value;
+    const p = document.getElementById('logPass').value;
+    const doc = await db.collection("exam_results_final").doc(m).get();
+    if(doc.exists && doc.data().pass === p) {
+        user = doc.data();
+        document.getElementById('authTabs').style.display = 'none';
+        document.getElementById('loginPart').style.display = 'none';
+        document.getElementById('dashPart').classList.add('active');
+        document.getElementById('mNameDisplay').innerText = user.madrasa;
+        if(user.status === 'approved') {
+            document.getElementById('entryView').style.display = 'none';
+            document.getElementById('approvedView').style.display = 'block';
+            document.getElementById('shareLink').value = SITE_URL + "?id=" + user.secretId;
+        } else if(user.status === 'submitted') {
+            document.getElementById('entryView').style.display = 'none';
+            document.getElementById('submittedView').style.display = 'block';
+        }
+    } else { alert("തെറ്റായ വിവരം!"); }
+}
+
+function addRow(n = '', s = 'PASS') {
+    const div = document.createElement('div');
+    div.className = 'st-row';
+    const btnClass = s === 'PASS' ? 'bg-pass' : 'bg-fail';
+    div.innerHTML = `<input type="text" value="${n}" placeholder="പേര്" style="flex:1; padding:10px; border-radius:8px; border:1px solid #ddd;">
+    <button class="status-btn ${btnClass}" onclick="toggleStatus(this)">${s}</button>`;
+    document.getElementById('listArea').appendChild(div);
+}
+
+function toggleStatus(btn) {
+    if(btn.innerText === 'PASS') { btn.innerText = 'FAIL'; btn.classList.replace('bg-pass', 'bg-fail'); }
+    else { btn.innerText = 'PASS'; btn.classList.replace('bg-fail', 'bg-pass'); }
+}
+
+async function saveClass() {
+    const c = document.getElementById('selClass').value;
+    if(!c) return alert("ക്ലാസ്സ് തിരഞ്ഞെടുക്കുക!");
+    let students = [];
+    document.querySelectorAll('.st-row').forEach(r => {
+        const name = r.querySelector('input').value;
+        if(name) students.push({ name: name, status: r.querySelector('button').innerText });
+    });
+    user.results[c] = students;
+    await db.collection("exam_results_final").doc(user.mobile).update({ results: user.results });
+    alert("സേവ് ചെയ്തു!");
+}
+
+function loadClassData() {
+    const c = document.getElementById('selClass').value;
+    document.getElementById('listArea').innerHTML = "";
+    if(user.results && user.results[c]) { user.results[c].forEach(s => addRow(s.name, s.status)); }
+}
+
+async function finalSubmit() {
+    if(confirm("സബ്മിറ്റ് ചെയ്യട്ടെയോ?")) {
+        await db.collection("exam_results_final").doc(user.mobile).update({ status: 'submitted' });
+        location.reload();
+    }
+}
+
+function copyLink() {
+    const link = document.getElementById("shareLink");
+    link.select(); document.execCommand("copy");
+    alert("ലിങ്ക് കോപ്പി ചെയ്തു!");
+}
+
+function shareWhatsapp() {
+    const text = "നിങ്ങളുടെ മദ്രസ പരീക്ഷാ ഫലം ഇവിടെ പരിശോധിക്കാം: " + document.getElementById("shareLink").value;
+    window.open("https://wa.me/?text=" + encodeURIComponent(text));
+}
+</script>
+</body>
+</html>
