@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKSSF QUIZ - USER</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #004d00; --gold: #f1c40f; --black: #121212; --bg: #f4f4f4; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; }
+        .header { background: linear-gradient(135deg, #004d00, #002b00); color: white; text-align: center; padding: 35px 20px; border-radius: 0 0 30px 30px; }
+        .container { max-width: 500px; margin: -20px auto 50px; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid var(--gold); }
+        
+        /* Black Countdown Box */
+        #timerDisplay { background: var(--black); padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 2px solid var(--gold); }
+        .countdown-grid { display: flex; justify-content: center; gap: 10px; }
+        .time-unit { text-align: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; min-width: 60px; border: 1px solid rgba(241, 196, 15, 0.2); }
+        .time-val { display: block; font-family: 'Orbitron', sans-serif; font-size: 22px; color: var(--gold); }
+        .time-label { color: #fff; font-size: 9px; text-transform: uppercase; margin-top: 5px; }
+
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; background: var(--primary); margin-top: 10px; }
+        .btn-gold { background: var(--gold); color: black; }
+        input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1.5px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 15px; }
+        
+        .msg-box { background: #fffde7; padding: 20px; border-radius: 15px; border: 1px solid #fff59d; text-align: center; margin-bottom: 20px; font-weight: 600; color: #555; }
+        .q-box { background: #fff; padding: 18px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #ddd; }
+        canvas { width: 100%; max-width: 450px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; margin: 20px auto; }
+        
+        footer { text-align: center; padding: 30px; margin-top: 40px; border-top: 1px solid #eee; background: white; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1 style="margin:0; font-size:22px;">SAMASTHA QUIZ</h1>
+    <p style="color:var(--gold); margin:5px 0; font-weight:bold; font-size: 12px;">SKSSF CHAPPARAPPADAV ZONE</p>
+</div>
+
+<div class="container">
+    <div id="authPanel">
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <button class="btn" id="tabLog" onclick="showTab('log')">ലോഗിൻ</button>
+            <button class="btn" id="tabReg" style="background:#444;" onclick="showTab('reg')">രജിസ്റ്റർ</button>
+        </div>
+        
+        <div id="logPart">
+            <input type="number" id="logId" placeholder="നിങ്ങളുടെ ഐഡി നൽകുക">
+            <button class="btn" onclick="handleLogin()">പ്രവേശിക്കുക</button>
+        </div>
+
+        <div id="regPart" style="display:none;">
+            <div class="msg-box" style="font-size: 13px;">നേരത്തെ രജിസ്റ്റർ ചെയ്തവർ ഐഡി ഉപയോഗിച്ച് ലോഗിൻ ചെയ്യുക.</div>
+            <input type="text" id="regName" placeholder="പേര്">
+            <input type="number" id="regMobile" placeholder="മൊബൈൽ നമ്പർ">
+            <input type="text" id="regBranch" placeholder="ശാഖ">
+            <button class="btn" onclick="handleRegister()">രജിസ്റ്റർ ചെയ്യുക</button>
+        </div>
+    </div>
+
+    <div id="mainView" style="display:none;">
+        <div id="userInfo" style="background:#f0f7f0; padding:12px; border-radius:12px; text-align:center; margin-bottom:15px; font-weight:bold; font-size:14px; color: #004d00;"></div>
+        
+        <div id="timerDisplay">
+            <div class="countdown-grid">
+                <div class="time-unit"><span id="days" class="time-val">00</span><span class="time-label">Days</span></div>
+                <div class="time-unit"><span id="hours" class="time-val">00</span><span class="time-label">Hrs</span></div>
+                <div class="time-unit"><span id="mins" class="time-val">00</span><span class="time-label">Mins</span></div>
+                <div class="time-unit"><span id="secs" class="time-val">00</span><span class="time-label">Secs</span></div>
+            </div>
+        </div>
+
+        <div id="alreadyPlayedMsg" class="msg-box" style="display:none;">
+            നിങ്ങൾ ഈ മത്സരത്തിൽ പങ്കെടുത്തു കഴിഞ്ഞു. വിജയികളെ പ്രഖ്യാപിക്കുന്നത് വരെ ദയവായി കാത്തിരിക്കുക.
+        </div>
+
+        <div id="quizArea" style="display:none;">
+            <div id="questionList"></div>
+            <button class="btn" onclick="submitQuiz()">SUBMIT</button>
+        </div>
+
+        <div id="resultArea" style="text-align:center;">
+            <canvas id="winnerCanvas" width="800" height="1000"></canvas>
+            <button id="dlBtn" class="btn btn-gold" style="display:none;" onclick="downloadPoster()">POSTER ഡൗൺലോഡ്</button>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div style="font-weight: 800; color: var(--primary);">MUHSIN MANNANI</div>
+    <div class="footer-icons" style="margin-top:10px;">
+        <a href="https://wa.me/917559950633" style="color:#25D366; font-size:24px; text-decoration:none;"><i class="fab fa-whatsapp"></i> WhatsApp Help</a>
+    </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o",
+  authDomain: "skssf-quiz.firebaseapp.com",
+  projectId: "skssf-quiz",
+  storageBucket: "skssf-quiz.firebasestorage.app",
+  messagingSenderId: "999161549501",
+  appId: "1:999161549501:web:7be9c98c287b92881a5dd4"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let currentUser = null;
+let timerInt = null;
+
+function showTab(t) {
+    document.getElementById('logPart').style.display = (t==='log')?'block':'none';
+    document.getElementById('regPart').style.display = (t==='reg')?'block':'none';
+    document.getElementById('tabLog').style.background = (t==='log')? '#004d00':'#444';
+    document.getElementById('tabReg').style.background = (t==='reg')? '#004d00':'#444';
+}
+
+async function handleLogin() {
+    const id = document.getElementById('logId').value.trim();
+    if(!id) return alert("ഐഡി നൽകുക!");
+    
+    const doc = await db.collection("participants").doc(id).get();
+    if(!doc.exists) return alert("ഈ ഐഡി നിലവിലില്ല!");
+
+    currentUser = doc.data();
+    document.getElementById('authPanel').style.display = 'none';
+    document.getElementById('mainView').style.display = 'block';
+    document.getElementById('userInfo').innerText = `${currentUser.name} | ${currentUser.branch}`;
+
+    // Real-time Status Check
+    db.collection("quiz_settings").doc("status").onSnapshot(async (snapshot) => {
+        const status = snapshot.data();
+        const resCheck = await db.collection("results").doc(id).get();
+
+        if (status.closed) {
+            document.getElementById('timerDisplay').style.display = 'none';
+            document.getElementById('quizArea').style.display = 'none';
+            checkWinner(status.showPosters);
+        } else {
+            if (resCheck.exists) {
+                document.getElementById('alreadyPlayedMsg').style.display = 'block';
+                document.getElementById('timerDisplay').style.display = 'none';
+                document.getElementById('quizArea').style.display = 'none';
+            } else {
+                runTimer(status.startTime, status.published);
+            }
+        }
+    });
+}
+
+function runTimer(startTime, published) {
+    if(timerInt) clearInterval(timerInt);
+    const target = new Date(startTime).getTime();
+    
+    timerInt = setInterval(() => {
+        const dist = target - new Date().getTime();
+        if(dist <= 0) {
+            clearInterval(timerInt);
+            document.getElementById('timerDisplay').style.display = 'none';
+            if(published) {
+                document.getElementById('quizArea').style.display = 'block';
+                loadQuestions();
+            }
+        } else {
+            document.getElementById('days').innerText = Math.floor(dist/(1000*60*60*24)).toString().padStart(2,'0');
+            document.getElementById('hours').innerText = Math.floor((dist%(1000*60*60*24))/(1000*60*60)).toString().padStart(2,'0');
+            document.getElementById('mins').innerText = Math.floor((dist%(1000*60*60))/(1000*60)).toString().padStart(2,'0');
+            document.getElementById('secs').innerText = Math.floor((dist%(1000*60))/1000).toString().padStart(2,'0');
+        }
+    }, 1000);
+}
+
+async function checkWinner(show) {
+    const winDoc = await db.collection("winners").doc("list").get();
+    const winners = winDoc.exists ? winDoc.data().winnerIds || [] : [];
+    
+    if(winners.includes(currentUser.regId.toString()) && show) {
+        document.getElementById('alreadyPlayedMsg').style.display = 'none';
+        drawPoster();
+    } else if (show) {
+        document.getElementById('alreadyPlayedMsg').innerText = "മത്സരം അവസാനിച്ചു. പങ്കെടുത്തതിന് നന്ദി.";
+        document.getElementById('alreadyPlayedMsg').style.display = 'block';
+    } else {
+        document.getElementById('alreadyPlayedMsg').style.display = 'block';
+    }
+}
+
+function drawPoster() {
+    const canvas = document.getElementById('winnerCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.style.display = "block";
+    document.getElementById('dlBtn').style.display = "block";
+
+    ctx.fillStyle = "#004d00"; ctx.fillRect(0,0,800,1000);
+    ctx.strokeStyle = "#f1c40f"; ctx.lineWidth = 15; ctx.strokeRect(35,35,730,930);
+    
+    ctx.fillStyle = "#f1c40f"; ctx.font = "bold 25px Arial"; ctx.textAlign = "center";
+    ctx.fillText("SKSSF CHAPPARAPPADAV ZONE", 400, 100);
+    
+    ctx.fillStyle = "white"; ctx.font = "bold 55px Arial"; ctx.fillText("SAMASTHA QUIZ", 400, 200);
+    ctx.fillStyle = "#f1c40f"; ctx.font = "italic 35px Arial"; ctx.fillText("CONGRATULATIONS", 400, 350);
+
+    ctx.fillStyle = "white"; ctx.font = "bold 75px Arial"; ctx.fillText(currentUser.name.toUpperCase(), 400, 520);
+    ctx.fillStyle = "#f1c40f"; ctx.font = "bold 40px Arial"; ctx.fillText(currentUser.branch.toUpperCase(), 400, 610);
+    
+    ctx.fillStyle = "white"; ctx.font = "30px Arial"; 
+    ctx.fillText("ID: " + currentUser.regId, 400, 720);
+    ctx.fillText("MOB: ******" + currentUser.mobile.slice(-4), 400, 770);
+
+    ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.arc(400, 880, 80, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#004d00"; ctx.font = "bold 35px Arial"; ctx.fillText("WINNER", 400, 892);
+}
+
+// Other functions (loadQuestions, submitQuiz, downloadPoster) same as before...
+async function loadQuestions() {
+    if(document.getElementById('questionList').innerHTML !== "") return;
+    const snap = await db.collection("questions").get();
+    let h = "";
+    snap.forEach(doc => {
+        const q = doc.data();
+        h += `<div class="q-box"><b>${q.text}</b><br>
+            ${q.options.map((o,i) => `<label style="display:block; padding:8px;"><input type="radio" name="q_${doc.id}" value="${i}"> ${o}</label>`).join('')}
+        </div>`;
+    });
+    document.getElementById('questionList').innerHTML = h;
+}
+
+async function submitQuiz() {
+    let ans = {};
+    document.querySelectorAll('.q-box').forEach(box => {
+        const input = box.querySelector('input');
+        const qid = input.name.split('_')[1];
+        const sel = box.querySelector('input:checked');
+        ans[qid] = sel ? sel.value : null;
+    });
+    await db.collection("results").doc(currentUser.regId.toString()).set({ ...currentUser, answers: ans, submitTime: firebase.firestore.FieldValue.serverTimestamp() });
+    alert("സമർപ്പിച്ചു!");
+    location.reload();
+}
+
+function downloadPoster() {
+    const link = document.createElement('a');
+    link.download = 'Winner.png';
+    link.href = document.getElementById('winnerCanvas').toDataURL();
+    link.click();
+}
+</script>
+</body>
+</html>
