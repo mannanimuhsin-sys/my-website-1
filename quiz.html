@@ -13,55 +13,51 @@
         .container { max-width: 450px; margin: auto; }
         .card { background: var(--white); border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); overflow: hidden; }
         
-        /* 1000x1050 HD Poster Layout (Hidden from Screen) */
+        /* HD Poster Layout - Fixed for full capture */
         #downloadArea { 
             width: 1000px; 
-            height: 1050px; 
+            height: 1100px; 
             background: #fff; 
             position: absolute; 
-            left: -9999px; 
+            top: -5000px; /* സ്ക്രീനിൽ നിന്ന് വശത്തേക്ക് മാറ്റിവെച്ചു */
+            left: 0;
             display: flex;
             flex-direction: column;
-            border: 20px solid var(--dark);
+            border: 15px solid var(--dark);
         }
 
-        /* HD Poster Header */
         .poster-top-header { background: var(--dark); padding: 50px 20px; text-align: center; border-bottom: 5px solid var(--gold); }
         .p-madrassa { color: #fff; font-size: 52px; font-weight: 700; margin: 0; letter-spacing: 2px; text-transform: uppercase; }
         .p-quiz-title { color: var(--gold); font-size: 38px; margin: 10px 0 0; font-weight: 600; letter-spacing: 5px; }
 
         .weekly-banner-hd { background: #333; padding: 25px; text-align: center; }
-        .weekly-text { color: #fff; font-size: 32px; font-weight: 700; letter-spacing: 10px; margin: 0; }
+        .weekly-text { color: #fff; font-size: 35px; font-weight: 700; letter-spacing: 10px; margin: 0; }
 
-        .poster-body { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; background: radial-gradient(circle, #fff 60%, #fff9e6 100%); }
-        .winner-img-hd { width: 400px; height: 400px; border-radius: 50%; border: 15px solid #fff; box-shadow: 0 15px 40px rgba(0,0,0,0.2); object-fit: cover; margin-bottom: 30px; }
+        .poster-body { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; background: #fff; }
+        .winner-img-hd { width: 420px; height: 420px; border-radius: 50%; border: 15px solid #fff; box-shadow: 0 15px 40px rgba(0,0,0,0.2); object-fit: cover; margin-bottom: 30px; }
         .winner-name-hd { font-size: 75px; color: var(--dark); font-weight: 800; margin: 0; text-transform: uppercase; }
         
-        /* Highlighted Info Section */
         .info-group-hd { margin-top: 15px; text-align: center; width: 100%; }
-        .id-badge-hd { font-size: 42px; color: #d32f2f; font-weight: 700; margin-bottom: 10px; }
-        .stats-row-hd { font-size: 32px; color: #444; font-weight: 500; display: flex; justify-content: center; gap: 30px; border-top: 2px solid #eee; padding-top: 20px; width: 80%; margin: 10px auto; }
+        .id-badge-hd { font-size: 45px; color: #d32f2f; font-weight: 700; margin-bottom: 15px; }
+        .stats-row-hd { font-size: 35px; color: #444; font-weight: 500; display: flex; justify-content: center; gap: 30px; border-top: 2px solid #eee; padding-top: 25px; width: 85%; margin: 10px auto; }
+        .congrats-text-hd { margin-top: 45px; color: var(--gold); font-weight: 800; font-size: 60px; font-style: italic; }
 
-        .congrats-text-hd { margin-top: 40px; color: var(--gold); font-weight: 800; font-size: 55px; font-style: italic; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
-
-        /* UI Preview Section */
+        /* Preview Display (Mobile) */
         .preview-top { background: var(--dark); padding: 15px; color: #fff; text-align: center; }
         .preview-banner { background: #333; padding: 12px; color: var(--gold); text-align: center; font-weight: 800; letter-spacing: 3px; border-bottom: 2px solid var(--gold); }
         .preview-body { padding: 30px 20px; text-align: center; }
         .preview-img { width: 170px; height: 170px; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.1); object-fit: cover; }
 
-        .download-btn { background: #4285f4; color: white; padding: 16px; border-radius: 15px; border: none; width: calc(100% - 40px); margin: 0 20px 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; transition: 0.3s; }
-        .download-btn:hover { background: #3367d6; }
-
-        .timer-box { background: #1a1a1a; color: white; padding: 25px; border-radius: 25px; margin: 20px; text-align: center; border: 1px solid #333; }
+        .download-btn { background: #007bff; color: white; padding: 16px; border-radius: 15px; border: none; width: calc(100% - 40px); margin: 0 20px 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; }
+        .timer-box { background: #1a1a1a; color: white; padding: 25px; border-radius: 25px; margin: 20px; text-align: center; }
         .timer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
         .t-val { font-size: 26px; font-weight: 700; color: var(--gold); display: block; }
-        .t-lbl { font-size: 10px; opacity: 0.7; letter-spacing: 1px; }
+        .t-lbl { font-size: 10px; opacity: 0.7; }
 
         .hidden { display: none; }
-        .btn { width: 100%; padding: 18px; border-radius: 15px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; font-size: 16px; }
-        .opt-btn { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid #ddd; background: white; margin-bottom: 12px; font-weight: 600; cursor: pointer; text-align: left; transition: 0.2s; }
-        .opt-btn.selected { background: var(--primary) !important; color: white !important; border-color: var(--primary); }
+        .btn { width: 100%; padding: 18px; border-radius: 15px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; }
+        .opt-btn { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid #ddd; background: white; margin-bottom: 12px; font-weight: 600; cursor: pointer; }
+        .opt-btn.selected { background: var(--primary) !important; color: white !important; }
     </style>
 </head>
 <body>
@@ -105,7 +101,7 @@
                 <p id="wSubInfoPreview" style="color:#666; font-size:14px; margin-top:5px;"></p>
             </div>
 
-            <button class="download-btn" onclick="downloadPoster()"><i class="fa-solid fa-cloud-arrow-down"></i> Download Poster (HD)</button>
+            <button class="download-btn" onclick="downloadPoster()"><i class="fa-solid fa-download"></i> Download Poster (HD)</button>
             
             <div class="timer-box">
                 <p style="font-size:13px; opacity:0.9; margin:0; font-weight: 600;">Next Quiz Starts In:</p>
@@ -124,7 +120,7 @@
             </div>
             
             <div id="loginStep">
-                <input type="text" id="regInput" placeholder="Enter Registration ID" style="width:100%; padding:15px; border-radius:12px; border:1px solid #ddd; margin-bottom:15px; box-sizing:border-box; font-size: 16px;">
+                <input type="text" id="regInput" placeholder="Enter Registration ID" style="width:100%; padding:15px; border-radius:12px; border:1px solid #ddd; margin-bottom:15px; box-sizing:border-box;">
                 <button class="btn" id="loginBtn" onclick="checkID()">Continue</button>
             </div>
 
@@ -136,9 +132,7 @@
             </div>
 
             <div id="questionStep" class="hidden">
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 20px; border-left: 5px solid var(--primary);">
-                    <h3 id="displayQ" style="line-height:1.6; margin:0; font-size: 18px; color: var(--dark);"></h3>
-                </div>
+                <h3 id="displayQ" style="line-height:1.6; margin-bottom:20px;"></h3>
                 <div id="options"></div>
                 <div id="submitArea" style="display:none; margin-top:20px;">
                     <button class="btn" id="finalSubmitBtn" onclick="finalSubmit()">Submit Answer</button>
@@ -152,7 +146,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase Initialization
 firebase.initializeApp({
     apiKey:"AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
     authDomain:"misbahul-uloom-madrasa-4830c.firebaseapp.com",
@@ -163,7 +156,6 @@ let userData = null;
 let currentQuizID = "";
 let selectedOption = null;
 
-// Quiz Control Listener
 db.collection("quiz_config").doc("current").onSnapshot(async (doc) => {
     const quiz = doc.data();
     if(!quiz) return;
@@ -199,16 +191,10 @@ async function checkID() {
     if(!id) return;
     const btn = document.getElementById("loginBtn");
     btn.innerText = "Checking..."; btn.disabled = true;
-    
     const resSnap = await db.collection("quiz_responses").where("regNo", "==", id).where("quizId", "==", currentQuizID).get();
-    if(!resSnap.empty) { 
-        alert("നിങ്ങൾ ഈ ക്വിസ്സിൽ പങ്കെടുത്ത് കഴിഞ്ഞു!"); 
-        btn.innerText = "Continue"; btn.disabled = false; return; 
-    }
-    
+    if(!resSnap.empty) { alert("Already participated!"); btn.innerText = "Continue"; btn.disabled = false; return; }
     const snap = await db.collection("students").where("number", "==", id).limit(1).get();
-    if(snap.empty) { alert("ID തെറ്റാണ്!"); btn.innerText = "Continue"; btn.disabled = false; return; }
-    
+    if(snap.empty) { alert("ID Error!"); btn.innerText = "Continue"; btn.disabled = false; return; }
     userData = snap.docs[0].data();
     document.getElementById("loginStep").classList.add("hidden");
     document.getElementById("confirmStep").classList.remove("hidden");
@@ -232,7 +218,7 @@ async function finalSubmit() {
             photo: userData.photo, answer: selectedOption, quizId: currentQuizID,
             time: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert("വിജയകരമായി സബ്മിറ്റ് ചെയ്തു!"); location.reload();
+        alert("Submitted!"); location.reload();
     } catch(e) { alert("Error!"); sBtn.innerText = "Submit Answer"; sBtn.disabled = false; }
 }
 
@@ -241,13 +227,11 @@ async function loadWinnerData(wID) {
     const sSnap = await db.collection("students").where("number", "==", wID).limit(1).get();
     if(!sSnap.empty) {
         const w = sSnap.docs[0].data();
-        // Visible Preview Update
         document.getElementById("wPhotoPreview").src = w.photo;
         document.getElementById("wNamePreview").innerText = w.name;
         document.getElementById("wInfoPreview").innerText = `ID: ${w.number}`;
         document.getElementById("wSubInfoPreview").innerText = `Class: ${w.class} | Mentor: ${w.mentor}`;
         
-        // HD Poster Content Update
         document.getElementById("wPhoto").src = w.photo;
         document.getElementById("wName").innerText = w.name;
         document.getElementById("wReg").innerText = "ID: " + w.number;
@@ -256,21 +240,33 @@ async function loadWinnerData(wID) {
     }
 }
 
+// FULL CAPTURE DOWNLOAD FUNCTION
 function downloadPoster() {
     const area = document.getElementById('downloadArea');
     const dbBtn = document.querySelector('.download-btn');
-    dbBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing HD...';
+    dbBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing Poster...';
     
+    // പോസ്റ്റർ ഏരിയ സ്ക്രോൾ പൊസിഷൻ ബാധിക്കാതെ ക്യാപ്‌ചർ ചെയ്യാൻ താഴെ പറയുന്ന ഓപ്ഷനുകൾ നൽകുന്നു
     html2canvas(area, { 
         useCORS: true, 
         backgroundColor: "#ffffff",
-        scale: 2 // High Resolution
+        scale: 2, // HD ക്വാളിറ്റിക്ക്
+        logging: false,
+        allowTaint: true,
+        scrollX: 0,
+        scrollY: -window.scrollY, // സ്ക്രോൾ വാല്യൂ അഡ്ജസ്റ്റ്മെന്റ്
+        windowWidth: 1000,
+        windowHeight: 1100
     }).then(canvas => {
         const link = document.createElement('a');
-        link.download = `Quiz_Winner_${document.getElementById('wName').innerText}.png`;
+        link.download = `Weekly_Winner_${document.getElementById('wName').innerText}.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
-        dbBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> Download Poster (HD)';
+        dbBtn.innerHTML = '<i class="fa-solid fa-download"></i> Download Poster (HD)';
+    }).catch(err => {
+        console.error(err);
+        alert("Download Failed! Try again.");
+        dbBtn.innerHTML = '<i class="fa-solid fa-download"></i> Download Poster (HD)';
     });
 }
 
