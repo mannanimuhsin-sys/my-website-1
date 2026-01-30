@@ -2,55 +2,101 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <title>QUIZ MASTER ADMIN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUIZ MASTER ADMIN - SKSSF</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: #fff; padding: 20px; }
-        .card { background: #2d2d2d; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #444; }
-        input, select { padding: 12px; margin: 5px; border-radius: 8px; border: 1px solid #444; background: #1a1a1a; color: #fff; width: 200px; }
-        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
-        .btn-green { background: #2e7d32; }
-        .btn-red { background: #c62828; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #2d2d2d; }
-        th, td { padding: 15px; border: 1px solid #444; text-align: left; }
+        :root { --admin-bg: #121212; --card-bg: #1e1e1e; --primary: #2ecc71; --danger: #e74c3c; --gold: #f1c40f; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--admin-bg); color: #e0e0e0; margin: 0; padding: 20px; }
+        .header { text-align: center; padding: 20px; border-bottom: 2px solid var(--primary); margin-bottom: 30px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        .card { background: var(--card-bg); padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; }
+        h3 { color: var(--gold); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        
+        input, select { padding: 12px; margin: 10px 5px; border-radius: 8px; border: 1px solid #444; background: #252525; color: #fff; width: calc(100% - 30px); }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; color: white; margin: 5px; }
+        .btn-green { background: var(--primary); }
+        .btn-red { background: var(--danger); }
+        .btn-gold { background: var(--gold); color: #000; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #252525; border-radius: 10px; overflow: hidden; }
+        th, td { padding: 15px; border: 1px solid #333; text-align: left; font-size: 14px; }
+        th { background: #333; color: var(--gold); }
+        
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-box input { flex: 1; }
+
+        /* Poster Preview Hidden */
+        #posterCanvas { display: none; }
     </style>
 </head>
 <body>
 
-    <h1>SKSSF QUIZ ADMIN</h1>
+<div class="header">
+    <h1>SKSSF CHAPPARAPPADAV ZONE</h1>
+    <p>SAMASTHA QUIZ - ADMIN CONTROL PANEL</p>
+</div>
 
+<div class="container">
+    
     <div class="card">
-        <h3>ക്വിസ് കൺട്രോൾ (Time & Status)</h3>
-        തുടങ്ങേണ്ട സമയം: <input type="datetime-local" id="startTime">
-        <button class="btn btn-green" onclick="updateSettings(false)">SAVE & START</button>
-        <button class="btn btn-red" onclick="updateSettings(true)">STOP QUIZ</button>
+        <h3><i class="fa fa-cog"></i> ക്വിസ് കൺട്രോൾ (Settings)</h3>
+        <p>മത്സരം തുടങ്ങേണ്ട തീയതിയും സമയവും നൽകുക:</p>
+        <input type="datetime-local" id="startTime">
+        <div style="display:flex; flex-wrap: wrap;">
+            <button class="btn btn-green" onclick="updateSettings(false)">SAVE & START COUNTDOWN</button>
+            <button class="btn btn-red" onclick="closeQuiz()">STOP QUIZ (അവസാനിപ്പിക്കുക)</button>
+        </div>
+        <p id="statusMsg" style="color: var(--primary); font-weight: bold;"></p>
     </div>
 
     <div class="card">
-        <h3>ചോദ്യം ചേർക്കുക</h3>
-        <input type="text" id="qText" placeholder="ചോദ്യം" style="width: 80%;"><br><br>
-        1. <input type="text" id="opt0"> <input type="radio" name="correct" value="0"> ശരി <br>
-        2. <input type="text" id="opt1"> <input type="radio" name="correct" value="1"> ശരി <br>
-        3. <input type="text" id="opt2"> <input type="radio" name="correct" value="2"> ശരി <br>
-        4. <input type="text" id="opt3"> <input type="radio" name="correct" value="3"> ശരി <br><br>
-        <button class="btn btn-green" onclick="addQuestion()">ADD QUESTION</button>
+        <h3><i class="fa fa-search"></i> രജിസ്റ്റർ നമ്പർ സെർച്ച് ചെയ്യുക</h3>
+        <div class="search-box">
+            <input type="number" id="searchId" placeholder="രജിസ്റ്റർ നമ്പർ നൽകുക (ഉദാ: 101)">
+            <button class="btn btn-gold" onclick="searchParticipant()">SEARCH</button>
+        </div>
+        <div id="searchResult"></div>
     </div>
 
     <div class="card">
-        <h3>വിജയികളെ കണ്ടെത്തുക</h3>
-        <button class="btn btn-green" onclick="calculateWinners()">GENERATE WINNERS</button>
-        <table id="winnerTable">
-            <thead>
-                <tr><th>Rank</th><th>Reg ID</th><th>Name</th><th>Branch</th><th>Score</th><th>Time</th><th>Action</th></tr>
-            </thead>
-            <tbody id="winnerBody"></tbody>
-        </table>
+        <h3><i class="fa fa-plus"></i> ചോദ്യങ്ങൾ ചേർക്കുക</h3>
+        <input type="text" id="qText" placeholder="ചോദ്യം ഇവിടെ ടൈപ്പ് ചെയ്യുക">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>1. <input type="text" id="opt0" placeholder="Option 1"> <input type="radio" name="correct" value="0"> ശരി</div>
+            <div>2. <input type="text" id="opt1" placeholder="Option 2"> <input type="radio" name="correct" value="1"> ശരി</div>
+            <div>3. <input type="text" id="opt2" placeholder="Option 3"> <input type="radio" name="correct" value="2"> ശരി</div>
+            <div>4. <input type="text" id="opt3" placeholder="Option 4"> <input type="radio" name="correct" value="3"> ശരി</div>
+        </div>
+        <button class="btn btn-green" style="width:100%; margin-top:15px;" onclick="addQuestion()">ADD QUESTION</button>
     </div>
 
-    <canvas id="posterCanvas" width="1000" height="1050" style="display:none;"></canvas>
+    <div class="card">
+        <h3><i class="fa fa-trophy"></i> വിജയികളെ തിരഞ്ഞെടുക്കുക (Winner Selection)</h3>
+        <button class="btn btn-gold" onclick="calculateWinners()">GENERATE RANK LIST</button>
+        <div style="overflow-x: auto;">
+            <table id="winnerTable">
+                <thead>
+                    <tr>
+                        <th>Rank</th><th>Reg ID</th><th>Name</th><th>Branch</th><th>Score</th><th>Time</th><th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="winnerBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<canvas id="posterCanvas" width="1000" height="1050"></canvas>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <script>
+// Your Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o",
   authDomain: "skssf-quiz.firebaseapp.com",
@@ -62,60 +108,162 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// 1. Update Quiz Status
 async function updateSettings(isClosed) {
     const time = document.getElementById('startTime').value;
-    await db.collection("quiz_settings").doc("status").set({ startTime: time, closed: isClosed });
-    alert("ക്രമീകരണങ്ങൾ സേവ് ചെയ്തു!");
+    if(!time && !isClosed) return alert("ദയവായി സമയം തിരഞ്ഞെടുക്കുക!");
+    
+    await db.collection("quiz_settings").doc("status").set({
+        startTime: time,
+        closed: isClosed
+    });
+    alert(isClosed ? "ക്വിസ് അവസാനിപ്പിച്ചു!" : "സമയം സേവ് ചെയ്തു. ഇനി ഉപയോക്താക്കൾക്ക് കൗണ്ട്ഡൗൺ കാണാം.");
 }
 
+async function closeQuiz() {
+    if(confirm("നിങ്ങൾ ക്വിസ് അവസാനിപ്പിക്കാൻ പോവുകയാണ്. ശരിയാണോ?")) {
+        updateSettings(true);
+    }
+}
+
+// 2. Search Participant
+async function searchParticipant() {
+    const id = document.getElementById('searchId').value;
+    if(!id) return alert("ഐഡി നൽകുക!");
+    
+    const doc = await db.collection("participants").doc(id).get();
+    const div = document.getElementById('searchResult');
+    if(doc.exists) {
+        const d = doc.data();
+        div.innerHTML = `<div style="padding:15px; background:#333; border-radius:8px; margin-top:10px;">
+            <b>പേര്:</b> ${d.name} <br> <b>മൊബൈൽ:</b> ${d.mobile} <br> <b>ശാഖ:</b> ${d.branch} <br>
+            <button class="btn btn-red" onclick="deleteUser('${id}')">DELETE USER</button>
+        </div>`;
+    } else {
+        div.innerHTML = "അങ്ങനെയൊരു രജിസ്റ്റർ നമ്പർ നിലവിലില്ല!";
+    }
+}
+
+async function deleteUser(id) {
+    if(confirm("ഈ വ്യക്തിയെ ലിസ്റ്റിൽ നിന്നും നീക്കം ചെയ്യട്ടെ?")) {
+        await db.collection("participants").doc(id).delete();
+        alert("നീക്കം ചെയ്തു.");
+        document.getElementById('searchResult').innerHTML = "";
+    }
+}
+
+// 3. Add Questions
 async function addQuestion() {
     const text = document.getElementById('qText').value;
-    const options = [document.getElementById('opt0').value, document.getElementById('opt1').value, document.getElementById('opt2').value, document.getElementById('opt3').value];
-    const correct = document.querySelector('input[name="correct"]:checked').value;
-    await db.collection("questions").add({ text, options, correct });
-    alert("ചോദ്യം ചേർത്തു!");
+    const options = [
+        document.getElementById('opt0').value,
+        document.getElementById('opt1').value,
+        document.getElementById('opt2').value,
+        document.getElementById('opt3').value
+    ];
+    const correctEl = document.querySelector('input[name="correct"]:checked');
+    
+    if(!text || options.includes("") || !correctEl) return alert("എല്ലാ കോളങ്ങളും പൂരിപ്പിക്കുക!");
+
+    await db.collection("questions").add({
+        text: text,
+        options: options,
+        correct: correctEl.value,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert("ചോദ്യം വിജയകരമായി ചേർത്തു!");
     location.reload();
 }
 
+// 4. Winner Calculation & Ranking
 async function calculateWinners() {
     const qSnap = await db.collection("questions").get();
-    let correctAnswers = {};
-    qSnap.forEach(doc => correctAnswers[doc.id] = doc.data().correct);
+    let correctMap = {};
+    qSnap.forEach(doc => correctMap[doc.id] = doc.data().correct);
+
     const rSnap = await db.collection("results").get();
     let results = [];
+    
     rSnap.forEach(doc => {
-        const data = doc.data();
+        const d = doc.data();
         let score = 0;
-        for(let qid in correctAnswers) if(data.answers[qid] == correctAnswers[qid]) score++;
-        results.push({...data, score});
+        for(let qid in correctMap) {
+            if(d.answers && d.answers[qid] == correctMap[qid]) score++;
+        }
+        results.push({...d, score: score});
     });
+
+    // Sort: Score high to low, then by Time (fastest first)
     results.sort((a,b) => b.score - a.score || a.submitTime - b.submitTime);
+
     const body = document.getElementById('winnerBody');
     body.innerHTML = "";
     results.forEach((r, i) => {
         const timeStr = r.submitTime ? r.submitTime.toDate().toLocaleTimeString() : "N/A";
-        body.innerHTML += `<tr><td>${i+1}</td><td>${r.regId}</td><td>${r.name}</td><td>${r.branch}</td><td>${r.score}</td><td>${timeStr}</td><td><button onclick="generatePoster('${r.name}', '${r.branch}', '${r.regId}', '${r.mobile}')">Poster</button></td></tr>`;
+        body.innerHTML += `<tr>
+            <td>${i+1}</td><td>${r.regId}</td><td>${r.name}</td><td>${r.branch}</td>
+            <td><b style="color:var(--primary)">${r.score}</b></td><td>${timeStr}</td>
+            <td><button class="btn btn-green" onclick="generateHDPoster('${r.name}', '${r.branch}', '${r.regId}', '${r.mobile}')">DOWNLOAD POSTER</button></td>
+        </tr>`;
     });
 }
 
-function generatePoster(name, branch, regId, mobile) {
+// 5. HD Poster Generation (1000x1050)
+function generateHDPoster(name, branch, regId, mobile) {
     const canvas = document.getElementById('posterCanvas');
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = "#004d00"; ctx.fillRect(0, 0, 1000, 1050);
-    ctx.strokeStyle = "#D4AF37"; ctx.lineWidth = 25; ctx.strokeRect(50, 50, 900, 950);
-    ctx.fillStyle = "#D4AF37"; ctx.font = "bold 35px Arial"; ctx.textAlign = "center";
+    
+    // Background Clean Green
+    ctx.fillStyle = "#004d00";
+    ctx.fillRect(0, 0, 1000, 1050);
+    
+    // Gold Border
+    ctx.strokeStyle = "#D4AF37";
+    ctx.lineWidth = 30;
+    ctx.strokeRect(40, 40, 920, 970);
+
+    // Header Text
+    ctx.fillStyle = "#D4AF37";
+    ctx.font = "bold 35px Arial";
+    ctx.textAlign = "center";
     ctx.fillText("SKSSF CHAPPARAPPADAV ZONE", 500, 150);
-    ctx.fillStyle = "#fff"; ctx.font = "bold 65px Arial"; ctx.fillText("SAMASTHA ONLINE QUIZ", 500, 250);
-    ctx.fillStyle = "#fff"; ctx.font = "40px Arial"; ctx.fillText("CONGRATULATIONS", 500, 420);
-    ctx.fillStyle = "#D4AF37"; ctx.font = "bold 85px Arial"; ctx.fillText(name.toUpperCase(), 500, 560);
-    ctx.fillStyle = "#fff"; ctx.font = "bold 50px Arial"; ctx.fillText(branch, 500, 660);
-    ctx.font = "35px Arial"; ctx.fillText("Reg No: " + regId, 500, 750);
-    const masked = "XXXXXX" + mobile.substring(6);
-    ctx.fillText("Mob: " + masked, 500, 810);
-    ctx.font = "20px Arial"; ctx.fillText("Developed by: Muhsin Mannani", 500, 950);
+    
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 60px Arial";
+    ctx.fillText("SAMASTHA ONLINE QUIZ", 500, 240);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "40px Arial";
+    ctx.fillText("CONGRATULATIONS", 500, 400);
+
+    // Winner Name (Highlighted)
+    ctx.fillStyle = "#D4AF37";
+    ctx.font = "bold 90px Arial";
+    ctx.fillText(name.toUpperCase(), 500, 540);
+
+    // Branch (Highlighted)
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 55px Arial";
+    ctx.fillText(branch.toUpperCase(), 500, 650);
+
+    // Reg ID
+    ctx.font = "45px Arial";
+    ctx.fillText("REG NO: " + regId, 500, 760);
+
+    // Masked Mobile Number (Show last 4 only)
+    const maskedMob = "XXXXXX" + mobile.slice(-4);
+    ctx.font = "35px Arial";
+    ctx.fillText("MOBILE: " + maskedMob, 500, 830);
+
+    // Footer
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText("System Developed by Muhsin Mannani", 500, 960);
+
+    // Auto Download
     const link = document.createElement('a');
-    link.download = `Winner_${name}.png`;
-    link.href = canvas.toDataURL("image/png");
+    link.download = `Winner_Poster_${name}.png`;
+    link.href = canvas.toDataURL("image/png", 1.0);
     link.click();
 }
 </script>
