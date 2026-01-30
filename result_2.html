@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Head Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #198754; --danger: #dc3545; --warning: #ffc107; --dark: #1e1e1e; }
+        body { font-family: 'Poppins', sans-serif; background: #121212; color: #eee; margin: 0; padding: 20px; }
+        .header { text-align: center; padding: 20px; border-bottom: 2px solid var(--primary); margin-bottom: 30px; }
+        .m-card { background: #252525; border-radius: 15px; padding: 20px; margin-bottom: 15px; border-left: 6px solid var(--warning); position: relative; }
+        .m-card.approved { border-left-color: var(--primary); }
+        .m-name { font-size: 20px; font-weight: bold; color: var(--warning); margin-bottom: 5px; }
+        .m-details { font-size: 13px; color: #bbb; line-height: 1.6; }
+        .m-details b { color: #fff; }
+        .status-tag { display: inline-block; padding: 4px 10px; border-radius: 5px; font-size: 11px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
+        .st-pending { background: var(--warning); color: #000; }
+        .st-submitted { background: #007bff; color: #fff; }
+        .st-approved { background: var(--primary); color: #fff; }
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.3s; color: white; }
+        .btn-app { background: var(--primary); }
+        .btn-del { background: var(--danger); }
+        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
+        #loader { text-align: center; color: var(--warning); padding: 50px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1><i class="fa-solid fa-shield-halved"></i> MASTER CONTROL</h1>
+    <p style="color: #888;">നിങ്ങളുടെ സിസ്റ്റത്തിലെ മദ്രസകളെ ഇവിടെ നിയന്ത്രിക്കാം</p>
+</div>
+
+<div id="loader">വിവരങ്ങൾ ശേഖരിക്കുന്നു...</div>
+<div id="masterList"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAUkOIp33p7sMviItKLEP6EGyPQvFBuQeY",
+  authDomain: "result-aedec.firebaseapp.com",
+  projectId: "result-aedec",
+  storageBucket: "result-aedec.firebasestorage.app",
+  messagingSenderId: "654773450983",
+  appId: "1:654773450983:web:463a919c5c83ec55134a42"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// പുതിയ ഡാറ്റാബേസിൽ നിന്നുള്ള വിവരങ്ങൾ മാത്രം എടുക്കുന്നു
+db.collection("exam_results_final").onSnapshot((snapshot) => {
+    const listDiv = document.getElementById('masterList');
+    document.getElementById('loader').style.display = 'none';
+    listDiv.innerHTML = "";
+
+    if (snapshot.empty) {
+        listDiv.innerHTML = "<p style='text-align:center;'>പുതിയ രജിസ്ട്രേഷനുകൾ ഒന്നുമില്ല.</p>";
+        return;
+    }
+
+    snapshot.forEach((doc) => {
+        const data = doc.data();
+        const isApproved = data.status === 'approved';
+        
+        let stClass = 'st-pending';
+        if(data.status === 'submitted') stClass = 'st-submitted';
+        if(data.status === 'approved') stClass = 'st-approved';
+
+        const card = document.createElement('div');
+        card.className = `m-card ${isApproved ? 'approved' : ''}`;
+        card.innerHTML = `
+            <div class="status-tag ${stClass}">${data.status}</div>
+            <div class="m-name">${data.madrasa}</div>
+            <div class="m-details">
+                <i class="fa-solid fa-location-dot"></i> സ്ഥലം: <b>${data.place}</b> | 
+                <i class="fa-solid fa-user-tie"></i> സദർ: <b>${data.sadr}</b><br>
+                <i class="fa-solid fa-phone"></i> മൊബൈൽ: <b>${data.mobile}</b> | 
+                <i class="fa-solid fa-key"></i> ID: <b>${data.secretId}</b>
+            </div>
+            <div class="btn-group">
+                ${data.status !== 'approved' ? 
+                `<button class="btn btn-app" onclick="approveMadrasa('${doc.id}')"><i class="fa-solid fa-check"></i> APPROVE</button>` : 
+                `<button class="btn" style="background:#444; color:#aaa; cursor:default;"><i class="fa-solid fa-circle-check"></i> APPROVED</button>`}
+                <button class="btn btn-del" onclick="deleteMadrasa('${doc.id}')"><i class="fa-solid fa-trash"></i> DELETE</button>
+            </div>
+        `;
+        listDiv.appendChild(card);
+    });
+});
+
+async function approveMadrasa(id) {
+    if(confirm("ഈ മദ്രസ അപ്രൂവ് ചെയ്യട്ടെ? അവർക്ക് റിസൾട്ട് ലിങ്ക് കാണാൻ സാധിക്കും.")) {
+        await db.collection("exam_results_final").doc(id).update({ status: 'approved' });
+    }
+}
+
+async function deleteMadrasa(id) {
+    if(confirm("ഈ മദ്രസയുടെ എല്ലാ വിവരങ്ങളും ഡിലീറ്റ് ചെയ്യട്ടെ?")) {
+        await db.collection("exam_results_final").doc(id).delete();
+    }
+}
+</script>
+</body>
+</html>
