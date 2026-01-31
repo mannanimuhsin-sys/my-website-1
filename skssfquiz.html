@@ -9,107 +9,78 @@
     <style>
         :root { --primary: #004d00; --gold: #f1c40f; --bg: #f2f5f8; }
         body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: #333; }
-        
-        .header { background: linear-gradient(135deg, #004d00, #002b00); color: white; text-align: center; padding: 60px 20px 90px; border-radius: 0 0 60px 60px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .tab-bar { display: flex; background: white; margin: -45px 20px 20px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #eee; }
-        .tab-btn { flex: 1; padding: 18px; border: none; background: none; font-weight: 800; color: #888; cursor: pointer; transition: 0.3s; font-size: 13px; }
-        .tab-btn.active { color: var(--primary); background: #f0fdf4; border-bottom: 4px solid var(--primary); }
-
+        .header { background: linear-gradient(135deg, #004d00, #002b00); color: white; text-align: center; padding: 60px 20px 90px; border-radius: 0 0 60px 60px; }
         .container { max-width: 500px; margin: 0 auto; padding: 0 15px; }
-        .card { background: white; padding: 25px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 25px; border-top: 6px solid var(--gold); position: relative; }
+        .card { background: white; padding: 25px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 25px; border-top: 6px solid var(--gold); }
+        .id-number { font-family: 'Orbitron', sans-serif; font-size: 40px; color: var(--primary); font-weight: 900; background: #f0fdf4; padding: 10px; border-radius: 15px; border: 2px dashed var(--gold); display: inline-block; }
         
-        /* New ID Success Card Design */
-        #regSuccess { display: none; background: white; border: 3px solid var(--primary); text-align: center; padding: 30px 20px; border-radius: 25px; margin-bottom: 25px; animation: popIn 0.5s ease; }
-        @keyframes popIn { 0% {transform: scale(0.8); opacity: 0;} 100% {transform: scale(1); opacity: 1;} }
-        .id-label { font-size: 16px; font-weight: 600; color: #444; margin-bottom: 10px; }
-        .id-number { font-family: 'Orbitron', sans-serif; font-size: 45px; color: var(--primary); font-weight: 900; background: #f0fdf4; padding: 15px; border-radius: 15px; border: 2px dashed var(--gold); display: inline-block; min-width: 150px; margin: 10px 0; }
-        .id-hint { font-size: 13px; color: #666; margin-top: 15px; font-weight: 500; }
-
-        .notice-board { background: #fffde7; border: 2px dashed #fbc02d; padding: 20px; border-radius: 20px; text-align: center; margin-top: 10px; display: none; }
-        .timer-exec { font-family: 'Orbitron', sans-serif; font-size: 26px; color: var(--primary); text-align: center; letter-spacing: 3px; margin: 20px 0; font-weight: 900; }
+        /* Public Winner Board */
+        .public-winner-board { background: #fff; border: 3px solid var(--gold); border-radius: 25px; padding: 20px; text-align: center; margin-top: -40px; margin-bottom: 30px; display: none; }
+        .public-winner-board h2 { color: var(--primary); margin-bottom: 10px; font-size: 20px; }
         
-        input, select { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #eee; background: #fcfcfc; box-sizing: border-box; font-size: 14px; }
-        .btn { width: 100%; padding: 18px; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; color: white; background: var(--primary); font-size: 15px; box-shadow: 0 5px 15px rgba(0,77,0,0.25); }
-        
+        input, select { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #eee; }
+        .btn { width: 100%; padding: 18px; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; color: white; background: var(--primary); font-size: 15px; }
         .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px 0; text-align: center; border-top: 1px solid #eee; }
-        canvas { width: 100%; border-radius: 15px; display: none; margin-top: 15px; }
+        canvas { width: 100%; border-radius: 15px; margin-top: 15px; border: 1px solid #ddd; display: none; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <h1 style="margin:0; font-size: 30px;">SAMASTHA ONLINE QUIZ</h1>
-    <p style="color:var(--gold); font-weight:600; font-size: 13px; margin-top: 8px;">SKSSF CHAPPARAPPADAV ZONE</p>
-</div>
-
-<div class="tab-bar">
-    <button class="tab-btn active" onclick="showTab('auth')"><i class="fa fa-home"></i> ലോഗിൻ</button>
-    <button class="tab-btn" onclick="showTab('help')"><i class="fa fa-headset"></i> ഹെൽപ്പ് ഡെസ്ക്</button>
+    <p style="color:var(--gold); font-weight:600; font-size: 13px;">SKSSF CHAPPARAPPADAV ZONE</p>
 </div>
 
 <div class="container">
+    <div id="publicWinnerArea" class="public-winner-board">
+        <h2>🎉 വിജയിയെ പ്രഖ്യാപിച്ചു 🎉</h2>
+        <div id="winnerPosterDisplay"></div>
+        <canvas id="publicCanvas" width="800" height="1000"></canvas>
+    </div>
+
     <div id="authSec">
-        <div id="regSuccess">
-            <div class="id-label">താങ്കളുടെ രജിസ്റ്റർ കോഡ്</div>
+        <div id="regSuccess" class="card" style="display:none; text-align:center; border-color:var(--primary);">
+            <div style="font-weight:600;">നിങ്ങളുടെ രജിസ്റ്റർ കോഡ്</div>
             <div class="id-number" id="finalId">0000</div>
-            <div class="id-hint">ലോഗിൻ ചെയ്യുമ്പോൾ ഈ രജിസ്റ്റർ കോഡ് ഉപയോഗിക്കുക</div>
-            <button class="btn" style="margin-top:20px; background:#444;" onclick="document.getElementById('regSuccess').style.display='none'">CLOSE</button>
+            <div style="font-size:12px; margin-top:10px;">ലോഗിൻ ചെയ്യാൻ ഈ നമ്പർ ഉപയോഗിക്കുക</div>
         </div>
 
         <div class="card" id="regForm">
-            <h3 style="margin:0 0 15px; color: var(--primary);">പുതിയ രജിസ്ട്രേഷൻ</h3>
+            <h3 style="color: var(--primary); margin-top:0;">രജിസ്ട്രേഷൻ</h3>
             <input type="text" id="rName" placeholder="മുഴുവൻ പേര്">
             <input type="number" id="rMob" placeholder="മൊബൈൽ നമ്പർ">
             <select id="rBranch">
                 <option value="">ശാഖ തിരഞ്ഞെടുക്കുക</option>
                 <option>KARUVANCHAL</option><option>VILAKKANNOOR</option><option>CHAPPARAPPADAV</option>
-                <option>NADUVIL</option><option>PADAPPENGAD</option><option>PERUVANA</option>
-                <option>ELAMBERAM PARA</option><option>ERUVATTI</option><option>NHANDUMBALAM</option>
-                <option>PERUMALABAD</option><option>MANGARA BADARIYYA</option><option>THADIKKADAV</option>
-                <option>SHANTHIGIRI</option><option>NEDUVOODE</option>
+                <option>NADUVIL</option><option>PADAPPENGAD</option>
             </select>
-            <button class="btn" onclick="registerUser()">REGISTER NOW</button>
+            <button class="btn" onclick="registerUser()">REGISTER</button>
         </div>
 
         <div class="card">
-            <h3 style="margin:0 0 15px; color: var(--primary);">ലോഗിൻ</h3>
+            <h3 style="color: var(--primary); margin-top:0;">ലോഗിൻ</h3>
             <input type="number" id="lId" placeholder="രജിസ്റ്റർ നമ്പർ നൽകുക">
             <button class="btn" onclick="loginUser()">LOGIN</button>
-        </div>
-
-        <div id="noticeBoard" class="notice-board">
-            <h4 id="noticeMsg"></h4>
-            <canvas id="posterCanvas" width="800" height="1000"></canvas>
-            <button class="btn" id="dlBtn" style="background:#fbc02d; color:#000; display:none; margin-top:15px;" onclick="downloadPoster()">POSTER ഡൗൺലോഡ്</button>
-        </div>
-    </div>
-
-    <div id="helpSec" style="display:none;">
-        <div class="card" style="text-align:center;">
-            <h3 style="color:var(--primary);">MUHSIN MANNANI</h3>
-            <p style="font-size:13px; color:#666;">SKSSF CHAPPARAPPADAV ZONE</p>
-            <div style="margin-top:20px;">
-                <a href="https://wa.me/917559950633" style="font-size:35px; margin:0 20px; color:#25D366;"><i class="fab fa-whatsapp"></i></a>
-                <a href="tel:+917559950633" style="font-size:35px; margin:0 20px; color:#333;"><i class="fa fa-phone"></i></a>
-            </div>
         </div>
     </div>
 
     <div id="mainView" style="display:none;">
-        <div class="timer-exec" id="clock">00:00:00:00</div>
         <div id="confBox" class="card" style="text-align:center;">
-            <h3 style="color:var(--primary);">കൺഫർമേഷൻ</h3>
-            <div id="userDataShow" style="margin:20px 0; font-size:15px; line-height:2;"></div>
-            <button class="btn" onclick="enterQuiz()">START QUIZ NOW</button>
+            <h3 style="color:var(--primary);">സ്വാഗതം</h3>
+            <div id="userDataShow" style="line-height:2; margin-bottom:15px;"></div>
+            <div id="quizTimerDisplay" style="font-weight:bold; color:red; margin-bottom:15px;"></div>
+            <button class="btn" id="startBtn" onclick="enterQuiz()">START QUIZ</button>
+            <div id="certificateArea" style="margin-top:20px; display:none;">
+                <p style="font-weight:bold;">താങ്കളുടെ സർട്ടിഫിക്കറ്റ് താഴെ കാണാം</p>
+                <canvas id="userCertCanvas" width="800" height="1000"></canvas>
+                <button class="btn" style="background:#f1c40f; color:black; margin-top:10px;" onclick="downloadCert()">DOWNLOAD CERTIFICATE</button>
+            </div>
         </div>
         <div id="quizArea" style="display:none;"></div>
     </div>
 </div>
 
-<div class="footer">
-    <div style="font-weight:800; font-size:13px;">MUHSIN MANNANI | +91 7559950633</div>
-    <div style="font-size:11px; color:#888;">Designed by SKSSF Chapparappadav Zone</div>
-</div>
+<div class="footer"><b>MUHSIN MANNANI | +91 7559950633</b></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -119,120 +90,87 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let user = null;
-let isTimeUp = false;
+let quizLive = false;
 
-function showTab(t) {
-    document.getElementById('authSec').style.display = t==='auth'?'block':'none';
-    document.getElementById('helpSec').style.display = t==='help'?'block':'none';
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-}
+// പൊതുവായി വിജയികളെ കാണിക്കാനുള്ള ഫങ്ക്ഷൻ
+db.collection("quiz_settings").doc("status").onSnapshot(async snap => {
+    const d = snap.data();
+    if(d.showPosters) {
+        document.getElementById('publicWinnerArea').style.display = 'block';
+        const winSnap = await db.collection("winners").doc("list").get();
+        const winIds = winSnap.data().winnerIds || [];
+        if(winIds.length > 0) {
+            // ആദ്യത്തെ വിജയിയുടെ പോസ്റ്റർ ഉദാഹരണമായി കാണിക്കുന്നു
+            const firstWin = await db.collection("participants").doc(winIds[0]).get();
+            drawPoster('publicCanvas', firstWin.data(), true);
+        }
+    }
+});
 
 async function registerUser() {
     const name = document.getElementById('rName').value.trim();
     const mob = document.getElementById('rMob').value.trim();
     const br = document.getElementById('rBranch').value;
-    if(!name || mob.length < 10 || !br) return alert("വിവരങ്ങൾ കൃത്യമായി നൽകുക!");
-
+    if(!name || mob.length < 10) return alert("വിവരങ്ങൾ നൽകുക");
     const check = await db.collection("participants").where("mobile", "==", mob).get();
-    if(!check.empty) return alert("ഈ നമ്പറിൽ രജിസ്ട്രേഷൻ നിലവിലുണ്ട്!");
-
+    if(!check.empty) return alert("ഈ നമ്പർ നിലവിലുണ്ട്");
     const snap = await db.collection("participants").get();
     let id = 1000 + snap.size + 1;
     await db.collection("participants").doc(id.toString()).set({ name, mobile: mob, branch: br, regId: id });
-    
-    // Show Big Success ID Card
     document.getElementById('finalId').innerText = id;
     document.getElementById('regSuccess').style.display = 'block';
     document.getElementById('regForm').style.display = 'none';
-    window.scrollTo(0,0);
 }
 
 async function loginUser() {
     const id = document.getElementById('lId').value.trim();
-    if(!id) return alert("ഐഡി നൽകുക!");
     const doc = await db.collection("participants").doc(id).get();
-    if(!doc.exists) return alert("തെറ്റായ ഐഡി!");
-    
+    if(!doc.exists) return alert("തെറ്റായ ഐഡി");
     user = doc.data();
     document.getElementById('authSec').style.display = 'none';
     document.getElementById('mainView').style.display = 'block';
-    document.getElementById('userDataShow').innerHTML = `<b>പേര്:</b> ${user.name}<br><b>ശാഖ:</b> ${user.branch}<br><b>ഐഡി:</b> ${user.regId}`;
+    document.getElementById('userDataShow').innerHTML = `<b>${user.name}</b><br>${user.branch}`;
 
-    db.collection("quiz_settings").doc("status").onSnapshot(snap => {
+    db.collection("quiz_settings").doc("status").onSnapshot(async snap => {
         const d = snap.data();
         if(d.closed) {
-            document.getElementById('mainView').style.display = 'none';
-            document.getElementById('authSec').style.display = 'block';
-            document.getElementById('noticeBoard').style.display = 'block';
-            document.getElementById('noticeMsg').innerText = "മത്സരം അവസാനിച്ചു. വിജയിയെ താഴെ കാണാം.";
-            if(d.showPosters) fetchWinnerStatus();
-        } else {
-            handleTimer(d.startTime, d.published);
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('certificateArea').style.display = 'block';
+            const winDoc = await db.collection("winners").doc("list").get();
+            const winIds = winDoc.data().winnerIds || [];
+            drawPoster('userCertCanvas', user, winIds.includes(user.regId.toString()));
         }
     });
 }
 
-function handleTimer(target, pub) {
-    setInterval(() => {
-        const diff = new Date(target).getTime() - new Date().getTime();
-        if(diff <= 0) { isTimeUp = pub; document.getElementById('clock').innerText = pub ? "QUIZ IS LIVE" : "WAITING..."; }
-        else {
-            const d = Math.floor(diff/(1000*60*60*24));
-            const h = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
-            const m = Math.floor((diff%(1000*60*60))/(1000*60));
-            const s = Math.floor((diff%(1000*60))/1000);
-            document.getElementById('clock').innerText = `${d}:${h}:${m}:${s}`;
-        }
-    }, 1000);
-}
-
-async function enterQuiz() {
-    if(!isTimeUp) return alert("സമയമായിട്ടില്ല!");
-    const played = await db.collection("results").doc(user.regId.toString()).get();
-    if(played.exists) return alert("നിങ്ങൾ പങ്കെടുത്തു കഴിഞ്ഞു!");
+function drawPoster(canvasId, data, isWinner) {
+    const cvs = document.getElementById(canvasId);
+    const ctx = cvs.getContext('2d');
+    cvs.style.display = 'block';
     
-    document.getElementById('confBox').style.display = 'none';
-    const snap = await db.collection("questions").get();
-    let h = "";
-    snap.forEach(doc => {
-        const q = doc.data();
-        h += `<div class="card"><p><b>${q.text}</b></p>${q.options.map((o,i)=>`<label style="display:block;margin:10px 0;"><input type="radio" name="${doc.id}" value="${i}"> ${o}</label>`).join('')}</div>`;
-    });
-    document.getElementById('quizArea').innerHTML = h + `<button class="btn" onclick="submitQuiz()">SUBMIT</button>`;
-    document.getElementById('quizArea').style.display = 'block';
-}
-
-async function submitQuiz() {
-    let ans = {};
-    document.querySelectorAll('#quizArea input:checked').forEach(i => ans[i.name] = i.value);
-    await db.collection("results").doc(user.regId.toString()).set({ ...user, answers: ans, submitTime: firebase.firestore.FieldValue.serverTimestamp() });
-    alert("സമർപ്പിച്ചു!"); location.reload();
-}
-
-async function fetchWinnerStatus() {
-    const winDoc = await db.collection("winners").doc("list").get();
-    const list = winDoc.data().winnerIds || [];
-    drawPoster(list.includes(user.regId.toString()));
-}
-
-function drawPoster(isWin) {
-    const canvas = document.getElementById('posterCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.style.display = 'block';
-    document.getElementById('dlBtn').style.display = 'block';
-    ctx.fillStyle = "#004d00"; ctx.fillRect(0,0,800,1000);
+    // Background
+    ctx.fillStyle = isWinner ? "#004d00" : "#f8f9fa"; ctx.fillRect(0,0,800,1000);
     ctx.strokeStyle = "#f1c40f"; ctx.lineWidth = 20; ctx.strokeRect(40,40,720,920);
-    ctx.fillStyle = "white"; ctx.textAlign = "center";
-    ctx.font = "bold 55px Arial"; ctx.fillText("SAMASTHA ONLINE QUIZ", 400, 200);
-    ctx.fillStyle = "#f1c40f"; ctx.font = "bold 75px Arial"; ctx.fillText(user.name.toUpperCase(), 400, 520);
-    ctx.fillStyle = "white"; ctx.font = "40px Arial"; ctx.fillText(user.branch, 400, 600);
-    if(isWin) {
-        ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.arc(400, 840, 90, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = "#004d00"; ctx.font = "bold 35px Arial"; ctx.fillText("WINNER", 400, 855);
+    
+    // Design Elements
+    ctx.fillStyle = isWinner ? "white" : "#333"; ctx.textAlign = "center";
+    ctx.font = "bold 50px Arial"; ctx.fillText("SAMASTHA ONLINE QUIZ", 400, 150);
+    
+    ctx.fillStyle = "#f1c40f"; ctx.font = "bold 70px Arial"; ctx.fillText(data.name.toUpperCase(), 400, 500);
+    ctx.fillStyle = isWinner ? "white" : "#555"; ctx.font = "40px Arial"; ctx.fillText(data.branch, 400, 580);
+    
+    if(isWinner) {
+        ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.arc(400, 800, 100, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#000"; ctx.font = "bold 40px Arial"; ctx.fillText("WINNER", 400, 815);
+    } else {
+        ctx.font = "italic 35px Arial"; ctx.fillText("Participation Certificate", 400, 800);
     }
 }
-function downloadPoster() { const a = document.createElement('a'); a.download='QuizPoster.png'; a.href=document.getElementById('posterCanvas').toDataURL(); a.click(); }
+
+function downloadCert() {
+    const a = document.createElement('a'); a.download = 'Quiz_Cert.png';
+    a.href = document.getElementById('userCertCanvas').toDataURL(); a.click();
+}
 </script>
 </body>
 </html>
