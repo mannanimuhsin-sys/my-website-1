@@ -119,16 +119,24 @@ const firebaseConfig = { apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o", auth
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let me = null; let live = false;
+let me = null; let live = false; let timerInt = null;
 
 async function register() {
     const n = document.getElementById('rName').value.trim();
     const m = document.getElementById('rMob').value.trim();
     const b = document.getElementById('rBranch').value;
-    if(!n || m.length < 10 || !b) return alert("വിവരങ്ങൾ നൽകുക");
+    
+    if(!n || m.length < 10 || !b) return alert("ദയവായി എല്ലാ വിവരങ്ങളും നൽകുക");
+
+    // Duplicate Mobile Check
+    const checkMob = await db.collection("participants").where("mobile", "==", m).get();
+    if(!checkMob.empty) return alert("ഈ മൊബൈൽ നമ്പറിൽ രജിസ്ട്രേഷൻ കഴിഞ്ഞു! മറ്റൊന്ന് ഉപയോഗിക്കുക.");
+
     const snap = await db.collection("participants").get();
     const id = (1000 + snap.size + 1).toString();
+    
     await db.collection("participants").doc(id).set({name:n, mobile:m, branch:b, regId:id});
+    
     document.getElementById('idShow').innerText = id;
     document.getElementById('regForm').style.display = 'none';
     document.getElementById('loginForm').style.display = 'none';
@@ -137,32 +145,53 @@ async function register() {
 
 async function login() {
     const id = document.getElementById('lId').value;
+    if(!id) return alert("ID നമ്പർ നൽകുക");
+    
     const doc = await db.collection("participants").doc(id).get();
-    if(!doc.exists) return alert("തെറ്റായ ഐഡി!");
+    if(!doc.exists) return alert("തെറ്റായ ഐഡി നമ്പർ!");
+    
     me = doc.data();
     document.getElementById('authArea').style.display = 'none';
     document.getElementById('quizPanel').style.display = 'block';
     document.getElementById('uDetail').innerText = me.name + " (" + me.branch + ")";
+    
     db.collection("quiz_settings").doc("status").onSnapshot(s => {
         const d = s.data();
-        if(d.closed) document.getElementById('clock').innerText = "CLOSED";
-        else handleTime(d.startTime, d.published);
+        if(d.closed) {
+            if(timerInt) clearInterval(timerInt);
+            document.getElementById('clock').innerText = "CLOSED";
+        } else {
+            handleTime(d.startTime, d.published);
+        }
     });
 }
 
 function handleTime(st, pub) {
-    setInterval(() => {
-        const diff = new Date(st) - new Date();
-        if(diff <= 0) { live = pub; document.getElementById('clock').innerText = pub ? "LIVE" : "WAITING"; }
-        else {
-            const m = Math.floor(diff/60000); const s = Math.floor((diff%60000)/1000);
+    if(timerInt) clearInterval(timerInt);
+    
+    timerInt = setInterval(() => {
+        const target = new Date(st).getTime();
+        const now = new Date().getTime();
+        const diff = target - now;
+
+        if(diff <= 0) {
+            clearInterval(timerInt);
+            live = pub;
+            document.getElementById('clock').innerText = pub ? "LIVE" : "WAITING";
+        } else {
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
             document.getElementById('clock').innerText = `${m}:${s < 10 ? '0'+s : s}`;
         }
     }, 1000);
 }
 
 async function startQuiz() {
-    if(!live) return alert("ക്വിസ് തുടങ്ങിയിട്ടില്ല!");
+    if(!live) return alert("ക്വിസ് തുടങ്ങിയിട്ടില്ല! ദയവായി കാത്തിരിക്കുക.");
+    
+    const played = await db.collection("results").doc(me.regId).get();
+    if(played.exists) return alert("നിങ്ങൾ ക്വിസ് പൂർത്തിയാക്കി കഴിഞ്ഞു!");
+
     document.getElementById('startBtn').style.display = 'none';
     const qs = await db.collection("questions").get();
     let h = "";
@@ -184,9 +213,13 @@ async function startQuiz() {
 
 async function submit() {
     let ans = {}; 
-    document.querySelectorAll('#qBox input:checked').forEach(i => ans[i.name] = i.value);
+    const checks = document.querySelectorAll('#qBox input:checked');
+    if(checks.length === 0) return alert("ഉത്തരങ്ങൾ തിരഞ്ഞെടുക്കുക");
+    
+    checks.forEach(i => ans[i.name] = i.value);
     await db.collection("results").doc(me.regId).set({...me, answers:ans, time: firebase.firestore.FieldValue.serverTimestamp()});
-    alert("വിജയകരമായി സമർപ്പിച്ചു!"); location.reload();
+    alert("വിജയകരമായി സമർപ്പിച്ചു!"); 
+    location.reload();
 }
 </script>
 </body>
