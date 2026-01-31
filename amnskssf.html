@@ -2,61 +2,77 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN PANEL</title>
+    <title>SKSSF QUIZ ADMIN - FINAL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding-bottom: 50px; }
-        .nav { background: #004d00; color: white; padding: 15px; text-align: center; font-weight: bold; }
-        .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 25px; border-top: 5px solid #004d00; }
+        h2 { color: #004d00; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; margin: 5px 5px 5px 0; }
         .btn-green { background: #27ae60; } .btn-blue { background: #2980b9; } .btn-red { background: #c0392b; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+        
+        /* Question List Styling */
+        .q-item { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-top: 10px; border-left: 5px solid #f1c40f; position: relative; }
+        .q-delete { position: absolute; right: 15px; top: 15px; color: #e74c3c; cursor: pointer; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
         th { background: #004d00; color: white; }
-        .search-box { display: flex; gap: 10px; margin-bottom: 15px; }
-        .search-result { background: #e8f5e9; padding: 15px; border-radius: 8px; display: none; border: 1px solid #2e7d32; }
+        .search-box { background: #fffde7; padding: 20px; border-radius: 12px; border: 1px solid #fbc02d; display: none; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="nav">SKSSF QUIZ ADMIN PANEL</div>
-
-<div class="container">
     <div class="card">
-        <h3>പങ്കെടുക്കുന്നയാളെ കണ്ടെത്തുക (Search)</h3>
-        <div class="search-box">
-            <input type="number" id="searchId" placeholder="രജിസ്റ്റർ നമ്പർ നൽകുക...">
-            <button class="btn btn-blue" onclick="searchUser()">SEARCH</button>
+        <h2><i class="fa fa-plus-circle"></i> ചോദ്യങ്ങൾ ചേർക്കുക (Add Questions)</h2>
+        <textarea id="qText" rows="3" placeholder="ചോദ്യം ഇവിടെ ടൈപ്പ് ചെയ്യുക..."></textarea>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <input id="o0" placeholder="ഓപ്ഷൻ 1"> <input id="o1" placeholder="ഓപ്ഷൻ 2">
+            <input id="o2" placeholder="ഓപ്ഷൻ 3"> <input id="o3" placeholder="ഓപ്ഷൻ 4">
         </div>
-        <div id="searchRes" class="search-result"></div>
+        <label>ശരിയായ ഓപ്ഷൻ തിരഞ്ഞെടുക്കുക:</label>
+        <select id="correct">
+            <option value="0">Option 1 ശരിയാണ്</option>
+            <option value="1">Option 2 ശരിയാണ്</option>
+            <option value="2">Option 3 ശരിയാണ്</option>
+            <option value="3">Option 4 ശരിയാണ്</option>
+        </select>
+        <button class="btn btn-green" onclick="saveQ()">SAVE QUESTION & NEXT</button>
+        
+        <div id="qListStatus" style="margin-top:20px;">
+            <h4 style="margin-bottom:10px;">സേവ് ചെയ്ത ചോദ്യങ്ങൾ (<span id="qCount">0</span>)</h4>
+            <div id="qAddedDisplay"></div>
+        </div>
     </div>
 
     <div class="card">
-        <h3>ക്വിസ് കൺട്രോൾ</h3>
-        <input type="datetime-local" id="startTime">
-        <button class="btn btn-blue" onclick="updateStatus('time')">SET TIME</button>
-        <button class="btn btn-green" onclick="updateStatus('live')">LIVE</button>
-        <button class="btn btn-red" onclick="updateStatus('stop')">STOP</button>
-        <button class="btn" style="background:#f1c40f; color:#000" onclick="updateStatus('poster')">PUBLISH POSTER</button>
+        <h2><i class="fa fa-search"></i> സെർച്ച് (Search Participant)</h2>
+        <div style="display:flex; gap:10px;">
+            <input type="number" id="sId" placeholder="രജിസ്റ്റർ നമ്പർ നൽകുക">
+            <button class="btn btn-blue" onclick="searchUser()">SEARCH NOW</button>
+        </div>
+        <div id="searchResult" class="search-box"></div>
     </div>
 
     <div class="card">
-        <h3>റാങ്ക് ലിസ്റ്റ്</h3>
-        <button class="btn btn-blue" onclick="loadResults()">REFRESH LIST</button>
-        <table>
-            <thead><tr><th>Rank</th><th>ID</th><th>Name</th><th>Branch</th><th>Score</th><th>Action</th></tr></thead>
-            <tbody id="resBody"></tbody>
+        <h2><i class="fa fa-cog"></i> ക്വിസ് കൺട്രോൾ & റാങ്ക് ലിസ്റ്റ്</h2>
+        <input type="datetime-local" id="quizTime">
+        <button class="btn btn-blue" onclick="control('time')">SET TIME</button>
+        <button class="btn btn-green" onclick="control('live')">LIVE START</button>
+        <button class="btn btn-red" onclick="control('stop')">STOP QUIZ</button>
+        <button class="btn" style="background:#f1c40f; color:black;" onclick="control('poster')">PUBLISH WINNER POSTER</button>
+        
+        <table id="rankTable">
+            <thead><tr><th>Rank</th><th>ID</th><th>Name</th><th>Branch</th><th>Score</th><th>Winner Select</th></tr></thead>
+            <tbody id="rankBody"></tbody>
         </table>
     </div>
 
-    <div class="card" style="border: 2px solid red;">
-        <h3>Danger Zone</h3>
-        <button class="btn btn-red" onclick="resetSystem('results')">RESET RESULTS</button>
-        <button class="btn btn-red" style="background:black" onclick="resetSystem('full')">FULL RESET</button>
+    <div class="card" style="border-top-color: #000;">
+        <h2>Danger Zone</h2>
+        <button class="btn btn-red" onclick="resetAll()">FULL SYSTEM RESET</button>
     </div>
-</div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -65,72 +81,128 @@ const firebaseConfig = { apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o", auth
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-async function searchUser() {
-    const id = document.getElementById('searchId').value;
-    const resDiv = document.getElementById('searchRes');
-    if(!id) return;
-    const doc = await db.collection("participants").doc(id).get();
-    if(doc.exists) {
+// ചോദ്യം സേവ് ചെയ്യാനും ഫോം റീസെറ്റ് ചെയ്യാനും
+async function saveQ() {
+    const t = document.getElementById('qText').value.trim();
+    const o = [
+        document.getElementById('o0').value.trim(), 
+        document.getElementById('o1').value.trim(),
+        document.getElementById('o2').value.trim(), 
+        document.getElementById('o3').value.trim()
+    ];
+    const c = document.getElementById('correct').value;
+
+    if(!t || o.includes("")) return alert("ചോദ്യവും 4 ഓപ്ഷനുകളും നൽകുക!");
+
+    await db.collection("questions").add({
+        text: t, options: o, correct: c, 
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // ഫോം ക്ലിയർ ചെയ്യുന്നു
+    document.getElementById('qText').value = "";
+    document.getElementById('o0').value = ""; document.getElementById('o1').value = "";
+    document.getElementById('o2').value = ""; document.getElementById('o3').value = "";
+    
+    alert("ചോദ്യം വിജയകരമായി ചേർത്തു!");
+    loadAddedQuestions();
+}
+
+// സേവ് ചെയ്ത ചോദ്യങ്ങൾ ലിസ്റ്റ് ചെയ്യാൻ
+async function loadAddedQuestions() {
+    const snap = await db.collection("questions").orderBy("timestamp", "desc").get();
+    document.getElementById('qCount').innerText = snap.size;
+    let h = "";
+    snap.forEach(doc => {
         const d = doc.data();
-        resDiv.style.display = 'block';
-        resDiv.innerHTML = `<strong>പേര്:</strong> ${d.name}<br><strong>ഐഡി:</strong> ${d.regId}<br><strong>ശാഖ:</strong> ${d.branch}<br><strong>മൊബൈൽ:</strong> ${d.mobile}`;
-    } else {
-        alert("ഈ ഐഡി നിലവിലില്ല!");
-        resDiv.style.display = 'none';
+        h += `<div class="q-item">
+                <i class="fa fa-trash q-delete" onclick="deleteQ('${doc.id}')"></i>
+                <strong>${d.text}</strong><br>
+                <small>Ans: Option ${parseInt(d.correct)+1}</small>
+              </div>`;
+    });
+    document.getElementById('qAddedDisplay').innerHTML = h;
+}
+
+async function deleteQ(id) {
+    if(confirm("ഈ ചോദ്യം ഒഴിവാക്കണോ?")) {
+        await db.collection("questions").doc(id).delete();
+        loadAddedQuestions();
     }
 }
 
-async function updateStatus(t) {
+// സെർച്ച് ഫങ്ക്ഷൻ
+async function searchUser() {
+    const sId = document.getElementById('sId').value;
+    const res = document.getElementById('searchResult');
+    if(!sId) return alert("ഐഡി നൽകുക");
+    const d = await db.collection("participants").doc(sId).get();
+    if(d.exists) {
+        const u = d.data();
+        res.style.display = 'block';
+        res.innerHTML = `<h4>വിവരങ്ങൾ:</h4>
+            <b>പേര്:</b> ${u.name}<br>
+            <b>ഐഡി:</b> ${u.regId}<br>
+            <b>മൊബൈൽ:</b> ${u.mobile}<br>
+            <b>ശാഖ:</b> ${u.branch}`;
+    } else alert("ഈ ഐഡിയിൽ ആരും രജിസ്റ്റർ ചെയ്തിട്ടില്ല!");
+}
+
+async function control(type) {
     const ref = db.collection("quiz_settings").doc("status");
-    if(t==='time') await ref.set({ startTime: document.getElementById('startTime').value }, {merge:true});
-    if(t==='live') await ref.update({ published: true, closed: false });
-    if(t==='stop') await ref.update({ closed: true, published: false });
-    if(t==='poster') await ref.update({ showPosters: true });
+    if(type==='time') await ref.set({startTime: document.getElementById('quizTime').value}, {merge:true});
+    if(type==='live') await ref.update({published:true, closed:false, showPosters:false});
+    if(type==='stop') await ref.update({closed:true, published:false});
+    if(type==='poster') await ref.update({showPosters:true});
     alert("Updated!");
 }
 
-async function loadResults() {
-    const qSnap = await db.collection("questions").get();
-    let correctMap = {}; qSnap.forEach(d => correctMap[d.id] = d.data().correct);
-    const rSnap = await db.collection("results").get();
-    let res = [];
-    rSnap.forEach(doc => {
+async function loadRankList() {
+    const qs = await db.collection("questions").get();
+    let cmap = {}; qs.forEach(d => cmap[d.id] = d.data().correct);
+    const rs = await db.collection("results").get();
+    let list = [];
+    rs.forEach(doc => {
         let s = 0; const d = doc.data();
-        for(let qid in correctMap) { if(d.answers && d.answers[qid] == correctMap[qid]) s++; }
-        res.push({...d, score: s, time: d.submitTime ? d.submitTime.toDate().getTime() : 0});
+        for(let qid in cmap) { if(d.answers && d.answers[qid] == cmap[qid]) s++; }
+        list.push({...d, score: s});
     });
-    res.sort((a,b) => b.score - a.score || a.time - b.time);
-    const winSnap = await db.collection("winners").doc("list").get();
-    const winIds = winSnap.exists ? winSnap.data().winnerIds || [] : [];
+    list.sort((a,b) => b.score - a.score);
+    const w = await db.collection("winners").doc("list").get();
+    const wids = w.exists ? w.data().winnerIds || [] : [];
     let h = "";
-    res.forEach((r, i) => {
-        const isW = winIds.includes(r.regId.toString());
-        h += `<tr ${isW?'style="background:#fff9c4"':''}><td>${i+1}</td><td>${r.regId}</td><td>${r.name}</td><td>${r.branch}</td><td>${r.score}</td>
-        <td><button onclick="toggleWinner('${r.regId}')">${isW?'Unselect':'Select'}</button></td></tr>`;
+    list.forEach((r, i) => {
+        const isW = wids.includes(r.regId);
+        h += `<tr style="${isW?'background:#fff9c4':''}">
+            <td>${i+1}</td><td>${r.regId}</td><td>${r.name}</td><td>${r.branch}</td><td>${r.score}</td>
+            <td><button class="btn btn-blue" onclick="toggleWin('${r.regId}')">${isW?'Deselect':'Select Winner'}</button></td>
+        </tr>`;
     });
-    document.getElementById("resBody").innerHTML = h;
+    document.getElementById('rankBody').innerHTML = h;
 }
 
-async function toggleWinner(id) {
-    const doc = await db.collection("winners").doc("list").get();
-    let list = doc.exists ? doc.data().winnerIds || [] : [];
-    id = id.toString();
-    list = list.includes(id) ? list.filter(l => l !== id) : [...list, id];
-    await db.collection("winners").doc("list").set({ winnerIds: list });
-    loadResults();
+async function toggleWin(id) {
+    const d = await db.collection("winners").doc("list").get();
+    let l = d.exists ? d.data().winnerIds || [] : [];
+    l = l.includes(id) ? l.filter(x => x!==id) : [id]; 
+    await db.collection("winners").doc("list").set({winnerIds: l});
+    loadRankList();
 }
 
-async function resetSystem(m) {
-    if(!confirm("Are you sure?")) return;
-    const cols = m==='results' ? ['results', 'winners'] : ['results', 'winners', 'questions', 'participants'];
+async function resetAll() {
+    if(!confirm("എല്ലാ ഡാറ്റയും ഡിലീറ്റ് ചെയ്യണോ?")) return;
+    const cols = ['participants','questions','results','winners'];
     for(const c of cols) {
         const snap = await db.collection(c).get();
-        const batch = db.batch();
-        snap.docs.forEach(d => batch.delete(d.ref));
-        await batch.commit();
+        snap.forEach(d => d.ref.delete());
     }
-    alert("Reset Done!");
+    alert("സിസ്റ്റം പൂർണ്ണമായും റീസെറ്റ് ചെയ്തു.");
+    location.reload();
 }
+
+// പേജ് തുറക്കുമ്പോൾ ഡാറ്റ ലോഡ് ചെയ്യാൻ
+loadAddedQuestions();
+loadRankList();
 </script>
 </body>
 </html>
