@@ -2,95 +2,101 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SKSSF QUIZ - ADMIN MASTER PRO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKSSF ADMIN - ULTIMATE MASTER</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #004d00; --gold: #f1c40f; --light: #f8f9fa; --red: #c0392b; }
+        :root { --primary: #004d00; --gold: #f1c40f; --red: #c0392b; --blue: #2980b9; --green: #27ae60; }
         body { font-family: 'Poppins', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
-        .card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); margin-bottom: 15px; border-top: 5px solid var(--primary); }
-        h3 { color: var(--primary); display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .card { background: white; padding: 18px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 15px; border-top: 5px solid var(--primary); }
+        h3 { color: var(--primary); display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 15px; border-bottom: 2px solid #eee; padding-bottom: 8px; }
         
-        .btn { padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; width: 100%; transition: 0.2s; }
-        .btn-blue { background: #2980b9; } .btn-green { background: #27ae60; } .btn-red { background: var(--red); } .btn-gold { background: var(--gold); color: #000; }
-        .btn:active { transform: scale(0.96); }
+        /* Executive Button Effect */
+        .btn { 
+            padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; 
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; 
+            gap: 6px; font-size: 12px; width: 100%; transition: 0.1s;
+            box-shadow: 0 4px #777; text-transform: uppercase;
+        }
+        .btn:active { box-shadow: 0 0 #666; transform: translateY(3px); }
+        .btn-blue { background: var(--blue); } .btn-green { background: var(--green); } 
+        .btn-red { background: var(--red); } .btn-gold { background: var(--gold); color: #000; }
+        .selected-rank { border: 3px solid var(--gold) !important; box-shadow: 0 0 12px var(--gold) !important; transform: scale(1.02); }
 
-        /* Compact Options */
-        .opt-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; background: #f9f9f9; padding: 5px 10px; border-radius: 8px; }
-        .opt-row input[type="text"] { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; }
-        .opt-row input[type="radio"] { width: 18px; height: 18px; }
-
-        /* Question List with Delete */
-        .q-list-item { background: #fff; border-left: 4px solid var(--gold); padding: 10px; margin-bottom: 8px; border-radius: 5px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .del-q { color: var(--red); cursor: pointer; padding: 5px; font-size: 16px; }
-
-        input[type="datetime-local"], textarea { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 8px; box-sizing: border-box; }
-        .scroll-table { overflow-x: auto; border-radius: 10px; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; background: white; font-size: 12px; }
-        th { background: var(--primary); color: white; padding: 10px; text-align: left; }
-        td { padding: 10px; border-bottom: 1px solid #eee; }
-        
+        input, textarea { width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #ddd; margin-bottom: 8px; box-sizing: border-box; outline: none; font-size: 14px; }
+        .opt-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; background: #f8f9fa; padding: 8px; border-radius: 10px; border: 1px solid #eee; }
+        .q-list-item { background: #fff; border-left: 5px solid var(--gold); padding: 12px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+        .scroll-table { overflow-x: auto; border-radius: 10px; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; background: white; }
+        th { background: var(--primary); color: white; padding: 10px; text-align: left; font-size: 11px; }
+        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 11px; }
         .danger-zone { border: 2px dashed var(--red); padding: 15px; border-radius: 15px; text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h3><i class="fa fa-clock"></i> QUIZ SETTINGS</h3>
+    <h3><i class="fa fa-sliders"></i> QUIZ MASTER CONTROLS</h3>
     <input type="datetime-local" id="startTimeInput">
-    <button class="btn btn-blue" onclick="saveTime()"><i class="fa fa-save"></i> SAVE START TIME</button>
+    <button class="btn btn-blue" onclick="saveTime()"><i class="fa fa-clock"></i> SAVE START TIME</button>
     <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top:10px;">
-        <button class="btn btn-green" onclick="setStatus(true, false)">LIVE</button>
-        <button class="btn btn-red" onclick="setStatus(false, true)">STOP</button>
-        <button class="btn btn-gold" onclick="togglePosters()">POSTER</button>
+        <button class="btn btn-green" id="liveBtn" onclick="setStatus(true, false)">LIVE</button>
+        <button class="btn btn-red" id="stopBtn" onclick="setStatus(false, true)">STOP</button>
+        <button class="btn btn-gold" id="posterBtn" onclick="togglePosters()">POSTER</button>
     </div>
 </div>
 
 <div class="card">
-    <h3><i class="fa fa-user-edit"></i> SEARCH & MANAGE</h3>
-    <div style="display:flex; gap:5px;">
-        <input type="number" id="searchId" placeholder="Reg ID" style="margin:0;">
-        <button class="btn btn-blue" style="width:60px;" onclick="searchUser()"><i class="fa fa-search"></i></button>
+    <h3><i class="fa fa-search"></i> SEARCH & MANAGE USER</h3>
+    <div style="display:flex; gap:8px;">
+        <input type="number" id="searchId" placeholder="Enter Register ID" style="margin:0;">
+        <button class="btn btn-blue" style="width:70px;" onclick="searchUser()"><i class="fa fa-search"></i></button>
     </div>
-    <div id="resBox" style="display:none; margin-top:10px; padding:10px; background:#fffde7; border-radius:10px; border:1px solid #ffe082;">
-        <div id="resData" style="font-size:13px; line-height:1.6;"></div>
-        <div style="display:flex; gap:5px; margin-top:10px;">
-            <button class="btn btn-blue" style="font-size:11px; padding:8px;" onclick="editUser()">EDIT</button>
-            <button class="btn btn-gold" style="font-size:11px; padding:8px;" id="blkBtn" onclick="toggleBlock()">BLOCK</button>
-            <button class="btn btn-red" style="font-size:11px; padding:8px;" onclick="deleteUser()">DEL</button>
+    <div id="resBox" style="display:none; margin-top:10px; padding:12px; background:#fffde7; border-radius:10px; border:1px solid var(--gold);">
+        <div id="resData" style="line-height:1.6; font-size:13px;"></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-top:10px;">
+            <button class="btn btn-blue" onclick="editUser()">EDIT</button>
+            <button class="btn btn-gold" id="blkBtn" onclick="toggleBlock()">BLOCK</button>
+            <button class="btn btn-red" onclick="deleteUser()">DEL</button>
         </div>
     </div>
 </div>
 
 <div class="card">
-    <h3><i class="fa fa-plus-circle"></i> ADD QUESTION</h3>
-    <textarea id="qTxt" placeholder="Type question..." rows="2"></textarea>
-    <div id="optionInputs">
-        <div class="opt-row">A <input type="text" id="opt0" placeholder="Option 1"> <input type="radio" name="ans" value="0" checked></div>
-        <div class="opt-row">B <input type="text" id="opt1" placeholder="Option 2"> <input type="radio" name="ans" value="1"></div>
-        <div class="opt-row">C <input type="text" id="opt2" placeholder="Option 3"> <input type="radio" name="ans" value="2"></div>
-        <div class="opt-row">D <input type="text" id="opt3" placeholder="Option 4"> <input type="radio" name="ans" value="3"></div>
+    <h3><i class="fa fa-trophy"></i> WINNER SELECTION (1st, 2nd, 3rd)</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+        <button class="btn btn-gold" id="rBtn1" onclick="setActiveRank(1)">1st PRIZE</button>
+        <button class="btn btn-gold" id="rBtn2" onclick="setActiveRank(2)">2nd PRIZE</button>
+        <button class="btn btn-gold" id="rBtn3" onclick="setActiveRank(3)">3rd PRIZE</button>
     </div>
-    <button class="btn btn-green" onclick="addQuestion()" style="margin-top:5px;"><i class="fa fa-plus"></i> ADD TO LIST</button>
-</div>
-
-<div class="card">
-    <h3><i class="fa fa-list"></i> QUESTION BANK</h3>
-    <div id="qList"></div>
-</div>
-
-<div class="card">
-    <h3><i class="fa fa-trophy"></i> RANK LIST</h3>
+    <div id="selStatus" style="text-align:center; font-weight:bold; color:var(--red); font-size:12px; margin-bottom:8px;">വിജയിയെ തിരഞ്ഞെടുക്കാൻ റാങ്ക് ക്ലിക്ക് ചെയ്യുക</div>
+    
     <div class="scroll-table">
         <table>
             <thead><tr><th>#</th><th>Name</th><th>Score</th><th>Time</th><th>Action</th></tr></thead>
             <tbody id="resTable"></tbody>
         </table>
     </div>
+    <button class="btn btn-green" style="margin-top:12px;" onclick="publishWinners()"><i class="fa fa-check-double"></i> CONFIRM & PUBLISH ALL</button>
+</div>
+
+<div class="card">
+    <h3><i class="fa fa-plus-circle"></i> ADD NEW QUESTION</h3>
+    <textarea id="qTxt" placeholder="Type question here..." rows="2"></textarea>
+    <div class="opt-row"><b>A</b> <input type="text" id="opt0"> <input type="radio" name="ans" value="0" checked></div>
+    <div class="opt-row"><b>B</b> <input type="text" id="opt1"> <input type="radio" name="ans" value="1"></div>
+    <div class="opt-row"><b>C</b> <input type="text" id="opt2"> <input type="radio" name="ans" value="2"></div>
+    <div class="opt-row"><b>D</b> <input type="text" id="opt3"> <input type="radio" name="ans" value="3"></div>
+    <button class="btn btn-green" onclick="addQuestion()"><i class="fa fa-save"></i> SAVE QUESTION</button>
+</div>
+
+<div class="card">
+    <h3><i class="fa fa-database"></i> QUESTION BANK</h3>
+    <div id="qList"></div>
 </div>
 
 <div class="danger-zone">
-    <button class="btn btn-red" onclick="fullRefresh()"><i class="fa fa-sync"></i> FULL SYSTEM RESET</button>
+    <button class="btn btn-red" onclick="fullRefresh()"><i class="fa fa-sync-alt"></i> FULL SYSTEM RESTART</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -100,114 +106,104 @@ const firebaseConfig = { apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o", auth
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Questions logic
-let currentQ = {};
+let currentQ = {}; let activeRank = null; let pendingWinners = {};
+
+// 1. Controls & Settings
+function saveTime() { db.collection("quiz_settings").doc("status").update({ startTime: document.getElementById('startTimeInput').value }); alert("Time Saved!"); }
+function setStatus(p, c) { db.collection("quiz_settings").doc("status").update({ published: p, closed: c }); alert("Status Updated!"); }
+async function togglePosters() {
+    const s = await db.collection("quiz_settings").doc("status").get();
+    db.collection("quiz_settings").doc("status").update({ showPosters: !s.data().showPosters });
+}
+db.collection("quiz_settings").doc("status").onSnapshot(doc => {
+    const s = doc.data(); if(!s) return;
+    document.getElementById('posterBtn').innerText = s.showPosters ? "POSTER: ON" : "POSTER: OFF";
+    document.getElementById('startTimeInput').value = s.startTime || "";
+});
+
+// 2. Questions Logic
 db.collection("questions").onSnapshot(snap => {
     let h = ""; currentQ = {};
     snap.forEach(doc => {
         const d = doc.data(); currentQ[doc.id] = d.correct;
-        h += `<div class="q-list-item">
-                <span>${d.text}</span>
-                <i class="fa fa-trash-alt del-q" onclick="deleteQ('${doc.id}')"></i>
-              </div>`;
+        h += `<div class="q-list-item"><span>${d.text}</span><i class="fa fa-trash-alt" style="color:var(--red)" onclick="deleteQ('${doc.id}')"></i></div>`;
     });
     document.getElementById('qList').innerHTML = h;
 });
-
 async function addQuestion() {
-    const txt = document.getElementById('qTxt').value.trim();
-    const ops = [
-        document.getElementById('opt0').value.trim(), 
-        document.getElementById('opt1').value.trim(), 
-        document.getElementById('opt2').value.trim(), 
-        document.getElementById('opt3').value.trim()
-    ];
+    const txt = document.getElementById('qTxt').value;
+    const ops = [document.getElementById('opt0').value, document.getElementById('opt1').value, document.getElementById('opt2').value, document.getElementById('opt3').value];
     const ans = document.querySelector('input[name="ans"]:checked').value;
-    
-    if(!txt || !ops[0]) return alert("ചോദ്യവും ഓപ്ഷനും നൽകുക!");
-
-    try {
-        await db.collection("questions").add({ text: txt, options: ops, correct: ans });
-        
-        // ക്ലിയർ ചെയ്യുന്ന ഭാഗം - ഇതാണ് പുതുക്കിയത്
-        document.getElementById('qTxt').value = "";
-        document.getElementById('opt0').value = "";
-        document.getElementById('opt1').value = "";
-        document.getElementById('opt2').value = "";
-        document.getElementById('opt3').value = "";
-        document.querySelector('input[name="ans"][value="0"]').checked = true; // Radio button reset to A
-        
-        console.log("Question added and fields cleared");
-    } catch (e) {
-        alert("Error: " + e.message);
-    }
+    if(!txt || !ops[0]) return alert("Missing Data!");
+    await db.collection("questions").add({ text: txt, options: ops, correct: ans });
+    document.getElementById('qTxt').value=""; document.querySelectorAll('.opt-row input[type="text"]').forEach(i=>i.value="");
 }
+function deleteQ(id) { if(confirm("Delete?")) db.collection("questions").doc(id).delete(); }
 
-function deleteQ(id) { if(confirm("ഈ ചോദ്യം ഒഴിവാക്കണോ?")) db.collection("questions").doc(id).delete(); }
-
-// Search Logic
+// 3. Search User
 let curUser = null;
 async function searchUser() {
     const id = document.getElementById('searchId').value;
     const doc = await db.collection("participants").doc(id).get();
     if(doc.exists) {
         curUser = id; const u = doc.data();
-        document.getElementById('resData').innerHTML = `<b>ID:</b> ${id} | <b>Name:</b> ${u.name}<br><b>Mob:</b> ${u.mobile} | <b>Blocked:</b> ${u.blocked||false}`;
+        document.getElementById('resData').innerHTML = `<b>Reg ID:</b> ${id}<br><b>Name:</b> ${u.name}<br><b>Place:</b> ${u.branch}<br><b>Mob:</b> ${u.mobile}`;
         document.getElementById('resBox').style.display = 'block';
-    } else alert("ഈ ഐഡി നിലവിലില്ല!");
+    } else alert("Not Found!");
 }
-
+async function editUser() {
+    const n = prompt("Name:"), b = prompt("Branch:"), m = prompt("Mobile:");
+    if(n&&b&&m) db.collection("participants").doc(curUser).update({ name:n, branch:b, mobile:m }); searchUser();
+}
 async function toggleBlock() {
     const d = await db.collection("participants").doc(curUser).get();
-    db.collection("participants").doc(curUser).update({ blocked: !d.data().blocked });
-    searchUser();
+    db.collection("participants").doc(curUser).update({ blocked: !d.data().blocked }); searchUser();
 }
+async function deleteUser() { if(confirm("Delete?")) { await db.collection("participants").doc(curUser).delete(); document.getElementById('resBox').style.display='none'; } }
 
-async function deleteUser() { if(confirm("ഈ മെമ്പറെ ഒഴിവാക്കണോ?")) { await db.collection("participants").doc(curUser).delete(); document.getElementById('resBox').style.display = 'none'; } }
-
-async function editUser() {
-    const n = prompt("New Name:"); const m = prompt("New Mob:");
-    if(n&&m) db.collection("participants").doc(curUser).update({ name:n, mobile:m });
+// 4. Winner Logic
+function setActiveRank(r) {
+    activeRank = r;
+    document.querySelectorAll('.rank-selector .btn, .card .btn-gold').forEach(b => b.classList.remove('selected-rank'));
+    document.getElementById('rBtn'+r).classList.add('selected-rank');
+    document.getElementById('selStatus').innerText = `ഇപ്പോൾ ${r}-ാം വിജയിയെ തിരഞ്ഞെടുക്കാം`;
 }
-
-// System settings
-function saveTime() { db.collection("quiz_settings").doc("status").update({ startTime: document.getElementById('startTimeInput').value }); alert("Time Saved"); }
-function setStatus(p, c) { db.collection("quiz_settings").doc("status").update({ published: p, closed: c }); }
-async function togglePosters() {
-    const s = await db.collection("quiz_settings").doc("status").get();
-    db.collection("quiz_settings").doc("status").update({ showPosters: !s.data().showPosters });
-}
-
-// Result Table
 db.collection("results").orderBy("time", "asc").onSnapshot(snap => {
     let h = ""; let i = 1;
     snap.forEach(doc => {
         const d = doc.data(); let sc = 0;
-        if(d.answers) for(let key in d.answers) if(d.answers[key] == currentQ[key]) sc++;
-        h += `<tr><td>${i++}</td><td>${d.name}</td><td><b>${sc}</b></td><td>${d.time?d.time.toDate().toLocaleTimeString():'-'}</td><td><button onclick="setWin('${doc.id}')">Win</button></td></tr>`;
+        if(d.answers) for(let k in d.answers) if(d.answers[k] == currentQ[k]) sc++;
+        h += `<tr><td>${i++}</td><td>${d.name}</td><td><b>${sc}</b></td><td>${d.time?d.time.toDate().toLocaleTimeString():'-'}</td>
+        <td><button class="btn btn-gold" style="padding:4px; box-shadow:none;" onclick="selectWin('${doc.id}','${d.name}')">SELECT</button></td></tr>`;
     });
     document.getElementById('resTable').innerHTML = h;
 });
-
-async function setWin(id) {
-    await db.collection("winners").doc("list").set({ winnerIds: [id] });
-    alert("Winner Set!");
+function selectWin(id, name) {
+    if(!activeRank) return alert("Select Rank First!");
+    pendingWinners[activeRank] = id;
+    alert(`${name}-നെ ${activeRank}-ാം വിജയിയായി എടുത്തു.`);
+}
+async function publishWinners() {
+    if(!pendingWinners[1] || !pendingWinners[2] || !pendingWinners[3]) return alert("Select 3 Winners!");
+    if(confirm("Publish Winners Now?")) {
+        await db.collection("winners").doc("list").set({ ranks: pendingWinners });
+        await db.collection("quiz_settings").doc("status").update({ showPosters: true });
+        alert("Winners Published!");
+    }
 }
 
-// RESET ALL
+// 5. Full Restart
 async function fullRefresh() {
-    if(!confirm("ശ്രദ്ധിക്കുക! മുഴുവൻ ഡാറ്റയും നഷ്ടപ്പെടും. തുടരണോ?")) return;
-    const colls = ['questions', 'results', 'participants'];
-    for(const c of colls) {
-        const s = await db.collection(c).get();
-        const batch = db.batch();
-        s.forEach(d => batch.delete(d.ref));
+    if(!confirm("Warning! This will delete EVERYTHING (Results, Participants, Questions). Continue?")) return;
+    const collections = ['questions', 'results', 'participants'];
+    for (const col of collections) {
+        const snap = await db.collection(col).get();
+        const batch = db.batch(); snap.forEach(doc => batch.delete(doc.ref));
         await batch.commit();
     }
-    await db.collection("winners").doc("list").set({ winnerIds: [] });
+    await db.collection("winners").doc("list").set({ ranks: {} });
     await db.collection("quiz_settings").doc("status").set({ published: false, closed: true, showPosters: false, startTime: "" });
-    alert("System Cleared!");
-    location.reload();
+    alert("System Reset Complete!"); location.reload();
 }
 </script>
 </body>
