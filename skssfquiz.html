@@ -13,7 +13,7 @@
         .container { max-width: 500px; margin: -50px auto 0; padding: 0 15px; }
         .card { background: white; padding: 25px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); margin-bottom: 25px; border-top: 6px solid var(--gold); }
         
-        /* Help Desk / Admin Section */
+        /* Help Desk Section */
         .admin-box { background: #e8f5e9; padding: 15px; border-radius: 15px; border-left: 5px solid var(--primary); display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
         .admin-icon { font-size: 30px; color: var(--primary); }
         .admin-info b { display: block; color: var(--primary); font-size: 16px; }
@@ -25,15 +25,34 @@
         .branch-item { background: #fff; padding: 8px 12px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; border: 1px solid #eee; }
         .branch-count { font-weight: bold; color: var(--accent); }
 
-        /* Full Screen Winner Overlay */
-        #winnerOverlay { display: none; text-align: center; border: 8px double var(--gold); padding: 30px 15px; background: white; border-radius: 30px; }
+        /* Question & Option Styling (Modern look) */
+        .q-card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); margin-bottom: 25px; border-left: 6px solid var(--primary); }
+        .question-text { font-size: 17px; font-weight: 600; color: #333; margin-bottom: 15px; line-height: 1.5; }
         
+        .option-label { 
+            display: flex; 
+            align-items: center; 
+            background: #f8f9fa; 
+            padding: 14px 18px; 
+            border-radius: 12px; 
+            margin-bottom: 10px; 
+            cursor: pointer; 
+            border: 2px solid transparent; 
+            transition: 0.3s;
+            font-size: 15px;
+        }
+        .option-label:hover { background: #eef2f0; }
+        input[type="radio"] { margin-right: 15px; transform: scale(1.4); accent-color: var(--primary); }
+        input[type="radio"]:checked + span { font-weight: 600; color: var(--primary); }
+        .option-label:has(input:checked) { border-color: var(--primary); background: #e8f5e9; }
+
+        /* Buttons & Forms */
         input, select { width: 100%; padding: 16px; margin-bottom: 12px; border-radius: 12px; border: 1.5px solid #ddd; font-size: 14px; box-sizing: border-box; }
         .btn { width: 100%; padding: 18px; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; color: white; background: var(--primary); font-size: 15px; transition: 0.3s; }
-        .id-display { font-family: 'Orbitron', sans-serif; font-size: 40px; color: var(--gold); background: var(--primary); padding: 15px; border-radius: 15px; display: inline-block; width: 80%; margin: 15px 0; border: 3px solid var(--gold); }
-        
         .timer-text { font-family: 'Orbitron', sans-serif; font-size: 28px; color: #c0392b; text-align: center; margin-bottom: 15px; }
         .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px 0; text-align: center; border-top: 4px solid var(--primary); z-index: 1000; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
+        
+        #winnerOverlay { display: none; text-align: center; border: 8px double var(--gold); padding: 30px 15px; background: white; border-radius: 30px; }
         canvas { width: 100%; border-radius: 15px; display: none; margin-top: 15px; }
     </style>
 </head>
@@ -65,7 +84,7 @@
     <div id="authArea">
         <div id="regSuccess" class="card" style="display:none; text-align:center;">
             <h3 style="color:var(--primary);">രജിസ്ട്രേഷൻ വിജയിച്ചു!</h3>
-            <div class="id-display" id="idShow">0000</div>
+            <div style="font-family:'Orbitron'; font-size:40px; color:var(--gold); background:var(--primary); padding:15px; border-radius:15px; margin:15px 0;" id="idShow">0000</div>
             <p>ലോഗിൻ ചെയ്യാൻ ഈ ഐഡി ഉപയോഗിക്കുക</p>
             <button class="btn" style="background:#444;" onclick="location.reload()">LOGIN NOW</button>
         </div>
@@ -83,7 +102,6 @@
                 <option>SHANTHIGIRI</option><option>NEDUVOODE</option>
             </select>
             <button class="btn" onclick="register()">REGISTER</button>
-            
             <div class="stats-title">ശാഖാടിസ്ഥാനത്തിൽ രജിസ്റ്റർ ചെയ്തവർ:</div>
             <div id="branchStats" class="branch-grid"></div>
         </div>
@@ -100,9 +118,6 @@
         <div class="card" style="text-align:center;">
             <div id="uDetail" style="margin-bottom:15px; line-height:1.8; font-weight:600;"></div>
             <button class="btn" id="startBtn" onclick="startQuiz()">START QUIZ</button>
-            <div id="personalPost" style="display:none; margin-top:20px;">
-                <canvas id="userCv" width="800" height="1000"></canvas>
-            </div>
         </div>
         <div id="qBox" style="display:none;"></div>
     </div>
@@ -116,13 +131,14 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
+// Firebase Config (Keep yours)
 const firebaseConfig = { apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o", authDomain: "skssf-quiz.firebaseapp.com", projectId: "skssf-quiz", storageBucket: "skssf-quiz.firebasestorage.app", messagingSenderId: "999161549501", appId: "1:999161549501:web:7be9c98c287b92881a5dd4" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let me = null; let live = false;
 
-// Real-time Winner & Branch Stats
+// Auto-show winner poster for everyone
 db.collection("quiz_settings").doc("status").onSnapshot(async snap => {
     const d = snap.data();
     if(d.showPosters) {
@@ -138,7 +154,6 @@ db.collection("quiz_settings").doc("status").onSnapshot(async snap => {
     }
 });
 
-// Load Branch Stats
 async function loadStats() {
     const snap = await db.collection("participants").get();
     let stats = {};
@@ -155,16 +170,12 @@ async function register() {
     const n = document.getElementById('rName').value.trim();
     const m = document.getElementById('rMob').value.trim();
     const b = document.getElementById('rBranch').value;
-    if(!n || m.length<10 || !b) return alert("ദയവായി എല്ലാ വിവരങ്ങളും നൽകുക");
-    
-    // Check if mobile exists
+    if(!n || m.length<10 || !b) return alert("വിവരങ്ങൾ നൽകുക");
     const ex = await db.collection("participants").where("mobile","==",m).get();
-    if(!ex.empty) return alert("ഈ നമ്പറിൽ നിന്ന് ഒരാൾ ഇതിനകം രജിസ്റ്റർ ചെയ്തു കഴിഞ്ഞു!");
-
+    if(!ex.empty) return alert("ഈ നമ്പറിൽ രജിസ്ട്രേഷൻ കഴിഞ്ഞു!");
     const snap = await db.collection("participants").get();
     const id = (1000 + snap.size + 1).toString();
     await db.collection("participants").doc(id).set({name:n, mobile:m, branch:b, regId:id});
-    
     document.getElementById('idShow').innerText = id;
     document.getElementById('regForm').style.display = 'none';
     document.getElementById('regSuccess').style.display = 'block';
@@ -174,25 +185,14 @@ async function login() {
     const id = document.getElementById('lId').value;
     const doc = await db.collection("participants").doc(id).get();
     if(!doc.exists) return alert("തെറ്റായ ഐഡി നമ്പർ!");
-    
     me = doc.data();
     document.getElementById('authArea').style.display = 'none';
     document.getElementById('quizPanel').style.display = 'block';
-    document.getElementById('uDetail').innerHTML = `${me.name}<br>${me.branch}<br>ID: ${me.regId}`;
-
-    db.collection("quiz_settings").doc("status").onSnapshot(async s => {
+    document.getElementById('uDetail').innerHTML = `${me.name} (${me.branch})`;
+    db.collection("quiz_settings").doc("status").onSnapshot(s => {
         const d = s.data();
-        if(d.closed) {
-            document.getElementById('startBtn').style.display='none';
-            document.getElementById('clock').innerText = "QUIZ CLOSED";
-            if(d.showPosters) {
-                document.getElementById('personalPost').style.display='block';
-                const w = await db.collection("winners").doc("list").get();
-                drawPoster('userCv', me, (w.data().winnerIds || []).includes(me.regId));
-            }
-        } else {
-            handleTime(d.startTime, d.published);
-        }
+        if(d.closed) document.getElementById('clock').innerText = "CLOSED";
+        else handleTime(d.startTime, d.published);
     });
 }
 
@@ -210,23 +210,31 @@ function handleTime(st, pub) {
 async function startQuiz() {
     if(!live) return alert("ക്വിസ് തുടങ്ങിയിട്ടില്ല!");
     const played = await db.collection("results").doc(me.regId).get();
-    if(played.exists) return alert("നിങ്ങൾ ഒരു തവണ പങ്കെടുത്തു കഴിഞ്ഞു. രണ്ടാമത് പങ്കെടുക്കാൻ കഴിയില്ല.");
-    
+    if(played.exists) return alert("നിങ്ങൾ പങ്കെടുത്തു കഴിഞ്ഞു!");
     document.getElementById('startBtn').style.display = 'none';
     const qs = await db.collection("questions").get();
     let h = "";
     qs.forEach(doc => {
         const q = doc.data();
-        h += `<div class="card"><p><b>${q.text}</b></p>${q.options.map((o,i)=>`<label style="display:block;margin:10px 0;"><input type="radio" name="${doc.id}" value="${i}"> ${o}</label>`).join('')}</div>`;
+        h += `<div class="q-card">
+                <div class="question-text">${q.text}</div>
+                ${q.options.map((o,i)=>`
+                    <label class="option-label">
+                        <input type="radio" name="${doc.id}" value="${i}">
+                        <span>${o}</span>
+                    </label>
+                `).join('')}
+              </div>`;
     });
     document.getElementById('qBox').innerHTML = h + `<button class="btn" onclick="submit()">SUBMIT ANSWERS</button>`;
     document.getElementById('qBox').style.display = 'block';
 }
 
 async function submit() {
-    let ans = {}; document.querySelectorAll('#qBox input:checked').forEach(i => ans[i.name] = i.value);
+    let ans = {}; 
+    document.querySelectorAll('#qBox input:checked').forEach(i => ans[i.name] = i.value);
     await db.collection("results").doc(me.regId).set({...me, answers:ans, time: firebase.firestore.FieldValue.serverTimestamp()});
-    alert("നിങ്ങളുടെ ഉത്തരങ്ങൾ സമർപ്പിച്ചു!"); location.reload();
+    alert("സമർപ്പിച്ചു!"); location.reload();
 }
 
 function drawPoster(cvId, data, isW) {
