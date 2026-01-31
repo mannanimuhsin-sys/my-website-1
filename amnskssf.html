@@ -3,116 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SKSSF QUIZ - ADMIN MOBILE MASTER</title>
+    <title>SKSSF QUIZ - ADMIN MASTER PRO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #004d00; --gold: #f1c40f; --light: #f8f9fa; --red: #c0392b; --active-green: #2ecc71; }
-        
-        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; -webkit-tap-highlight-color: transparent; }
-        
+        :root { --primary: #004d00; --gold: #f1c40f; --light: #f8f9fa; --red: #c0392b; }
+        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
         .card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); margin-bottom: 15px; border-top: 5px solid var(--primary); }
+        h3 { color: var(--primary); display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
         
-        h3 { color: var(--primary); display: flex; align-items: center; gap: 8px; margin-top: 0; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .btn { padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; width: 100%; transition: 0.2s; }
+        .btn-blue { background: #2980b9; } .btn-green { background: #27ae60; } .btn-red { background: var(--red); } .btn-gold { background: var(--gold); color: #000; }
+        .btn:active { transform: scale(0.96); }
+
+        /* Compact Options */
+        .opt-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; background: #f9f9f9; padding: 5px 10px; border-radius: 8px; }
+        .opt-row input[type="text"] { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; }
+        .opt-row input[type="radio"] { width: 18px; height: 18px; }
+
+        /* Question List with Delete */
+        .q-list-item { background: #fff; border-left: 4px solid var(--gold); padding: 10px; margin-bottom: 8px; border-radius: 5px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .del-q { color: var(--red); cursor: pointer; padding: 5px; font-size: 16px; }
+
+        input[type="datetime-local"], textarea { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 8px; box-sizing: border-box; }
+        .scroll-table { overflow-x: auto; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; background: white; font-size: 12px; }
+        th { background: var(--primary); color: white; padding: 10px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
         
-        /* Mobile Optimized Buttons */
-        .btn { 
-            padding: 14px 10px; border: none; border-radius: 12px; color: white; font-weight: bold; 
-            cursor: pointer; transition: all 0.2s ease; display: inline-flex; 
-            align-items: center; justify-content: center; gap: 5px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-            user-select: none; font-size: 13px; width: 100%;
-        }
-
-        .btn:active { transform: scale(0.96); filter: brightness(0.9); }
-
-        .btn-blue { background: #2980b9; }
-        .btn-green { background: #27ae60; }
-        .btn-red { background: var(--red); }
-        .btn-gold { background: var(--gold); color: #000; }
-
-        .btn-active-green { background: var(--active-green) !important; box-shadow: 0 0 12px var(--active-green); }
-        .btn-active-red { background: #ff4757 !important; box-shadow: 0 0 12px #ff4757; }
-
-        /* Control Grid */
-        .control-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-
-        /* Inputs */
-        .time-setter { background: #e8f5e9; padding: 12px; border-radius: 12px; margin-bottom: 12px; }
-        input[type="datetime-local"], textarea, input[type="text"] { 
-            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; 
-            font-size: 14px; box-sizing: border-box; outline: none;
-        }
-
-        .opt-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; background: var(--light); padding: 10px; border-radius: 10px; }
-        .opt-row input[type="radio"] { width: 22px; height: 22px; accent-color: var(--primary); }
-
-        /* Question List */
-        #addedQuestionsList { max-height: 200px; overflow-y: auto; background: #fdfdfd; padding: 8px; border: 1px solid #eee; border-radius: 10px; }
-        .q-list-item { background: #fff; border-left: 4px solid var(--gold); padding: 10px; margin-bottom: 8px; border-radius: 5px; font-size: 13px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-
-        /* Mobile Responsive Table */
-        .scroll-table { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; border: 1px solid #eee; }
-        table { width: 100%; border-collapse: collapse; min-width: 550px; background: white; }
-        th { background: var(--primary); color: white; padding: 10px; text-align: left; font-size: 12px; position: sticky; top: 0; }
-        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 12px; }
-        
-        .time-badge { background: #fff3e0; color: #e65100; padding: 3px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; white-space: nowrap; }
-        .score-badge { background: #e8f5e9; color: #2e7d32; padding: 3px 8px; border-radius: 10px; font-weight: bold; }
-        
-        .danger-zone { border: 2px dashed var(--red); padding: 15px; border-radius: 15px; text-align: center; margin-top: 30px; }
+        .danger-zone { border: 2px dashed var(--red); padding: 15px; border-radius: 15px; text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h3><i class="fa fa-sliders"></i> QUIZ CONTROL</h3>
-    <div class="time-setter">
-        <input type="datetime-local" id="startTimeInput" style="margin-bottom:8px;">
-        <button class="btn btn-blue" id="saveTimeBtn" onclick="saveTime()"><i class="fa fa-clock"></i> SAVE START TIME</button>
-    </div>
-    <div class="control-grid">
-        <button class="btn btn-green" id="liveBtn" onclick="setStatus(true, false)">LIVE</button>
-        <button class="btn btn-red" id="stopBtn" onclick="setStatus(false, true)">STOP</button>
-        <button class="btn btn-gold" id="posterBtn" onclick="togglePosters()">POSTER</button>
+    <h3><i class="fa fa-clock"></i> QUIZ SETTINGS</h3>
+    <input type="datetime-local" id="startTimeInput">
+    <button class="btn btn-blue" onclick="saveTime()"><i class="fa fa-save"></i> SAVE START TIME</button>
+    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top:10px;">
+        <button class="btn btn-green" onclick="setStatus(true, false)">LIVE</button>
+        <button class="btn btn-red" onclick="setStatus(false, true)">STOP</button>
+        <button class="btn btn-gold" onclick="togglePosters()">POSTER</button>
     </div>
 </div>
 
 <div class="card">
-    <h3><i class="fa fa-list-numeric"></i> QUESTIONS LIST</h3>
-    <div id="addedQuestionsList"></div>
-    <h3 style="margin-top:15px;"><i class="fa fa-plus-circle"></i> ADD NEW QUESTION</h3>
-    <textarea id="qTxt" placeholder="Type question here..." rows="2"></textarea>
-    <div style="margin-top: 10px;">
-        <div class="opt-row"><span>A</span><input type="text" id="opt0" placeholder="Opt 1"><input type="radio" name="correctOpt" value="0" checked></div>
-        <div class="opt-row"><span>B</span><input type="text" id="opt1" placeholder="Opt 2"><input type="radio" name="correctOpt" value="1"></div>
-        <div class="opt-row"><span>C</span><input type="text" id="opt2" placeholder="Opt 3"><input type="radio" name="correctOpt" value="2"></div>
-        <div class="opt-row"><span>D</span><input type="text" id="opt3" placeholder="Opt 4"><input type="radio" name="correctOpt" value="3"></div>
+    <h3><i class="fa fa-user-edit"></i> SEARCH & MANAGE</h3>
+    <div style="display:flex; gap:5px;">
+        <input type="number" id="searchId" placeholder="Reg ID" style="margin:0;">
+        <button class="btn btn-blue" style="width:60px;" onclick="searchUser()"><i class="fa fa-search"></i></button>
     </div>
-    <button class="btn btn-blue" id="saveQBtn" onclick="addQuestion()"><i class="fa fa-save"></i> SAVE QUESTION</button>
+    <div id="resBox" style="display:none; margin-top:10px; padding:10px; background:#fffde7; border-radius:10px; border:1px solid #ffe082;">
+        <div id="resData" style="font-size:13px; line-height:1.6;"></div>
+        <div style="display:flex; gap:5px; margin-top:10px;">
+            <button class="btn btn-blue" style="font-size:11px; padding:8px;" onclick="editUser()">EDIT</button>
+            <button class="btn btn-gold" style="font-size:11px; padding:8px;" id="blkBtn" onclick="toggleBlock()">BLOCK</button>
+            <button class="btn btn-red" style="font-size:11px; padding:8px;" onclick="deleteUser()">DEL</button>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h3><i class="fa fa-plus-circle"></i> ADD QUESTION</h3>
+    <textarea id="qTxt" placeholder="Type question..." rows="2"></textarea>
+    <div id="optionInputs">
+        <div class="opt-row">A <input type="text" id="opt0" placeholder="Option 1"> <input type="radio" name="ans" value="0" checked></div>
+        <div class="opt-row">B <input type="text" id="opt1" placeholder="Option 2"> <input type="radio" name="ans" value="1"></div>
+        <div class="opt-row">C <input type="text" id="opt2" placeholder="Option 3"> <input type="radio" name="ans" value="2"></div>
+        <div class="opt-row">D <input type="text" id="opt3" placeholder="Option 4"> <input type="radio" name="ans" value="3"></div>
+    </div>
+    <button class="btn btn-green" onclick="addQuestion()" style="margin-top:5px;"><i class="fa fa-plus"></i> ADD TO LIST</button>
+</div>
+
+<div class="card">
+    <h3><i class="fa fa-list"></i> QUESTION BANK</h3>
+    <div id="qList"></div>
 </div>
 
 <div class="card">
     <h3><i class="fa fa-trophy"></i> RANK LIST</h3>
     <div class="scroll-table">
         <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Score</th>
-                    <th>Time (AM/PM)</th>
-                    <th>ID & Mob</th>
-                    <th>Winner</th>
-                </tr>
-            </thead>
-            <tbody id="resultTable"></tbody>
+            <thead><tr><th>#</th><th>Name</th><th>Score</th><th>Time</th><th>Action</th></tr></thead>
+            <tbody id="resTable"></tbody>
         </table>
     </div>
 </div>
 
 <div class="danger-zone">
-    <h3 style="color:var(--red); justify-content:center; border:none;"><i class="fa fa-sync-alt"></i> SYSTEM RESET</h3>
-    <button class="btn btn-red" onclick="fullRefresh()">FULL REFRESH</button>
+    <button class="btn btn-red" onclick="fullRefresh()"><i class="fa fa-sync"></i> FULL SYSTEM RESET</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -122,86 +100,114 @@ const firebaseConfig = { apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o", auth
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let qData = {}; 
-
-db.collection("quiz_settings").doc("status").onSnapshot(doc => {
-    const s = doc.data(); if(!s) return;
-    const liveBtn = document.getElementById('liveBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const posterBtn = document.getElementById('posterBtn');
-    if(s.published && !s.closed) { liveBtn.classList.add('btn-active-green'); stopBtn.classList.remove('btn-active-red'); } 
-    else if(s.closed) { stopBtn.classList.add('btn-active-red'); liveBtn.classList.remove('btn-active-green'); }
-    posterBtn.innerHTML = s.showPosters ? "<i class='fa fa-eye'></i> ON" : "<i class='fa fa-eye-slash'></i> OFF";
-});
-
+// Questions logic
+let currentQ = {};
 db.collection("questions").onSnapshot(snap => {
-    qData = {}; let h = ""; let qCount = 1;
+    let h = ""; currentQ = {};
     snap.forEach(doc => {
-        qData[doc.id] = doc.data().correct;
-        h += `<div class="q-list-item"><b>Q${qCount++}:</b> ${doc.data().text}</div>`;
+        const d = doc.data(); currentQ[doc.id] = d.correct;
+        h += `<div class="q-list-item">
+                <span>${d.text}</span>
+                <i class="fa fa-trash-alt del-q" onclick="deleteQ('${doc.id}')"></i>
+              </div>`;
     });
-    document.getElementById('addedQuestionsList').innerHTML = h;
+    document.getElementById('qList').innerHTML = h;
 });
 
-db.collection("results").orderBy("time", "asc").onSnapshot(snap => {
-    let h = ""; let i = 1;
-    snap.forEach(doc => {
-        const d = doc.data();
-        let score = 0; if(d.answers) { for(let qId in d.answers) { if(qData[qId] == d.answers[qId]) score++; } }
-        let timeStr = d.time ? d.time.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true }) : "---";
-        h += `<tr>
-            <td>${i++}</td>
-            <td><b>${d.name}</b></td>
-            <td><span class="score-badge">${score}</span></td>
-            <td><span class="time-badge">${timeStr}</span></td>
-            <td style="font-size:10px">${d.regId}<br>${d.mobile}</td>
-            <td><button class="btn btn-gold" style="padding:5px; font-size:10px" onclick="setWinner('${doc.id}')">Win</button></td>
-        </tr>`;
-    });
-    document.getElementById('resultTable').innerHTML = h;
-});
-
-function addQuestion() {
+async function addQuestion() {
     const txt = document.getElementById('qTxt').value.trim();
-    const ops = [document.getElementById('opt0').value.trim(), document.getElementById('opt1').value.trim(), document.getElementById('opt2').value.trim(), document.getElementById('opt3').value.trim()];
-    const ans = document.querySelector('input[name="correctOpt"]:checked').value;
-    if(!txt || ops[0]=="") return alert("Error!");
-    db.collection("questions").add({ text: txt, options: ops, correct: ans, timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => {
-        document.getElementById('qTxt').value = ""; document.querySelectorAll('.opt-row input[type="text"]').forEach(input => input.value = "");
-    });
+    const ops = [
+        document.getElementById('opt0').value.trim(), 
+        document.getElementById('opt1').value.trim(), 
+        document.getElementById('opt2').value.trim(), 
+        document.getElementById('opt3').value.trim()
+    ];
+    const ans = document.querySelector('input[name="ans"]:checked').value;
+    
+    if(!txt || !ops[0]) return alert("ചോദ്യവും ഓപ്ഷനും നൽകുക!");
+
+    try {
+        await db.collection("questions").add({ text: txt, options: ops, correct: ans });
+        
+        // ക്ലിയർ ചെയ്യുന്ന ഭാഗം - ഇതാണ് പുതുക്കിയത്
+        document.getElementById('qTxt').value = "";
+        document.getElementById('opt0').value = "";
+        document.getElementById('opt1').value = "";
+        document.getElementById('opt2').value = "";
+        document.getElementById('opt3').value = "";
+        document.querySelector('input[name="ans"][value="0"]').checked = true; // Radio button reset to A
+        
+        console.log("Question added and fields cleared");
+    } catch (e) {
+        alert("Error: " + e.message);
+    }
 }
 
-function saveTime() {
-    const t = document.getElementById('startTimeInput').value;
-    if(!t) return alert("Select Time");
-    db.collection("quiz_settings").doc("status").update({ startTime: t }); alert("Saved!");
+function deleteQ(id) { if(confirm("ഈ ചോദ്യം ഒഴിവാക്കണോ?")) db.collection("questions").doc(id).delete(); }
+
+// Search Logic
+let curUser = null;
+async function searchUser() {
+    const id = document.getElementById('searchId').value;
+    const doc = await db.collection("participants").doc(id).get();
+    if(doc.exists) {
+        curUser = id; const u = doc.data();
+        document.getElementById('resData').innerHTML = `<b>ID:</b> ${id} | <b>Name:</b> ${u.name}<br><b>Mob:</b> ${u.mobile} | <b>Blocked:</b> ${u.blocked||false}`;
+        document.getElementById('resBox').style.display = 'block';
+    } else alert("ഈ ഐഡി നിലവിലില്ല!");
 }
 
-function setStatus(pub, close) { db.collection("quiz_settings").doc("status").update({ published: pub, closed: close }); }
+async function toggleBlock() {
+    const d = await db.collection("participants").doc(curUser).get();
+    db.collection("participants").doc(curUser).update({ blocked: !d.data().blocked });
+    searchUser();
+}
 
+async function deleteUser() { if(confirm("ഈ മെമ്പറെ ഒഴിവാക്കണോ?")) { await db.collection("participants").doc(curUser).delete(); document.getElementById('resBox').style.display = 'none'; } }
+
+async function editUser() {
+    const n = prompt("New Name:"); const m = prompt("New Mob:");
+    if(n&&m) db.collection("participants").doc(curUser).update({ name:n, mobile:m });
+}
+
+// System settings
+function saveTime() { db.collection("quiz_settings").doc("status").update({ startTime: document.getElementById('startTimeInput').value }); alert("Time Saved"); }
+function setStatus(p, c) { db.collection("quiz_settings").doc("status").update({ published: p, closed: c }); }
 async function togglePosters() {
     const s = await db.collection("quiz_settings").doc("status").get();
     db.collection("quiz_settings").doc("status").update({ showPosters: !s.data().showPosters });
 }
 
-async function setWinner(id) {
-    const w = await db.collection("winners").doc("list").get();
-    let ids = w.data().winnerIds || []; if(!ids.includes(id)) ids.push(id);
-    await db.collection("winners").doc("list").set({ winnerIds: ids }); alert("Winner Selected!");
+// Result Table
+db.collection("results").orderBy("time", "asc").onSnapshot(snap => {
+    let h = ""; let i = 1;
+    snap.forEach(doc => {
+        const d = doc.data(); let sc = 0;
+        if(d.answers) for(let key in d.answers) if(d.answers[key] == currentQ[key]) sc++;
+        h += `<tr><td>${i++}</td><td>${d.name}</td><td><b>${sc}</b></td><td>${d.time?d.time.toDate().toLocaleTimeString():'-'}</td><td><button onclick="setWin('${doc.id}')">Win</button></td></tr>`;
+    });
+    document.getElementById('resTable').innerHTML = h;
+});
+
+async function setWin(id) {
+    await db.collection("winners").doc("list").set({ winnerIds: [id] });
+    alert("Winner Set!");
 }
 
+// RESET ALL
 async function fullRefresh() {
-    if(confirm("Full Reset All Data?")) {
-        const collections = ['results', 'questions', 'winners'];
-        for (const col of collections) {
-            const snap = await db.collection(col).get(); const batch = db.batch();
-            snap.forEach(doc => batch.delete(doc.ref));
-            if(col === 'winners') batch.set(db.collection('winners').doc('list'), {winnerIds: []});
-            await batch.commit();
-        }
-        await db.collection('quiz_settings').doc('status').set({ closed: true, published: false, showPosters: false, startTime: "" });
-        location.reload();
+    if(!confirm("ശ്രദ്ധിക്കുക! മുഴുവൻ ഡാറ്റയും നഷ്ടപ്പെടും. തുടരണോ?")) return;
+    const colls = ['questions', 'results', 'participants'];
+    for(const c of colls) {
+        const s = await db.collection(c).get();
+        const batch = db.batch();
+        s.forEach(d => batch.delete(d.ref));
+        await batch.commit();
     }
+    await db.collection("winners").doc("list").set({ winnerIds: [] });
+    await db.collection("quiz_settings").doc("status").set({ published: false, closed: true, showPosters: false, startTime: "" });
+    alert("System Cleared!");
+    location.reload();
 }
 </script>
 </body>
