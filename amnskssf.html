@@ -3,35 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QUIZ ADMIN - V8</title>
+    <title>QUIZ MASTER ADMIN</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding-bottom: 50px; }
-        .tab-bar { display: flex; background: #004d00; position: sticky; top: 0; }
-        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: #fff; font-weight: bold; cursor: pointer; }
+        body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding-bottom: 50px; }
+        .tabs { display: flex; background: #004d00; position: sticky; top: 0; z-index: 100; }
+        .tab-btn { flex: 1; padding: 18px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; }
         .tab-btn.active { background: #003300; border-bottom: 4px solid #f1c40f; }
-        .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
-        .card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; }
-        .btn { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: #fff; }
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
         .btn-green { background: #27ae60; } .btn-red { background: #c0392b; } .btn-blue { background: #2980b9; }
-        .q-list { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 10px; border-left: 5px solid #004d00; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
-        th { background: #004d00; color: #fff; }
+        .q-item { background: #fafafa; padding: 15px; border-radius: 10px; border-left: 6px solid #004d00; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
+        th { background: #004d00; color: white; }
     </style>
 </head>
 <body>
 
-<div class="tab-bar">
-    <button class="tab-btn active" onclick="openTab(event, 'questions')">MANAGE QUESTIONS</button>
-    <button class="tab-btn" onclick="openTab(event, 'results')">RESULTS & WINNERS</button>
+<div class="tabs">
+    <button class="tab-btn active" onclick="openTab(event, 'questions')">ചോദ്യങ്ങൾ ചേർക്കുക</button>
+    <button class="tab-btn" onclick="openTab(event, 'results')">റിസൾട്ട് & കൺട്രോൾ</button>
 </div>
 
 <div id="questions" class="tab-content container">
     <div class="card">
-        <h3>പുതിയ ചോദ്യം ചേർക്കുക</h3>
-        <textarea id="qText" rows="3" placeholder="ചോദ്യം നൽകുക"></textarea>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <h3>പുതിയ ചോദ്യം</h3>
+        <textarea id="qText" rows="3" placeholder="ചോദ്യം ടൈപ്പ് ചെയ്യുക..."></textarea>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <input type="text" id="o0" placeholder="Option 1">
             <input type="text" id="o1" placeholder="Option 2">
             <input type="text" id="o2" placeholder="Option 3">
@@ -43,11 +43,11 @@
             <option value="2">Option 3 ശരിയുത്തരം</option>
             <option value="3">Option 4 ശരിയുത്തരം</option>
         </select>
-        <button class="btn btn-green" onclick="addQuestion()" style="width:100%">ADD QUESTION</button>
+        <button class="btn btn-green" onclick="addQuestion()" style="width:100%">SAVE QUESTION</button>
     </div>
     <div class="card">
-        <h3>നിലവിലുള്ള ചോദ്യങ്ങൾ (<span id="qCount">0</span>)</h3>
-        <div id="qListDisplay"></div>
+        <h3>ചേർത്ത ചോദ്യങ്ങൾ (<span id="qCount">0</span>)</h3>
+        <div id="qDisplay"></div>
     </div>
 </div>
 
@@ -55,14 +55,16 @@
     <div class="card">
         <h3>ക്വിസ് കൺട്രോൾ</h3>
         Start Time: <input type="datetime-local" id="startTime">
-        <button class="btn btn-blue" onclick="saveStatus('time')">SET TIME</button>
-        <button class="btn btn-green" onclick="saveStatus('live')">PUBLISH LIVE</button>
-        <button class="btn btn-red" onclick="saveStatus('stop')">STOP QUIZ</button>
-        <button class="btn" style="background:#f1c40f; color:#000;" onclick="saveStatus('poster')">PUBLISH POSTERS</button>
+        <div style="display:flex; gap:10px; flex-wrap: wrap;">
+            <button class="btn btn-blue" onclick="statusUpdate('time')">SET TIME</button>
+            <button class="btn btn-green" onclick="statusUpdate('live')">PUBLISH LIVE</button>
+            <button class="btn btn-red" onclick="statusUpdate('stop')">STOP QUIZ</button>
+            <button class="btn" style="background:#f1c40f; color:black;" onclick="statusUpdate('poster')">SHOW POSTERS</button>
+        </div>
     </div>
 
     <div class="card">
-        <h3>പങ്കെടുത്തവർ (Ranked by Marks & Time)</h3>
+        <h3>മാർക്ക് ലിസ്റ്റ് (Marks & Time Based Rank)</h3>
         <div style="overflow-x:auto;">
             <table>
                 <thead>
@@ -72,6 +74,7 @@
             </table>
         </div>
     </div>
+    <button class="btn btn-red" style="width:100%" onclick="resetQuiz()">RESET ENTIRE QUIZ</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -86,27 +89,27 @@ function openTab(e, t) {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
     document.getElementById(t).style.display = "block";
     e.currentTarget.classList.add("active");
-    if(t==='results') loadResults();
+    if(t==='results') loadRes();
 }
 
 async function addQuestion() {
     const text = document.getElementById('qText').value;
     const options = [document.getElementById('o0').value, document.getElementById('o1').value, document.getElementById('o2').value, document.getElementById('o3').value];
     const correct = document.getElementById('correct').value;
-    if(!text || options.includes("")) return alert("Fill all!");
+    if(!text || options.includes("")) return alert("പൂർണ്ണമായി പൂരിപ്പിക്കുക");
     await db.collection("questions").add({ text, options, correct });
     alert("Saved!"); location.reload();
 }
 
 async function loadQuestions() {
-    const snap = await db.collection("questions").get();
-    document.getElementById("qCount").innerText = snap.size;
+    const s = await db.collection("questions").get();
+    document.getElementById("qCount").innerText = s.size;
     let h = "";
-    snap.forEach(doc => h += `<div class="q-list"><b>${doc.data().text}</b><br><small>${doc.data().options.join(" | ")}</small></div>`);
-    document.getElementById("qListDisplay").innerHTML = h;
+    s.forEach(doc => h += `<div class="q-item"><b>${doc.data().text}</b><br><small>${doc.data().options.join(" | ")}</small></div>`);
+    document.getElementById("qDisplay").innerHTML = h;
 }
 
-async function saveStatus(type) {
+async function statusUpdate(type) {
     const ref = db.collection("quiz_settings").doc("status");
     if(type==='time') await ref.set({ startTime: document.getElementById('startTime').value }, {merge:true});
     if(type==='live') await ref.update({ published: true, closed: false });
@@ -115,37 +118,47 @@ async function saveStatus(type) {
     alert("Updated!");
 }
 
-async function loadResults() {
+async function loadRes() {
     const qSnap = await db.collection("questions").get();
     let correctMap = {}; qSnap.forEach(d => correctMap[d.id] = d.data().correct);
     const rSnap = await db.collection("results").get();
-    let results = [];
+    let res = [];
     rSnap.forEach(doc => {
         let s = 0; const d = doc.data();
         for(let qid in correctMap) { if(d.answers && d.answers[qid] == correctMap[qid]) s++; }
-        let time = d.submitTime ? d.submitTime.toDate().toLocaleTimeString() : "--";
-        results.push({...d, score: s, timeStr: time});
+        let t = d.submitTime ? d.submitTime.toDate().toLocaleTimeString() : "--";
+        res.push({...d, score: s, timeStr: t});
     });
-    results.sort((a,b) => b.score - a.score || a.submitTime - b.submitTime);
+    res.sort((a,b) => b.score - a.score || a.submitTime - b.submitTime);
     
     const winDoc = await db.collection("winners").doc("list").get();
     let winIds = winDoc.exists ? winDoc.data().winnerIds || [] : [];
 
     let h = "";
-    results.forEach((r, i) => {
+    res.forEach((r, i) => {
         const isW = winIds.includes(r.regId.toString());
         h += `<tr style="background:${isW?'#dcfce7':''}"><td>${i+1}</td><td>${r.regId}</td><td>${r.name}</td><td>${r.branch}</td><td>${r.mobile}</td><td><b>${r.score}</b></td><td>${r.timeStr}</td>
-        <td><button onclick="setWinner('${r.regId}', ${!isW})">${isW?'Remove':'Select'}</button></td></tr>`;
+        <td><button onclick="markWinner('${r.regId}', ${!isW})">${isW?'Remove':'Winner'}</button></td></tr>`;
     });
     document.getElementById("resBody").innerHTML = h;
 }
 
-async function setWinner(id, add) {
+async function markWinner(id, add) {
     const doc = await db.collection("winners").doc("list").get();
     let list = doc.exists ? doc.data().winnerIds || [] : [];
-    if(add) list.push(id.toString()); else list = list.filter(l => l != id);
+    if(add) list.push(id.toString()); else list = list.filter(l => l != id.toString());
     await db.collection("winners").doc("list").set({ winnerIds: list });
-    loadResults();
+    loadRes();
+}
+
+async function resetQuiz() {
+    if(!confirm("പൂർണ്ണമായും ഡാറ്റ ഡിലീറ്റ് ചെയ്യണോ?")) return;
+    const cols = ['questions','results','winners','participants'];
+    for(let c of cols) {
+        const s = await db.collection(c).get();
+        const b = db.batch(); s.forEach(d => b.delete(d.ref)); await b.commit();
+    }
+    alert("Reset Complete!"); location.reload();
 }
 loadQuestions();
 </script>
