@@ -3,104 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QUIZ ADMIN PRO - MOBILE FRIENDLY</title>
+    <title>QUIZ MASTER ADMIN - V7 FINAL</title>
     <style>
-        :root { --primary: #004d00; --gold: #f1c40f; --dark: #121212; }
+        :root { --gold: #f1c40f; --green: #27ae60; --blue: #2980b9; --red: #c0392b; --dark: #121212; }
         body { font-family: 'Segoe UI', sans-serif; background: #000; color: #fff; margin: 0; padding-bottom: 50px; }
+        
+        /* Tabs */
         .tab-bar { display: flex; background: #1a1a1a; position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid var(--gold); }
         .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: #888; font-weight: bold; cursor: pointer; }
-        .tab-btn.active { color: var(--gold); border-bottom: 3px solid var(--gold); background: #222; }
+        .tab-btn.active { color: var(--gold); background: #222; border-bottom: 3px solid var(--gold); }
         
-        .container { padding: 15px; max-width: 600px; margin: auto; }
+        .container { padding: 15px; max-width: 800px; margin: auto; }
         .card { background: #1a1a1a; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #333; }
-        h3 { color: var(--gold); margin-top: 0; font-size: 18px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        h3 { color: var(--gold); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 18px; }
         
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #333; background: #222; color: #fff; box-sizing: border-box; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box; font-size: 14px; }
         
-        .opt-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
-        .radio-btn { width: 20px; height: 20px; accent-color: var(--gold); }
-        
-        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        .btn-green { background: #27ae60; color: white; }
-        .btn-blue { background: #2980b9; color: white; }
-        .btn-red { background: #c0392b; color: white; }
+        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; font-size: 14px; transition: 0.3s; }
+        .btn-green { background: var(--green); color: white; }
+        .btn-blue { background: var(--blue); color: white; }
+        .btn-red { background: var(--red); color: white; }
         .btn-gold { background: var(--gold); color: #000; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-        th, td { padding: 10px; border: 1px solid #333; text-align: left; }
+        .q-item { background: #222; padding: 12px; margin-top: 10px; border-radius: 8px; border-left: 5px solid var(--gold); }
+        
+        /* Winner Search Box */
+        .search-box { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 2px solid var(--gold); margin-bottom: 20px; }
+        #winnerInfoDisplay { margin-top: 15px; padding: 15px; background: #004d00; border-radius: 10px; display: none; line-height: 1.6; border: 1px solid var(--green); }
+
+        /* Table Styling */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; min-width: 600px; }
+        th, td { padding: 12px; border: 1px solid #333; text-align: left; }
         th { background: #222; color: var(--gold); }
-        .winner-row { background: #004d00 !important; }
-        .reset-section { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #333; }
+        .winner-row { background: #1b5e20 !important; }
     </style>
 </head>
 <body>
 
 <div class="tab-bar">
     <button class="tab-btn active" onclick="openTab(event, 'questions')">QUESTIONS</button>
-    <button class="tab-btn" onclick="openTab(event, 'results')">RESULTS & WINNERS</button>
+    <button class="tab-btn" onclick="openTab(event, 'results')">RESULTS & LOOKUP</button>
 </div>
 
 <div id="questions" class="tab-content container">
     <div class="card">
-        <h3>1. ക്വിസ് സമയം സെറ്റ് ചെയ്യുക</h3>
-        തുടങ്ങുന്ന സമയം: <input type="datetime-local" id="startTime">
-        <button class="btn btn-blue" onclick="saveSettings()">SAVE TIME</button>
+        <h3>പുതിയ ചോദ്യം ചേർക്കുക</h3>
+        <textarea id="qText" rows="3" placeholder="ചോദ്യം ഇവിടെ ടൈപ്പ് ചെയ്യുക..."></textarea>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <input type="text" id="o0" placeholder="Option 1">
+            <input type="text" id="o1" placeholder="Option 2">
+            <input type="text" id="o2" placeholder="Option 3">
+            <input type="text" id="o3" placeholder="Option 4">
+        </div>
+        <select id="correctOpt">
+            <option value="0">Option 1 ശരിയുത്തരം</option>
+            <option value="1">Option 2 ശരിയുത്തരം</option>
+            <option value="2">Option 3 ശരിയുത്തരം</option>
+            <option value="3">Option 4 ശരിയുത്തരം</option>
+        </select>
+        <button class="btn btn-green" onclick="addQuestion()">SAVE QUESTION</button>
     </div>
 
     <div class="card">
-        <h3>2. ചോദ്യങ്ങൾ ചേർക്കുക</h3>
-        <textarea id="qText" rows="3" placeholder="ചോദ്യം ഇവിടെ നൽകുക..."></textarea>
-        
-        <p style="font-size: 12px; color: #aaa; margin: 5px 0;">ഓപ്ഷനുകൾ നൽകി ശരിയായ ഉത്തരത്തിന് നേരെയുള്ള ബട്ടൺ സെലക്ട് ചെയ്യുക:</p>
-        <div class="opt-row">
-            <input type="radio" name="correct" value="0" class="radio-btn" checked>
-            <input type="text" id="opt0" placeholder="Option 1">
-        </div>
-        <div class="opt-row">
-            <input type="radio" name="correct" value="1" class="radio-btn">
-            <input type="text" id="opt1" placeholder="Option 2">
-        </div>
-        <div class="opt-row">
-            <input type="radio" name="correct" value="2" class="radio-btn">
-            <input type="text" id="opt2" placeholder="Option 3">
-        </div>
-        <div class="opt-row">
-            <input type="radio" name="correct" value="3" class="radio-btn">
-            <input type="text" id="opt3" placeholder="Option 4">
-        </div>
-        
-        <button class="btn btn-green" onclick="addQuestion()">ADD QUESTION</button>
-    </div>
-
-    <div class="card">
-        <h3>ചേർത്ത ചോദ്യങ്ങൾ</h3>
-        <div id="qListDisplay" style="font-size: 13px; color: #ccc;"></div>
+        <h3>ചേർത്ത ചോദ്യങ്ങൾ (<span id="qCount">0</span>)</h3>
+        <div id="allQuestions"></div>
     </div>
 </div>
 
 <div id="results" class="tab-content container" style="display:none;">
-    <div class="card">
-        <h3>ക്വിസ് കൺട്രോൾ</h3>
-        <button class="btn btn-blue" onclick="togglePublish(true)">PUBLISH QUIZ (LIVE)</button>
-        <button class="btn btn-red" onclick="stopQuiz()">STOP QUIZ & SHOW MARKS</button>
+    <div class="search-box">
+        <h3 style="border:none; margin:0;">WINNER DETAILS LOOKUP</h3>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <input type="number" id="searchId" placeholder="വിജയിയുടെ ഐഡി നൽകുക" style="margin:0;">
+            <button class="btn btn-blue" onclick="lookupWinner()" style="margin:0; width:120px;">FIND</button>
+        </div>
+        <div id="winnerInfoDisplay"></div>
     </div>
 
-    <div id="resultCard" class="card" style="display:none;">
-        <h3>പങ്കെടുത്തവർ & മാർക്ക്</h3>
-        <button class="btn btn-gold" onclick="publishPosters()">PUBLISH ALL WINNER POSTERS</button>
-        <div style="overflow-x: auto;">
-            <table>
-                <thead>
-                    <tr><th>Rank</th><th>Name</th><th>Branch</th><th>Score</th><th>Action</th></tr>
-                </thead>
-                <tbody id="resultBody"></tbody>
-            </table>
+    <div class="card">
+        <h3>ക്വിസ് സെറ്റിംഗ്‌സ്</h3>
+        Start Time: <input type="datetime-local" id="startTime">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button class="btn btn-blue" onclick="updateStatus('time')">SET TIME</button>
+            <button class="btn btn-green" onclick="updateStatus('live')">PUBLISH LIVE</button>
+            <button class="btn btn-red" onclick="updateStatus('stop')">STOP QUIZ</button>
+            <button class="btn btn-gold" onclick="updateStatus('posters')">PUBLISH POSTERS</button>
         </div>
     </div>
 
-    <div class="reset-section">
-        <button class="btn btn-red" style="width: auto;" onclick="resetQuiz()">RESET ENTIRE QUIZ</button>
-        <p style="font-size: 10px; color: #666; margin-top: 10px;">ഇത് ക്ലിക്ക് ചെയ്താൽ എല്ലാ ചോദ്യങ്ങളും റിസൾട്ടുകളും ഡിലീറ്റ് ആകും.</p>
+    <div class="card">
+        <h3>മാർക്ക് ലിസ്റ്റ് (Ranked)</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                        <th>Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="resBody"></tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div style="padding: 20px; text-align: center;">
+        <button class="btn btn-red" style="width:auto; padding: 12px 30px;" onclick="resetAll()">RESET ALL QUIZ DATA</button>
     </div>
 </div>
 
@@ -108,142 +120,138 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase Config (Keep your existing config)
-const firebaseConfig = {
-  apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o",
-  authDomain: "skssf-quiz.firebaseapp.com",
-  projectId: "skssf-quiz",
-  storageBucket: "skssf-quiz.firebasestorage.app",
-  messagingSenderId: "999161549501",
-  appId: "1:999161549501:web:7be9c98c287b92881a5dd4"
+// Firebase Config
+const firebaseConfig = { 
+    apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o", 
+    authDomain: "skssf-quiz.firebaseapp.com", 
+    projectId: "skssf-quiz", 
+    storageBucket: "skssf-quiz.firebasestorage.app", 
+    messagingSenderId: "999161549501", 
+    appId: "1:999161549501:web:7be9c98c287b92881a5dd4" 
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-function openTab(evt, tabName) {
-    let content = document.getElementsByClassName("tab-content");
-    for (let i = 0; i < content.length; i++) content[i].style.display = "none";
-    let btn = document.getElementsByClassName("tab-btn");
-    for (let i = 0; i < btn.length; i++) btn[i].className = btn[i].className.replace(" active", "");
-    document.getElementById(tabName).style.display = "block";
-    evt.currentTarget.className += " active";
-    if(tabName === 'results') checkQuizStatus();
+function openTab(evt, t) {
+    document.querySelectorAll(".tab-content").forEach(c => c.style.display = "none");
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById(t).style.display = "block";
+    evt.currentTarget.classList.add("active");
+    if(t==='results') loadMarks();
 }
 
 async function addQuestion() {
     const text = document.getElementById('qText').value;
     const options = [
-        document.getElementById('opt0').value,
-        document.getElementById('opt1').value,
-        document.getElementById('opt2').value,
-        document.getElementById('opt3').value
+        document.getElementById('o0').value, 
+        document.getElementById('o1').value, 
+        document.getElementById('o2').value, 
+        document.getElementById('o3').value
     ];
-    const correct = document.querySelector('input[name="correct"]:checked').value;
-
+    const correct = document.getElementById('correctOpt').value;
     if(!text || options.includes("")) return alert("എല്ലാ കോളങ്ങളും പൂരിപ്പിക്കുക!");
-
+    
     await db.collection("questions").add({ text, options, correct });
-    alert("ചോദ്യം ചേർത്തു!");
+    alert("ചോദ്യം വിജയകരമായി ചേർത്തു!");
     document.getElementById('qText').value = "";
-    loadAddedQuestions();
+    loadQuestions();
 }
 
-async function loadAddedQuestions() {
+async function loadQuestions() {
     const snap = await db.collection("questions").get();
-    const container = document.getElementById('qListDisplay');
-    container.innerHTML = snap.empty ? "ചോദ്യങ്ങൾ ഒന്നും ചേർത്തിട്ടില്ല." : "";
-    snap.forEach((doc, i) => {
-        container.innerHTML += `<div style="padding:5px 0; border-bottom:1px solid #333;">${i+1}. ${doc.data().text}</div>`;
+    document.getElementById('qCount').innerText = snap.size;
+    let h = "";
+    snap.forEach(doc => {
+        h += `<div class="q-item"><b>${doc.data().text}</b><br><small style="color:#aaa;">${doc.data().options.join(' | ')}</small></div>`;
     });
+    document.getElementById('allQuestions').innerHTML = h;
 }
 
-async function saveSettings() {
-    const time = document.getElementById('startTime').value;
-    await db.collection("quiz_settings").doc("status").set({ startTime: time, closed: false, published: false }, {merge:true});
-    alert("സമയം സെറ്റ് ചെയ്തു!");
+async function updateStatus(type) {
+    const ref = db.collection("quiz_settings").doc("status");
+    if(type==='time') await ref.set({ startTime: document.getElementById('startTime').value }, {merge:true});
+    if(type==='live') await ref.update({ published: true, closed: false });
+    if(type==='stop') await ref.update({ closed: true, published: false });
+    if(type==='posters') await ref.update({ showPosters: true });
+    alert("വിജയകരമായി അപ്ഡേറ്റ് ചെയ്തു!");
 }
 
-async function togglePublish(val) {
-    await db.collection("quiz_settings").doc("status").update({ published: val, closed: false });
-    alert("ക്വിസ് ലൈവ് ആക്കി!");
-}
-
-async function stopQuiz() {
-    await db.collection("quiz_settings").doc("status").update({ closed: true, published: false });
-    loadResults();
-}
-
-async function loadResults() {
-    document.getElementById('resultCard').style.display = 'block';
+async function loadMarks() {
     const qSnap = await db.collection("questions").get();
-    let correctMap = {};
-    qSnap.forEach(d => correctMap[d.id] = d.data().correct);
-
+    let cor = {}; qSnap.forEach(d => cor[d.id] = d.data().correct);
+    
     const rSnap = await db.collection("results").get();
-    let results = [];
+    let res = [];
     rSnap.forEach(doc => {
-        const d = doc.data();
-        let score = 0;
-        for(let qid in correctMap) {
-            if(d.answers && d.answers[qid] == correctMap[qid]) score++;
+        let s = 0; const d = doc.data();
+        for(let id in cor) { if(d.answers && d.answers[id] == cor[id]) s++; }
+        
+        let timeStr = "--";
+        if(d.submitTime) {
+            const t = d.submitTime.toDate();
+            timeStr = t.getHours().toString().padStart(2,'0') + ":" + 
+                      t.getMinutes().toString().padStart(2,'0') + ":" + 
+                      t.getSeconds().toString().padStart(2,'0');
         }
-        results.push({...d, score});
+        res.push({...d, s, timeStr});
     });
-
-    results.sort((a,b) => b.score - a.score || a.submitTime - b.submitTime);
+    
+    res.sort((a,b) => b.s - a.s || a.submitTime - b.submitTime);
 
     const winDoc = await db.collection("winners").doc("list").get();
-    let winnerIds = winDoc.exists ? winDoc.data().winnerIds || [] : [];
-
-    const body = document.getElementById('resultBody');
-    body.innerHTML = "";
-    results.forEach((r, i) => {
-        const isWin = winnerIds.includes(r.regId.toString());
-        body.innerHTML += `<tr class="${isWin ? 'winner-row' : ''}">
-            <td>${i+1}</td><td>${r.name}</td><td>${r.branch}</td><td>${r.score}</td>
-            <td>
-                <button onclick="toggleWinner('${r.regId}', ${!isWin})" style="background:${isWin?'#c0392b':'#27ae60'}; color:white; border:none; padding:5px; border-radius:4px; font-size:10px;">
-                    ${isWin ? 'REMOVE' : 'SELECT'}
-                </button>
-            </td>
+    let winIds = winDoc.exists ? winDoc.data().winnerIds || [] : [];
+    
+    let h = "";
+    res.forEach((r, i) => {
+        const isW = winIds.includes(r.regId.toString());
+        h += `<tr class="${isW ? 'winner-row' : ''}">
+            <td>${i+1}</td>
+            <td>${r.regId}</td>
+            <td>${r.name}</td>
+            <td style="font-weight:bold; color:var(--gold)">${r.s}</td>
+            <td>${r.timeStr}</td>
+            <td><button class="btn" style="background:${isW ? '#c0392b' : '#27ae60'}; padding:5px; font-size:10px; margin:0;" onclick="setWin('${r.regId}', ${!isW})">${isW ? 'REMOVE' : 'WINNER'}</button></td>
         </tr>`;
     });
+    document.getElementById('resBody').innerHTML = h || "<tr><td colspan='6' style='text-align:center;'>വിവരങ്ങൾ ലഭ്യമല്ല!</td></tr>";
 }
 
-async function toggleWinner(id, isAdd) {
+async function lookupWinner() {
+    const id = document.getElementById('searchId').value;
+    if(!id) return alert("ഐഡി നൽകുക!");
+    const doc = await db.collection("participants").doc(id).get();
+    const disp = document.getElementById('winnerInfoDisplay');
+    if(doc.exists) {
+        const d = doc.data();
+        disp.innerHTML = `<strong>പേര്:</strong> ${d.name}<br><strong>ശാഖ:</strong> ${d.branch}<br><strong>മൊബൈൽ:</strong> <a href="tel:${d.mobile}" style="color:#fff;">${d.mobile}</a>`;
+        disp.style.display = 'block';
+    } else {
+        disp.innerHTML = "ഈ ഐഡിയിൽ വിവരങ്ങൾ ലഭ്യമല്ല!";
+        disp.style.display = 'block';
+    }
+}
+
+async function setWin(id, add) {
     const winDoc = await db.collection("winners").doc("list").get();
-    let winners = winDoc.exists ? winDoc.data().winnerIds || [] : [];
-    if(isAdd) winners.push(id.toString());
-    else winners = winners.filter(w => w !== id.toString());
-    await db.collection("winners").doc("list").set({ winnerIds: winners });
-    loadResults();
+    let winIds = winDoc.exists ? winDoc.data().winnerIds || [] : [];
+    if(add) winIds.push(id.toString()); else winIds = winIds.filter(w => w != id.toString());
+    await db.collection("winners").doc("list").set({ winnerIds: winIds });
+    loadMarks();
 }
 
-async function publishPosters() {
-    await db.collection("quiz_settings").doc("status").update({ showPosters: true });
-    alert("വിജയികളുടെ പോസ്റ്ററുകൾ പബ്ലിഷ് ചെയ്തു!");
-}
-
-async function resetQuiz() {
-    if(!confirm("ശ്രദ്ധിക്കുക! എല്ലാ ഡാറ്റയും എന്നെന്നേക്കുമായി ഡിലീറ്റ് ചെയ്യപ്പെടും. തുടരണോ?")) return;
-    const collections = ['questions', 'results', 'winners'];
-    for (const col of collections) {
-        const snap = await db.collection(col).get();
-        const batch = db.batch();
-        snap.forEach(d => batch.delete(d.ref));
-        await batch.commit();
+async function resetAll() {
+    if(!confirm("ശ്രദ്ധിക്കുക! ചോദ്യങ്ങൾ, ഉത്തരങ്ങൾ, രജിസ്ട്രേഷൻ എന്നിവ പൂർണ്ണമായി മായ്ക്കാൻ പോവുകയാണ്. തുടരണോ?")) return;
+    const cols = ['questions','results','winners','participants'];
+    for(let c of cols) {
+        const s = await db.collection(c).get();
+        const b = db.batch(); s.forEach(d => b.delete(d.ref)); await b.commit();
     }
     await db.collection("quiz_settings").doc("status").set({ published: false, closed: false, showPosters: false });
-    alert("റീസെറ്റ് പൂർത്തിയായി!");
+    alert("റീസെറ്റ് പൂർത്തിയായി!"); 
     location.reload();
 }
 
-async function checkQuizStatus() {
-    const s = await db.collection("quiz_settings").doc("status").get();
-    if(s.exists && s.data().closed) loadResults();
-}
-
-loadAddedQuestions();
+loadQuestions();
 </script>
 </body>
 </html>
