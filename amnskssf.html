@@ -2,76 +2,149 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <title>SKSSF QUIZ ADMIN - FINAL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUIZ ADMIN - MOBILE READY</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 25px; border-top: 5px solid #004d00; }
-        h2 { color: #004d00; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; margin: 5px 5px 5px 0; }
-        .btn-green { background: #27ae60; } .btn-blue { background: #2980b9; } .btn-red { background: #c0392b; }
+        :root { --primary: #004d00; --gold: #f1c40f; }
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 10px; box-sizing: border-box; }
         
-        /* Question List Styling */
-        .q-item { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-top: 10px; border-left: 5px solid #f1c40f; position: relative; }
-        .q-delete { position: absolute; right: 15px; top: 15px; color: #e74c3c; cursor: pointer; }
+        .card { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            margin-bottom: 15px; 
+            border-top: 5px solid var(--primary); 
+        }
+
+        h2 { 
+            color: var(--primary); 
+            font-size: 18px; 
+            margin-top: 0; 
+            border-bottom: 1px solid #eee; 
+            padding-bottom: 10px; 
+        }
+
+        /* Form Inputs */
+        input, select, textarea { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 8px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 16px; /* Prevents auto-zoom on iOS */
+        }
+
+        /* Responsive Buttons */
+        .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
+        .btn { 
+            flex: 1; 
+            min-width: 120px; 
+            padding: 14px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            color: white; 
+            font-size: 14px;
+            text-align: center;
+        }
+        .btn-green { background: #27ae60; }
+        .btn-blue { background: #2980b9; }
+        .btn-red { background: #c0392b; }
+        .btn-gold { background: var(--gold); color: black; }
+
+        /* Responsive Table */
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 10px; border: 1px solid #eee; text-align: left; white-space: nowrap; }
+        th { background: var(--primary); color: white; }
+
+        /* Question Items */
+        .q-item { 
+            background: #f9f9f9; 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-top: 8px; 
+            border-left: 4px solid var(--gold); 
+            position: relative; 
+            font-size: 14px;
+        }
+        .q-delete { position: absolute; right: 10px; top: 10px; color: #e74c3c; padding: 5px; }
+
+        .search-box { 
+            background: #fffde7; 
+            padding: 15px; 
+            border-radius: 10px; 
+            border: 1px solid #fbc02d; 
+            display: none; 
+            margin-top: 10px; 
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Danger Zone Mobile Styling */
+        .danger-card { border-top: 5px solid black; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
-        th { background: #004d00; color: white; }
-        .search-box { background: #fffde7; padding: 20px; border-radius: 12px; border: 1px solid #fbc02d; display: none; margin-top: 10px; }
+        @media (max-width: 480px) {
+            .btn { width: 100%; flex: none; }
+            h2 { font-size: 16px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2><i class="fa fa-plus-circle"></i> ചോദ്യങ്ങൾ ചേർക്കുക (Add Questions)</h2>
-        <textarea id="qText" rows="3" placeholder="ചോദ്യം ഇവിടെ ടൈപ്പ് ചെയ്യുക..."></textarea>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <input id="o0" placeholder="ഓപ്ഷൻ 1"> <input id="o1" placeholder="ഓപ്ഷൻ 2">
-            <input id="o2" placeholder="ഓപ്ഷൻ 3"> <input id="o3" placeholder="ഓപ്ഷൻ 4">
-        </div>
-        <label>ശരിയായ ഓപ്ഷൻ തിരഞ്ഞെടുക്കുക:</label>
+        <h2><i class="fa fa-plus-circle"></i> ചോദ്യങ്ങൾ ചേർക്കുക</h2>
+        <textarea id="qText" rows="3" placeholder="ചോദ്യം ഇവിടെ നൽകുക..."></textarea>
+        <input id="o0" placeholder="Option 1">
+        <input id="o1" placeholder="Option 2">
+        <input id="o2" placeholder="Option 3">
+        <input id="o3" placeholder="Option 4">
         <select id="correct">
-            <option value="0">Option 1 ശരിയാണ്</option>
-            <option value="1">Option 2 ശരിയാണ്</option>
-            <option value="2">Option 3 ശരിയാണ്</option>
-            <option value="3">Option 4 ശരിയാണ്</option>
+            <option value="0">Option 1 ശരി</option>
+            <option value="1">Option 2 ശരി</option>
+            <option value="2">Option 3 ശരി</option>
+            <option value="3">Option 4 ശരി</option>
         </select>
-        <button class="btn btn-green" onclick="saveQ()">SAVE QUESTION & NEXT</button>
+        <button class="btn btn-green" style="width: 100%;" onclick="saveQ()">SAVE QUESTION</button>
         
-        <div id="qListStatus" style="margin-top:20px;">
-            <h4 style="margin-bottom:10px;">സേവ് ചെയ്ത ചോദ്യങ്ങൾ (<span id="qCount">0</span>)</h4>
+        <div id="qListStatus" style="margin-top:15px;">
+            <h4 style="margin: 5px 0;">സേവ് ചെയ്തവ (<span id="qCount">0</span>)</h4>
             <div id="qAddedDisplay"></div>
         </div>
     </div>
 
     <div class="card">
-        <h2><i class="fa fa-search"></i> സെർച്ച് (Search Participant)</h2>
-        <div style="display:flex; gap:10px;">
-            <input type="number" id="sId" placeholder="രജിസ്റ്റർ നമ്പർ നൽകുക">
-            <button class="btn btn-blue" onclick="searchUser()">SEARCH NOW</button>
-        </div>
+        <h2><i class="fa fa-search"></i> സെർച്ച് (Participant)</h2>
+        <input type="number" id="sId" placeholder="രജിസ്റ്റർ നമ്പർ">
+        <button class="btn btn-blue" style="width: 100%;" onclick="searchUser()">SEARCH NOW</button>
         <div id="searchResult" class="search-box"></div>
     </div>
 
     <div class="card">
-        <h2><i class="fa fa-cog"></i> ക്വിസ് കൺട്രോൾ & റാങ്ക് ലിസ്റ്റ്</h2>
+        <h2><i class="fa fa-cog"></i> ക്വിസ് കൺട്രോൾ</h2>
         <input type="datetime-local" id="quizTime">
-        <button class="btn btn-blue" onclick="control('time')">SET TIME</button>
-        <button class="btn btn-green" onclick="control('live')">LIVE START</button>
-        <button class="btn btn-red" onclick="control('stop')">STOP QUIZ</button>
-        <button class="btn" style="background:#f1c40f; color:black;" onclick="control('poster')">PUBLISH WINNER POSTER</button>
+        <div class="btn-group">
+            <button class="btn btn-blue" onclick="control('time')">SET TIME</button>
+            <button class="btn btn-green" onclick="control('live')">LIVE</button>
+            <button class="btn btn-red" onclick="control('stop')">STOP</button>
+            <button class="btn btn-gold" onclick="control('poster')">POSTER</button>
+        </div>
         
-        <table id="rankTable">
-            <thead><tr><th>Rank</th><th>ID</th><th>Name</th><th>Branch</th><th>Score</th><th>Winner Select</th></tr></thead>
-            <tbody id="rankBody"></tbody>
-        </table>
+        <div class="table-wrapper">
+            <table id="rankTable">
+                <thead><tr><th>Rank</th><th>ID</th><th>Name</th><th>Score</th><th>Action</th></tr></thead>
+                <tbody id="rankBody"></tbody>
+            </table>
+        </div>
     </div>
 
-    <div class="card" style="border-top-color: #000;">
+    <div class="card danger-card">
         <h2>Danger Zone</h2>
-        <button class="btn btn-red" onclick="resetAll()">FULL SYSTEM RESET</button>
+        <button class="btn btn-red" style="width: 100%;" onclick="resetAll()">RESET EVERYTHING</button>
     </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -81,71 +154,41 @@ const firebaseConfig = { apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o", auth
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ചോദ്യം സേവ് ചെയ്യാനും ഫോം റീസെറ്റ് ചെയ്യാനും
 async function saveQ() {
     const t = document.getElementById('qText').value.trim();
-    const o = [
-        document.getElementById('o0').value.trim(), 
-        document.getElementById('o1').value.trim(),
-        document.getElementById('o2').value.trim(), 
-        document.getElementById('o3').value.trim()
-    ];
+    const o = [document.getElementById('o0').value.trim(), document.getElementById('o1').value.trim(), document.getElementById('o2').value.trim(), document.getElementById('o3').value.trim()];
     const c = document.getElementById('correct').value;
-
-    if(!t || o.includes("")) return alert("ചോദ്യവും 4 ഓപ്ഷനുകളും നൽകുക!");
-
-    await db.collection("questions").add({
-        text: t, options: o, correct: c, 
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    // ഫോം ക്ലിയർ ചെയ്യുന്നു
+    if(!t || o.includes("")) return alert("പൂർണ്ണമായി പൂരിപ്പിക്കുക");
+    await db.collection("questions").add({text: t, options: o, correct: c, timestamp: firebase.firestore.FieldValue.serverTimestamp()});
     document.getElementById('qText').value = "";
-    document.getElementById('o0').value = ""; document.getElementById('o1').value = "";
-    document.getElementById('o2').value = ""; document.getElementById('o3').value = "";
-    
-    alert("ചോദ്യം വിജയകരമായി ചേർത്തു!");
+    document.querySelectorAll('[id^="o"]').forEach(i => i.value = "");
     loadAddedQuestions();
+    alert("Saved!");
 }
 
-// സേവ് ചെയ്ത ചോദ്യങ്ങൾ ലിസ്റ്റ് ചെയ്യാൻ
 async function loadAddedQuestions() {
     const snap = await db.collection("questions").orderBy("timestamp", "desc").get();
     document.getElementById('qCount').innerText = snap.size;
     let h = "";
     snap.forEach(doc => {
-        const d = doc.data();
-        h += `<div class="q-item">
-                <i class="fa fa-trash q-delete" onclick="deleteQ('${doc.id}')"></i>
-                <strong>${d.text}</strong><br>
-                <small>Ans: Option ${parseInt(d.correct)+1}</small>
-              </div>`;
+        h += `<div class="q-item"><i class="fa fa-trash q-delete" onclick="deleteQ('${doc.id}')"></i><strong>${doc.data().text}</strong></div>`;
     });
     document.getElementById('qAddedDisplay').innerHTML = h;
 }
 
 async function deleteQ(id) {
-    if(confirm("ഈ ചോദ്യം ഒഴിവാക്കണോ?")) {
-        await db.collection("questions").doc(id).delete();
-        loadAddedQuestions();
-    }
+    if(confirm("ഡിലീറ്റ് ചെയ്യണോ?")) { await db.collection("questions").doc(id).delete(); loadAddedQuestions(); }
 }
 
-// സെർച്ച് ഫങ്ക്ഷൻ
 async function searchUser() {
     const sId = document.getElementById('sId').value;
     const res = document.getElementById('searchResult');
-    if(!sId) return alert("ഐഡി നൽകുക");
     const d = await db.collection("participants").doc(sId).get();
     if(d.exists) {
         const u = d.data();
         res.style.display = 'block';
-        res.innerHTML = `<h4>വിവരങ്ങൾ:</h4>
-            <b>പേര്:</b> ${u.name}<br>
-            <b>ഐഡി:</b> ${u.regId}<br>
-            <b>മൊബൈൽ:</b> ${u.mobile}<br>
-            <b>ശാഖ:</b> ${u.branch}`;
-    } else alert("ഈ ഐഡിയിൽ ആരും രജിസ്റ്റർ ചെയ്തിട്ടില്ല!");
+        res.innerHTML = `<b>പേര്:</b> ${u.name}<br><b>ഐഡി:</b> ${u.regId}<br><b>മൊബൈൽ:</b> ${u.mobile}<br><b>ശാഖ:</b> ${u.branch}`;
+    } else alert("കാണുന്നില്ല!");
 }
 
 async function control(type) {
@@ -154,7 +197,7 @@ async function control(type) {
     if(type==='live') await ref.update({published:true, closed:false, showPosters:false});
     if(type==='stop') await ref.update({closed:true, published:false});
     if(type==='poster') await ref.update({showPosters:true});
-    alert("Updated!");
+    alert("Done!");
 }
 
 async function loadRankList() {
@@ -174,8 +217,8 @@ async function loadRankList() {
     list.forEach((r, i) => {
         const isW = wids.includes(r.regId);
         h += `<tr style="${isW?'background:#fff9c4':''}">
-            <td>${i+1}</td><td>${r.regId}</td><td>${r.name}</td><td>${r.branch}</td><td>${r.score}</td>
-            <td><button class="btn btn-blue" onclick="toggleWin('${r.regId}')">${isW?'Deselect':'Select Winner'}</button></td>
+            <td>${i+1}</td><td>${r.regId}</td><td>${r.name}</td><td>${r.score}</td>
+            <td><button style="font-size:10px; padding:5px;" onclick="toggleWin('${r.regId}')">${isW?'Deselect':'Select'}</button></td>
         </tr>`;
     });
     document.getElementById('rankBody').innerHTML = h;
@@ -190,17 +233,16 @@ async function toggleWin(id) {
 }
 
 async function resetAll() {
-    if(!confirm("എല്ലാ ഡാറ്റയും ഡിലീറ്റ് ചെയ്യണോ?")) return;
+    if(!confirm("Are you sure?")) return;
     const cols = ['participants','questions','results','winners'];
     for(const c of cols) {
         const snap = await db.collection(c).get();
         snap.forEach(d => d.ref.delete());
     }
-    alert("സിസ്റ്റം പൂർണ്ണമായും റീസെറ്റ് ചെയ്തു.");
+    alert("Reset Done");
     location.reload();
 }
 
-// പേജ് തുറക്കുമ്പോൾ ഡാറ്റ ലോഡ് ചെയ്യാൻ
 loadAddedQuestions();
 loadRankList();
 </script>
