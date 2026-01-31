@@ -6,7 +6,7 @@
     <title>QUIZ ADMIN - SKSSF CHAPPARAPPADAV</title>
     <style>
         :root { --admin-bg: #f0f2f5; --primary: #004d00; --gold: #f1c40f; }
-        body { font-family: sans-serif; background: var(--admin-bg); margin: 0; }
+        body { font-family: sans-serif; background: var(--admin-bg); margin: 0; padding-bottom: 50px; }
         .nav { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         .container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 25px; border-top: 5px solid var(--primary); }
@@ -16,18 +16,18 @@
         .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
         .btn-green { background: #27ae60; } .btn-blue { background: #2980b9; } .btn-red { background: #c0392b; }
         .btn-gold { background: var(--gold); color: black; }
-        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
-
+        
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
         th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
         th { background: #f8f9fa; color: var(--primary); }
         .winner-row { background: #fff9e6 !important; }
-        .win-toggle { padding: 5px 10px; border-radius: 5px; border: 1px solid #ddd; cursor: pointer; font-size: 12px; }
-        .is-win { background: var(--gold); font-weight: bold; border-color: orange; }
-
+        
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-link { padding: 10px 20px; background: #ddd; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .tab-link.active { background: var(--primary); color: white; }
+        
+        /* Danger Zone Style */
+        .danger-zone { border: 2px solid #ff4444; padding: 20px; border-radius: 15px; margin-top: 40px; background: #fff5f5; }
     </style>
 </head>
 <body>
@@ -85,16 +85,23 @@
         </div>
 
         <div class="card">
-            <h3>റാങ്ക് ലിസ്റ്റ് (Score & Time Based)</h3>
+            <h3>റാങ്ക് ലിസ്റ്റ്</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Rank</th><th>ID</th><th>Name</th><th>Branch</th><th>Score</th><th>Time</th><th>Action</th>
-                        </tr>
+                        <tr><th>Rank</th><th>ID</th><th>Name</th><th>Score</th><th>Time</th><th>Action</th></tr>
                     </thead>
                     <tbody id="resultTableBody"></tbody>
                 </table>
+            </div>
+        </div>
+
+        <div class="danger-zone">
+            <h3 style="color: #c0392b; border-color: #ffcccc;">Danger Zone (ജാഗ്രതയോടെ ഉപയോഗിക്കുക)</h3>
+            <p style="font-size: 14px; color: #666;">ഈ ആക്ഷനുകൾ തിരിച്ചെടുക്കാൻ കഴിയില്ല.</p>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button class="btn btn-red" onclick="resetSystem('results')">RESET RESULTS ONLY</button>
+                <button class="btn btn-red" style="background: black;" onclick="resetSystem('full')">FULL RESET (EVERYTHING)</button>
             </div>
         </div>
     </div>
@@ -104,7 +111,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase Config (അതേ Config തന്നെ ഉപയോഗിക്കുക)
 const firebaseConfig = { apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o", authDomain: "skssf-quiz.firebaseapp.com", projectId: "skssf-quiz", storageBucket: "skssf-quiz.firebasestorage.app", messagingSenderId: "999161549501", appId: "1:999161549501:web:7be9c98c287b92881a5dd4" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -123,7 +129,7 @@ async function saveQuestion() {
     const correct = document.getElementById('correct').value;
     if(!text || options.includes("")) return alert("Fill all fields");
     await db.collection("questions").add({ text, options, correct });
-    alert("Saved!"); location.reload();
+    alert("Question Saved!"); loadQList();
 }
 
 async function updateControl(type) {
@@ -132,42 +138,28 @@ async function updateControl(type) {
     if(type==='live') await ref.update({ published: true, closed: false, showPosters: false });
     if(type==='stop') await ref.update({ closed: true, published: false });
     if(type==='poster') await ref.update({ showPosters: true });
-    alert("ക്വിസ് സെറ്റിംഗ്സ് അപ്ഡേറ്റ് ചെയ്തു!");
+    alert("Updated Successfully!");
 }
 
 async function loadResults() {
     const qSnap = await db.collection("questions").get();
-    let correctMap = {}; 
-    qSnap.forEach(d => correctMap[d.id] = d.data().correct);
-    
+    let correctMap = {}; qSnap.forEach(d => correctMap[d.id] = d.data().correct);
     const rSnap = await db.collection("results").get();
     let res = [];
     rSnap.forEach(doc => {
-        let score = 0; 
-        const d = doc.data();
-        for(let qid in correctMap) {
-            if(d.answers && d.answers[qid] == correctMap[qid]) score++;
-        }
+        let score = 0; const d = doc.data();
+        for(let qid in correctMap) { if(d.answers && d.answers[qid] == correctMap[qid]) score++; }
         res.push({...d, score, timeVal: d.submitTime ? d.submitTime.toDate().getTime() : 0, timeStr: d.submitTime ? d.submitTime.toDate().toLocaleTimeString() : '--'});
     });
-
-    // Sort by Score (High to Low) then Time (Fast to Slow)
     res.sort((a,b) => b.score - a.score || a.timeVal - b.timeVal);
-    
     const winSnap = await db.collection("winners").doc("list").get();
     const winIds = winSnap.exists ? winSnap.data().winnerIds || [] : [];
-
     let h = "";
     res.forEach((r, i) => {
         const isWin = winIds.includes(r.regId.toString());
         h += `<tr class="${isWin ? 'winner-row' : ''}">
-            <td>${i+1}</td>
-            <td>${r.regId}</td>
-            <td>${r.name}</td>
-            <td>${r.branch}</td>
-            <td><b>${r.score}</b></td>
-            <td>${r.timeStr}</td>
-            <td><button class="win-toggle ${isWin ? 'is-win' : ''}" onclick="toggleWinner('${r.regId}')">${isWin ? 'Winner ✅' : 'Select'}</button></td>
+            <td>${i+1}</td><td>${r.regId}</td><td>${r.name}</td><td><b>${r.score}</b></td><td>${r.timeStr}</td>
+            <td><button class="btn btn-blue" onclick="toggleWinner('${r.regId}')">${isWin ? 'Winner ✅' : 'Select'}</button></td>
         </tr>`;
     });
     document.getElementById("resultTableBody").innerHTML = h;
@@ -187,11 +179,36 @@ async function loadQList() {
     const snap = await db.collection("questions").get();
     document.getElementById("qCount").innerText = snap.size;
     let h = "";
-    snap.forEach(doc => {
-        h += `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${doc.data().text}</b></div>`;
-    });
+    snap.forEach(doc => h += `<div style="padding:10px; border-bottom:1px solid #eee;">${doc.data().text}</div>`);
     document.getElementById("qList").innerHTML = h;
 }
+
+// RESET FUNCTIONALITY
+async function resetSystem(mode) {
+    const confirmMsg = mode === 'results' 
+        ? "ശ്രദ്ധിക്കുക! പങ്കെടുത്തവരുടെ ഉത്തരങ്ങളും റാങ്ക് ലിസ്റ്റും ഡിലീറ്റ് ചെയ്യപ്പെടും. തുടരണോ?"
+        : "ജാഗ്രത! ചോദ്യങ്ങൾ, രജിസ്ട്രേഷൻ ലിസ്റ്റ്, റിസൾട്ടുകൾ തുടങ്ങി സകല വിവരങ്ങളും ഡിലീറ്റ് ചെയ്യപ്പെടും. തുടരണോ?";
+    
+    if(!confirm(confirmMsg)) return;
+
+    const collections = mode === 'results' ? ['results', 'winners'] : ['results', 'winners', 'questions', 'participants'];
+    
+    for(const col of collections) {
+        const snapshot = await db.collection(col).get();
+        const batch = db.batch();
+        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+    }
+    
+    // Reset Settings also if Full Reset
+    if(mode === 'full') {
+        await db.collection("quiz_settings").doc("status").set({ closed: true, published: false, showPosters: false });
+    }
+
+    alert("റീസെറ്റ് വിജയകരമായി പൂർത്തിയായി!");
+    location.reload();
+}
+
 loadQList();
 </script>
 </body>
