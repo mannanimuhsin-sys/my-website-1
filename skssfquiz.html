@@ -17,21 +17,15 @@
         /* Winner Poster Section */
         #winnerSection { display: none; text-align: center; background: #fff; border: 4px solid var(--gold); border-radius: 25px; padding: 20px; margin-bottom: 25px; }
         
-        /* Help Desk Styles */
-        .help-box { display: flex; align-items: center; justify-content: center; gap: 15px; background: #e8f5e9; padding: 15px; border-radius: 15px; border: 1px solid #c8e6c9; }
-        .wa-btn { color: #25D366; font-size: 30px; text-decoration: none; }
-
         .id-poster { background: var(--primary); color: var(--gold); font-family: 'Orbitron', sans-serif; font-size: 45px; padding: 15px; border-radius: 15px; border: 3px solid var(--gold); margin: 15px 0; display: inline-block; width: 80%; }
         
         input, select { width: 100%; padding: 15px; margin-bottom: 12px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
         .btn { width: 100%; padding: 18px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; color: white; background: var(--primary); font-size: 15px; transition: 0.3s; }
-        .btn:hover { opacity: 0.9; }
 
         /* Executive Footer */
         .footer { position: fixed; bottom: 0; width: 100%; background: #fff; border-top: 4px solid var(--primary); padding: 15px 0; text-align: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 1000; }
-        .footer-content { display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .footer-text { font-weight: 800; color: var(--primary); font-size: 14px; }
-        .wa-footer { color: #25D366; text-decoration: none; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .wa-footer { color: #25D366; text-decoration: none; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 5px; }
         
         canvas { width: 100%; border-radius: 15px; margin-top: 15px; display: none; }
         .timer-box { font-family: 'Orbitron', sans-serif; font-size: 25px; color: #d32f2f; text-align: center; margin-bottom: 15px; font-weight: bold; }
@@ -46,18 +40,9 @@
 
 <div class="container">
     <div id="winnerSection">
-        <h3 style="color:#d35400; margin-top:0;"><i class="fa fa-trophy"></i> വിന്നറെ പ്രഖ്യാപിച്ചു</h3>
+        <h3 style="color:#d35400; margin-top:0;"><i class="fa fa-trophy"></i> വിജയിയെ പ്രഖ്യാപിച്ചു</h3>
         <canvas id="pubCv" width="800" height="1000"></canvas>
         <button class="btn" style="background:var(--gold); color:black; margin-top:10px;" onclick="downloadImg('pubCv')">DOWNLOAD POSTER</button>
-    </div>
-
-    <div class="card" id="helpDesk">
-        <h4 style="margin:0 0 10px; color:var(--primary); text-align:center;">HELP DESK</h4>
-        <div class="help-box">
-            <span>Muhsin Mannani</span>
-            <a href="https://wa.me/917559950633" class="wa-btn"><i class="fab fa-whatsapp"></i></a>
-            <a href="tel:+917559950633" style="color:#333; font-size:25px;"><i class="fa fa-phone"></i></a>
-        </div>
     </div>
 
     <div id="authArea">
@@ -69,7 +54,7 @@
         </div>
 
         <div class="card" id="regForm">
-            <h4 style="margin:0 0 15px; color:var(--primary);">പുതിയ രജിസ്ട്രേഷൻ</h4>
+            <h4 style="margin:0 0 15px; color:var(--primary);">രജിസ്ട്രേഷൻ</h4>
             <input type="text" id="name" placeholder="മുഴുവൻ പേര്">
             <input type="number" id="mob" placeholder="മൊബൈൽ നമ്പർ">
             <select id="branch">
@@ -84,9 +69,9 @@
         </div>
 
         <div class="card" id="loginForm">
-            <h4 style="margin:0 0 15px; color:var(--primary);">ലോഗിൻ (LOGIN)</h4>
+            <h4 style="margin:0 0 15px; color:var(--primary);">ലോഗിൻ</h4>
             <input type="number" id="logId" placeholder="രജിസ്റ്റർ നമ്പർ നൽകുക">
-            <button class="btn" onclick="login()">LOGIN TO QUIZ</button>
+            <button class="btn" onclick="login()">LOGIN</button>
         </div>
     </div>
 
@@ -95,9 +80,7 @@
         <div class="card" style="text-align:center;">
             <div id="userInfo" style="margin-bottom:15px; line-height:1.6;"></div>
             <button class="btn" id="startBtn" onclick="openQuiz()">START QUIZ</button>
-            
             <div id="personalPost" style="display:none; margin-top:20px;">
-                <p style="font-weight:bold;">നിങ്ങളുടെ സർട്ടിഫിക്കറ്റ്:</p>
                 <canvas id="userCv" width="800" height="1000"></canvas>
                 <button class="btn" style="background:var(--gold); color:black; margin-top:10px;" onclick="downloadImg('userCv')">DOWNLOAD</button>
             </div>
@@ -107,12 +90,10 @@
 </div>
 
 <div class="footer">
-    <div class="footer-content">
-        <span class="footer-text">MUHSIN MANNANI | SKSSF CHAPPARAPPADAV</span>
-        <a href="https://wa.me/917559950633" class="wa-footer">
-            <i class="fab fa-whatsapp"></i> +91 7559950633 (Help Desk)
-        </a>
-    </div>
+    <span class="footer-text">MUHSIN MANNANI | SKSSF CHAPPARAPPADAV</span><br>
+    <a href="https://wa.me/917559950633" class="wa-footer">
+        <i class="fab fa-whatsapp"></i> +91 7559950633 (Help Desk)
+    </a>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -124,33 +105,32 @@ const db = firebase.firestore();
 
 let user = null; let isLive = false;
 
-// Winner Poster Listener
+// വിന്നറെ എല്ലാവർക്കും കാണിക്കാനുള്ള ഫങ്ക്ഷൻ (Publicly visible)
 db.collection("quiz_settings").doc("status").onSnapshot(async snap => {
     const d = snap.data();
-    if(d.showPosters) {
+    if(d && d.showPosters) {
         const wDoc = await db.collection("winners").doc("list").get();
-        const wList = wDoc.data().winnerIds || [];
-        if(wList.length > 0) {
-            document.getElementById('winnerSection').style.display = 'block';
-            const winData = await db.collection("participants").doc(wList[0]).get();
-            drawPoster('pubCv', winData.data(), true);
+        if(wDoc.exists) {
+            const wList = wDoc.data().winnerIds || [];
+            if(wList.length > 0) {
+                document.getElementById('winnerSection').style.display = 'block';
+                const winData = await db.collection("participants").doc(wList[0]).get();
+                if(winData.exists) drawPoster('pubCv', winData.data(), true);
+            }
         }
+    } else {
+        document.getElementById('winnerSection').style.display = 'none';
     }
 });
 
 async function register() {
-    const n = document.getElementById('name').value;
-    const m = document.getElementById('mob').value;
+    const n = document.getElementById('name').value.trim();
+    const m = document.getElementById('mob').value.trim();
     const b = document.getElementById('branch').value;
-    if(!n || m.length<10 || !b) return alert("ദയവായി എല്ലാ വിവരങ്ങളും നൽകുക");
-    
-    const ex = await db.collection("participants").where("mobile","==",m).get();
-    if(!ex.empty) return alert("ഈ നമ്പർ ഉപയോഗിച്ച് നേരത്തെ രജിസ്റ്റർ ചെയ്തിട്ടുണ്ട്");
-    
+    if(!n || m.length<10 || !b) return alert("വിവരങ്ങൾ നൽകുക");
     const snap = await db.collection("participants").get();
     const id = (1000 + snap.size + 1).toString();
     await db.collection("participants").doc(id).set({name:n, mobile:m, branch:b, regId:id});
-    
     document.getElementById('dispId').innerText = id;
     document.getElementById('regForm').style.display = 'none';
     document.getElementById('regSuccess').style.display = 'block';
@@ -159,8 +139,7 @@ async function register() {
 async function login() {
     const id = document.getElementById('logId').value;
     const doc = await db.collection("participants").doc(id).get();
-    if(!doc.exists) return alert("തെറ്റായ രജിസ്റ്റർ നമ്പർ!");
-    
+    if(!doc.exists) return alert("ഐഡി തെറ്റാണ്!");
     user = doc.data();
     document.getElementById('authArea').style.display = 'none';
     document.getElementById('quizView').style.display = 'block';
@@ -185,7 +164,7 @@ async function login() {
 function handleTime(st, pub) {
     setInterval(() => {
         const diff = new Date(st) - new Date();
-        if(diff <= 0) { isLive = pub; document.getElementById('timer').innerText = pub ? "LIVE NOW" : "WAITING..."; }
+        if(diff <= 0) { isLive = pub; document.getElementById('timer').innerText = pub ? "LIVE" : "WAITING"; }
         else {
             const m = Math.floor(diff/60000); const s = Math.floor((diff%60000)/1000);
             document.getElementById('timer').innerText = `${m}:${s < 10 ? '0'+s : s}`;
@@ -194,25 +173,21 @@ function handleTime(st, pub) {
 }
 
 async function openQuiz() {
-    if(!isLive) return alert("മത്സരം ആരംഭിച്ചിട്ടില്ല!");
-    const played = await db.collection("results").doc(user.regId).get();
-    if(played.exists) return alert("നിങ്ങൾ ഒരു തവണ പങ്കെടുത്തു കഴിഞ്ഞു");
-    
-    document.getElementById('startBtn').style.display = 'none';
+    if(!isLive) return alert("ക്വിസ് തുടങ്ങിയിട്ടില്ല");
     const qs = await db.collection("questions").get();
     let h = "";
     qs.forEach(doc => {
         const q = doc.data();
         h += `<div class="card"><p><b>${q.text}</b></p>${q.options.map((o,i)=>`<label style="display:block;margin:10px 0;"><input type="radio" name="${doc.id}" value="${i}"> ${o}</label>`).join('')}</div>`;
     });
-    document.getElementById('questions').innerHTML = h + `<button class="btn" onclick="submit()">SUBMIT ANSWERS</button>`;
+    document.getElementById('questions').innerHTML = h + `<button class="btn" onclick="submit()">SUBMIT</button>`;
     document.getElementById('questions').style.display = 'block';
 }
 
 async function submit() {
     let ans = {}; document.querySelectorAll('#questions input:checked').forEach(i => ans[i.name] = i.value);
     await db.collection("results").doc(user.regId).set({...user, answers:ans, time: firebase.firestore.FieldValue.serverTimestamp()});
-    alert("വിജയകരമായി സമർപ്പിച്ചു!"); location.reload();
+    alert("സമർപ്പിച്ചു!"); location.reload();
 }
 
 function drawPoster(cvId, data, isW) {
@@ -221,17 +196,26 @@ function drawPoster(cvId, data, isW) {
     ctx.fillStyle = isW ? "#004d00" : "#ffffff"; ctx.fillRect(0,0,800,1000);
     ctx.strokeStyle = "#f1c40f"; ctx.lineWidth = 25; ctx.strokeRect(40,40,720,920);
     ctx.fillStyle = isW ? "#f1c40f" : "#004d00"; ctx.textAlign = "center";
-    ctx.font = "bold 42px Arial"; ctx.fillText("SAMASTHA ONLINE QUIZ", 400, 160);
-    ctx.fillStyle = isW ? "white" : "#000"; ctx.font = "bold 80px Arial"; ctx.fillText(data.name.toUpperCase(), 400, 480);
-    ctx.fillStyle = "#f1c40f"; ctx.font = "italic 45px Arial"; ctx.fillText(data.branch, 400, 560);
-    ctx.fillStyle = isW ? "rgba(255,255,255,0.1)" : "#f5f5f5"; ctx.fillRect(250, 630, 300, 80);
-    ctx.fillStyle = isW ? "#f1c40f" : "#004d00"; ctx.font = "bold 40px Arial"; ctx.fillText("ID: " + data.regId, 400, 685);
+    ctx.font = "bold 40px Arial"; ctx.fillText("SAMASTHA ONLINE QUIZ", 400, 150);
+    
+    // പേരും വിവരങ്ങളും ഹൈലൈറ്റ് ചെയ്യുന്നു
+    ctx.fillStyle = isW ? "white" : "#000"; ctx.font = "bold 75px Arial";
+    ctx.fillText(data.name.toUpperCase(), 400, 480);
+    
+    ctx.fillStyle = "#f1c40f"; ctx.font = "italic 45px Arial";
+    ctx.fillText(data.branch, 400, 560);
+    
+    ctx.fillStyle = isW ? "rgba(255,255,255,0.1)" : "#f5f5f5";
+    ctx.fillRect(250, 630, 300, 80);
+    ctx.fillStyle = isW ? "#f1c40f" : "#004d00"; ctx.font = "bold 40px Arial";
+    ctx.fillText("ID: " + data.regId, 400, 685);
+
     if(isW) {
         ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.arc(400, 840, 95, 0, 7); ctx.fill();
         ctx.fillStyle = "black"; ctx.font = "bold 38px Arial"; ctx.fillText("WINNER", 400, 855);
     }
 }
-function downloadImg(id) { const a = document.createElement('a'); a.download='QuizPoster.png'; a.href=document.getElementById(id).toDataURL(); a.click(); }
+function downloadImg(id) { const a = document.createElement('a'); a.download='WinnerPoster.png'; a.href=document.getElementById(id).toDataURL(); a.click(); }
 </script>
 </body>
 </html>
