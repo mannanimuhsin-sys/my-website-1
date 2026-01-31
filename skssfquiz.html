@@ -18,28 +18,27 @@
         .container { max-width: 500px; margin: 0 auto; padding: 0 15px; }
         .card { background: white; padding: 25px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 25px; border-top: 6px solid var(--gold); position: relative; }
         
-        /* Notice Board */
-        .notice-board { background: #fffde7; border: 2px dashed #fbc02d; padding: 20px; border-radius: 20px; text-align: center; margin-top: 10px; display: none; }
-        .notice-board h4 { color: #f57f17; margin: 0 0 10px; font-size: 18px; }
+        /* New ID Success Card Design */
+        #regSuccess { display: none; background: white; border: 3px solid var(--primary); text-align: center; padding: 30px 20px; border-radius: 25px; margin-bottom: 25px; animation: popIn 0.5s ease; }
+        @keyframes popIn { 0% {transform: scale(0.8); opacity: 0;} 100% {transform: scale(1); opacity: 1;} }
+        .id-label { font-size: 16px; font-weight: 600; color: #444; margin-bottom: 10px; }
+        .id-number { font-family: 'Orbitron', sans-serif; font-size: 45px; color: var(--primary); font-weight: 900; background: #f0fdf4; padding: 15px; border-radius: 15px; border: 2px dashed var(--gold); display: inline-block; min-width: 150px; margin: 10px 0; }
+        .id-hint { font-size: 13px; color: #666; margin-top: 15px; font-weight: 500; }
 
-        .timer-exec { font-family: 'Orbitron', sans-serif; font-size: 26px; color: var(--primary); text-align: center; letter-spacing: 3px; margin: 20px 0; font-weight: 900; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+        .notice-board { background: #fffde7; border: 2px dashed #fbc02d; padding: 20px; border-radius: 20px; text-align: center; margin-top: 10px; display: none; }
+        .timer-exec { font-family: 'Orbitron', sans-serif; font-size: 26px; color: var(--primary); text-align: center; letter-spacing: 3px; margin: 20px 0; font-weight: 900; }
         
-        input, select { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #eee; background: #fcfcfc; box-sizing: border-box; font-size: 14px; transition: 0.3s; }
-        input:focus { border-color: var(--primary); background: #fff; }
+        input, select { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #eee; background: #fcfcfc; box-sizing: border-box; font-size: 14px; }
+        .btn { width: 100%; padding: 18px; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; color: white; background: var(--primary); font-size: 15px; box-shadow: 0 5px 15px rgba(0,77,0,0.25); }
         
-        .btn { width: 100%; padding: 18px; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; color: white; background: var(--primary); font-size: 15px; box-shadow: 0 5px 15px rgba(0,77,0,0.25); transition: 0.3s; }
-        .btn:active { transform: scale(0.97); }
-        
-        .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px 0; text-align: center; border-top: 1px solid #eee; box-shadow: 0 -5px 15px rgba(0,0,0,0.03); }
-        canvas { width: 100%; border-radius: 15px; display: none; margin-top: 15px; border: 1px solid #ddd; }
-        
-        .q-card { border-left: 6px solid var(--primary); border-top: none; }
+        .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px 0; text-align: center; border-top: 1px solid #eee; }
+        canvas { width: 100%; border-radius: 15px; display: none; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1 style="margin:0; font-size: 30px; letter-spacing: 1px;">SAMASTHA ONLINE QUIZ</h1>
+    <h1 style="margin:0; font-size: 30px;">SAMASTHA ONLINE QUIZ</h1>
     <p style="color:var(--gold); font-weight:600; font-size: 13px; margin-top: 8px;">SKSSF CHAPPARAPPADAV ZONE</p>
 </div>
 
@@ -49,9 +48,16 @@
 </div>
 
 <div class="container">
-    <div id="authSec" class="tab-content">
+    <div id="authSec">
+        <div id="regSuccess">
+            <div class="id-label">താങ്കളുടെ രജിസ്റ്റർ കോഡ്</div>
+            <div class="id-number" id="finalId">0000</div>
+            <div class="id-hint">ലോഗിൻ ചെയ്യുമ്പോൾ ഈ രജിസ്റ്റർ കോഡ് ഉപയോഗിക്കുക</div>
+            <button class="btn" style="margin-top:20px; background:#444;" onclick="document.getElementById('regSuccess').style.display='none'">CLOSE</button>
+        </div>
+
         <div class="card" id="regForm">
-            <h3 style="margin:0 0 15px; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 10px;">പുതിയ രജിസ്ട്രേഷൻ</h3>
+            <h3 style="margin:0 0 15px; color: var(--primary);">പുതിയ രജിസ്ട്രേഷൻ</h3>
             <input type="text" id="rName" placeholder="മുഴുവൻ പേര്">
             <input type="number" id="rMob" placeholder="മൊബൈൽ നമ്പർ">
             <select id="rBranch">
@@ -72,23 +78,19 @@
         </div>
 
         <div id="noticeBoard" class="notice-board">
-            <h4>റിസൾട്ട് പ്രഖ്യാപനം</h4>
-            <p id="noticeMsg" style="font-size:14px; font-weight:600; color:#555;"></p>
+            <h4 id="noticeMsg"></h4>
             <canvas id="posterCanvas" width="800" height="1000"></canvas>
             <button class="btn" id="dlBtn" style="background:#fbc02d; color:#000; display:none; margin-top:15px;" onclick="downloadPoster()">POSTER ഡൗൺലോഡ്</button>
         </div>
     </div>
 
-    <div id="helpSec" class="tab-content" style="display:none;">
+    <div id="helpSec" style="display:none;">
         <div class="card" style="text-align:center;">
-            <div style="background:var(--primary); color:white; width:70px; height:70px; border-radius:50%; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; font-size:30px;">
-                <i class="fa fa-user-tie"></i>
-            </div>
-            <h3 style="color:var(--primary); margin:0;">MUHSIN MANNANI</h3>
-            <p style="font-size:13px; color:#666; margin-top:5px;">SKSSF CHAPPARAPPADAV ZONE</p>
+            <h3 style="color:var(--primary);">MUHSIN MANNANI</h3>
+            <p style="font-size:13px; color:#666;">SKSSF CHAPPARAPPADAV ZONE</p>
             <div style="margin-top:20px;">
-                <a href="https://wa.me/917559950633" style="font-size:35px; margin:0 20px; color:#25D366; text-decoration:none;"><i class="fab fa-whatsapp"></i></a>
-                <a href="tel:+917559950633" style="font-size:35px; margin:0 20px; color:#333; text-decoration:none;"><i class="fa fa-phone"></i></a>
+                <a href="https://wa.me/917559950633" style="font-size:35px; margin:0 20px; color:#25D366;"><i class="fab fa-whatsapp"></i></a>
+                <a href="tel:+917559950633" style="font-size:35px; margin:0 20px; color:#333;"><i class="fa fa-phone"></i></a>
             </div>
         </div>
     </div>
@@ -97,7 +99,7 @@
         <div class="timer-exec" id="clock">00:00:00:00</div>
         <div id="confBox" class="card" style="text-align:center;">
             <h3 style="color:var(--primary);">കൺഫർമേഷൻ</h3>
-            <div id="userDataShow" style="margin:20px 0; font-size:15px; line-height:2; background:#f9f9f9; padding:15px; border-radius:15px;"></div>
+            <div id="userDataShow" style="margin:20px 0; font-size:15px; line-height:2;"></div>
             <button class="btn" onclick="enterQuiz()">START QUIZ NOW</button>
         </div>
         <div id="quizArea" style="display:none;"></div>
@@ -106,7 +108,7 @@
 
 <div class="footer">
     <div style="font-weight:800; font-size:13px;">MUHSIN MANNANI | +91 7559950633</div>
-    <div style="font-size:11px; color:#888; margin-top:3px;">Designed by SKSSF Chapparappadav Zone</div>
+    <div style="font-size:11px; color:#888;">Designed by SKSSF Chapparappadav Zone</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -120,8 +122,8 @@ let user = null;
 let isTimeUp = false;
 
 function showTab(t) {
-    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-    document.getElementById(t + 'Sec').style.display = 'block';
+    document.getElementById('authSec').style.display = t==='auth'?'block':'none';
+    document.getElementById('helpSec').style.display = t==='help'?'block':'none';
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     event.currentTarget.classList.add('active');
 }
@@ -130,7 +132,7 @@ async function registerUser() {
     const name = document.getElementById('rName').value.trim();
     const mob = document.getElementById('rMob').value.trim();
     const br = document.getElementById('rBranch').value;
-    if(!name || mob.length < 10 || !br) return alert("ദയവായി വിവരങ്ങൾ കൃത്യമായി നൽകുക!");
+    if(!name || mob.length < 10 || !br) return alert("വിവരങ്ങൾ കൃത്യമായി നൽകുക!");
 
     const check = await db.collection("participants").where("mobile", "==", mob).get();
     if(!check.empty) return alert("ഈ നമ്പറിൽ രജിസ്ട്രേഷൻ നിലവിലുണ്ട്!");
@@ -138,7 +140,12 @@ async function registerUser() {
     const snap = await db.collection("participants").get();
     let id = 1000 + snap.size + 1;
     await db.collection("participants").doc(id.toString()).set({ name, mobile: mob, branch: br, regId: id });
-    alert("വിജയകരമായി രജിസ്റ്റർ ചെയ്തു! ഐഡി: " + id);
+    
+    // Show Big Success ID Card
+    document.getElementById('finalId').innerText = id;
+    document.getElementById('regSuccess').style.display = 'block';
+    document.getElementById('regForm').style.display = 'none';
+    window.scrollTo(0,0);
 }
 
 async function loginUser() {
@@ -169,10 +176,8 @@ async function loginUser() {
 function handleTimer(target, pub) {
     setInterval(() => {
         const diff = new Date(target).getTime() - new Date().getTime();
-        if(diff <= 0) {
-            isTimeUp = pub;
-            document.getElementById('clock').innerText = pub ? "QUIZ IS LIVE" : "WAITING FOR START";
-        } else {
+        if(diff <= 0) { isTimeUp = pub; document.getElementById('clock').innerText = pub ? "QUIZ IS LIVE" : "WAITING..."; }
+        else {
             const d = Math.floor(diff/(1000*60*60*24));
             const h = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
             const m = Math.floor((diff%(1000*60*60))/(1000*60));
@@ -183,18 +188,18 @@ function handleTimer(target, pub) {
 }
 
 async function enterQuiz() {
-    if(!isTimeUp) return alert("മത്സരം തുടങ്ങാനുള്ള സമയമായിട്ടില്ല!");
+    if(!isTimeUp) return alert("സമയമായിട്ടില്ല!");
     const played = await db.collection("results").doc(user.regId.toString()).get();
-    if(played.exists) return alert("നിങ്ങൾ ഈ മത്സരത്തിൽ പങ്കെടുത്തു കഴിഞ്ഞു!");
+    if(played.exists) return alert("നിങ്ങൾ പങ്കെടുത്തു കഴിഞ്ഞു!");
     
     document.getElementById('confBox').style.display = 'none';
     const snap = await db.collection("questions").get();
     let h = "";
     snap.forEach(doc => {
         const q = doc.data();
-        h += `<div class="card q-card"><p><b>${q.text}</b></p>${q.options.map((o,i)=>`<label style="display:block;margin:10px 0;padding:10px;border:1px solid #eee;border-radius:10px;"><input type="radio" name="${doc.id}" value="${i}"> ${o}</label>`).join('')}</div>`;
+        h += `<div class="card"><p><b>${q.text}</b></p>${q.options.map((o,i)=>`<label style="display:block;margin:10px 0;"><input type="radio" name="${doc.id}" value="${i}"> ${o}</label>`).join('')}</div>`;
     });
-    document.getElementById('quizArea').innerHTML = h + `<button class="btn" onclick="submitQuiz()">SUBMIT ANSWERS</button>`;
+    document.getElementById('quizArea').innerHTML = h + `<button class="btn" onclick="submitQuiz()">SUBMIT</button>`;
     document.getElementById('quizArea').style.display = 'block';
 }
 
@@ -216,23 +221,12 @@ function drawPoster(isWin) {
     const ctx = canvas.getContext('2d');
     canvas.style.display = 'block';
     document.getElementById('dlBtn').style.display = 'block';
-    
-    // Background & Border
     ctx.fillStyle = "#004d00"; ctx.fillRect(0,0,800,1000);
     ctx.strokeStyle = "#f1c40f"; ctx.lineWidth = 20; ctx.strokeRect(40,40,720,920);
-    
-    // Texts
     ctx.fillStyle = "white"; ctx.textAlign = "center";
-    ctx.font = "bold 25px Arial"; ctx.fillText("ID: " + user.regId, 400, 100);
     ctx.font = "bold 55px Arial"; ctx.fillText("SAMASTHA ONLINE QUIZ", 400, 200);
-    ctx.font = "24px Arial"; ctx.fillText("SKSSF CHAPPARAPPADAV ZONE", 400, 250);
-    
     ctx.fillStyle = "#f1c40f"; ctx.font = "bold 75px Arial"; ctx.fillText(user.name.toUpperCase(), 400, 520);
     ctx.fillStyle = "white"; ctx.font = "40px Arial"; ctx.fillText(user.branch, 400, 600);
-    
-    let mob = "Mob: ******" + user.mobile.slice(-4);
-    ctx.font = "30px Arial"; ctx.fillText(mob, 400, 680);
-
     if(isWin) {
         ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.arc(400, 840, 90, 0, Math.PI*2); ctx.fill();
         ctx.fillStyle = "#004d00"; ctx.font = "bold 35px Arial"; ctx.fillText("WINNER", 400, 855);
