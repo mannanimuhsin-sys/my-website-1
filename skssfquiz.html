@@ -6,7 +6,7 @@
     <title>സമസ്ത ഓൺലൈൻ ക്വിസ്</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #004d00; --gold: #f1c40f; --white: #ffffff; --red: #c0392b; }
+        :root { --primary: #004d00; --gold: #f1c40f; --white: #ffffff; --red: #c0392b; --light-bg: #f8f9fa; }
         body { font-family: 'Poppins', sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
         
         .header { background: linear-gradient(135deg, #004d00, #002b00); color: white; text-align: center; padding: 50px 15px; border-radius: 0 0 40px 40px; }
@@ -16,18 +16,18 @@
         .container { max-width: 500px; margin: 40px auto 20px; padding: 0 15px; }
         .card { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden; margin-bottom: 30px; padding: 20px; }
         
-        /* Branch List Styling */
-        .branch-card { background: white; border-radius: 20px; padding: 15px; margin-bottom: 20px; border-top: 5px solid var(--gold); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .branch-title { font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        .branch-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-        .branch-tag { background: #e8f5e9; color: #2e7d32; padding: 6px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #c8e6c9; }
-        .b-count { background: var(--primary); color: white; padding: 2px 6px; border-radius: 50%; font-size: 10px; margin-left: 4px; }
+        /* Executive Branch Participation List Style */
+        .branch-card { background: white; border-radius: 20px; padding: 25px; margin-top: 10px; margin-bottom: 30px; border-left: 8px solid var(--gold); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .branch-title { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; text-transform: uppercase; }
+        .branch-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--light-bg); border-radius: 12px; margin-bottom: 8px; border: 1px solid #eee; }
+        .branch-name { font-weight: 700; color: #333; font-size: 14px; }
+        .branch-count-val { background: var(--primary); color: white; padding: 5px 15px; border-radius: 8px; font-weight: 800; font-size: 16px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
 
         .tab-head { display: flex; background: #f8f9fa; margin: -20px -20px 20px -20px; border-bottom: 1px solid #eee; }
         .tab-btn { flex: 1; padding: 15px; border: none; font-weight: 700; cursor: pointer; color: #888; background: none; }
         .tab-btn.active { color: var(--primary); background: white; border-top: 4px solid var(--primary); }
 
-        input, select { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 12px; border: 2px solid #eee; box-sizing: border-box; }
+        input, select { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 12px; border: 2px solid #eee; box-sizing: border-box; font-size: 15px; font-weight: 600; }
         .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
         .btn-primary { background: var(--primary); color: white; }
 
@@ -35,7 +35,7 @@
         .id-val { font-size: 45px; font-weight: 800; color: var(--red); margin: 10px 0; }
 
         .q-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; border-left: 6px solid var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .opt-btn { width: 100%; text-align: left; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; cursor: pointer; }
+        .opt-btn { width: 100%; text-align: left; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; cursor: pointer; font-weight: 600; }
 
         .footer-mannani { background: #001a00; color: white; text-align: center; padding: 35px 15px; border-radius: 40px 40px 0 0; margin-top: 50px; }
         .dev-name { color: var(--gold); font-size: 20px; font-weight: 800; display: block; margin-bottom: 10px; }
@@ -52,13 +52,6 @@
 </div>
 
 <div class="container">
-    <div class="branch-card" id="branchDisplayArea">
-        <div class="branch-title"><i class="fa fa-users"></i> പങ്കാളിത്ത ശാഖകൾ</div>
-        <div id="branchList" class="branch-grid">
-            <p style="font-size:12px; color:#999;">ശാഖകൾ ലോഡ് ചെയ്യുന്നു...</p>
-        </div>
-    </div>
-
     <div id="waitingArea" class="card" style="text-align:center;">ക്വിസ് ആരംഭിക്കാൻ കാത്തിരിക്കുക...</div>
 
     <div id="authArea" class="card hidden">
@@ -92,6 +85,13 @@
                 <option value="KUTTAMPARAMBA">KUTTAMPARAMBA</option>
             </select>
             <button class="btn btn-primary" onclick="handleRegister()">രജിസ്റ്റർ ചെയ്യുക</button>
+        </div>
+    </div>
+
+    <div id="branchDisplayArea" class="branch-card">
+        <div class="branch-title"><i class="fa fa-chart-bar"></i> Live Participation</div>
+        <div id="branchList">
+            <p style="text-align:center; color:#999;">ശാഖകൾ ലോഡ് ചെയ്യുന്നു...</p>
         </div>
     </div>
 
@@ -132,18 +132,28 @@ const db = firebase.firestore();
 
 let userData = null; let userAnswers = {}; let isLive = false;
 
-// ശാഖകളുടെ ലിസ്റ്റ് കാണിക്കാനുള്ള ലോജിക് (NEW)
+// ശാഖകളുടെ ലിസ്റ്റ് - ലൈവ് കൗണ്ടിംഗ്
 db.collection("participants").onSnapshot(snap => {
-    let branches = {};
+    let branches = {
+        "KARUVANCHAL": 0, "VILAKKANNOOR": 0, "CHAPPARAPPADAV": 0, "NADUVIL": 0, 
+        "PADAPPENGAD": 0, "PERUVANA": 0, "ELAMBERAM PARA": 0, "ERUVATTI": 0, 
+        "NHANDUMBALAM": 0, "PERUMALABAD": 0, "MANGARA BADARIYYA": 0, 
+        "THADIKKADAV": 0, "SHANTHIGIRI": 0, "NEDUVOODE": 0, "KUTTAMPARAMBA": 0
+    };
+    
     snap.forEach(doc => {
         let b = doc.data().branch;
-        if(b) branches[b] = (branches[b] || 0) + 1;
+        if(branches.hasOwnProperty(b)) branches[b]++;
     });
+    
     let h = "";
     for (let name in branches) {
-        h += `<span class="branch-tag">${name} <span class="b-count">${branches[name]}</span></span>`;
+        h += `<div class="branch-item">
+                <span class="branch-name">${name}</span>
+                <span class="branch-count-val">${branches[name]}</span>
+              </div>`;
     }
-    document.getElementById('branchList').innerHTML = h || "പങ്കാളികൾ ആരും ചേർന്നിട്ടില്ല.";
+    document.getElementById('branchList').innerHTML = h;
 });
 
 // Realtime Status
@@ -239,7 +249,7 @@ async function submitFinal() {
 function showDiv(id) {
     ['authArea', 'quizArea', 'finalArea', 'stoppedArea', 'waitingArea', 'posterArea'].forEach(d => document.getElementById(d).classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
-    // ശാഖകളുടെ ലിസ്റ്റ് ഫ്രണ്ട് പേജിൽ മാത്രം മതി, ലോഗിൻ ചെയ്താൽ അത് മറയ്ക്കുന്നു
+    // ലോഗിൻ ചെയ്താൽ ലിസ്റ്റ് മറയ്ക്കും
     document.getElementById('branchDisplayArea').classList.toggle('hidden', id !== 'waitingArea' && id !== 'authArea');
     window.scrollTo(0,0);
 }
@@ -259,13 +269,13 @@ async function loadWinners() {
     for(let i=1; i<=3; i++) {
         const u = await db.collection("participants").doc(ranks[i].toString()).get();
         if(u.exists) {
-            const userData = u.data();
+            const uData = u.data();
             h += `
             <div class="card" style="border:2px solid var(--gold); background:#fffdf0; padding:15px; border-radius:15px; margin-bottom:10px; text-align:center;">
-                <div style="font-size:35px;">${trophies[i]}</div>
-                <h2 style="margin:5px 0; color:#004d00;">${userData.name}</h2>
+                <div style="font-size:40px;">${trophies[i]}</div>
+                <h2 style="margin:5px 0; color:#004d00;">${uData.name}</h2>
                 <div style="font-weight:bold; color:#c0392b; font-size:18px;">ID: ${ranks[i]}</div>
-                <p style="margin:2px 0; color:#555; font-weight:bold;">${userData.branch}</p>
+                <p style="margin:2px 0; color:#555; font-weight:bold;">${uData.branch}</p>
             </div>`;
         }
     }
