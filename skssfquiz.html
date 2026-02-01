@@ -256,9 +256,29 @@ function selectAns(qid, idx, btn) {
 
 async function submitFinal() {
     if(Object.keys(userAnswers).length === 0) return alert("ഉത്തരങ്ങൾ നൽകുക!");
-    await db.collection("results").doc(userData.regId.toString()).set({
-        regId: userData.regId, name: userData.name, branch: userData.branch, answers: userAnswers, time: new Date()
+    
+    // ശരിയുത്തരങ്ങൾ പരിശോധിച്ച് സ്കോർ കണക്കാക്കുന്നു
+    const qSnap = await db.collection("questions").get();
+    let score = 0;
+    
+    qSnap.forEach(doc => {
+        const qData = doc.data();
+        // യൂസർ നൽകിയ ഉത്തരവും ഫയർബേസിലെ ശരിയുത്തരവും (correct) ഒത്തുനോക്കുന്നു
+        if (userAnswers[doc.id] !== undefined && userAnswers[doc.id] == qData.correct) {
+            score++;
+        }
     });
+
+    // സ്കോർ കൂടി ഉൾപ്പെടുത്തി റിസൾട്ട് സേവ് ചെയ്യുന്നു
+    await db.collection("results").doc(userData.regId.toString()).set({
+        regId: userData.regId, 
+        name: userData.name, 
+        branch: userData.branch, 
+        answers: userAnswers, 
+        score: score, 
+        time: new Date()
+    });
+    
     showDiv('finalArea');
 }
 
