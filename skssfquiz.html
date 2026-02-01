@@ -13,9 +13,16 @@
         .header h1 { margin: 5px 0; font-size: 22px; font-weight: 800; }
         .timer-box { margin-top: 15px; background: rgba(255,255,255,0.1); display: inline-block; padding: 12px 30px; border-radius: 50px; border: 2px solid var(--gold); color: var(--gold); font-size: 24px; font-weight: 800; }
 
-        .container { max-width: 500px; margin: 40px auto 20px; padding: 0 15px; } /* Margin വർദ്ധിപ്പിച്ചു */
+        .container { max-width: 500px; margin: 40px auto 20px; padding: 0 15px; }
         .card { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden; margin-bottom: 30px; padding: 20px; }
         
+        /* Branch List Styling */
+        .branch-card { background: white; border-radius: 20px; padding: 15px; margin-bottom: 20px; border-top: 5px solid var(--gold); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .branch-title { font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .branch-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .branch-tag { background: #e8f5e9; color: #2e7d32; padding: 6px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #c8e6c9; }
+        .b-count { background: var(--primary); color: white; padding: 2px 6px; border-radius: 50%; font-size: 10px; margin-left: 4px; }
+
         .tab-head { display: flex; background: #f8f9fa; margin: -20px -20px 20px -20px; border-bottom: 1px solid #eee; }
         .tab-btn { flex: 1; padding: 15px; border: none; font-weight: 700; cursor: pointer; color: #888; background: none; }
         .tab-btn.active { color: var(--primary); background: white; border-top: 4px solid var(--primary); }
@@ -45,6 +52,13 @@
 </div>
 
 <div class="container">
+    <div class="branch-card" id="branchDisplayArea">
+        <div class="branch-title"><i class="fa fa-users"></i> പങ്കാളിത്ത ശാഖകൾ</div>
+        <div id="branchList" class="branch-grid">
+            <p style="font-size:12px; color:#999;">ശാഖകൾ ലോഡ് ചെയ്യുന്നു...</p>
+        </div>
+    </div>
+
     <div id="waitingArea" class="card" style="text-align:center;">ക്വിസ് ആരംഭിക്കാൻ കാത്തിരിക്കുക...</div>
 
     <div id="authArea" class="card hidden">
@@ -118,6 +132,20 @@ const db = firebase.firestore();
 
 let userData = null; let userAnswers = {}; let isLive = false;
 
+// ശാഖകളുടെ ലിസ്റ്റ് കാണിക്കാനുള്ള ലോജിക് (NEW)
+db.collection("participants").onSnapshot(snap => {
+    let branches = {};
+    snap.forEach(doc => {
+        let b = doc.data().branch;
+        if(b) branches[b] = (branches[b] || 0) + 1;
+    });
+    let h = "";
+    for (let name in branches) {
+        h += `<span class="branch-tag">${name} <span class="b-count">${branches[name]}</span></span>`;
+    }
+    document.getElementById('branchList').innerHTML = h || "പങ്കാളികൾ ആരും ചേർന്നിട്ടില്ല.";
+});
+
 // Realtime Status
 db.collection("quiz_settings").doc("status").onSnapshot(doc => {
     const s = doc.data();
@@ -143,35 +171,26 @@ function startTimer(target) {
     }, 1000);
 }
 
-// രജിസ്‌ട്രേഷൻ - Duplicate Mobile Check ചേർത്തു
 async function handleRegister() {
     const n = document.getElementById('regName').value;
     const m = document.getElementById('regMob').value;
     const b = document.getElementById('regBranch').value;
     if(!n || !m || !b) return alert("പൂരിപ്പിക്കുക!");
-
-    // മൊബൈൽ നമ്പർ ഡ്യൂപ്ലിക്കേറ്റ് ചെക്ക്
     const dup = await db.collection("participants").where("mobile", "==", m).get();
     if(!dup.empty) return alert("ഈ നമ്പർ നേരത്തെ രജിസ്റ്റർ ചെയ്തതാണ്!");
-
     const last = await db.collection("participants").orderBy("regId", "desc").limit(1).get();
     let nextId = last.empty ? 1001 : last.docs[0].data().regId + 1;
-    
     userData = { regId: nextId, name: n, mobile: m, branch: b };
     await db.collection("participants").doc(nextId.toString()).set(userData);
     showPoster(userData);
 }
 
-// ലോഗിൻ - Already Participated Check ചേർത്തു
 async function checkLogin() {
     const id = document.getElementById('loginId').value;
     const doc = await db.collection("participants").doc(id).get();
     if(!doc.exists) return alert("ഐഡി തെറ്റാണ്!");
-    
-    // നേരത്തെ പങ്കെടുത്തോ എന്ന് പരിശോധിക്കുന്നു
     const played = await db.collection("results").doc(id).get();
     if(played.exists) return alert("നിങ്ങൾ ഈ ഐഡി ഉപയോഗിച്ച് നേരത്തെ പങ്കെടുത്തു കഴിഞ്ഞു!");
-
     userData = doc.data();
     showPoster(userData);
 }
@@ -220,6 +239,8 @@ async function submitFinal() {
 function showDiv(id) {
     ['authArea', 'quizArea', 'finalArea', 'stoppedArea', 'waitingArea', 'posterArea'].forEach(d => document.getElementById(d).classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
+    // ശാഖകളുടെ ലിസ്റ്റ് ഫ്രണ്ട് പേജിൽ മാത്രം മതി, ലോഗിൻ ചെയ്താൽ അത് മറയ്ക്കുന്നു
+    document.getElementById('branchDisplayArea').classList.toggle('hidden', id !== 'waitingArea' && id !== 'authArea');
     window.scrollTo(0,0);
 }
 
@@ -237,7 +258,7 @@ async function loadWinners() {
     const trophies = { 1: "🥇", 2: "🥈", 3: "🥉" };
     for(let i=1; i<=3; i++) {
         const u = await db.collection("participants").doc(ranks[i].toString()).get();
-if(u.exists) {
+        if(u.exists) {
             const userData = u.data();
             h += `
             <div class="card" style="border:2px solid var(--gold); background:#fffdf0; padding:15px; border-radius:15px; margin-bottom:10px; text-align:center;">
@@ -246,7 +267,8 @@ if(u.exists) {
                 <div style="font-weight:bold; color:#c0392b; font-size:18px;">ID: ${ranks[i]}</div>
                 <p style="margin:2px 0; color:#555; font-weight:bold;">${userData.branch}</p>
             </div>`;
-        }    }
+        }
+    }
     document.getElementById('winnerPoster').innerHTML = h;
 }
 </script>
