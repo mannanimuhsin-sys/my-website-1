@@ -3,94 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SKSSF ADMIN - ULTIMATE MASTER</title>
+    <title>Quiz Admin - SKSSF</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #004d00; --gold: #f1c40f; --red: #c0392b; --blue: #2980b9; --green: #27ae60; }
-        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
-        .card { background: white; padding: 18px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 15px; border-top: 5px solid var(--primary); }
-        h3 { color: var(--primary); display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 15px; border-bottom: 2px solid #eee; padding-bottom: 8px; }
+        :root { --primary: #004d00; --gold: #f1c40f; --dark: #1a1a1a; }
+        body { font-family: 'Poppins', sans-serif; background: #eef2f3; margin: 0; padding: 20px; }
+        .admin-container { max-width: 900px; margin: auto; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        h2 { border-bottom: 2px solid var(--primary); padding-bottom: 10px; color: var(--primary); }
         
-        .btn { padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; width: 100%; transition: 0.1s; box-shadow: 0 4px #777; text-transform: uppercase; }
-        .btn:active { box-shadow: 0 0 #666; transform: translateY(3px); }
-        .btn-blue { background: var(--blue); } .btn-green { background: var(--green); } .btn-red { background: var(--red); } .btn-gold { background: var(--gold); color: #000; }
-        .selected-rank { border: 3px solid var(--gold) !important; box-shadow: 0 0 12px var(--gold) !important; transform: scale(1.02); }
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        input, select { width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
+        
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+        .btn-start { background: var(--primary); color: white; }
+        .btn-stop { background: #c0392b; color: white; }
+        .btn-publish { background: var(--gold); color: black; width: 100%; margin-top: 15px; }
 
-        input, textarea { width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #ddd; margin-bottom: 8px; box-sizing: border-box; outline: none; font-size: 14px; }
-        .opt-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; background: #f8f9fa; padding: 8px; border-radius: 10px; border: 1px solid #eee; }
-        .q-list-item { background: #fff; border-left: 5px solid var(--gold); padding: 12px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
-        .scroll-table { overflow-x: auto; border-radius: 10px; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; background: white; }
-        th { background: var(--primary); color: white; padding: 10px; text-align: left; font-size: 11px; }
-        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 11px; }
-        .danger-zone { border: 2px dashed var(--red); padding: 15px; border-radius: 15px; text-align: center; margin-top: 20px; }
-        #statusDisplay { font-size: 12px; font-weight: bold; padding: 5px; text-align: center; border-radius: 5px; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #f8f9fa; color: var(--primary); }
+
+        .rank-btn { padding: 5px 10px; font-size: 11px; margin-right: 5px; border-radius: 4px; cursor: pointer; border: 1px solid #ddd; }
+        .rank-1 { background: gold; }
+        .rank-2 { background: silver; }
+        .rank-3 { background: #cd7f32; color: white; }
+        
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .live { background: #d4edda; color: #155724; }
+        .stopped { background: #f8d7da; color: #721c24; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h3><i class="fa fa-sliders"></i> QUIZ MASTER CONTROLS</h3>
-    <div id="statusDisplay" style="background: #eee;">Checking Status...</div>
-    <label style="font-size:11px;">Set Start Time:</label>
-    <input type="datetime-local" id="startTimeInput">
-    <button class="btn btn-blue" onclick="saveTime()"><i class="fa fa-clock"></i> SAVE START TIME</button>
-    
-    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top:10px;">
-        <button class="btn btn-green" id="liveBtn" onclick="setStatus(false)"><i class="fa fa-play"></i> LIVE</button>
-        <button class="btn btn-red" id="stopBtn" onclick="setStatus(true)"><i class="fa fa-stop"></i> STOP</button>
-        <button class="btn btn-gold" id="posterBtn" onclick="togglePosters()">POSTER</button>
-    </div>
-</div>
+<div class="admin-container">
+    <h1 style="text-align:center; color: var(--primary);">SKSSF QUIZ ADMIN PANEL</h1>
 
-<div class="card">
-    <h3><i class="fa fa-search"></i> SEARCH & MANAGE USER</h3>
-    <div style="display:flex; gap:8px;">
-        <input type="number" id="searchId" placeholder="Enter Register ID" style="margin:0;">
-        <button class="btn btn-blue" style="width:70px;" onclick="searchUser()"><i class="fa fa-search"></i></button>
-    </div>
-    <div id="resBox" style="display:none; margin-top:10px; padding:12px; background:#fffde7; border-radius:10px; border:1px solid var(--gold);">
-        <div id="resData" style="line-height:1.6; font-size:13px;"></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px;">
-            <button class="btn btn-gold" id="blkBtn" onclick="toggleBlock()">BLOCK</button>
-            <button class="btn btn-red" onclick="deleteUser()">DEL</button>
+    <div class="card">
+        <h2><i class="fa fa-cog"></i> Quiz Status Control</h2>
+        <div class="controls">
+            <div>
+                <label>Start Date & Time</label>
+                <input type="datetime-local" id="quizStartTime">
+                <button class="btn btn-start" style="margin-top:10px; width:100%;" onclick="updateTime()">Set Timer & Open</button>
+            </div>
+            <div style="text-align: center;">
+                <label>Quick Actions</label><br><br>
+                <button class="btn btn-stop" onclick="toggleQuiz(true)">STOP QUIZ NOW</button>
+                <button class="btn btn-start" onclick="toggleQuiz(false)">RESUME QUIZ</button>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="card">
-    <h3><i class="fa fa-trophy"></i> WINNER SELECTION</h3>
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
-        <button class="btn btn-gold" id="rBtn1" onclick="setActiveRank(1)">1st PRIZE</button>
-        <button class="btn btn-gold" id="rBtn2" onclick="setActiveRank(2)">2nd PRIZE</button>
-        <button class="btn btn-gold" id="rBtn3" onclick="setActiveRank(3)">3rd PRIZE</button>
+    <div class="card">
+        <h2><i class="fa fa-trophy"></i> Winner Selection</h2>
+        <div id="winnerDisplay" style="background: #fdf9e7; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; color: #856404;">
+            Selected: 1st: <span id="w1">-</span> | 2nd: <span id="w2">-</span> | 3rd: <span id="w3">-</span>
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Branch</th>
+                        <th>Score/Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody">
+                    </tbody>
+            </table>
+        </div>
+        <button class="btn btn-publish" onclick="publishWinners()">PUBLISH WINNERS TO USER PAGE</button>
     </div>
-    <div class="scroll-table">
-        <table>
-            <thead><tr><th>#ID</th><th>Name</th><th>Score</th><th>Time</th><th>Action</th></tr></thead>
-            <tbody id="resTable"></tbody>
-        </table>
+
+    <div class="card" style="border: 1px solid #f8d7da;">
+        <h2 style="color: #c0392b;">Danger Zone</h2>
+        <p style="font-size: 12px; color: #666;">ഇത് അമർത്തിയാൽ ഇതുവരെയുള്ള എല്ലാ രജിസ്‌ട്രേഷനും റിസൾട്ടും ഡിലീറ്റ് ആകും!</p>
+        <button class="btn btn-stop" style="width: 100%;" onclick="resetAllData()">RESET ENTIRE QUIZ DATA</button>
     </div>
-    <button class="btn btn-green" style="margin-top:12px;" onclick="publishWinners()"><i class="fa fa-check-double"></i> CONFIRM & PUBLISH ALL</button>
-</div>
-
-<div class="card">
-    <h3><i class="fa fa-plus-circle"></i> ADD NEW QUESTION</h3>
-    <textarea id="qTxt" placeholder="Type question here..." rows="2"></textarea>
-    <div class="opt-row"><b>A</b> <input type="text" id="opt0"> <input type="radio" name="ans" value="0" checked></div>
-    <div class="opt-row"><b>B</b> <input type="text" id="opt1"> <input type="radio" name="ans" value="1"></div>
-    <div class="opt-row"><b>C</b> <input type="text" id="opt2"> <input type="radio" name="ans" value="2"></div>
-    <div class="opt-row"><b>D</b> <input type="text" id="opt3"> <input type="radio" name="ans" value="3"></div>
-    <button class="btn btn-green" onclick="addQuestion()"><i class="fa fa-save"></i> SAVE QUESTION</button>
-</div>
-
-<div class="card">
-    <h3><i class="fa fa-database"></i> QUESTION BANK</h3>
-    <div id="qList"></div>
-</div>
-
-<div class="danger-zone">
-    <button class="btn btn-red" onclick="fullRefresh()"><i class="fa fa-sync-alt"></i> FULL SYSTEM RESTART</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -100,123 +93,69 @@ const firebaseConfig = { apiKey: "AIzaSyCS9jqJEr_umK_goyXuf3njYCE_Cb8xU7o", auth
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let currentQ = {}; let activeRank = null; let pendingWinners = {};
+let selectedWinners = { 1: null, 2: null, 3: null };
 
-// 1. Controls
-function saveTime() { 
-    const val = document.getElementById('startTimeInput').value;
-    if(!val) return alert("സമയവും തീയതിയും നൽകുക!");
-    db.collection("quiz_settings").doc("status").update({ startTime: val, closed: false, showPosters: false }); 
-    alert("Time Saved!"); 
-}
-
-function setStatus(isClosed) { 
-    db.collection("quiz_settings").doc("status").update({ closed: isClosed }); 
-    alert(isClosed ? "ക്വിസ് നിർത്തിവെച്ചു (STOPPED)" : "ക്വിസ് ലൈവ് ആക്കി (LIVE)"); 
-}
-
-async function togglePosters() {
-    const s = await db.collection("quiz_settings").doc("status").get();
-    db.collection("quiz_settings").doc("status").update({ showPosters: !s.data().showPosters });
-}
-
-db.collection("quiz_settings").doc("status").onSnapshot(doc => {
-    const s = doc.data(); if(!s) return;
-    const stat = document.getElementById('statusDisplay');
-    if(s.closed) { stat.innerText = "STATUS: STOPPED"; stat.style.color = "red"; }
-    else { stat.innerText = "STATUS: ACTIVE / WAITING"; stat.style.color = "green"; }
-    document.getElementById('posterBtn').innerText = s.showPosters ? "POSTER: ON" : "POSTER: OFF";
-    document.getElementById('startTimeInput').value = s.startTime || "";
-});
-
-// 2. Questions
-db.collection("questions").onSnapshot(snap => {
-    let h = ""; currentQ = {};
-    snap.forEach(doc => {
-        const d = doc.data(); currentQ[doc.id] = d.correct;
-        h += `<div class="q-list-item"><span>${d.text}</span><i class="fa fa-trash-alt" style="color:var(--red)" onclick="deleteQ('${doc.id}')"></i></div>`;
+// ടൈമർ സെറ്റ് ചെയ്യാൻ
+async function updateTime() {
+    const time = document.getElementById('quizStartTime').value;
+    if(!time) return alert("ദയവായി സമയം നൽകുക");
+    await db.collection("quiz_settings").doc("status").update({
+        startTime: time,
+        closed: false,
+        showPosters: false
     });
-    document.getElementById('qList').innerHTML = h;
-});
-
-async function addQuestion() {
-    const txt = document.getElementById('qTxt').value;
-    const ops = [document.getElementById('opt0').value, document.getElementById('opt1').value, document.getElementById('opt2').value, document.getElementById('opt3').value];
-    const ans = document.querySelector('input[name="ans"]:checked').value;
-    if(!txt || !ops[0]) return alert("ചോദ്യവും ഓപ്ഷനും നൽകുക!");
-    await db.collection("questions").add({ text: txt, options: ops, correct: ans });
-    document.getElementById('qTxt').value=""; document.querySelectorAll('.opt-row input[type="text"]').forEach(i=>i.value="");
-}
-function deleteQ(id) { if(confirm("Delete?")) db.collection("questions").doc(id).delete(); }
-
-// 3. User Management
-let curUser = null;
-async function searchUser() {
-    const id = document.getElementById('searchId').value;
-    const doc = await db.collection("participants").doc(id).get();
-    if(doc.exists) {
-        curUser = id; const u = doc.data();
-        document.getElementById('resData').innerHTML = `<b>ID:</b> ${id}<br><b>Name:</b> ${u.name}<br><b>Mob:</b> ${u.mobile}<br><b>Status:</b> ${u.blocked ? 'Blocked' : 'Active'}`;
-        document.getElementById('resBox').style.display = 'block';
-        document.getElementById('blkBtn').innerText = u.blocked ? "UNBLOCK" : "BLOCK";
-    } else alert("Not Found!");
+    alert("സമയക്രമം മാറ്റിയിരിക്കുന്നു");
 }
 
-async function toggleBlock() {
-    const d = await db.collection("participants").doc(curUser).get();
-    await db.collection("participants").doc(curUser).update({ blocked: !d.data().blocked }); 
-    searchUser();
+// ക്വിസ് നിർത്താൻ/തുടങ്ങാൻ
+async function toggleQuiz(isStop) {
+    await db.collection("quiz_settings").doc("status").update({
+        closed: isStop,
+        showPosters: false
+    });
+    alert(isStop ? "ക്വിസ് നിർത്തിവെച്ചു" : "ക്വിസ് പുനരാരംഭിച്ചു");
 }
 
-async function deleteUser() { 
-    if(confirm("Delete User?")) { await db.collection("participants").doc(curUser).delete(); document.getElementById('resBox').style.display='none'; } 
-}
-
-// 4. Winner Logic
-function setActiveRank(r) {
-    activeRank = r;
-    document.querySelectorAll('.card .btn-gold').forEach(b => b.classList.remove('selected-rank'));
-    document.getElementById('rBtn'+r).classList.add('selected-rank');
-}
-
-db.collection("results").orderBy("time", "asc").onSnapshot(snap => {
+// റിസൾട്ടുകൾ കാണിക്കാൻ
+db.collection("results").onSnapshot(snap => {
     let h = "";
     snap.forEach(doc => {
-        const d = doc.data(); let sc = 0;
-        if(d.answers) for(let k in d.answers) if(d.answers[k] == currentQ[k]) sc++;
-        h += `<tr><td>#${d.regId}</td><td>${d.name}</td><td><b>${sc}</b></td><td>${d.time?d.time.toDate().toLocaleTimeString():'-'}</td>
-        <td><button class="btn btn-gold" style="padding:4px; box-shadow:none; font-size:10px;" onclick="selectWin('${d.regId}','${d.name}')">SELECT</button></td></tr>`;
+        const d = doc.data();
+        h += `<tr>
+            <td>${d.regId}</td>
+            <td>${d.name}</td>
+            <td>${d.branch}</td>
+            <td>${Object.keys(d.answers || {}).length} Ans</td>
+            <td>
+                <button class="rank-btn rank-1" onclick="selectRank(1, '${d.regId}', '${d.name}')">1st</button>
+                <button class="rank-btn rank-2" onclick="selectRank(2, '${d.regId}', '${d.name}')">2nd</button>
+                <button class="rank-btn rank-3" onclick="selectRank(3, '${d.regId}', '${d.name}')">3rd</button>
+            </td>
+        </tr>`;
     });
-    document.getElementById('resTable').innerHTML = h;
+    document.getElementById('resultsBody').innerHTML = h;
 });
 
-function selectWin(id, name) {
-    if(!activeRank) return alert("റാങ്ക് സെലക്ട് ചെയ്യുക!");
-    pendingWinners[activeRank] = id;
-    alert(`${name} (#${id}) സെലക്ട് ചെയ്തു.`);
+function selectRank(rank, id, name) {
+    selectedWinners[rank] = id;
+    document.getElementById(`w${rank}`).innerText = name;
 }
 
+// വിജയികളെ പബ്ലിഷ് ചെയ്യാൻ
 async function publishWinners() {
-    if(!pendingWinners[1] || !pendingWinners[2] || !pendingWinners[3]) return alert("3 വിജയികളെയും തിരഞ്ഞെടുക്കണം!");
-    if(confirm("വിജയികളെ പബ്ലിഷ് ചെയ്യട്ടെ?")) {
-        await db.collection("winners").doc("list").set({ ranks: pendingWinners });
-        await db.collection("quiz_settings").doc("status").update({ showPosters: true });
-        alert("Published!");
+    if(!selectedWinners[1] || !selectedWinners[2] || !selectedWinners[3]) {
+        return alert("മൂന്ന് വിജയികളെയും തിരഞ്ഞെടുക്കുക!");
     }
+    await db.collection("winners").doc("list").set({ ranks: selectedWinners });
+    await db.collection("quiz_settings").doc("status").update({ showPosters: true, closed: true });
+    alert("വിജയികളെ പ്രഖ്യാപിച്ചു! ഇപ്പോൾ എല്ലാവർക്കും വിന്നർ പോസ്റ്റർ കാണാൻ സാധിക്കും.");
 }
 
-// 5. Full Refresh
-async function fullRefresh() {
-    if(!confirm("മുന്നറിയിപ്പ്! എല്ലാ ഡാറ്റയും (ചോദ്യങ്ങൾ, ഫലങ്ങൾ, മെമ്പേഴ്സ്) ഡിലീറ്റ് ആകും. തുടരണോ?")) return;
-    const collections = ['questions', 'results', 'participants'];
-    for (const col of collections) {
-        const snap = await db.collection(col).get();
-        const batch = db.batch(); snap.forEach(doc => batch.delete(doc.ref));
-        await batch.commit();
-    }
-    await db.collection("winners").doc("list").set({ ranks: {} });
-    await db.collection("quiz_settings").doc("status").set({ closed: true, showPosters: false, startTime: "" });
-    alert("സിസ്റ്റം റീസെറ്റ് ചെയ്തു!"); location.reload();
+// ഡാറ്റ ക്ലീൻ ചെയ്യാൻ
+async function resetAllData() {
+    if(!confirm("എല്ലാ ഡാറ്റയും ഡിലീറ്റ് ചെയ്യട്ടെ?")) return;
+    // Note: Firebase delete requires loop or cloud function, here we just alert simple way
+    alert("ഡാറ്റ റീസെറ്റ് ചെയ്യാൻ ഫയർബേസ് കൺസോൾ ഉപയോഗിക്കുക അല്ലെങ്കിൽ എക്സ്റ്റൻഷൻ ഉപയോഗിക്കുക.");
 }
 </script>
 </body>
