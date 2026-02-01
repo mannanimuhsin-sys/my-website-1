@@ -237,8 +237,16 @@ async function loadWinners() {
     const trophies = { 1: "🥇", 2: "🥈", 3: "🥉" };
     for(let i=1; i<=3; i++) {
         const u = await db.collection("participants").doc(ranks[i].toString()).get();
-        if(u.exists) h += `<div class="card" style="border:2px solid var(--gold); background:#fffde7;">${trophies[i]}<br><b>${u.data().name}</b><br><small>${u.data().branch}</small></div>`;
-    }
+if(u.exists) {
+            const userData = u.data();
+            h += `
+            <div class="card" style="border:2px solid var(--gold); background:#fffdf0; padding:15px; border-radius:15px; margin-bottom:10px; text-align:center;">
+                <div style="font-size:35px;">${trophies[i]}</div>
+                <h2 style="margin:5px 0; color:#004d00;">${userData.name}</h2>
+                <div style="font-weight:bold; color:#c0392b; font-size:18px;">ID: ${ranks[i]}</div>
+                <p style="margin:2px 0; color:#555; font-weight:bold;">${userData.branch}</p>
+            </div>`;
+        }    }
     document.getElementById('winnerPoster').innerHTML = h;
 }
 </script>
