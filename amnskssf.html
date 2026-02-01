@@ -96,7 +96,7 @@
         <div class="table-area">
             <table>
                 <thead>
-                    <tr><th>ID & Name</th><th>Mobile & Branch</th><th>Score</th><th>Action</th></tr>
+                <tr><th>ID & Name</th><th>Mobile & Branch</th><th>Score</th><th>Submitted Time</th><th>Action</th></tr>
                 </thead>
                 <tbody id="resultBody"></tbody>
             </table>
@@ -205,13 +205,24 @@ db.collection("results").onSnapshot(snap => {
     res.sort((a,b) => b.score - a.score || a.time - b.time);
     let h = "";
     res.forEach(d => {
-        h += `<tr>
-            <td><b style="color:var(--blue)">#${d.regId}</b><br>${d.name}</td>
-            <td>${d.mobile || 'N/A'}<br><small>${d.branch || 'N/A'}</small></td>
-            <td><span class="score-badge">${d.score !== undefined ? d.score : 0}</span></td>
-            <td><button class="btn btn-green" style="padding:6px 12px; font-size:10px;" onclick="confirmWinner('${d.regId}','${d.name}')">PICK</button></td>
-        </tr>`;
-    });
+    // സമയം മില്ലിസെക്കന്റ് സഹിതം കണക്കാക്കുന്നു
+    let submitTime = "N/A";
+    if (d.time) {
+        let date = d.time.toDate ? d.time.toDate() : new Date(d.time);
+        submitTime = date.getHours().toString().padStart(2, '0') + ":" + 
+                     date.getMinutes().toString().padStart(2, '0') + ":" + 
+                     date.getSeconds().toString().padStart(2, '0') + ":" + 
+                     date.getMilliseconds().toString().padStart(3, '0');
+    }
+
+    h += `<tr>
+        <td><b style="color:var(--blue)">#${d.regId}</b><br>${d.name}</td>
+        <td>${d.mobile || 'N/A'}<br><small>${d.branch || 'N/A'}</small></td>
+        <td><span class="score-badge">${d.score !== undefined ? d.score : 0}</span></td>
+        <td><b style="color:var(--red); font-size:11px;">${submitTime}</b></td>
+        <td><button class="btn btn-green" style="padding:6px 12px; font-size:10px;" onclick="confirmWinner('${d.regId}','${d.name}')">PICK</button></td>
+    </tr>`;
+});
     document.getElementById('resultBody').innerHTML = h;
 });
 
