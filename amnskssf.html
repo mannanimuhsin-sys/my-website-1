@@ -20,15 +20,12 @@
         .btn-gold { background: var(--gold); color: black; }
         .btn-purple { background: var(--purple); color: white; }
 
-        /* User tracking styling */
         .info-display { background: #fffde7; border: 2px dashed var(--blue); padding: 15px; border-radius: 10px; margin-top: 10px; display: none; }
         
-        /* Rank grid styling */
         .rank-grid { display: flex; gap: 15px; margin-bottom: 20px; }
         .rank-btn { flex: 1; padding: 20px 10px; border: 2px solid #ddd; border-radius: 15px; background: white; cursor: pointer; text-align: center; }
         .rank-btn.active { border-color: var(--gold); background: #fffde7; transform: scale(1.03); border-width: 3px; }
 
-        /* Results table styling */
         .table-area { overflow-x: auto; max-height: 450px; border-radius: 12px; border: 1px solid #eee; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; background: white; }
         th { background: #f8f9fa; padding: 15px; text-align: left; position: sticky; top: 0; border-bottom: 2px solid #eee; }
@@ -87,7 +84,7 @@
         <h2><i class="fa fa-chart-line"></i> റിസൾട്ട് & റാങ്ക് സെലക്ഷൻ</h2>
         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
             <input type="text" id="search" onkeyup="searchResult()" placeholder="പേര്, ഐഡി, ബ്രാഞ്ച് തിരയുക..." style="margin:0;">
-            <button class="btn btn-red" onclick="resetEntireQuiz()" style="width: 180px; font-size: 11px; background: #6c5ce7 !important;"><i class="fa fa-sync-alt"></i> RESET ALL DATA</button>
+            <button class="btn btn-red" onclick="resetEntireQuiz()" style="width: 200px; font-size: 11px; background: #c0392b !important;"><i class="fa fa-sync-alt"></i> FULL RESET QUIZ</button>
         </div>
         
         <div class="rank-grid">
@@ -112,7 +109,7 @@
                 2nd Prize: <span id="s2">-</span><br>
                 3rd Prize: <span id="s3">-</span>
             </div>
-            <button class="btn btn-gold" style="margin-top:15px;" onclick="publishWinners()">PUBLISH OFFICIAL POSTER</button>
+            <button class="btn btn-gold" style="margin-top:10px;" onclick="publishWinners()">PUBLISH OFFICIAL POSTER</button>
         </div>
     </div>
 </div>
@@ -127,14 +124,29 @@ const db = firebase.firestore();
 let pickRank = 0; 
 let winnersData = { 1: {id:null, name:null}, 2: {id:null, name:null}, 3: {id:null, name:null} };
 
-// 1. RESET ENTIRE DATA (QUESTIONS & RESULTS)
+// 1. FULL RESET (ചോദ്യങ്ങൾ, റിസൾട്ടുകൾ, വിജയികൾ എന്നിവ ക്ലിയർ ചെയ്യുന്നു)
 async function resetEntireQuiz() {
-    if(confirm("ശ്രദ്ധിക്കുക! എല്ലാ ചോദ്യങ്ങളും മാർക്ക് ലിസ്റ്റും മാഞ്ഞുപോകും. തുടരണോ?")) {
+    if(confirm("ശ്രദ്ധിക്കുക! എല്ലാ ചോദ്യങ്ങളും, മാർക്ക് ലിസ്റ്റും, വിജയികളുടെ വിവരങ്ങളും പൂർണ്ണമായും മാഞ്ഞുപോകും. പുതിയ ക്വിസ് തുടങ്ങാൻ ഇത് ആവശ്യമാണ്. തുടരണോ?")) {
+        // ചോദ്യങ്ങൾ ഡിലീറ്റ് ചെയ്യുന്നു
         const qSnap = await db.collection("questions").get();
         qSnap.forEach(doc => doc.ref.delete());
+        
+        // റിസൾട്ടുകൾ ഡിലീറ്റ് ചെയ്യുന്നു
         const rSnap = await db.collection("results").get();
         rSnap.forEach(doc => doc.ref.delete());
-        alert("ഡാറ്റ പൂർണ്ണമായും റീസെറ്റ് ചെയ്തു.");
+
+        // വിജയികളുടെ ലിസ്റ്റ് ഒഴിവാക്കുന്നു
+        await db.collection("winners").doc("list").delete().catch(e => console.log("No winners to delete"));
+
+        // സെറ്റിംഗ്സ് പഴയ പടിയാക്കുന്നു
+        await db.collection("quiz_settings").doc("status").set({
+            closed: true,
+            showPosters: false,
+            questionsPublished: false,
+            startTime: ""
+        });
+
+        alert("ക്വിസ് പൂർണ്ണമായും റീസെറ്റ് ചെയ്തു. ഇനി പുതിയ ചോദ്യങ്ങൾ ചേർക്കാം.");
         location.reload();
     }
 }
@@ -158,7 +170,6 @@ async function addQuestion() {
     if(!text || options.includes("")) return alert("എല്ലാം പൂരിപ്പിക്കുക!");
     await db.collection("questions").add({ text, options, correct, createdAt: new Date() });
     alert("ചോദ്യം ചേർത്തു!");
-    // ക്ലിയർ ചെയ്യുക
     document.getElementById('qText').value = "";
     document.querySelectorAll('input[placeholder^="Option"]').forEach(i => i.value = "");
 }
@@ -188,7 +199,7 @@ async function toggleQuiz(st) {
     alert(st ? "Quiz Stopped Successfully" : "Quiz Resumed Successfully");
 }
 
-// 5. RESULTS DISPLAY & WINNER SELECTION
+// 5. RESULTS DISPLAY
 db.collection("results").onSnapshot(snap => {
     let res = []; snap.forEach(doc => res.push(doc.data()));
     res.sort((a,b) => b.score - a.score || a.time - b.time);
@@ -214,7 +225,6 @@ function confirmWinner(id, name) {
 
 async function publishWinners() { 
     if(!winnersData[1].id || !winnersData[2].id || !winnersData[3].id) return alert("3 വിജയികളെയും തിരഞ്ഞെടുക്കണം!");
-    // ഐഡി സഹിതം ഡാറ്റാബേസിലേക്ക് അയക്കുന്നു
     await db.collection("winners").doc("list").set({ 
         ranks: { 1: winnersData[1].id, 2: winnersData[2].id, 3: winnersData[3].id },
         names: { 1: winnersData[1].name, 2: winnersData[2].name, 3: winnersData[3].name }
