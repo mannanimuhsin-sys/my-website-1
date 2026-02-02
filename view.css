@@ -1,0 +1,136 @@
+/* Custom Executive Styles */
+:root {
+    --primary-color: #004d00;
+    --secondary-color: #002200;
+    --accent-gold: #ffd700;
+    --text-dark: #2d3436;
+    --text-light: #636e72;
+    --white: #ffffff;
+    --glass: rgba(255, 255, 255, 0.15);
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background-color: #f0f2f5;
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+/* Header Section */
+.header-box {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    padding: 60px 20px;
+    color: var(--white);
+    text-align: center;
+    border-bottom: 5px solid var(--accent-gold);
+    clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%); /* ഒരു സ്റ്റൈലിഷ് കട്ട് */
+}
+
+.madrasa-name {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.contact-info-card {
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 12px 25px;
+    border-radius: 50px;
+    margin-top: 25px;
+    font-size: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+/* Result Card Styles */
+.result-card {
+    background: var(--white);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    overflow: hidden;
+    border: none;
+    transition: transform 0.3s ease;
+}
+
+.student-header {
+    background: linear-gradient(to bottom, #fcfcfc, #f1f1f1);
+    padding: 40px 20px;
+    border-bottom: 2px solid #eee;
+}
+
+.mark-table th {
+    background: #f8f9fa;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 20px;
+}
+
+/* Executive Footer Section */
+footer {
+    background: #ffffff;
+    padding: 40px 20px;
+    margin-top: 50px;
+    border-top: 1px solid #e1e8ed;
+    position: relative;
+}
+
+.footer-content {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.dev-text {
+    font-size: 15px;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+}
+
+.dev-text b {
+    color: var(--primary-color);
+    font-weight: 700;
+    position: relative;
+}
+
+/* Social Icon Animation */
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.social-icons a {
+    width: 45px;
+    height: 45px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    color: #444;
+    font-size: 20px;
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.social-icons a:hover {
+    transform: translateY(-8px);
+    color: white;
+    box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+}
+
+.icon-wa:hover { background: #25D366; border-color: #25D366; }
+.icon-call:hover { background: #007bff; border-color: #007bff; }
+.icon-insta:hover { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); border-color: transparent; }
+
+/* Printing Optimization */
+@media print {
+    body { background: white; }
+    .header-box { clip-path: none; padding: 20px; }
+    footer, .search-card { display: none; }
+}

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madrasa Result Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root { --primary: #004d00; --accent: #ffcc00; --bg: #f5f5f5; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; }
+        
+        /* പഴയ ഹീറോ ഹെഡർ ഡിസൈൻ */
+        .hero { background: var(--primary); padding: 50px 20px; text-align: center; color: white; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; }
+        .hero h1 { font-size: 26px; margin: 0; letter-spacing: 1px; }
+        .hero p { margin-top: 10px; opacity: 0.9; font-size: 14px; }
+
+        /* Auth Card */
+        .auth-card { max-width: 400px; margin: -30px auto 20px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
+        .tabs { display: flex; background: #eee; }
+        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; color: #777; transition: 0.3s; }
+        .tab.active { background: white; color: var(--primary); border-top: 4px solid var(--primary); }
+        .tab-content { padding: 25px; }
+
+        /* Admin Layout */
+        .container { max-width: 1200px; margin: auto; padding: 20px; }
+        .section { background: white; padding: 20px; border-radius: 15px; margin-bottom: 25px; border-top: 5px solid var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; box-sizing: border-box; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
+        .btn-primary { background: var(--primary); width: 100%; }
+        .btn-add { background: #2c3e50; }
+
+        /* Student List Table */
+        .class-box { background: #f9f9f9; border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-top: 15px; }
+        .st-list-table { width: 100%; background: white; border-radius: 8px; overflow: hidden; border-collapse: collapse; margin-top: 10px; }
+        .st-list-table th { background: #f1f1f1; color: #333; font-size: 12px; padding: 8px; text-align: left; border-bottom: 2px solid #ddd; }
+        .st-list-table td { padding: 10px 8px; border-bottom: 1px solid #eee; font-size: 14px; }
+
+        /* Tables */
+        .table-container { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { background: var(--primary); color: white; padding: 12px; border: 1px solid #ddd; }
+        td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        
+        .m-input { width: 60px; text-align: center; border: 1px solid #ccc; font-weight: bold; padding: 5px; border-radius: 4px; }
+        .m-input.s-att { width: 85px; }
+        
+        .status-pass { color: green; font-weight: bold; }
+        .status-fail { color: red; font-weight: bold; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div id="authPanel">
+    <div class="hero">
+        <h1>മദ്രസ പരീക്ഷാ ഫലം</h1>
+        <p>അഡ്മിൻ മാനേജ്‌മെന്റ് പോർട്ടൽ</p>
+    </div>
+
+    <div class="auth-card">
+        <div class="tabs">
+            <div id="loginTab" class="tab active" onclick="switchAuth('login')">LOGIN</div>
+            <div id="regTab" class="tab" onclick="switchAuth('register')">REGISTER</div>
+        </div>
+        
+        <div class="tab-content" id="loginContent">
+            <input type="tel" id="loginPhone" placeholder="മൊബൈൽ നമ്പർ നൽകുക">
+            <button class="btn btn-primary" onclick="login()">പ്രവേശിക്കുക</button>
+        </div>
+
+        <div class="tab-content hidden" id="regContent">
+            <input type="text" id="regMName" placeholder="മദ്രസയുടെ പേര്">
+            <input type="text" id="regPlace" placeholder="സ്ഥലം">
+            <input type="tel" id="regPhone" placeholder="മൊബൈൽ നമ്പർ">
+            <button class="btn btn-primary" onclick="register()">രജിസ്റ്റർ ചെയ്യുക</button>
+        </div>
+    </div>
+</div>
+
+<div id="statusUI" class="container hidden">
+    <div class="section" style="text-align:center; padding:40px;">
+        <i class="fa fa-check-circle" style="font-size:60px; color:var(--primary); margin-bottom:20px;"></i>
+        <h2>റിസൾട്ട് പബ്ലിഷ് ചെയ്തു!</h2>
+        <div id="approvalSection" style="margin-top:20px;"></div>
+    </div>
+</div>
+
+<div id="adminPanel" class="container hidden">
+    <div class="section">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div id="mInfoDisplay"></div>
+            <button class="btn btn-add" onclick="syncWithCloud()"><i class="fa fa-cloud-upload"></i> SAVE ALL DATA</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3><i class="fa fa-user-plus"></i> വിദ്യാർത്ഥികളെ ചേർക്കുക</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+            <select id="stClass"></select>
+            <input type="number" id="stRegNo" placeholder="രജി. നമ്പർ">
+            <input type="text" id="stName" placeholder="വിദ്യാർത്ഥിയുടെ പേര്">
+            <button class="btn btn-add" onclick="addStudent()">ADD STUDENT</button>
+        </div>
+        <div id="studentListArea" style="margin-top:20px;"></div>
+    </div>
+
+    <div class="section">
+        <h3><i class="fa fa-book"></i> विषयों & ഹാജർ</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+            <select id="subClass" onchange="loadSubjects()"></select>
+            <input type="number" id="classAtt" placeholder="ആകെ പ്രവൃത്തി ദിനങ്ങൾ">
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="newSub" placeholder="വിഷയം">
+                <button class="btn btn-add" onclick="addSubject()">ADD</button>
+            </div>
+        </div>
+        <div id="subjectChips" style="margin-top:15px; display:flex; gap:10px; flex-wrap:wrap;"></div>
+    </div>
+
+    <div class="section">
+        <h3><i class="fa fa-table"></i> മാർക്ക് എൻട്രി</h3>
+        <div style="display:flex; gap:10px; max-width: 400px;">
+            <select id="markClass"></select>
+            <button class="btn btn-primary" onclick="loadMarkTable()">LOAD TABLE</button>
+        </div>
+        <div id="tableWrapper" class="hidden">
+            <div class="table-container">
+                <table id="mainTable"><thead id="tHead"></thead><tbody id="tBody"></tbody></table>
+            </div>
+            <button class="btn" style="background: #27ae60; margin-top:15px;" onclick="exportExcel()"><i class="fa fa-file-excel"></i> DOWNLOAD EXCEL</button>
+        </div>
+    </div>
+
+    <button class="btn" style="background: #c0392b; width:100%; padding:20px; font-size:18px; margin-top:20px;" onclick="publishResult()">PUBLISH ALL RESULTS</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+<script>
+    const firebaseConfig = { apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ", authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.app", projectId: "misbahul-uloom-madrasa-4830c", storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app", appId: "1:370558703441:web:dc68dbdbd685c9d07ea570" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let mData = {};
+    const classes = ["Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"];
+
+    window.onload = () => {
+        ["stClass", "subClass", "markClass"].forEach(id => {
+            let el = document.getElementById(id);
+            el.innerHTML = '<option value="">ക്ലാസ് തിരഞ്ഞെടുക്കുക</option>';
+            classes.forEach(c => el.innerHTML += `<option value="${c}">${c}</option>`);
+        });
+    };
+
+    function switchAuth(type) {
+        document.getElementById('loginContent').classList.toggle('hidden', type === 'register');
+        document.getElementById('regContent').classList.toggle('hidden', type === 'login');
+        document.getElementById('loginTab').classList.toggle('active', type === 'login');
+        document.getElementById('regTab').classList.toggle('active', type === 'register');
+    }
+
+    async function register() {
+        const phone = document.getElementById('regPhone').value;
+        const name = document.getElementById('regMName').value;
+        const place = document.getElementById('regPlace').value;
+        if(!phone || !name) return alert("പേരും നമ്പറും നൽകുക!");
+        const newData = { info: { name, place, phone }, students: {}, subjects: {}, results: {}, isApproved: false, isPublished: false };
+        await db.collection("madrasa_data").doc(phone).set(newData);
+        alert("രജിസ്ട്രേഷൻ വിജയിച്ചു! ലോഗിൻ ചെയ്യുക.");
+        location.reload();
+    }
+
+    async function login() {
+        const phone = document.getElementById('loginPhone').value;
+        const doc = await db.collection("madrasa_data").doc(phone).get();
+        if(doc.exists) {
+            mData = doc.data();
+            document.getElementById('authPanel').classList.add('hidden');
+            if(mData.isPublished) showStatusUI();
+            else {
+                document.getElementById('adminPanel').classList.remove('hidden');
+                document.getElementById('mInfoDisplay').innerHTML = `<h2>${mData.info.name}</h2><p>${mData.info.place || ''}</p>`;
+                refreshStudentDisplay();
+            }
+        } else alert("രജിസ്റ്റർ ചെയ്തിട്ടില്ല!");
+    }
+
+    function showStatusUI() {
+        document.getElementById('statusUI').classList.remove('hidden');
+        const appSec = document.getElementById('approvalSection');
+        if(mData.isApproved) {
+            appSec.innerHTML = `<p>ലിങ്ക്: <a href="https://madrasa-result.web.app/view.html?id=${mData.info.phone}" target="_blank">ഇവിടെ ക്ലിക്ക് ചെയ്യുക</a></p>`;
+        } else {
+            appSec.innerHTML = `<p>ലിങ്ക് ലഭിക്കാൻ വാട്സാപ്പിൽ ബന്ധപ്പെടുക</p>
+            <a href="https://wa.me/91XXXXXXXXXX?text=അപ്രൂവ് ചെയ്യുമോ? ${mData.info.name}" class="btn" style="background:#25D366; text-decoration:none; display:inline-block;">വാട്സാപ്പ്</a>`;
+        }
+    }
+
+    function addStudent() {
+        const cls = document.getElementById('stClass').value;
+        const reg = document.getElementById('stRegNo').value;
+        const name = document.getElementById('stName').value;
+        if(!cls || !reg || !name) return;
+        if(!mData.students) mData.students = {};
+        if(!mData.students[cls]) mData.students[cls] = {};
+        mData.students[cls][reg] = name;
+        refreshStudentDisplay();
+    }
+
+    function refreshStudentDisplay() {
+        const area = document.getElementById('studentListArea');
+        area.innerHTML = "";
+        for(let cls in mData.students) {
+            let html = `<div class="class-box"><strong>${cls}</strong><table class="st-list-table"><thead><tr><th>Reg No</th><th>Name</th><th style="width:50px">Action</th></tr></thead><tbody>`;
+            for(let reg in mData.students[cls]) { 
+                html += `<tr>
+                    <td>${reg}</td>
+                    <td>${mData.students[cls][reg]}</td>
+                    <td><i class="fa fa-trash" style="color:#c0392b; cursor:pointer;" onclick="deleteStudent('${cls}', '${reg}')"></i></td>
+                </tr>`; 
+            }
+            area.innerHTML += html + `</tbody></table></div>`;
+        }
+    }
+
+    function deleteStudent(cls, reg) {
+        if(confirm("ഈ വിദ്യാർത്ഥിയെ നീക്കം ചെയ്യട്ടെ?")) {
+            delete mData.students[cls][reg];
+            refreshStudentDisplay();
+            alert("നീക്കം ചെയ്തു. മാറ്റങ്ങൾ സേവ് ചെയ്യാൻ SAVE ALL DATA ബട്ടൺ അമർത്തുക.");
+        }
+    }
+
+    function loadSubjects() {
+        const cls = document.getElementById('subClass').value;
+        const area = document.getElementById('subjectChips');
+        area.innerHTML = "";
+        if(mData.subjects && mData.subjects[cls]) {
+            mData.subjects[cls].forEach((s, i) => {
+                area.innerHTML += `<span style="background:var(--primary); color:white; padding:5px 10px; border-radius:15px; margin-right:5px;">${s}</span>`;
+            });
+        }
+    }
+
+    function addSubject() {
+        const cls = document.getElementById('subClass').value;
+        const sub = document.getElementById('newSub').value;
+        if(!cls || !sub) return;
+        if(!mData.subjects) mData.subjects = {};
+        if(!mData.subjects[cls]) mData.subjects[cls] = [];
+        mData.subjects[cls].push(sub);
+        loadSubjects();
+    }
+
+    function loadMarkTable() {
+        const cls = document.getElementById('markClass').value;
+        const subs = mData.subjects[cls] || [];
+        const studs = mData.students[cls] || {};
+        let h = `<tr><th>Reg</th><th>Name</th><th>ഹാജർ</th>`;
+        subs.forEach(s => h += `<th>${s}</th>`);
+        h += `<th>Total</th><th>Status</th><th>Rank</th></tr>`;
+        document.getElementById('tHead').innerHTML = h;
+        let b = "";
+        for(let reg in studs) {
+            b += `<tr data-reg="${reg}"><td>${reg}</td><td>${studs[reg]}</td>
+            <td><input type="text" class="m-input s-att"></td>`;
+            subs.forEach(s => b += `<td><input type="number" class="m-input s-mark" data-sub="${s}" oninput="calc()"></td>`);
+            b += `<td class="r-tot">0</td><td class="r-sts">-</td><td class="r-rank">-</td></tr>`;
+        }
+        document.getElementById('tBody').innerHTML = b;
+        document.getElementById('tableWrapper').classList.remove('hidden');
+    }
+
+    function calc() {
+        document.querySelectorAll('#tBody tr').forEach(row => {
+            let total = 0;
+            row.querySelectorAll('.s-mark').forEach(i => total += (parseFloat(i.value) || 0));
+            row.querySelector('.r-tot').innerText = total;
+        });
+    }
+
+    async function syncWithCloud() {
+        await db.collection("madrasa_data").doc(mData.info.phone).set(mData);
+        alert("സേവ് ചെയ്തു!");
+    }
+
+    async function publishResult() {
+        if(!confirm("പബ്ലിഷ് ചെയ്യട്ടെ?")) return;
+        mData.isPublished = true;
+        await syncWithCloud();
+        location.reload();
+    }
+
+    function exportExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("mainTable")), "Result.xlsx"); }
+</script>
+</body>
+</html>
