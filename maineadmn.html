@@ -35,6 +35,10 @@
         .status-pass { color: green; font-weight: bold; }
         .status-fail { color: red; font-weight: bold; }
         .hidden { display: none; }
+        
+        /* പുതിയ ഡിസൈൻ: ലിങ്ക് കോപ്പി ചെയ്യാൻ */
+        .link-card { background: #e8f5e9; padding: 20px; border-radius: 12px; border: 2px dashed var(--primary); text-align: center; }
+        .link-card input { width: 100%; background: white; margin-bottom: 10px; text-align: center; font-weight: bold; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
@@ -90,7 +94,7 @@
     </div>
 
     <div class="section">
-        <h3><i class="fa fa-book"></i> വിഷയങ്ങൾ & ഹാജർ</h3>
+        <h3><i class="fa fa-book"></i> विषयों & ഹാജർ</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
             <select id="subClass" onchange="loadSubjects()"></select>
             <input type="number" id="classAtt" placeholder="ആകെ ഹാജർ">
@@ -145,6 +149,28 @@
         document.getElementById('regTab').classList.toggle('active', type === 'register');
     }
 
+    async function register() {
+        const phone = document.getElementById('regPhone').value;
+        const name = document.getElementById('regMName').value;
+        const place = document.getElementById('regPlace').value;
+        if(!phone || !name) return alert("പൂരിപ്പിക്കുക");
+
+        // പുതിയ മനോഹരമായ ലിങ്കിനായി ഒരു യൂണിക് ഐഡി നിർമ്മിക്കുന്നു
+        const uID = 'MD' + Math.random().toString(36).substr(2, 5).toUpperCase();
+
+        const docData = {
+            uID: uID, // രഹസ്യ കോഡ്
+            info: { name, phone, place },
+            isPublished: false,
+            isApproved: false,
+            students: {}, subjects: {}, results: {}, classAtt: {}
+        };
+
+        await db.collection("madrasa_data").doc(phone).set(docData);
+        alert("രജിസ്ട്രേഷൻ വിജയിച്ചു! ലോഗിൻ ചെയ്യുക.");
+        location.reload();
+    }
+
     async function login() {
         const phone = document.getElementById('loginPhone').value;
         const doc = await db.collection("madrasa_data").doc(phone).get();
@@ -162,8 +188,22 @@
 
     function showStatusUI() {
         document.getElementById('statusUI').classList.remove('hidden');
+        // നമ്പർ ഒഴിവാക്കി uID വെച്ചുള്ള ലിങ്ക്
+        const myLink = `https://mannanimuhsin-sys.github.io/my-website/view.html?id=${mData.uID}`;
+        
         document.getElementById('approvalSection').innerHTML = mData.isApproved ? 
-        `<p>ലിങ്ക്: <a href="view.html?id=${mData.info.phone}" target="_blank">View Result</a></p>` : `<p>അപ്രൂവലിനായി കാത്തിരിക്കുന്നു...</p>`;
+        `<div class="link-card">
+            <p style="color:#004d00; font-weight:bold;">നിങ്ങളുടെ റിസൾട്ട് ലിങ്ക് തയ്യാർ:</p>
+            <input type="text" readonly value="${myLink}" id="resL">
+            <button class="btn btn-primary" onclick="copyMyLink()">COPY LINK</button>
+         </div>` : `<p>അപ്രൂവലിനായി കാത്തിരിക്കുന്നു...</p>`;
+    }
+
+    function copyMyLink() {
+        const copyText = document.getElementById("resL");
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
+        alert("Link Copied!");
     }
 
     function addStudent() {
@@ -174,8 +214,6 @@
         if(!mData.students) mData.students = {};
         if(!mData.students[cls]) mData.students[cls] = {};
         mData.students[cls][reg] = name;
-        
-        // Clear Inputs
         document.getElementById('stRegNo').value = "";
         document.getElementById('stName').value = "";
         refreshStudentDisplay();
@@ -200,8 +238,6 @@
         if(!mData.subjects) mData.subjects = {};
         if(!mData.subjects[cls]) mData.subjects[cls] = [];
         mData.subjects[cls].push(sub);
-        
-        // Clear Input
         document.getElementById('newSub').value = "";
         loadSubjects();
     }
@@ -218,102 +254,57 @@
     function loadMarkTable() {
         const cls = document.getElementById('markClass').value;
         if (!cls) return alert("ക്ലാസ് തിരഞ്ഞെടുക്കുക");
-        
         const subs = mData.subjects[cls] || [];
         const studs = mData.students[cls] || {};
-        
-        // പഴയ ആകെ ഹാജർ ഉണ്ടെങ്കിൽ അത് കാണിക്കാൻ
-        if(mData.classAtt && mData.classAtt[cls]) {
-            document.getElementById('classAtt').value = mData.classAtt[cls];
-        }
-
+        if(mData.classAtt && mData.classAtt[cls]) document.getElementById('classAtt').value = mData.classAtt[cls];
         let h = `<tr><th>Reg</th><th>Name</th><th>ഹാജർ</th>`;
         subs.forEach(s => h += `<th>${s}</th>`);
         h += `<th>Total</th><th>Status</th><th>Rank</th></tr>`;
         document.getElementById('tHead').innerHTML = h;
-        
         let b = "";
         for(let reg in studs) {
-            // പഴയ ഡാറ്റ ഉണ്ടോ എന്ന് നോക്കുന്നു
             const oldRes = (mData.results && mData.results[cls] && mData.results[cls][reg]) ? mData.results[cls][reg] : {};
-            const oldAtt = oldRes.att || "";
-            const oldTot = oldRes.total || "0";
-            const oldSts = oldRes.status || "-";
-            const oldRank = oldRes.rank || "-";
-
             b += `<tr data-reg="${reg}">
-                <td>${reg}</td>
-                <td>${studs[reg]}</td>
-                <td><input type="number" class="m-input s-att" value="${oldAtt}" oninput="autoSave()"></td>`;
-            
+                <td>${reg}</td><td>${studs[reg]}</td>
+                <td><input type="number" class="m-input s-att" value="${oldRes.att || ""}" oninput="autoSave()"></td>`;
             subs.forEach(s => {
                 const oldMark = (oldRes.marks && oldRes.marks[s]) ? oldRes.marks[s] : "";
                 b += `<td><input type="number" class="m-input s-mark" data-sub="${s}" value="${oldMark}" oninput="calcStatus(this); autoSave()"></td>`;
             });
-
-            b += `<td class="r-tot">${oldTot}</td>
-                  <td class="r-sts">${oldSts}</td>
-                  <td class="r-rank">${oldRank}</td></tr>`;
+            b += `<td class="r-tot">${oldRes.total || "0"}</td><td class="r-sts">${oldRes.status || "-"}</td><td class="r-rank">${oldRes.rank || "-"}</td></tr>`;
         }
         document.getElementById('tBody').innerHTML = b;
         document.getElementById('tableWrapper').classList.remove('hidden');
-        
-        // ടേബിൾ ലോഡ് ചെയ്യുമ്പോൾ തന്നെ കളർ വരാൻ
         document.querySelectorAll('.s-mark').forEach(input => calcStatus(input));
     }
 
     function calcStatus(input) {
         const row = input.closest('tr');
-        let total = 0;
-        let isFailed = false;
-        let hasValue = false;
-        
+        let total = 0, isFailed = false, hasValue = false;
         row.querySelectorAll('.s-mark').forEach(i => {
             if(i.value !== "") {
                 hasValue = true;
                 let val = parseFloat(i.value) || 0;
                 total += val;
-                // 18-ൽ താഴെ മാർക്ക് വന്നാൽ ഫെയിൽ
                 if(val < 18) isFailed = true; 
             }
         });
-        
         if(!hasValue) return;
-
         row.querySelector('.r-tot').innerText = total;
         const sts = row.querySelector('.r-sts');
-        
-        if(isFailed) {
-            sts.innerText = "Failed";
-            sts.className = "r-sts status-fail";
-        } else {
-            sts.innerText = "Passed";
-            sts.className = "r-sts status-pass";
-        }
-
-        // റാങ്ക് കണക്കാക്കാനും ഡാറ്റ ഓട്ടോമാറ്റിക്കായി അപ്ഡേറ്റ് ചെയ്യാനും വിളിക്കുന്നു
+        if(isFailed) { sts.innerText = "Failed"; sts.className = "r-sts status-fail"; } 
+        else { sts.innerText = "Passed"; sts.className = "r-sts status-pass"; }
         calculateRanks(); 
         autoSave();
     }
 
     function calculateRanks() {
         let rows = Array.from(document.querySelectorAll('#tBody tr'));
-        
-        // പാസ്സായ കുട്ടികളെ മാത്രം റാങ്കിംഗിനായി തിരഞ്ഞെടുക്കുന്നു (Failed ആയവർക്ക് റാങ്ക് നൽകില്ല)
         let passedStudents = rows.filter(row => row.querySelector('.r-sts').innerText === "Passed");
-        
-        // ടോട്ടൽ മാർക്കിന്റെ അടിസ്ഥാനത്തിൽ സോർട്ട് ചെയ്യുന്നു (ഏറ്റവും കൂടിയ മാർക്ക് ആദ്യം)
-        passedStudents.sort((a, b) => {
-            return parseFloat(b.querySelector('.r-tot').innerText) - parseFloat(a.querySelector('.r-tot').innerText);
-        });
-
-        // ടേബിളിലെ എല്ലാ റാങ്കുകളും ആദ്യം ക്ലിയർ ചെയ്യുന്നു
+        passedStudents.sort((a, b) => parseFloat(b.querySelector('.r-tot').innerText) - parseFloat(a.querySelector('.r-tot').innerText));
         rows.forEach(row => row.querySelector('.r-rank').innerText = "-");
-
-        // പാസ്സായവർക്ക് മാത്രം റാങ്ക് ക്രമമായി നൽകുന്നു
         let currentRank = 1;
         for (let i = 0; i < passedStudents.length; i++) {
-            // ഒരേ മാർക്ക് ഉള്ളവർക്ക് ഒരേ റാങ്ക് നൽകാൻ
             if (i > 0 && passedStudents[i].querySelector('.r-tot').innerText !== passedStudents[i-1].querySelector('.r-tot').innerText) {
                 currentRank = i + 1;
             }
@@ -321,13 +312,43 @@
         }
     }
 
+    function autoSave() {
+        const cls = document.getElementById('markClass').value;
+        if (!cls) return;
+        if (!mData.results) mData.results = {};
+        if (!mData.results[cls]) mData.results[cls] = {};
+        if (!mData.classAtt) mData.classAtt = {};
+        mData.classAtt[cls] = document.getElementById('classAtt').value;
+        document.querySelectorAll('#tBody tr').forEach(row => {
+            const reg = row.getAttribute('data-reg');
+            let marks = {};
+            row.querySelectorAll('.s-mark').forEach(input => { marks[input.getAttribute('data-sub')] = input.value; });
+            mData.results[cls][reg] = {
+                att: row.querySelector('.s-att').value,
+                marks: marks,
+                total: row.querySelector('.r-tot').innerText,
+                status: row.querySelector('.r-sts').innerText,
+                rank: row.querySelector('.r-rank').innerText
+            };
+        });
+    }
+
+    async function syncWithCloud() { 
+        await db.collection("madrasa_data").doc(mData.info.phone).set(mData); 
+        alert("Saved!"); 
+    }
+    
+    async function publishResult() { 
+        if(confirm("Publish?")) { 
+            mData.isPublished = true; 
+            await syncWithCloud(); 
+            location.reload(); 
+        } 
+    }
+    
     function exportExcel() { 
         XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("mainTable")), "Result.xlsx"); 
     }
-
-    async function syncWithCloud() { await db.collection("madrasa_data").doc(mData.info.phone).set(mData); alert("Saved!"); }
-    async function publishResult() { if(confirm("Publish?")) { mData.isPublished = true; await syncWithCloud(); location.reload(); } }
-    function exportExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("mainTable")), "Result.xlsx"); }
 </script>
 </body>
 </html>

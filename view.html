@@ -1,148 +1,287 @@
 <!DOCTYPE html>
-<html lang="ml">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Result View</title>
+    <title>Annual Exam Result | 2025-26</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #004d00; --accent: #ffcc00; --bg: #f4f7f6; }
-        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; }
-        
-        .header { background: var(--primary); padding: 40px 20px; text-align: center; color: white; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
-        .header h1 { margin: 0; font-size: 22px; text-transform: uppercase; }
-        .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
+        :root { 
+            --primary: #004d00; 
+            --gold: #ffd700; 
+            --bg: #f0f2f5; 
+            --white: #ffffff;
+        }
 
-        .search-container { max-width: 350px; margin: -30px auto 20px; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
-        .search-container h3 { margin-bottom: 15px; font-size: 18px; }
-        
-        input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none; transition: 0.3s; text-align: center; }
-        input:focus { border-color: var(--primary); }
-        
-        .btn-search { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; margin-top: 15px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 0;
+        }
 
-        .result-card { max-width: 90%; margin: 20px auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: none; }
-        .result-header { background: #f8f9fa; padding: 20px; border-bottom: 1px solid #eee; text-align: center; }
-        .result-header h2 { margin: 0; color: var(--primary); font-size: 20px; }
-        
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; padding: 15px; background: #fff; gap: 10px; }
-        .info-item { padding: 10px; border-radius: 8px; background: #f9f9f9; text-align: center; }
-        .info-item span { display: block; font-size: 12px; color: #777; }
-        .info-item strong { font-size: 15px; color: var(--primary); }
+        /* Executive Header */
+        .executive-header {
+            background: linear-gradient(135deg, #004d00 0%, #002200 100%);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            border-bottom: 6px solid var(--gold);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #eee; padding: 12px; font-size: 13px; text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
-        .mark-val { font-weight: bold; text-align: right; }
+        .madrasa-name { font-size: 34px; font-weight: 800; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        .madrasa-place { font-size: 18px; opacity: 0.9; margin: 5px 0; }
+        .exam-title { font-size: 14px; color: var(--gold); font-weight: bold; letter-spacing: 2px; margin-top: 10px; }
 
-        .status-box { padding: 15px; text-align: center; font-weight: bold; font-size: 18px; border-top: 1px solid #eee; }
-        .pass { color: #27ae60; }
-        .fail { color: #e74c3c; }
+        /* Sadr/Principal Box */
+        .contact-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-size: 15px;
+        }
+        .contact-card b { color: var(--gold); }
+        .sep { margin: 0 10px; opacity: 0.5; }
 
-        .footer { text-align: center; padding: 20px; font-size: 12px; color: #888; }
+        .container { max-width: 800px; margin: -30px auto 50px; padding: 0 15px; }
+
+        /* Search Section */
+        .search-section {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .search-box {
+            display: flex;
+            max-width: 450px;
+            margin: 20px auto 0;
+            border-radius: 50px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 2px solid #eee;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .btn-search {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0 30px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Result Card */
+        .result-card {
+            background: var(--white);
+            border-radius: 20px;
+            margin-top: 30px;
+            overflow: hidden;
+            display: none;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            border-top: 8px solid var(--primary);
+        }
+
+        .res-header { background: #fcfcfc; padding: 30px; text-align: center; border-bottom: 1px solid #eee; }
+        .res-header h2 { color: var(--primary); margin: 5px 0; font-size: 26px; }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; padding: 20px; background: #fff; border-bottom: 1px dashed #eee; text-align: center; }
+        .info-item span { display: block; font-size: 12px; color: #888; text-transform: uppercase; }
+        .info-item b { font-size: 18px; color: #333; }
+
+        .mark-table { width: 100%; border-collapse: collapse; }
+        .mark-table th { background: #f8f9fa; padding: 15px; text-align: left; color: #555; border-bottom: 2px solid var(--primary); }
+        .mark-table td { padding: 15px; border-bottom: 1px solid #f1f1f1; font-weight: bold; }
+        .m-val { text-align: center; color: var(--primary); font-size: 18px; }
+
+        .stats-footer { display: grid; grid-template-columns: repeat(3, 1fr); padding: 25px; background: #f0fff4; text-align: center; }
+        .stat-box small { display: block; color: #666; font-size: 11px; font-weight: bold; }
+        .stat-box span { font-size: 22px; font-weight: 800; color: var(--primary); }
+
+        .status-badge-container { text-align: center; padding: 25px; background: white; }
+        .badge { padding: 12px 40px; border-radius: 50px; font-weight: 800; font-size: 20px; text-transform: uppercase; }
+        .passed { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+        .failed { background: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
+
+        .btn-print { width: 100%; padding: 20px; border: none; background: var(--primary); color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
+
+        /* Footer & Developer Info */
+        .dev-footer {
+            background: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            margin-top: 50px;
+        }
+
+        .dev-text { font-size: 14px; color: #777; margin-bottom: 15px; }
+        .dev-text b { color: #333; }
+
+        .social-links { display: flex; justify-content: center; gap: 20px; }
+        .social-links a { 
+            width: 45px; height: 45px; 
+            background: #f1f1f1; 
+            display: flex; align-items: center; justify-content: center; 
+            border-radius: 50%; color: #555; 
+            font-size: 20px; transition: 0.3s; text-decoration: none;
+        }
+        .link-wa:hover { background: #25D366; color: white; }
+        .link-ig:hover { background: #E1306C; color: white; }
+        .link-ph:hover { background: #007bff; color: white; }
+
+        @media print { .search-section, .btn-print, .dev-footer { display: none; } .result-card { border: none; box-shadow: none; margin-top: 0; } }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1 id="mName">Loading...</h1>
-    <p id="mPlace">Location</p>
-</div>
-
-<div class="search-container">
-    <h3>Check Result</h3>
-    <input type="number" id="regNo" placeholder="Register Number">
-    <button class="btn-search" onclick="searchResult()">GET RESULT</button>
-</div>
-
-<div id="resultArea" class="result-card">
-    <div class="result-header">
-        <h2 id="stName">Student Name</h2>
-    </div>
-    <div class="info-grid">
-        <div class="info-item"><span>Reg No</span><strong id="stReg">-</strong></div>
-        <div class="info-item"><span>Rank</span><strong id="stRank">-</strong></div>
-        <div class="info-item"><span>Total Mark</span><strong id="stTotal">-</strong></div>
-        <div class="info-item"><span>Attendance</span><strong id="stAtt">-</strong></div>
-    </div>
+<div class="executive-header">
+    <h1 class="madrasa-name" id="madHeader">MADRASA NAME</h1>
+    <p class="madrasa-place" id="madPlace">Location</p>
+    <div class="exam-title">ANNUAL EXAMINATION RESULT 2025-26</div>
     
-    <table>
-        <thead><tr><th>Subject</th><th style="text-align:right;">Mark</th></tr></thead>
-        <tbody id="markList"></tbody>
-    </table>
-    
-    <div id="stStatus" class="status-box"></div>
+    <div class="contact-card">
+        <i class="fa fa-user-tie"></i> Principal: <b id="sadrName">Loading...</b>
+        <span class="sep">|</span>
+        <i class="fa fa-phone-alt"></i> Contact: <b id="sadrPhone">Loading...</b>
+    </div>
 </div>
 
-<div class="footer">
-    <p>System Developed by <b>Muhsin Mannani</b></p>
-    <div style="font-size: 20px; margin-top: 10px; color: #555;">
-        <i class="fab fa-whatsapp"></i> &nbsp; <i class="fas fa-phone-alt"></i> &nbsp; <i class="fab fa-instagram"></i>
+<div class="container">
+    <div class="search-section">
+        <h3 style="margin-bottom:10px; color:#444;">Check Result</h3>
+        <div class="search-box">
+            <input type="number" id="regNoInput" placeholder="Enter Register Number">
+            <button class="btn-search" onclick="fetchResult()">SUBMIT</button>
+        </div>
     </div>
-    <p>© 2026 MANNANI DIGITAL SOLUTIONS</p>
+
+    <div id="resultArea" class="result-card">
+        <div class="res-header">
+            <small style="color:#aaa; letter-spacing:1px; font-weight:bold;">STUDENT RESULT SHEET</small>
+            <h2 id="stName">---</h2>
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-item"><span>Register No</span><b id="stReg">---</b></div>
+            <div class="info-item"><span>Class</span><b id="stClass">---</b></div>
+        </div>
+
+        <table class="mark-table">
+            <thead>
+                <tr><th>Subject</th><th style="text-align:center;">Marks</th></tr>
+            </thead>
+            <tbody id="markList"></tbody>
+        </table>
+
+        <div class="stats-footer">
+            <div class="stat-box"><small>TOTAL</small><span id="totalMark">0</span></div>
+            <div class="stat-box"><small>RANK</small><span id="rank">---</span></div>
+            <div class="stat-box"><small>ATTENDANCE</small><span id="attendance">0/0</span></div>
+        </div>
+
+        <div class="status-badge-container">
+            <div id="statusLabel" class="badge">---</div>
+        </div>
+
+        <button class="btn-print" onclick="window.print()">
+            <i class="fa fa-print"></i> DOWNLOAD / PRINT RESULT
+        </button>
+    </div>
 </div>
+
+<footer class="dev-footer">
+    <div class="dev-text">System Designed & Developed by<br><b>Muhsin Mannani</b></div>
+    <div class="social-links">
+        <a href="https://wa.me/917559950633" class="link-wa" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        <a href="tel:+917559950633" class="link-ph" title="Call Now"><i class="fa fa-phone-alt"></i></a>
+        <a href="https://www.instagram.com/muhsin_mannani" class="link-ig" title="Instagram"><i class="fab fa-instagram"></i></a>
+    </div>
+    <p style="font-size:10px; color:#ccc; margin-top:20px;">&copy; 2026 MANNANI DIGITAL SOLUTIONS</p>
+</footer>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
     const firebaseConfig = { 
-        apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ", 
-        authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.app", 
-        projectId: "misbahul-uloom-madrasa-4830c", 
-        storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app", 
-        appId: "1:370558703441:web:dc68dbdbd685c9d07ea570" 
+        apiKey: "AIzaSyASIPf0V5arZgV0R_2P_0uTq9SVpCWkwUg", 
+        authDomain: "result-mark.firebaseapp.com", 
+        projectId: "result-mark", 
+        storageBucket: "result-mark.firebasestorage.app", 
+        messagingSenderId: "425031976316",
+        appId: "1:425031976316:web:1a557491b8ecda09c990f9"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let mData = null;
     const urlParams = new URLSearchParams(window.location.search);
-    const mid = urlParams.get('id');
+    const mId = urlParams.get('id');
+    let fullData = null;
 
-    async function loadMadrasa() {
-        if(!mid) return;
-        const doc = await db.collection("madrasa_data").doc(mid).get();
-        if(doc.exists) {
-            mData = doc.data();
-            document.getElementById('mName').innerText = mData.info.name;
-            document.getElementById('mPlace').innerText = mData.info.place;
-        }
+    if(mId) {
+        db.collection("madrasa_data").doc(mId).get().then((doc) => {
+            if (doc.exists) {
+                fullData = doc.data();
+                document.getElementById('madHeader').innerText = fullData.info.name;
+                document.getElementById('madPlace').innerText = fullData.info.place || "";
+                document.getElementById('sadrName').innerText = fullData.info.headmaster || "Official";
+                document.getElementById('sadrPhone').innerText = fullData.info.phone;
+            }
+        });
     }
-    loadMadrasa();
 
-    function searchResult() {
-        const reg = document.getElementById('regNo').value;
-        if(!mData || !reg) return alert("Please enter Register Number");
+    function fetchResult() {
+        const regInput = document.getElementById('regNoInput').value;
+        if(!regInput || !fullData) return;
 
-        let found = null;
-        for(let cls in mData.results) {
-            if(mData.results[cls][reg]) {
-                found = mData.results[cls][reg];
-                found.name = mData.students[cls][reg];
-                break;
+        let found = false;
+        for(let cls in fullData.results) {
+            if(fullData.results[cls][regInput]) {
+                displayResult(cls, regInput, fullData.results[cls][regInput]);
+                found = true; break;
             }
         }
+        if(!found) alert("Register number not found!");
+    }
 
-        if(found) {
-            document.getElementById('stName').innerText = found.name;
-            document.getElementById('stReg').innerText = reg;
-            document.getElementById('stRank').innerText = found.rank || "-";
-            document.getElementById('stTotal').innerText = found.total;
-            document.getElementById('stAtt').innerText = found.att || "-";
-            
-            let h = "";
-            for(let sub in found.marks) {
-                h += `<tr><td>${sub}</td><td class="mark-val">${found.marks[sub]}</td></tr>`;
-            }
-            document.getElementById('markList').innerHTML = h;
-            
-            const sts = document.getElementById('stStatus');
-            sts.innerText = found.status;
-            sts.className = "status-box " + (found.status === "Passed" ? "pass" : "fail");
-            
-            document.getElementById('resultArea').style.display = "block";
-        } else alert("Result not found!");
+    function displayResult(cls, reg, res) {
+        document.getElementById('resultArea').style.display = 'block';
+        document.getElementById('stName').innerText = (fullData.students[cls] && fullData.students[cls][reg]) ? fullData.students[cls][reg] : "Student";
+        document.getElementById('stReg').innerText = reg;
+        document.getElementById('stClass').innerText = cls;
+
+        let mHtml = "";
+        for(let sub in res.marks) {
+            mHtml += `<tr><td>${sub}</td><td class="m-val">${res.marks[sub]}</td></tr>`;
+        }
+        document.getElementById('markList').innerHTML = mHtml;
+        document.getElementById('totalMark').innerText = res.total;
+        document.getElementById('rank').innerText = res.rank || "---";
+        
+        let totalDays = (fullData.classAtt && fullData.classAtt[cls]) ? fullData.classAtt[cls] : '0';
+        document.getElementById('attendance').innerText = (res.att || '0') + "/" + totalDays;
+
+        const stLabel = document.getElementById('statusLabel');
+        const status = (res.status || "Passed").toLowerCase();
+        stLabel.innerText = status.toUpperCase();
+        stLabel.className = "badge " + (status === 'passed' ? 'passed' : 'failed');
+
+        window.scrollTo({ top: document.getElementById('resultArea').offsetTop - 20, behavior: 'smooth' });
     }
 </script>
 </body>
