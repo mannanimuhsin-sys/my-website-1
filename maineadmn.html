@@ -187,17 +187,23 @@
     }
 
     function showStatusUI() {
-        document.getElementById('statusUI').classList.remove('hidden');
-        // നമ്പർ ഒഴിവാക്കി uID വെച്ചുള്ള ലിങ്ക്
-        const myLink = `https://mannanimuhsin-sys.github.io/my-website/view.html?id=${mData.uID}`;
-        
-        document.getElementById('approvalSection').innerHTML = mData.isApproved ? 
-        `<div class="link-card">
-            <p style="color:#004d00; font-weight:bold;">നിങ്ങളുടെ റിസൾട്ട് ലിങ്ക് തയ്യാർ:</p>
-            <input type="text" readonly value="${myLink}" id="resL">
-            <button class="btn btn-primary" onclick="copyMyLink()">COPY LINK</button>
-         </div>` : `<p>അപ്രൂവലിനായി കാത്തിരിക്കുന്നു...</p>`;
-    }
+    document.getElementById('statusUI').classList.remove('hidden');
+    
+    // ഇവിടെ നിങ്ങളുടെ ശരിക്കുള്ള GitHub പേജിന്റെ ലിങ്ക് നൽകുക
+    // ഉദാഹരണത്തിന്: https://muhsin.github.io/madrasa-result/view.html
+    const baseURL = "https://mannanimuhsin-sys.github.io/my-website/view.html"; 
+    
+    // ഓരോ മദ്രസക്കും അവരുടെ തനതായ uID വെച്ച് ലിങ്ക് മാറുന്നു
+    const myUniqueLink = `${baseURL}?id=${mData.uID}`;
+    
+    document.getElementById('approvalSection').innerHTML = mData.isApproved ? 
+    `<div class="link-card">
+        <p style="color:#004d00; font-weight:bold;">നിങ്ങളുടെ മദ്രസയുടെ റിസൾട്ട് ലിങ്ക്:</p>
+        <input type="text" readonly value="${myUniqueLink}" id="resL" style="width:100%; padding:10px; text-align:center; border-radius:8px; border:1px solid #ddd;">
+        <button class="btn btn-primary" style="margin-top:10px;" onclick="copyMyLink()">COPY LINK</button>
+        <p style="font-size:11px; color:blue; margin-top:5px;">ഈ ലിങ്ക് വഴി വിദ്യാർത്ഥികൾക്ക് റിസൾട്ട് കാണാം.</p>
+     </div>` : `<p>അപ്രൂവലിനായി കാത്തിരിക്കുന്നു. അപ്രൂവ് ആയിക്കഴിഞ്ഞാൽ ലിങ്ക് ഇവിടെ ലഭ്യമാകും.</p>`;
+}
 
     function copyMyLink() {
         const copyText = document.getElementById("resL");
