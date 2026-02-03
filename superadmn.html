@@ -3,31 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Admin | Madrasa Control Panel</title>
+    <title>Super Admin | Control Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #004d00; --danger: #c0392b; --warning: #f39c12; --success: #27ae60; }
+        :root { --primary: #004d00; --danger: #c0392b; --warning: #f39c12; --success: #27ae60; --info: #2980b9; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .admin-container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .admin-container { max-width: 1200px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
         h2 { color: var(--primary); margin: 0; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
         th { background: var(--primary); color: white; padding: 12px; text-align: left; }
         td { padding: 12px; border-bottom: 1px solid #ddd; }
         
-        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; margin: 2px; }
+        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; margin: 2px; font-size: 12px; }
         .btn-approve { background: var(--success); }
         .btn-block { background: var(--warning); }
         .btn-delete { background: var(--danger); }
+        .btn-edit-on { background: var(--info); }
+        .btn-edit-off { background: #7f8c8d; }
         
-        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; color: white; }
+        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; color: white; display: inline-block; margin-top: 5px; }
         .bg-green { background: var(--success); }
         .bg-orange { background: var(--warning); }
         .bg-red { background: var(--danger); }
+        .bg-blue { background: var(--info); }
         .bg-gray { background: #7f8c8d; }
 
-        .search-box { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .search-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .madrasa-info b { font-size: 16px; color: #333; }
+        .madrasa-info span { color: #666; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -35,42 +40,45 @@
 <div class="admin-container">
     <div class="header">
         <h2><i class="fa fa-user-shield"></i> സൂപ്പർ അഡ്മിൻ കൺട്രോൾ പാനൽ</h2>
-        <div id="stats"></div>
+        <div id="stats" style="font-weight: bold; color: var(--primary);">ആകെ മദ്രസകൾ: 0</div>
     </div>
 
     <input type="text" id="searchInput" class="search-box" placeholder="മദ്രസയുടെ പേര് അല്ലെങ്കിൽ ഫോൺ നമ്പർ ഉപയോഗിച്ച് തിരയുക..." onkeyup="filterTable()">
 
-    <table id="mTable">
-        <thead>
-            <tr>
-                <th>മദ്രസ വിവരങ്ങൾ</th>
-                <th>ഫോൺ</th>
-                <th>ലിങ്ക് ഐഡി</th>
-                <th>നിലവിലെ അവസ്ഥ</th>
-                <th>നിയന്ത്രണങ്ങൾ (Actions)</th>
-            </tr>
-        </thead>
-        <tbody id="mList">
-            </tbody>
-    </table>
+    <div style="overflow-x: auto;">
+        <table id="mTable">
+            <thead>
+                <tr>
+                    <th>മദ്രസ & സ്ഥലം</th>
+                    <th>ഫോൺ നമ്പർ</th>
+                    <th>സ്റ്റാറ്റസ്</th>
+                    <th>എഡിറ്റിംഗ് അനുമതി</th>
+                    <th>നിയന്ത്രണങ്ങൾ (Actions)</th>
+                </tr>
+            </thead>
+            <tbody id="mList">
+                </tbody>
+        </table>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-    // നിങ്ങളുടെ അതേ Firebase Config തന്നെ ഇവിടെയും നൽകുക
+    // Updated Firebase Config (result-mark)
     const firebaseConfig = { 
-        apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ", 
-        authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com", 
-        projectId: "misbahul-uloom-madrasa-4830c", 
-        storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app", 
-        appId: "1:370558703441:web:dc68dbdbd685c9d07ea570" 
+        apiKey: "AIzaSyASIPf0V5arZgV0R_2P_0uTq9SVpCWkwUg", 
+        authDomain: "result-mark.firebaseapp.com", 
+        projectId: "result-mark", 
+        storageBucket: "result-mark.firebasestorage.app", 
+        messagingSenderId: "425031976316",
+        appId: "1:425031976316:web:1a557491b8ecda09c990f9"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ഡാറ്റ തത്സമയം നിരീക്ഷിക്കുന്നു
+    // Listen for Realtime Updates
     db.collection("madrasa_data").onSnapshot(snapshot => {
         const list = document.getElementById('mList');
         list.innerHTML = "";
@@ -80,24 +88,40 @@
             const data = doc.data();
             count++;
             
-            // സ്റ്റാറ്റസ് കണ്ടെത്തുന്നു
+            // Determine Status HTML
             let statusHTML = '';
-            if (!data.isPublished) statusHTML = '<span class="status-pill bg-gray">Not Published</span>';
-            else if (data.isPublished && !data.isApproved) statusHTML = '<span class="status-pill bg-orange">Pending Approval ⏳</span>';
-            else if (data.isApproved) statusHTML = '<span class="status-pill bg-green">Live ✅</span>';
-            if (data.isBlocked) statusHTML = '<span class="status-pill bg-red">Blocked 🚫</span>';
+            if (data.isBlocked) {
+                statusHTML = '<span class="status-pill bg-red">Blocked 🚫</span>';
+            } else if (data.isApproved) {
+                statusHTML = '<span class="status-pill bg-green">Live ✅</span>';
+            } else if (data.isPublished) {
+                statusHTML = '<span class="status-pill bg-orange">Pending Approval ⏳</span>';
+            } else {
+                statusHTML = '<span class="status-pill bg-gray">Not Published</span>';
+            }
+
+            // Editing Permission Status
+            const canEdit = data.isPublished === false; // If not published, can edit
+            const editBtnHTML = canEdit 
+                ? `<button class="btn btn-edit-off" onclick="toggleEdit('${doc.id}', true)">Lock Edit</button>` 
+                : `<button class="btn btn-edit-on" onclick="toggleEdit('${doc.id}', false)">Allow Edit</button>`;
 
             const row = `
                 <tr>
-                    <td><strong>${data.info.name}</strong><br><small>${data.info.place}</small></td>
-                    <td>${data.info.phone}</td>
-                    <td><code>${data.secretID || 'N/A'}</code></td>
+                    <td class="madrasa-info">
+                        <b>${data.info.name}</b><br>
+                        <span><i class="fa fa-map-marker-alt"></i> ${data.info.place || 'Not set'}</span>
+                    </td>
+                    <td><a href="tel:${data.info.phone}" style="text-decoration:none; color:inherit;">${data.info.phone}</a></td>
                     <td>${statusHTML}</td>
                     <td>
-                        ${(!data.isApproved && data.isPublished) ? `<button class="btn btn-approve" onclick="updateStatus('${doc.id}', 'approve')">Approve</button>` : ''}
+                        ${data.isPublished ? editBtnHTML : '<span class="status-pill bg-blue">Currently Editing</span>'}
+                    </td>
+                    <td>
+                        ${(!data.isApproved && data.isPublished && !data.isBlocked) ? `<button class="btn btn-approve" onclick="updateStatus('${doc.id}', 'approve')">Approve</button>` : ''}
                         ${(data.isApproved && !data.isBlocked) ? `<button class="btn btn-block" onclick="updateStatus('${doc.id}', 'block')">Block Link</button>` : ''}
                         ${(data.isBlocked) ? `<button class="btn btn-approve" onclick="updateStatus('${doc.id}', 'unblock')">Unblock</button>` : ''}
-                        <button class="btn btn-delete" onclick="deleteMadrasa('${doc.id}', '${data.secretID}')"><i class="fa fa-trash"></i></button>
+                        <button class="btn btn-delete" onclick="deleteMadrasa('${doc.id}')" title="Delete Permanent"><i class="fa fa-trash"></i></button>
                     </td>
                 </tr>`;
             list.innerHTML += row;
@@ -105,15 +129,26 @@
         document.getElementById('stats').innerText = "ആകെ മദ്രസകൾ: " + count;
     });
 
-    // സ്റ്റാറ്റസ് മാറ്റാനുള്ള ഫംഗ്ഷൻ (Approve/Block/Unblock)
+    // Toggle Edit Permission
+    async function toggleEdit(phone, lockValue) {
+        const msg = lockValue ? "എഡിറ്റിംഗ് ലോക്ക് ചെയ്യട്ടെ?" : "അവർക്ക് വീണ്ടും എഡിറ്റ് ചെയ്യാൻ അനുമതി നൽകട്ടെ? (ഇത് ചെയ്താൽ പബ്ലിഷ് ചെയ്ത റിസൾട്ട് താല്കാലികമായി മറയും)";
+        if (confirm(msg)) {
+            await db.collection("madrasa_data").doc(phone).update({
+                isPublished: !lockValue, // false means they can edit
+                isApproved: false // reset approval if they need to edit
+            });
+        }
+    }
+
+    // Approve/Block/Unblock Functions
     async function updateStatus(phone, action) {
         const ref = db.collection("madrasa_data").doc(phone);
         if (action === 'approve') {
-            if(confirm("ഈ മദ്രസ അപ്രൂവ് ചെയ്യട്ടെ? അവർക്ക് റിസൾട്ട് ലിങ്ക് ലഭിക്കും.")) {
+            if(confirm("ഈ മദ്രസ അപ്രൂവ് ചെയ്യട്ടെ?")) {
                 await ref.update({ isApproved: true, isBlocked: false });
             }
         } else if (action === 'block') {
-            if(confirm("ഈ ലിങ്ക് ബ്ലോക്ക് ചെയ്യട്ടെ? രക്ഷിതാക്കൾക്ക് റിസൾട്ട് കാണാൻ കഴിയില്ല.")) {
+            if(confirm("ഈ ലിങ്ക് ബ്ലോക്ക് ചെയ്യട്ടെ?")) {
                 await ref.update({ isApproved: false, isBlocked: true });
             }
         } else if (action === 'unblock') {
@@ -121,18 +156,15 @@
         }
     }
 
-    // ഡിലീറ്റ് ചെയ്യാനുള്ള ഫംഗ്ഷൻ
-    async function deleteMadrasa(phone, secretID) {
-        if (confirm("മുന്നറിയിപ്പ്! ഈ മദ്രസയുടെ എല്ലാ വിവരങ്ങളും സ്ഥിരമായി ഇല്ലാതാക്കപ്പെടും. തുടരണോ?")) {
+    // Delete Permanently
+    async function deleteMadrasa(phone) {
+        if (confirm("മുന്നറിയിപ്പ്! ഈ മദ്രസയുടെ എല്ലാ വിവരങ്ങളും (വിദ്യാർത്ഥികൾ, മാർക്ക് ഉൾപ്പെടെ) സ്ഥിരമായി ഇല്ലാതാക്കപ്പെടും. ഈ നടപടി തിരിച്ചുപിടിക്കാനാവില്ല. തുടരണോ?")) {
             await db.collection("madrasa_data").doc(phone).delete();
-            if (secretID) {
-                await db.collection("published_links").doc(secretID).delete();
-            }
-            alert("ഡിലീറ്റ് ചെയ്തു.");
+            alert("സ്ഥിരമായി നീക്കം ചെയ്തു.");
         }
     }
 
-    // സെർച്ച് ഫിൽട്ടർ
+    // Search Filter
     function filterTable() {
         let input = document.getElementById("searchInput").value.toLowerCase();
         let rows = document.querySelectorAll("#mList tr");
