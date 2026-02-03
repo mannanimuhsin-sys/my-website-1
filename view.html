@@ -237,23 +237,29 @@
     const db = firebase.firestore();
 
     const urlParams = new URLSearchParams(window.location.search);
-    const mId = urlParams.get('id'); // ലിങ്കിലെ uID എടുക്കുന്നു
+    const mId = urlParams.get('id');
     let fullData = null;
 
+    // മദ്രസ വിവരങ്ങൾ ലോഡ് ചെയ്യുന്ന ഭാഗം
     if(mId) {
-        // uID ഉപയോഗിച്ച് സെർച്ച് ചെയ്യുന്ന പുതിയ രീതി
+        // പ്രധാന മാറ്റം: ഇവിടെ mId ഉപയോഗിച്ച് കൃത്യമായി ക്വറി ചെയ്യുന്നു
         db.collection("madrasa_data").where("uID", "==", mId).get().then((snapshot) => {
             if (!snapshot.empty) {
                 const doc = snapshot.docs[0];
                 fullData = doc.data();
+                
+                // നിങ്ങളുടെ ഡിസൈനിലേക്ക് വിവരങ്ങൾ നൽകുന്നു
                 document.getElementById('madHeader').innerText = fullData.info.name;
                 document.getElementById('madPlace').innerText = fullData.info.place || "";
-                document.getElementById('sadrName').innerText = fullData.info.name ? "Principal" : ""; 
+                document.getElementById('sadrName').innerText = "Headmaster"; 
                 document.getElementById('sadrPhone').innerText = fullData.info.phone;
             } else {
-                document.getElementById('madHeader').innerText = "INVALID LINK";
-                alert("This result link is not valid.");
+                document.getElementById('madHeader').innerText = "INVALID ID";
+                console.error("No madrasa found with this uID");
             }
+        }).catch(err => {
+            console.error("Firebase Error:", err);
+            // ഫയർബേസ് കൺസോളിൽ ഇൻഡെക്സ് ആഡ് ചെയ്യാൻ ലിങ്ക് വരികയാണെങ്കിൽ അത് ഉപയോഗിക്കുക
         });
     }
 
@@ -262,34 +268,44 @@
         if(!regInput || !fullData) return;
 
         let found = false;
+        // റിസൾട്ട് ഒബ്ജക്റ്റിലൂടെ ലൂപ്പ് ചെയ്ത് സ്റ്റുഡന്റിനെ കണ്ടെത്തുന്നു
         for(let cls in fullData.results) {
             if(fullData.results[cls][regInput]) {
                 displayResult(cls, regInput, fullData.results[cls][regInput]);
-                found = true; break;
+                found = true; 
+                break;
             }
         }
-        if(!found) alert("Register number not found!");
+        if(!found) alert("ഈ രജിസ്റ്റർ നമ്പറിൽ റിസൾട്ട് ലഭ്യമല്ല!");
     }
 
     function displayResult(cls, reg, res) {
         document.getElementById('resultArea').style.display = 'block';
-        document.getElementById('stName').innerText = (fullData.students[cls] && fullData.students[cls][reg]) ? fullData.students[cls][reg] : "Student Name";
+        
+        // സ്റ്റുഡന്റ് പേര് കണ്ടെത്തുന്നു
+        const studentName = (fullData.students && fullData.students[cls] && fullData.students[cls][reg]) 
+                            ? fullData.students[cls][reg] 
+                            : "Student";
+        
+        document.getElementById('stName').innerText = studentName;
         document.getElementById('stReg').innerText = reg;
         document.getElementById('stClass').innerText = cls;
 
         let mHtml = "";
-        for(let sub in res.marks) {
-            mHtml += `<tr><td>${sub}</td><td class="m-val">${res.marks[sub]}</td></tr>`;
+        if(res.marks) {
+            for(let sub in res.marks) {
+                mHtml += `<tr><td>${sub}</td><td class="m-val">${res.marks[sub]}</td></tr>`;
+            }
         }
         document.getElementById('markList').innerHTML = mHtml;
-        document.getElementById('totalMark').innerText = res.total;
+        document.getElementById('totalMark').innerText = res.total || "0";
         document.getElementById('rank').innerText = res.rank || "---";
         
-        let totalDays = (fullData.classAtt && fullData.classAtt[cls]) ? fullData.classAtt[cls] : '0';
+        const totalDays = (fullData.classAtt && fullData.classAtt[cls]) ? fullData.classAtt[cls] : '0';
         document.getElementById('attendance').innerText = (res.att || '0') + "/" + totalDays;
 
         const stLabel = document.getElementById('statusLabel');
-        const status = (res.status || "Passed").toLowerCase();
+        const status = (res.status || "---").toLowerCase();
         stLabel.innerText = status.toUpperCase();
         stLabel.className = "badge " + (status === 'passed' ? 'passed' : 'failed');
 
