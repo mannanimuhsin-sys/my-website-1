@@ -9,42 +9,29 @@
     <style>
         :root { --primary: #004d00; --accent: #ffcc00; --bg: #f5f5f5; }
         body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; }
-        
-        /* പഴയ ഹീറോ ഹെഡർ ഡിസൈൻ */
         .hero { background: var(--primary); padding: 50px 20px; text-align: center; color: white; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; }
         .hero h1 { font-size: 26px; margin: 0; letter-spacing: 1px; }
         .hero p { margin-top: 10px; opacity: 0.9; font-size: 14px; }
-
-        /* Auth Card */
         .auth-card { max-width: 400px; margin: -30px auto 20px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
         .tabs { display: flex; background: #eee; }
         .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; color: #777; transition: 0.3s; }
         .tab.active { background: white; color: var(--primary); border-top: 4px solid var(--primary); }
         .tab-content { padding: 25px; }
-
-        /* Admin Layout */
         .container { max-width: 1200px; margin: auto; padding: 20px; }
         .section { background: white; padding: 20px; border-radius: 15px; margin-bottom: 25px; border-top: 5px solid var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; box-sizing: border-box; }
         .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
         .btn-primary { background: var(--primary); width: 100%; }
         .btn-add { background: #2c3e50; }
-
-        /* Student List Table */
         .class-box { background: #f9f9f9; border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-top: 15px; }
         .st-list-table { width: 100%; background: white; border-radius: 8px; overflow: hidden; border-collapse: collapse; margin-top: 10px; }
         .st-list-table th { background: #f1f1f1; color: #333; font-size: 12px; padding: 8px; text-align: left; border-bottom: 2px solid #ddd; }
         .st-list-table td { padding: 10px 8px; border-bottom: 1px solid #eee; font-size: 14px; }
-
-        /* Tables */
         .table-container { overflow-x: auto; margin-top: 20px; }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         th { background: var(--primary); color: white; padding: 12px; border: 1px solid #ddd; }
         td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-        
         .m-input { width: 60px; text-align: center; border: 1px solid #ccc; font-weight: bold; padding: 5px; border-radius: 4px; }
-        .m-input.s-att { width: 85px; }
-        
         .status-pass { color: green; font-weight: bold; }
         .status-fail { color: red; font-weight: bold; }
         .hidden { display: none; }
@@ -57,18 +44,15 @@
         <h1>മദ്രസ പരീക്ഷാ ഫലം</h1>
         <p>അഡ്മിൻ മാനേജ്‌മെന്റ് പോർട്ടൽ</p>
     </div>
-
     <div class="auth-card">
         <div class="tabs">
             <div id="loginTab" class="tab active" onclick="switchAuth('login')">LOGIN</div>
             <div id="regTab" class="tab" onclick="switchAuth('register')">REGISTER</div>
         </div>
-        
         <div class="tab-content" id="loginContent">
             <input type="tel" id="loginPhone" placeholder="മൊബൈൽ നമ്പർ നൽകുക">
             <button class="btn btn-primary" onclick="login()">പ്രവേശിക്കുക</button>
         </div>
-
         <div class="tab-content hidden" id="regContent">
             <input type="text" id="regMName" placeholder="മദ്രസയുടെ പേര്">
             <input type="text" id="regPlace" placeholder="സ്ഥലം">
@@ -99,17 +83,17 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
             <select id="stClass"></select>
             <input type="number" id="stRegNo" placeholder="രജി. നമ്പർ">
-            <input type="text" id="stName" placeholder="വിദ്യാർത്ഥിയുടെ പേര്">
+            <input type="text" id="stName" placeholder="പേര്">
             <button class="btn btn-add" onclick="addStudent()">ADD STUDENT</button>
         </div>
         <div id="studentListArea" style="margin-top:20px;"></div>
     </div>
 
     <div class="section">
-        <h3><i class="fa fa-book"></i> विषयों & ഹാജർ</h3>
+        <h3><i class="fa fa-book"></i> വിഷയങ്ങൾ & ഹാജർ</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
             <select id="subClass" onchange="loadSubjects()"></select>
-            <input type="number" id="classAtt" placeholder="ആകെ പ്രവൃത്തി ദിനങ്ങൾ">
+            <input type="number" id="classAtt" placeholder="ആകെ ഹാജർ">
             <div style="display:flex; gap:5px;">
                 <input type="text" id="newSub" placeholder="വിഷയം">
                 <button class="btn btn-add" onclick="addSubject()">ADD</button>
@@ -161,17 +145,6 @@
         document.getElementById('regTab').classList.toggle('active', type === 'register');
     }
 
-    async function register() {
-        const phone = document.getElementById('regPhone').value;
-        const name = document.getElementById('regMName').value;
-        const place = document.getElementById('regPlace').value;
-        if(!phone || !name) return alert("പേരും നമ്പറും നൽകുക!");
-        const newData = { info: { name, place, phone }, students: {}, subjects: {}, results: {}, isApproved: false, isPublished: false };
-        await db.collection("madrasa_data").doc(phone).set(newData);
-        alert("രജിസ്ട്രേഷൻ വിജയിച്ചു! ലോഗിൻ ചെയ്യുക.");
-        location.reload();
-    }
-
     async function login() {
         const phone = document.getElementById('loginPhone').value;
         const doc = await db.collection("madrasa_data").doc(phone).get();
@@ -189,23 +162,22 @@
 
     function showStatusUI() {
         document.getElementById('statusUI').classList.remove('hidden');
-        const appSec = document.getElementById('approvalSection');
-        if(mData.isApproved) {
-            appSec.innerHTML = `<p>ലിങ്ക്: <a href="https://madrasa-result.web.app/view.html?id=${mData.info.phone}" target="_blank">ഇവിടെ ക്ലിക്ക് ചെയ്യുക</a></p>`;
-        } else {
-            appSec.innerHTML = `<p>ലിങ്ക് ലഭിക്കാൻ വാട്സാപ്പിൽ ബന്ധപ്പെടുക</p>
-            <a href="https://wa.me/91XXXXXXXXXX?text=അപ്രൂവ് ചെയ്യുമോ? ${mData.info.name}" class="btn" style="background:#25D366; text-decoration:none; display:inline-block;">വാട്സാപ്പ്</a>`;
-        }
+        document.getElementById('approvalSection').innerHTML = mData.isApproved ? 
+        `<p>ലിങ്ക്: <a href="view.html?id=${mData.info.phone}" target="_blank">View Result</a></p>` : `<p>അപ്രൂവലിനായി കാത്തിരിക്കുന്നു...</p>`;
     }
 
     function addStudent() {
         const cls = document.getElementById('stClass').value;
         const reg = document.getElementById('stRegNo').value;
         const name = document.getElementById('stName').value;
-        if(!cls || !reg || !name) return;
+        if(!cls || !reg || !name) return alert("എല്ലാം പൂരിപ്പിക്കുക");
         if(!mData.students) mData.students = {};
         if(!mData.students[cls]) mData.students[cls] = {};
         mData.students[cls][reg] = name;
+        
+        // Clear Inputs
+        document.getElementById('stRegNo').value = "";
+        document.getElementById('stName').value = "";
         refreshStudentDisplay();
     }
 
@@ -213,34 +185,11 @@
         const area = document.getElementById('studentListArea');
         area.innerHTML = "";
         for(let cls in mData.students) {
-            let html = `<div class="class-box"><strong>${cls}</strong><table class="st-list-table"><thead><tr><th>Reg No</th><th>Name</th><th style="width:50px">Action</th></tr></thead><tbody>`;
+            let html = `<div class="class-box"><strong>${cls}</strong><table class="st-list-table"><thead><tr><th>Reg No</th><th>Name</th><th>Action</th></tr></thead><tbody>`;
             for(let reg in mData.students[cls]) { 
-                html += `<tr>
-                    <td>${reg}</td>
-                    <td>${mData.students[cls][reg]}</td>
-                    <td><i class="fa fa-trash" style="color:#c0392b; cursor:pointer;" onclick="deleteStudent('${cls}', '${reg}')"></i></td>
-                </tr>`; 
+                html += `<tr><td>${reg}</td><td>${mData.students[cls][reg]}</td><td><i class="fa fa-trash" style="color:#c0392b; cursor:pointer;" onclick="deleteStudent('${cls}', '${reg}')"></i></td></tr>`; 
             }
             area.innerHTML += html + `</tbody></table></div>`;
-        }
-    }
-
-    function deleteStudent(cls, reg) {
-        if(confirm("ഈ വിദ്യാർത്ഥിയെ നീക്കം ചെയ്യട്ടെ?")) {
-            delete mData.students[cls][reg];
-            refreshStudentDisplay();
-            alert("നീക്കം ചെയ്തു. മാറ്റങ്ങൾ സേവ് ചെയ്യാൻ SAVE ALL DATA ബട്ടൺ അമർത്തുക.");
-        }
-    }
-
-    function loadSubjects() {
-        const cls = document.getElementById('subClass').value;
-        const area = document.getElementById('subjectChips');
-        area.innerHTML = "";
-        if(mData.subjects && mData.subjects[cls]) {
-            mData.subjects[cls].forEach((s, i) => {
-                area.innerHTML += `<span style="background:var(--primary); color:white; padding:5px 10px; border-radius:15px; margin-right:5px;">${s}</span>`;
-            });
         }
     }
 
@@ -251,48 +200,133 @@
         if(!mData.subjects) mData.subjects = {};
         if(!mData.subjects[cls]) mData.subjects[cls] = [];
         mData.subjects[cls].push(sub);
+        
+        // Clear Input
+        document.getElementById('newSub').value = "";
         loadSubjects();
+    }
+
+    function loadSubjects() {
+        const cls = document.getElementById('subClass').value;
+        const area = document.getElementById('subjectChips');
+        area.innerHTML = "";
+        if(mData.subjects && mData.subjects[cls]) {
+            mData.subjects[cls].forEach(s => area.innerHTML += `<span style="background:var(--primary); color:white; padding:5px 10px; border-radius:15px; margin-right:5px; font-size:12px;">${s}</span>`);
+        }
     }
 
     function loadMarkTable() {
         const cls = document.getElementById('markClass').value;
+        if (!cls) return alert("ക്ലാസ് തിരഞ്ഞെടുക്കുക");
+        
         const subs = mData.subjects[cls] || [];
         const studs = mData.students[cls] || {};
+        
+        // പഴയ ആകെ ഹാജർ ഉണ്ടെങ്കിൽ അത് കാണിക്കാൻ
+        if(mData.classAtt && mData.classAtt[cls]) {
+            document.getElementById('classAtt').value = mData.classAtt[cls];
+        }
+
         let h = `<tr><th>Reg</th><th>Name</th><th>ഹാജർ</th>`;
         subs.forEach(s => h += `<th>${s}</th>`);
         h += `<th>Total</th><th>Status</th><th>Rank</th></tr>`;
         document.getElementById('tHead').innerHTML = h;
+        
         let b = "";
         for(let reg in studs) {
-            b += `<tr data-reg="${reg}"><td>${reg}</td><td>${studs[reg]}</td>
-            <td><input type="text" class="m-input s-att"></td>`;
-            subs.forEach(s => b += `<td><input type="number" class="m-input s-mark" data-sub="${s}" oninput="calc()"></td>`);
-            b += `<td class="r-tot">0</td><td class="r-sts">-</td><td class="r-rank">-</td></tr>`;
+            // പഴയ ഡാറ്റ ഉണ്ടോ എന്ന് നോക്കുന്നു
+            const oldRes = (mData.results && mData.results[cls] && mData.results[cls][reg]) ? mData.results[cls][reg] : {};
+            const oldAtt = oldRes.att || "";
+            const oldTot = oldRes.total || "0";
+            const oldSts = oldRes.status || "-";
+            const oldRank = oldRes.rank || "-";
+
+            b += `<tr data-reg="${reg}">
+                <td>${reg}</td>
+                <td>${studs[reg]}</td>
+                <td><input type="number" class="m-input s-att" value="${oldAtt}" oninput="autoSave()"></td>`;
+            
+            subs.forEach(s => {
+                const oldMark = (oldRes.marks && oldRes.marks[s]) ? oldRes.marks[s] : "";
+                b += `<td><input type="number" class="m-input s-mark" data-sub="${s}" value="${oldMark}" oninput="calcStatus(this); autoSave()"></td>`;
+            });
+
+            b += `<td class="r-tot">${oldTot}</td>
+                  <td class="r-sts">${oldSts}</td>
+                  <td class="r-rank">${oldRank}</td></tr>`;
         }
         document.getElementById('tBody').innerHTML = b;
         document.getElementById('tableWrapper').classList.remove('hidden');
+        
+        // ടേബിൾ ലോഡ് ചെയ്യുമ്പോൾ തന്നെ കളർ വരാൻ
+        document.querySelectorAll('.s-mark').forEach(input => calcStatus(input));
     }
 
-    function calc() {
-        document.querySelectorAll('#tBody tr').forEach(row => {
-            let total = 0;
-            row.querySelectorAll('.s-mark').forEach(i => total += (parseFloat(i.value) || 0));
-            row.querySelector('.r-tot').innerText = total;
+    function calcStatus(input) {
+        const row = input.closest('tr');
+        let total = 0;
+        let isFailed = false;
+        let hasValue = false;
+        
+        row.querySelectorAll('.s-mark').forEach(i => {
+            if(i.value !== "") {
+                hasValue = true;
+                let val = parseFloat(i.value) || 0;
+                total += val;
+                // 18-ൽ താഴെ മാർക്ക് വന്നാൽ ഫെയിൽ
+                if(val < 18) isFailed = true; 
+            }
         });
+        
+        if(!hasValue) return;
+
+        row.querySelector('.r-tot').innerText = total;
+        const sts = row.querySelector('.r-sts');
+        
+        if(isFailed) {
+            sts.innerText = "Failed";
+            sts.className = "r-sts status-fail";
+        } else {
+            sts.innerText = "Passed";
+            sts.className = "r-sts status-pass";
+        }
+
+        // റാങ്ക് കണക്കാക്കാനും ഡാറ്റ ഓട്ടോമാറ്റിക്കായി അപ്ഡേറ്റ് ചെയ്യാനും വിളിക്കുന്നു
+        calculateRanks(); 
+        autoSave();
     }
 
-    async function syncWithCloud() {
-        await db.collection("madrasa_data").doc(mData.info.phone).set(mData);
-        alert("സേവ് ചെയ്തു!");
+    function calculateRanks() {
+        let rows = Array.from(document.querySelectorAll('#tBody tr'));
+        
+        // പാസ്സായ കുട്ടികളെ മാത്രം റാങ്കിംഗിനായി തിരഞ്ഞെടുക്കുന്നു (Failed ആയവർക്ക് റാങ്ക് നൽകില്ല)
+        let passedStudents = rows.filter(row => row.querySelector('.r-sts').innerText === "Passed");
+        
+        // ടോട്ടൽ മാർക്കിന്റെ അടിസ്ഥാനത്തിൽ സോർട്ട് ചെയ്യുന്നു (ഏറ്റവും കൂടിയ മാർക്ക് ആദ്യം)
+        passedStudents.sort((a, b) => {
+            return parseFloat(b.querySelector('.r-tot').innerText) - parseFloat(a.querySelector('.r-tot').innerText);
+        });
+
+        // ടേബിളിലെ എല്ലാ റാങ്കുകളും ആദ്യം ക്ലിയർ ചെയ്യുന്നു
+        rows.forEach(row => row.querySelector('.r-rank').innerText = "-");
+
+        // പാസ്സായവർക്ക് മാത്രം റാങ്ക് ക്രമമായി നൽകുന്നു
+        let currentRank = 1;
+        for (let i = 0; i < passedStudents.length; i++) {
+            // ഒരേ മാർക്ക് ഉള്ളവർക്ക് ഒരേ റാങ്ക് നൽകാൻ
+            if (i > 0 && passedStudents[i].querySelector('.r-tot').innerText !== passedStudents[i-1].querySelector('.r-tot').innerText) {
+                currentRank = i + 1;
+            }
+            passedStudents[i].querySelector('.r-rank').innerText = currentRank;
+        }
     }
 
-    async function publishResult() {
-        if(!confirm("പബ്ലിഷ് ചെയ്യട്ടെ?")) return;
-        mData.isPublished = true;
-        await syncWithCloud();
-        location.reload();
+    function exportExcel() { 
+        XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("mainTable")), "Result.xlsx"); 
     }
 
+    async function syncWithCloud() { await db.collection("madrasa_data").doc(mData.info.phone).set(mData); alert("Saved!"); }
+    async function publishResult() { if(confirm("Publish?")) { mData.isPublished = true; await syncWithCloud(); location.reload(); } }
     function exportExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("mainTable")), "Result.xlsx"); }
 </script>
 </body>
