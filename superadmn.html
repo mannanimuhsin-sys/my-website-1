@@ -47,7 +47,11 @@
         .btn-block { background: var(--warning); color: white; }
         .btn-edit { background: var(--info); color: white; }
         .btn-delete { background: var(--danger); color: white; }
+        .btn-link { background: #6c5ce7; color: white; } /* പുതിയ ബട്ടൺ സ്റ്റൈൽ */
+        
         .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .link-text { font-size: 10px; color: #666; display: block; margin-top: 5px; font-family: monospace; }
 
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 15px; text-align: center; }
@@ -77,8 +81,7 @@
                     <th>നിയന്ത്രണങ്ങൾ</th>
                 </tr>
             </thead>
-            <tbody id="mList">
-                </tbody>
+            <tbody id="mList"></tbody>
         </table>
     </div>
 </div>
@@ -87,7 +90,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-    // പ്രധാനം: രജിസ്ട്രേഷൻ പാനലിലെ അതേ കോൺഫിഗറേഷൻ ഇവിടെ നൽകുക
     const firebaseConfig = { 
         apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ", 
         authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.app", 
@@ -99,7 +101,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // റിയൽ ടൈം അപ്ഡേറ്റ് ലിസണർ
     db.collection("madrasa_data").onSnapshot(snapshot => {
         const list = document.getElementById('mList');
         list.innerHTML = "";
@@ -107,8 +108,13 @@
 
         snapshot.forEach(doc => {
             const data = doc.data();
+            const docId = doc.id;
             count++;
             
+            // രഹസ്യ ലിങ്ക് നിർമ്മിക്കുന്നു (uID ഉണ്ടെങ്കിൽ അത് ഉപയോഗിക്കുന്നു)
+            const uniqueID = data.uID || "NO-ID";
+            const resultURL = `https://mannanimuhsin-sys.github.io/my-website/view.html?id=${uniqueID}`;
+
             let statusHTML = '';
             if (data.isBlocked) {
                 statusHTML = '<span class="status-pill bg-danger"><i class="fa fa-ban"></i> Blocked</span>';
@@ -125,25 +131,29 @@
                     <td>
                         <span class="madrasa-name">${data.info.name}</span>
                         <span class="madrasa-place"><i class="fa fa-map-marker-alt"></i> ${data.info.place || 'Not set'}</span>
+                        ${data.isApproved ? `<span class="link-text">${uniqueID}</span>` : ''}
                     </td>
                     <td><b>${data.info.phone}</b></td>
                     <td>${statusHTML}</td>
                     <td>
                         <div class="action-btns">
+                            ${(data.isApproved && !data.isBlocked) ? 
+                                `<button class="btn btn-link" onclick="copyResultLink('${resultURL}')"><i class="fa fa-copy"></i> Copy Link</button>` : ''}
+
                             ${(!data.isApproved && data.isPublished && !data.isBlocked) ? 
-                                `<button class="btn btn-approve" onclick="updateStatus('${doc.id}', 'approve')"><i class="fa fa-thumbs-up"></i> Approve</button>` : ''}
+                                `<button class="btn btn-approve" onclick="updateStatus('${docId}', 'approve')"><i class="fa fa-thumbs-up"></i> Approve</button>` : ''}
                             
                             ${(data.isApproved && !data.isBlocked) ? 
-                                `<button class="btn btn-block" onclick="updateStatus('${doc.id}', 'block')"><i class="fa fa-lock"></i> Block</button>` : ''}
+                                `<button class="btn btn-block" onclick="updateStatus('${docId}', 'block')"><i class="fa fa-lock"></i> Block</button>` : ''}
                             
                             ${(data.isBlocked) ? 
-                                `<button class="btn btn-approve" onclick="updateStatus('${doc.id}', 'unblock')"><i class="fa fa-unlock"></i> Unblock</button>` : ''}
+                                `<button class="btn btn-approve" onclick="updateStatus('${docId}', 'unblock')"><i class="fa fa-unlock"></i> Unblock</button>` : ''}
 
-                            <button class="btn btn-edit" onclick="toggleEdit('${doc.id}', ${data.isPublished})">
+                            <button class="btn btn-edit" onclick="toggleEdit('${docId}', ${data.isPublished})">
                                 <i class="fa fa-redo"></i> ${data.isPublished ? 'Reset to Edit' : 'Lock as Done'}
                             </button>
 
-                            <button class="btn btn-delete" onclick="deleteMadrasa('${doc.id}')">
+                            <button class="btn btn-delete" onclick="deleteMadrasa('${docId}')">
                                 <i class="fa fa-trash"></i>
                             </button>
                         </div>
@@ -154,7 +164,13 @@
         document.getElementById('stats').innerText = "ആകെ മദ്രസകൾ: " + count;
     });
 
-    // സ്റ്റാറ്റസ് മാറ്റാൻ
+    // ലിങ്ക് കോപ്പി ചെയ്യാനുള്ള ഫംഗ്ഷൻ
+    function copyResultLink(url) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert("ലിങ്ക് കോപ്പി ചെയ്തു!");
+        });
+    }
+
     async function updateStatus(id, action) {
         const ref = db.collection("madrasa_data").doc(id);
         if (action === 'approve') await ref.update({ isApproved: true, isBlocked: false });
@@ -162,7 +178,6 @@
         if (action === 'unblock') await ref.update({ isApproved: true, isBlocked: false });
     }
 
-    // എഡിറ്റിംഗ് പെർമിഷൻ മാറ്റാൻ
     async function toggleEdit(id, currentPublished) {
         if(confirm(currentPublished ? "ഇവർക്ക് വീണ്ടും എഡിറ്റ് ചെയ്യാൻ അവസരം നൽകണോ? (പബ്ലിഷ് ചെയ്തത് റദ്ദാകും)" : "എഡിറ്റിംഗ് പൂർത്തിയാക്കി ലോക്ക് ചെയ്യണോ?")) {
             await db.collection("madrasa_data").doc(id).update({
@@ -172,14 +187,12 @@
         }
     }
 
-    // മദ്രസ ഡിലീറ്റ് ചെയ്യാൻ
     async function deleteMadrasa(id) {
         if (confirm("ഈ മദ്രസ സ്ഥിരമായി നീക്കം ചെയ്യട്ടെ?")) {
             await db.collection("madrasa_data").doc(id).delete();
         }
     }
 
-    // ഫിൽട്ടർ
     function filterTable() {
         let input = document.getElementById("searchInput").value.toLowerCase();
         let rows = document.querySelectorAll("#mList tr");
