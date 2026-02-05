@@ -124,21 +124,26 @@ const db = firebase.firestore();
 let pickRank = 0; 
 let winnersData = { 1: {id:null, name:null}, 2: {id:null, name:null}, 3: {id:null, name:null} };
 
-// 1. FULL RESET (ചോദ്യങ്ങൾ, റിസൾട്ടുകൾ, വിജയികൾ എന്നിവ ക്ലിയർ ചെയ്യുന്നു)
+// 1. FULL RESET (ചോദ്യങ്ങൾ, റിസൾട്ടുകൾ, വിജയികൾ, രജിസ്ട്രേഷൻ എന്നിവ ക്ലിയർ ചെയ്യുന്നു)
 async function resetEntireQuiz() {
-    if(confirm("ശ്രദ്ധിക്കുക! എല്ലാ ചോദ്യങ്ങളും, മാർക്ക് ലിസ്റ്റും, വിജയികളുടെ വിവരങ്ങളും പൂർണ്ണമായും മാഞ്ഞുപോകും. പുതിയ ക്വിസ് തുടങ്ങാൻ ഇത് ആവശ്യമാണ്. തുടരണോ?")) {
-        // ചോദ്യങ്ങൾ ഡിലീറ്റ് ചെയ്യുന്നു
+    if(confirm("ശ്രദ്ധിക്കുക! എല്ലാ ചോദ്യങ്ങളും, രജിസ്റ്റർ ചെയ്തവരുടെ വിവരങ്ങളും (Participants), മാർക്ക് ലിസ്റ്റും പൂർണ്ണമായും മാഞ്ഞുപോകും. ഇത് ചെയ്താൽ എല്ലാവരും വീണ്ടും രജിസ്റ്റർ ചെയ്യേണ്ടി വരും. തുടരണോ?")) {
+        
+        // 1. ചോദ്യങ്ങൾ ഡിലീറ്റ് ചെയ്യുന്നു
         const qSnap = await db.collection("questions").get();
         qSnap.forEach(doc => doc.ref.delete());
         
-        // റിസൾട്ടുകൾ ഡിലീറ്റ് ചെയ്യുന്നു
+        // 2. റിസൾട്ടുകൾ ഡിലീറ്റ് ചെയ്യുന്നു
         const rSnap = await db.collection("results").get();
         rSnap.forEach(doc => doc.ref.delete());
 
-        // വിജയികളുടെ ലിസ്റ്റ് ഒഴിവാക്കുന്നു
+        // 3. രജിസ്റ്റർ ചെയ്ത ആളുകളെ (Participants) ഡിലീറ്റ് ചെയ്യുന്നു - ഇതാണ് നിങ്ങൾ ചോദിച്ച മാറ്റം
+        const pSnap = await db.collection("participants").get();
+        pSnap.forEach(doc => doc.ref.delete());
+
+        // 4. വിജയികളുടെ ലിസ്റ്റ് ഒഴിവാക്കുന്നു
         await db.collection("winners").doc("list").delete().catch(e => console.log("No winners to delete"));
 
-        // സെറ്റിംഗ്സ് പഴയ പടിയാക്കുന്നു
+        // 5. സെറ്റിംഗ്സ് പഴയ പടിയാക്കുന്നു
         await db.collection("quiz_settings").doc("status").set({
             closed: true,
             showPosters: false,
@@ -146,7 +151,7 @@ async function resetEntireQuiz() {
             startTime: ""
         });
 
-        alert("ക്വിസ് പൂർണ്ണമായും റീസെറ്റ് ചെയ്തു. ഇനി പുതിയ ചോദ്യങ്ങൾ ചേർക്കാം.");
+        alert("ക്വിസ് പൂർണ്ണമായും റീസെറ്റ് ചെയ്തു. ശാഖകളുടെ ലിസ്റ്റും സീറോ ആയിട്ടുണ്ടാകും.");
         location.reload();
     }
 }
