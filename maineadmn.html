@@ -57,10 +57,11 @@
             <button class="btn btn-primary" onclick="login()">പ്രവേശിക്കുക</button>
         </div>
         <div class="tab-content hidden" id="regContent">
-          <input type="text" id="regName" placeholder="മദ്രസയുടെ പേര്">
-<input type="text" id="regPlace" placeholder="സ്ഥലം">
-<input type="text" id="regSadr" placeholder="സദർ മുഅല്ലിം"> 
-<input type="tel" id="regPhone" placeholder="മൊബൈൽ നമ്പർ">
+            <input type="text" id="regMName" placeholder="മദ്രസയുടെ പേര്">
+            <input type="text" id="regPlace" placeholder="സ്ഥലം">
+            <input type="text" id="regSadr" placeholder="സദർ മുഅല്ലിം"> 
+            <input type="tel" id="regPhone" placeholder="മൊബൈൽ നമ്പർ">
+            <button class="btn btn-primary" onclick="register()">രജിസ്റ്റർ ചെയ്യുക</button>
         </div>
     </div>
 </div>
@@ -93,7 +94,7 @@
     </div>
 
     <div class="section">
-        <h3><i class="fa fa-book"></i> വിഷയങ്ങൾ & ഹാജർ</h3>
+        <h3><i class="fa fa-book"></i> विषयों & ഹാജർ</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
             <select id="subClass" onchange="loadSubjects()"></select>
             <input type="number" id="classAtt" placeholder="ആകെ ഹാജർ">
@@ -154,44 +155,66 @@
         document.getElementById('regTab').classList.toggle('active', type === 'register');
     }
 
-   async function register() {
-    const phone = document.getElementById('regPhone').value;
-    const name = document.getElementById('regMName').value;
-    const place = document.getElementById('regPlace').value;
-    const sadr = document.getElementById('regSadr').value;
-
-    if(!phone || !name || !sadr) return alert("ദയവായി എല്ലാ വിവരങ്ങളും പൂരിപ്പിക്കുക");
-
-    // ലോഗിൻ ചെയ്യാൻ ഉപയോഗിക്കുന്ന പാസ്‌വേഡ് ഫോൺ നമ്പർ തന്നെയായി സെറ്റ് ചെയ്യുന്നു (നിങ്ങളുടെ പഴയ രീതി)
-    const uID = 'MD' + Math.floor(1000 + Math.random() * 9000);
-
-    const docData = {
-        uID: uID,
-        info: {
-            name: name,
-            phone: phone,
-            place: place,
-            headmaster: sadr 
-        },
-        isPublished: false, // റിസൾട്ട് ഇട്ട ശേഷം മാത്രം ഇത് ട്രൂ ആകും
-        isApproved: false   // സൂപ്പർ അഡ്മിൻ ലാസ്റ്റ് ചെയ്യുന്ന കാര്യം
-    };
-
-    try {
-        await db.collection("madrasa_data").doc(phone).set(docData);
-        alert("രജിസ്ട്രേഷൻ വിജയകരമായി പൂർത്തിയായി! ഇനി നിങ്ങളുടെ മൊബൈൽ നമ്പർ ഉപയോഗിച്ച് ലോഗിൻ ചെയ്യാം.");
-        // ലോഗിൻ പേജിലേക്ക് തിരിച്ചു വിടാൻ (optional)
-        location.reload(); 
-    } catch (error) {
-        console.error("Error:", error);
-        alert("രജിസ്ട്രേഷനിൽ തടസ്സം നേരിട്ടു. വീണ്ടും ശ്രമിക്കുക.");
+    // ലോഗിൻ ഫംഗ്ഷൻ (നിങ്ങളുടെ വിവരങ്ങൾ കാണാൻ ഇത് ആവശ്യമാണ്)
+    async function login() {
+        const phone = document.getElementById('loginPhone').value.trim();
+        if(!phone) return alert("മൊബൈൽ നമ്പർ നൽകുക");
+        try {
+            const doc = await db.collection("madrasa_data").doc(phone).get();
+            if (doc.exists) {
+                mData = doc.data();
+                if(mData.isPublished) {
+                    document.getElementById('authPanel').classList.add('hidden');
+                    showStatusUI();
+                } else {
+                    document.getElementById('authPanel').classList.add('hidden');
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                    document.getElementById('mInfoDisplay').innerHTML = `<h2>${mData.info.name}</h2><p>${mData.info.place}</p>`;
+                    refreshStudentDisplay();
+                }
+            } else {
+                alert("ഈ നമ്പറിൽ രജിസ്ട്രേഷൻ ലഭ്യമല്ല!");
+            }
+        } catch (error) {
+            alert("ലോഗിൻ ചെയ്യുന്നതിൽ പിശക്!");
+        }
     }
-}
+
+    async function register() {
+        const phone = document.getElementById('regPhone').value.trim();
+        const name = document.getElementById('regMName').value.trim();
+        const place = document.getElementById('regPlace').value.trim();
+        const sadr = document.getElementById('regSadr').value.trim();
+
+        if(!phone || !name || !sadr) return alert("ദയവായി എല്ലാ വിവരങ്ങളും പൂരിപ്പിക്കുക");
+
+        const uID = 'MD' + Math.floor(1000 + Math.random() * 9000);
+
+        const docData = {
+            uID: uID,
+            info: {
+                name: name,
+                phone: phone,
+                place: place,
+                headmaster: sadr 
+            },
+            isPublished: false,
+            isApproved: false
+        };
+
+        try {
+            await db.collection("madrasa_data").doc(phone).set(docData);
+            alert("രജിസ്ട്രേഷൻ വിജയകരമായി പൂർത്തിയായി! ഇനി നിങ്ങളുടെ മൊബൈൽ നമ്പർ ഉപയോഗിച്ച് ലോഗിൻ ചെയ്യാം.");
+            location.reload(); 
+        } catch (error) {
+            console.error("Error:", error);
+            alert("രജിസ്ട്രേഷനിൽ തടസ്സം നേരിട്ടു.");
+        }
+    }
+
     function showStatusUI() {
         document.getElementById('statusUI').classList.remove('hidden');
         const baseURL = "https://mannanimuhsin-sys.github.io/my-website/view.html"; 
-        
-        // ഇവിടെ mData.uID ഉണ്ടെന്ന് ഉറപ്പുവരുത്തുന്നു
         const uniqueID = mData.uID || "ERROR";
         const myUniqueLink = `${baseURL}?id=${uniqueID}`;
         
@@ -200,7 +223,6 @@
             <p style="color:#004d00; font-weight:bold;">റിസൾട്ട് ലിങ്ക് തയ്യാർ!</p>
             <input type="text" readonly value="${myUniqueLink}" id="resL">
             <button class="btn btn-primary" onclick="copyMyLink()">COPY LINK</button>
-            <p style="font-size:11px; color:blue; margin-top:5px;">ഈ ലിങ്ക് ഉപയോഗിച്ച് റിസൾട്ട് കാണാം.</p>
          </div>` : `<p>അഡ്മിൻ അപ്രൂവലിനായി കാത്തിരിക്കുന്നു...</p>`;
     }
 
@@ -211,7 +233,6 @@
         alert("Link Copied!");
     }
 
-    // --- ബാക്കി ഫംഗ്ഷനുകൾ മാറ്റമില്ലാതെ തുടരുന്നു ---
     function addStudent() {
         const cls = document.getElementById('stClass').value;
         const reg = document.getElementById('stRegNo').value;
@@ -346,6 +367,7 @@
     }
 
     async function syncWithCloud() { 
+        if(!mData.info || !mData.info.phone) return alert("ലോഗിൻ വിവരങ്ങൾ ലഭ്യമല്ല");
         await db.collection("madrasa_data").doc(mData.info.phone).set(mData); 
         alert("Data Saved Successfully!"); 
     }
