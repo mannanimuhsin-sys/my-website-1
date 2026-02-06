@@ -12,14 +12,30 @@
         .madrasa-name { font-size: 28px; font-weight: 800; margin: 0; text-transform: uppercase; letter-spacing: 1px; line-height: 1.2; }
         .madrasa-place { font-size: 16px; opacity: 0.9; margin: 5px 0; }
         .exam-title { font-size: 12px; color: var(--gold); font-weight: bold; letter-spacing: 2px; margin-top: 10px; }
-        .contact-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); display: inline-block; padding: 12px 20px; border-radius: 15px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.2); font-size: 13px; width: 90%; max-width: 400px; }
+        
+        /* കോൺടാക്ട് കാർഡിൽ സദർ ഉസ്താദിന്റെ പേര് വരാൻ അല്പം ഡിസൈൻ മാറ്റി */
+        .contact-card { 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(10px); 
+            display: inline-block; 
+            padding: 12px 20px; 
+            border-radius: 15px; 
+            margin-top: 20px; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            font-size: 13px; 
+            width: 90%; 
+            max-width: 450px; 
+        }
         .contact-card b { color: var(--gold); }
         .sep { margin: 0 8px; opacity: 0.5; }
+        
         .container { max-width: 800px; margin: -30px auto 50px; padding: 0 15px; }
         .search-section { background: var(--white); padding: 25px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; }
         .search-box { display: flex; max-width: 450px; margin: 15px auto 0; border-radius: 50px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 2px solid #eee; }
         .search-box input { flex: 1; padding: 12px 15px; border: none; outline: none; font-size: 16px; width: 60%; }
-        .btn-search { background: #28a745; color: white; border: none; padding: 0 20px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .btn-search { background: #28a745; color: white; border: none; padding: 0 20px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
+        .btn-search:hover { background: #218838; }
+
         .result-card { background: var(--white); border-radius: 20px; margin-top: 30px; overflow: hidden; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.15); border-top: 8px solid var(--primary); }
         .res-header { background: #fcfcfc; padding: 25px 15px; text-align: center; border-bottom: 1px solid #eee; }
         .res-header h2 { color: var(--primary); margin: 5px 0; font-size: 22px; }
@@ -53,7 +69,9 @@
     <p class="madrasa-place" id="madPlace">Please wait</p>
     <div class="exam-title">ANNUAL EXAMINATION RESULT 2025-26</div>
     <div class="contact-card">
-        <i class="fa fa-phone-alt"></i> Contact: <span id="sadrPhone">---</span>
+        <i class="fa fa-user-tie"></i> <span id="sadrName">---</span> 
+        <span class="sep">|</span> 
+        <i class="fa fa-phone-alt"></i> <span id="sadrPhone">---</span>
     </div>
 </div>
 
@@ -113,7 +131,6 @@
         appId: "1:370558703441:web:dc68dbdbd685c9d07ea570" 
     };
 
-    // മൾട്ടിപ്പിൾ ടൈം ഇനിഷ്യലൈസേഷൻ ഒഴിവാക്കാൻ
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
@@ -124,12 +141,10 @@
     let fullData = null;
 
     if(mId) {
-        // uID വെച്ച് മദ്രസ ഡാറ്റ സെർച്ച് ചെയ്യുന്നു
         db.collection("madrasa_data").where("uID", "==", mId).get().then((snapshot) => {
             if (!snapshot.empty) {
                 fullData = snapshot.docs[0].data();
                 
-                // ബ്ലോക്ക് ചെയ്തതോ അപ്രൂവ് ചെയ്യാത്തതോ ആണെങ്കിൽ കാണിക്കില്ല
                 if(!fullData.isApproved || fullData.isBlocked) {
                     document.getElementById('madHeader').innerText = "ഫലം ലഭ്യമായിട്ടില്ല";
                     document.getElementById('madPlace').innerText = "മദ്രസ അഡ്മിനുമായി ബന്ധപ്പെടുക";
@@ -139,7 +154,11 @@
 
                 document.getElementById('madHeader').innerText = fullData.info.name;
                 document.getElementById('madPlace').innerText = fullData.info.place || "";
-                document.getElementById('sadrPhone').innerText = fullData.info.phone;
+                
+                // സദർ ഉസ്താദിന്റെ വിവരങ്ങൾ കാണിക്കുന്നു
+                document.getElementById('sadrName').innerText = fullData.info.headmaster || "സദർ മുഅല്ലിം";
+                document.getElementById('sadrPhone').innerText = fullData.info.phone || "---";
+
             } else {
                 document.getElementById('madHeader').innerText = "INVALID ID";
                 document.getElementById('madPlace').innerText = "ലിങ്ക് പരിശോധിക്കുക";
@@ -147,8 +166,72 @@
             }
         }).catch(err => {
             console.error("Firebase Error:", err);
-            // ഇവിടെയാണ് Indexing എറർ വരാൻ സാധ്യത. അത് കൺസോളിലെ ലിങ്ക് വഴി ശരിയാക്കാം.
+            alert("ഡാറ്റ ലോഡ് ചെയ്യുന്നതിൽ പിശക്. ഇന്റർനെറ്റ് പരിശോധിക്കുക.");
         });
+    }
+
+    // സബ്മിറ്റ് ബട്ടൺ ഫംഗ്ഷൻ (പരിഹരിച്ചത്)
+    function fetchResult() {
+        const regInput = document.getElementById('regNoInput').value.trim();
+        
+        if(!regInput) {
+            alert("ദയവായി രജിസ്റ്റർ നമ്പർ നൽകുക.");
+            return;
+        }
+
+        if(!fullData || !fullData.results) {
+            alert("ഈ മദ്രസയുടെ റിസൾട്ടുകൾ പബ്ലിഷ് ചെയ്തിട്ടില്ല.");
+            return;
+        }
+
+        let found = false;
+        // എല്ലാ ക്ലാസ്സുകളിലും തിരയുന്നു
+        for(let cls in fullData.results) {
+            if(fullData.results[cls] && fullData.results[cls][regInput]) {
+                displayResult(cls, regInput, fullData.results[cls][regInput]);
+                found = true; 
+                break;
+            }
+        }
+
+        if(!found) {
+            alert("ക്ഷമിക്കണം, " + regInput + " എന്ന നമ്പറിൽ റിസൾട്ട് കണ്ടെത്താനായില്ല. നമ്പർ ശരിയാണോ എന്ന് പരിശോധിക്കുക.");
+        }
+    }
+
+    // റിസൾട്ട് ഡിസ്‌പ്ലേ ചെയ്യാനുള്ള ഫംഗ്ഷൻ
+    function displayResult(cls, reg, res) {
+        document.getElementById('resultArea').style.display = 'block';
+        
+        // വിദ്യാർത്ഥിയുടെ പേര് കണ്ടെത്തുന്നു
+        const studentName = (fullData.students && fullData.students[cls] && fullData.students[cls][reg]) 
+                            ? fullData.students[cls][reg] 
+                            : "Student";
+        
+        document.getElementById('stName').innerText = studentName;
+        document.getElementById('stReg').innerText = reg;
+        document.getElementById('stClass').innerText = cls;
+
+        let mHtml = "";
+        if(res.marks) {
+            for(let sub in res.marks) {
+                mHtml += `<tr><td>${sub}</td><td class="m-val">${res.marks[sub]}</td></tr>`;
+            }
+        }
+        document.getElementById('markList').innerHTML = mHtml;
+        document.getElementById('totalMark').innerText = res.total || "0";
+        document.getElementById('rank').innerText = res.rank || "---";
+        
+        const totalDays = (fullData.classAtt && fullData.classAtt[cls]) ? fullData.classAtt[cls] : '0';
+        document.getElementById('attendance').innerText = (res.att || '0') + "/" + totalDays;
+
+        const stLabel = document.getElementById('statusLabel');
+        const status = (res.status || "---").toLowerCase();
+        stLabel.innerText = status.toUpperCase();
+        stLabel.className = "badge " + (status === 'passed' ? 'passed' : 'failed');
+
+        // റിസൾട്ട് കാർഡിലേക്ക് ഓട്ടോമാറ്റിക് സ്ക്രോൾ ചെയ്യുന്നു
+        window.scrollTo({ top: document.getElementById('resultArea').offsetTop - 20, behavior: 'smooth' });
     }
 </script>
 </body>
