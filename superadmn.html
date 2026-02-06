@@ -161,18 +161,21 @@
         document.getElementById('stats').innerText = "ആകെ മദ്രസകൾ: " + count;
     });
 
-    function copyResultLink(url) {
-        navigator.clipboard.writeText(url).then(() => {
-            alert("ലിങ്ക് കോപ്പി ചെയ്തു!");
-        });
+   async function updateStatus(id, action) {
+    const ref = db.collection("madrasa_data").doc(id);
+    if (action === 'approve') {
+        // അപ്രൂവ് ചെയ്യുമ്പോൾ uID ഇല്ലെങ്കിൽ അത് ജനറേറ്റ് ചെയ്യാനുള്ള സുരക്ഷാ ക്രമീകരണം
+        const doc = await ref.get();
+        if (!doc.data().uID) {
+            const newUID = "MD" + Math.floor(1000 + Math.random() * 9000);
+            await ref.update({ isApproved: true, isBlocked: false, uID: newUID });
+        } else {
+            await ref.update({ isApproved: true, isBlocked: false });
+        }
     }
-
-    async function updateStatus(id, action) {
-        const ref = db.collection("madrasa_data").doc(id);
-        if (action === 'approve') await ref.update({ isApproved: true, isBlocked: false });
-        if (action === 'block') await ref.update({ isApproved: false, isBlocked: true });
-        if (action === 'unblock') await ref.update({ isApproved: true, isBlocked: false });
-    }
+    if (action === 'block') await ref.update({ isApproved: false, isBlocked: true });
+    if (action === 'unblock') await ref.update({ isApproved: true, isBlocked: false });
+}
 
     async function toggleEdit(id, currentPublished) {
         if(confirm(currentPublished ? "എഡിറ്റിംഗ് അനുവദിക്കണോ?" : "ലോക്ക് ചെയ്യണോ?")) {
