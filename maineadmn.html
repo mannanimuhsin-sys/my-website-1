@@ -57,10 +57,10 @@
             <button class="btn btn-primary" onclick="login()">പ്രവേശിക്കുക</button>
         </div>
         <div class="tab-content hidden" id="regContent">
-            <input type="text" id="regMName" placeholder="മദ്രസയുടെ പേര്">
-            <input type="text" id="regPlace" placeholder="സ്ഥലം">
-            <input type="tel" id="regPhone" placeholder="മൊബൈൽ നമ്പർ">
-            <button class="btn btn-primary" onclick="register()">രജിസ്റ്റർ ചെയ്യുക</button>
+          <input type="text" id="regName" placeholder="മദ്രസയുടെ പേര്">
+<input type="text" id="regPlace" placeholder="സ്ഥലം">
+<input type="text" id="regSadr" placeholder="സദർ മുഅല്ലിം"> 
+<input type="tel" id="regPhone" placeholder="മൊബൈൽ നമ്പർ">
         </div>
     </div>
 </div>
@@ -154,43 +154,39 @@
         document.getElementById('regTab').classList.toggle('active', type === 'register');
     }
 
-    async function register() {
-        const phone = document.getElementById('regPhone').value;
-        const name = document.getElementById('regMName').value;
-        const place = document.getElementById('regPlace').value;
-        if(!phone || !name) return alert("എല്ലാം പൂരിപ്പിക്കുക");
+   async function register() {
+    const phone = document.getElementById('regPhone').value;
+    const name = document.getElementById('regMName').value;
+    const place = document.getElementById('regPlace').value;
+    const sadr = document.getElementById('regSadr').value;
 
-        // പുതിയ ലിങ്കിനായി തനതായ ID നിർമ്മിക്കുന്നു
-        const uID = 'MD' + Math.random().toString(36).substr(2, 5).toUpperCase();
+    if(!phone || !name || !sadr) return alert("ദയവായി എല്ലാ വിവരങ്ങളും പൂരിപ്പിക്കുക");
 
-        const docData = {
-            uID: uID, 
-            info: { name, phone, place },
-            isPublished: false,
-            isApproved: false,
-            students: {}, subjects: {}, results: {}, classAtt: {}
-        };
+    // ലോഗിൻ ചെയ്യാൻ ഉപയോഗിക്കുന്ന പാസ്‌വേഡ് ഫോൺ നമ്പർ തന്നെയായി സെറ്റ് ചെയ്യുന്നു (നിങ്ങളുടെ പഴയ രീതി)
+    const uID = 'MD' + Math.floor(1000 + Math.random() * 9000);
 
+    const docData = {
+        uID: uID,
+        info: {
+            name: name,
+            phone: phone,
+            place: place,
+            headmaster: sadr 
+        },
+        isPublished: false, // റിസൾട്ട് ഇട്ട ശേഷം മാത്രം ഇത് ട്രൂ ആകും
+        isApproved: false   // സൂപ്പർ അഡ്മിൻ ലാസ്റ്റ് ചെയ്യുന്ന കാര്യം
+    };
+
+    try {
         await db.collection("madrasa_data").doc(phone).set(docData);
-        alert("രജിസ്ട്രേഷൻ വിജയിച്ചു! ഇനി ലോഗിൻ ചെയ്യുക.");
-        location.reload();
+        alert("രജിസ്ട്രേഷൻ വിജയകരമായി പൂർത്തിയായി! ഇനി നിങ്ങളുടെ മൊബൈൽ നമ്പർ ഉപയോഗിച്ച് ലോഗിൻ ചെയ്യാം.");
+        // ലോഗിൻ പേജിലേക്ക് തിരിച്ചു വിടാൻ (optional)
+        location.reload(); 
+    } catch (error) {
+        console.error("Error:", error);
+        alert("രജിസ്ട്രേഷനിൽ തടസ്സം നേരിട്ടു. വീണ്ടും ശ്രമിക്കുക.");
     }
-
-    async function login() {
-        const phone = document.getElementById('loginPhone').value;
-        const doc = await db.collection("madrasa_data").doc(phone).get();
-        if(doc.exists) {
-            mData = doc.data();
-            document.getElementById('authPanel').classList.add('hidden');
-            if(mData.isPublished) showStatusUI();
-            else {
-                document.getElementById('adminPanel').classList.remove('hidden');
-                document.getElementById('mInfoDisplay').innerHTML = `<h2>${mData.info.name}</h2><p>${mData.info.place || ''}</p>`;
-                refreshStudentDisplay();
-            }
-        } else alert("ഈ നമ്പർ രജിസ്റ്റർ ചെയ്തിട്ടില്ല!");
-    }
-
+}
     function showStatusUI() {
         document.getElementById('statusUI').classList.remove('hidden');
         const baseURL = "https://mannanimuhsin-sys.github.io/my-website/view.html"; 
