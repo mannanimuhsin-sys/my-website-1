@@ -105,7 +105,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-    // കോൺഫിഗറേഷൻ അഡ്മിൻ പാനലിലേതുപോലെ തന്നെ മാറ്റി
     const firebaseConfig = { 
         apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ", 
         authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.app", 
@@ -113,7 +112,11 @@
         storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app", 
         appId: "1:370558703441:web:dc68dbdbd685c9d07ea570" 
     };
-    firebase.initializeApp(firebaseConfig);
+
+    // മൾട്ടിപ്പിൾ ടൈം ഇനിഷ്യലൈസേഷൻ ഒഴിവാക്കാൻ
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.firestore();
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -121,14 +124,15 @@
     let fullData = null;
 
     if(mId) {
-        // uID വെച്ച് മദ്രസ ഡാറ്റ എടുക്കുന്നു
+        // uID വെച്ച് മദ്രസ ഡാറ്റ സെർച്ച് ചെയ്യുന്നു
         db.collection("madrasa_data").where("uID", "==", mId).get().then((snapshot) => {
             if (!snapshot.empty) {
                 fullData = snapshot.docs[0].data();
                 
+                // ബ്ലോക്ക് ചെയ്തതോ അപ്രൂവ് ചെയ്യാത്തതോ ആണെങ്കിൽ കാണിക്കില്ല
                 if(!fullData.isApproved || fullData.isBlocked) {
-                    document.getElementById('madHeader').innerText = "RESULT NOT AVAILABLE";
-                    document.getElementById('madPlace').innerText = "Contact Madrasa Admin";
+                    document.getElementById('madHeader').innerText = "ഫലം ലഭ്യമായിട്ടില്ല";
+                    document.getElementById('madPlace').innerText = "മദ്രസ അഡ്മിനുമായി ബന്ധപ്പെടുക";
                     document.getElementById('searchSection').style.display = 'none';
                     return;
                 }
@@ -137,61 +141,14 @@
                 document.getElementById('madPlace').innerText = fullData.info.place || "";
                 document.getElementById('sadrPhone').innerText = fullData.info.phone;
             } else {
-                document.getElementById('madHeader').innerText = "INVALID LINK";
-                document.getElementById('madPlace').innerText = "Please check the URL";
+                document.getElementById('madHeader').innerText = "INVALID ID";
+                document.getElementById('madPlace').innerText = "ലിങ്ക് പരിശോധിക്കുക";
                 document.getElementById('searchSection').style.display = 'none';
             }
         }).catch(err => {
             console.error("Firebase Error:", err);
-            alert("Error loading data. Please try again.");
+            // ഇവിടെയാണ് Indexing എറർ വരാൻ സാധ്യത. അത് കൺസോളിലെ ലിങ്ക് വഴി ശരിയാക്കാം.
         });
-    } else {
-        document.getElementById('madHeader').innerText = "NO ID PROVIDED";
-        document.getElementById('searchSection').style.display = 'none';
-    }
-
-    function fetchResult() {
-        const regInput = document.getElementById('regNoInput').value;
-        if(!regInput || !fullData) return;
-
-        let found = false;
-        for(let cls in fullData.results) {
-            if(fullData.results[cls][regInput]) {
-                displayResult(cls, regInput, fullData.results[cls][regInput]);
-                found = true; 
-                break;
-            }
-        }
-        if(!found) alert("Result not found for this Reg Number!");
-    }
-
-    function displayResult(cls, reg, res) {
-        document.getElementById('resultArea').style.display = 'block';
-        const studentName = (fullData.students && fullData.students[cls] && fullData.students[cls][reg]) ? fullData.students[cls][reg] : "Student";
-        
-        document.getElementById('stName').innerText = studentName;
-        document.getElementById('stReg').innerText = reg;
-        document.getElementById('stClass').innerText = cls;
-
-        let mHtml = "";
-        if(res.marks) {
-            for(let sub in res.marks) {
-                mHtml += `<tr><td>${sub}</td><td class="m-val">${res.marks[sub]}</td></tr>`;
-            }
-        }
-        document.getElementById('markList').innerHTML = mHtml;
-        document.getElementById('totalMark').innerText = res.total || "0";
-        document.getElementById('rank').innerText = res.rank || "---";
-        
-        const totalDays = (fullData.classAtt && fullData.classAtt[cls]) ? fullData.classAtt[cls] : '0';
-        document.getElementById('attendance').innerText = (res.att || '0') + "/" + totalDays;
-
-        const stLabel = document.getElementById('statusLabel');
-        const status = (res.status || "---").toLowerCase();
-        stLabel.innerText = status.toUpperCase();
-        stLabel.className = "badge " + (status === 'passed' ? 'passed' : 'failed');
-
-        window.scrollTo({ top: document.getElementById('resultArea').offsetTop - 20, behavior: 'smooth' });
     }
 </script>
 </body>
