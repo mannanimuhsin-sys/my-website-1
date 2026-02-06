@@ -47,15 +47,10 @@
         .btn-block { background: var(--warning); color: white; }
         .btn-edit { background: var(--info); color: white; }
         .btn-delete { background: var(--danger); color: white; }
-        .btn-link { background: #6c5ce7; color: white; } /* പുതിയ ബട്ടൺ സ്റ്റൈൽ */
+        .btn-link { background: #6c5ce7; color: white; }
         
         .btn:hover { opacity: 0.9; transform: translateY(-2px); }
-
-        .link-text { font-size: 10px; color: #666; display: block; margin-top: 5px; font-family: monospace; }
-
-        @media (max-width: 768px) {
-            .header { flex-direction: column; gap: 15px; text-align: center; }
-        }
+        .link-text { font-size: 10px; color: #007bff; display: block; margin-top: 5px; font-family: monospace; }
     </style>
 </head>
 <body>
@@ -68,7 +63,7 @@
 
     <div class="search-container">
         <i class="fa fa-search search-icon"></i>
-        <input type="text" id="searchInput" class="search-box" placeholder="മദ്രസയുടെ പേര് അല്ലെങ്കിൽ ഫോൺ നമ്പർ ഉപയോഗിച്ച് തിരയുക..." onkeyup="filterTable()">
+        <input type="text" id="searchInput" class="search-box" placeholder="മദ്രസ തിരയുക..." onkeyup="filterTable()">
     </div>
 
     <div class="table-wrapper">
@@ -111,9 +106,11 @@
             const docId = doc.id;
             count++;
             
-            // രഹസ്യ ലിങ്ക് നിർമ്മിക്കുന്നു (uID ഉണ്ടെങ്കിൽ അത് ഉപയോഗിക്കുന്നു)
-            const uniqueID = data.uID || "NO-ID";
-            const resultURL = `https://mannanimuhsin-sys.github.io/my-website/view.html?id=${uniqueID}`;
+            // പ്രധാന മാറ്റം: uID ഉപയോഗിച്ച് ലിങ്ക് ഉണ്ടാക്കുന്നു.
+            // പഴയ മദ്രസകൾക്ക് uID ഇല്ലെങ്കിൽ docId (ഫോൺ) ഉപയോഗിക്കുന്നു.
+            const uniqueID = data.uID || docId;
+            const baseURL = "https://mannanimuhsin-sys.github.io/my-website/view.html";
+            const resultURL = `${baseURL}?id=${uniqueID}`;
 
             let statusHTML = '';
             if (data.isBlocked) {
@@ -121,9 +118,9 @@
             } else if (data.isApproved) {
                 statusHTML = '<span class="status-pill bg-success"><i class="fa fa-check-circle"></i> Live ✅</span>';
             } else if (data.isPublished) {
-                statusHTML = '<span class="status-pill bg-warning"><i class="fa fa-clock"></i> Pending Approval</span>';
+                statusHTML = '<span class="status-pill bg-warning"><i class="fa fa-clock"></i> Pending</span>';
             } else {
-                statusHTML = '<span class="status-pill bg-gray"><i class="fa fa-edit"></i> Editing Mode</span>';
+                statusHTML = '<span class="status-pill bg-gray"><i class="fa fa-edit"></i> Editing</span>';
             }
 
             const row = `
@@ -131,7 +128,7 @@
                     <td>
                         <span class="madrasa-name">${data.info.name}</span>
                         <span class="madrasa-place"><i class="fa fa-map-marker-alt"></i> ${data.info.place || 'Not set'}</span>
-                        ${data.isApproved ? `<span class="link-text">${uniqueID}</span>` : ''}
+                        <span class="link-text">ID: ${uniqueID}</span>
                     </td>
                     <td><b>${data.info.phone}</b></td>
                     <td>${statusHTML}</td>
@@ -150,7 +147,7 @@
                                 `<button class="btn btn-approve" onclick="updateStatus('${docId}', 'unblock')"><i class="fa fa-unlock"></i> Unblock</button>` : ''}
 
                             <button class="btn btn-edit" onclick="toggleEdit('${docId}', ${data.isPublished})">
-                                <i class="fa fa-redo"></i> ${data.isPublished ? 'Reset to Edit' : 'Lock as Done'}
+                                <i class="fa fa-redo"></i> Reset
                             </button>
 
                             <button class="btn btn-delete" onclick="deleteMadrasa('${docId}')">
@@ -164,7 +161,6 @@
         document.getElementById('stats').innerText = "ആകെ മദ്രസകൾ: " + count;
     });
 
-    // ലിങ്ക് കോപ്പി ചെയ്യാനുള്ള ഫംഗ്ഷൻ
     function copyResultLink(url) {
         navigator.clipboard.writeText(url).then(() => {
             alert("ലിങ്ക് കോപ്പി ചെയ്തു!");
@@ -179,7 +175,7 @@
     }
 
     async function toggleEdit(id, currentPublished) {
-        if(confirm(currentPublished ? "ഇവർക്ക് വീണ്ടും എഡിറ്റ് ചെയ്യാൻ അവസരം നൽകണോ? (പബ്ലിഷ് ചെയ്തത് റദ്ദാകും)" : "എഡിറ്റിംഗ് പൂർത്തിയാക്കി ലോക്ക് ചെയ്യണോ?")) {
+        if(confirm(currentPublished ? "എഡിറ്റിംഗ് അനുവദിക്കണോ?" : "ലോക്ക് ചെയ്യണോ?")) {
             await db.collection("madrasa_data").doc(id).update({
                 isPublished: !currentPublished,
                 isApproved: false
@@ -188,7 +184,7 @@
     }
 
     async function deleteMadrasa(id) {
-        if (confirm("ഈ മദ്രസ സ്ഥിരമായി നീക്കം ചെയ്യട്ടെ?")) {
+        if (confirm("ഈ മദ്രസ നീക്കം ചെയ്യട്ടെ?")) {
             await db.collection("madrasa_data").doc(id).delete();
         }
     }
@@ -201,6 +197,5 @@
         });
     }
 </script>
-
 </body>
 </html>

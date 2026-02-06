@@ -36,7 +36,6 @@
         .status-fail { color: red; font-weight: bold; }
         .hidden { display: none; }
         
-        /* പുതിയ ഡിസൈൻ: ലിങ്ക് കോപ്പി ചെയ്യാൻ */
         .link-card { background: #e8f5e9; padding: 20px; border-radius: 12px; border: 2px dashed var(--primary); text-align: center; }
         .link-card input { width: 100%; background: white; margin-bottom: 10px; text-align: center; font-weight: bold; border: 1px solid #ccc; }
     </style>
@@ -94,7 +93,7 @@
     </div>
 
     <div class="section">
-        <h3><i class="fa fa-book"></i> विषयों & ഹാജർ</h3>
+        <h3><i class="fa fa-book"></i> വിഷയങ്ങൾ & ഹാജർ</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
             <select id="subClass" onchange="loadSubjects()"></select>
             <input type="number" id="classAtt" placeholder="ആകെ ഹാജർ">
@@ -127,7 +126,13 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-    const firebaseConfig = { apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ", authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.app", projectId: "misbahul-uloom-madrasa-4830c", storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app", appId: "1:370558703441:web:dc68dbdbd685c9d07ea570" };
+    const firebaseConfig = { 
+        apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ", 
+        authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.app", 
+        projectId: "misbahul-uloom-madrasa-4830c", 
+        storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app", 
+        appId: "1:370558703441:web:dc68dbdbd685c9d07ea570" 
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
@@ -153,13 +158,13 @@
         const phone = document.getElementById('regPhone').value;
         const name = document.getElementById('regMName').value;
         const place = document.getElementById('regPlace').value;
-        if(!phone || !name) return alert("പൂരിപ്പിക്കുക");
+        if(!phone || !name) return alert("എല്ലാം പൂരിപ്പിക്കുക");
 
-        // പുതിയ മനോഹരമായ ലിങ്കിനായി ഒരു യൂണിക് ഐഡി നിർമ്മിക്കുന്നു
+        // പുതിയ ലിങ്കിനായി തനതായ ID നിർമ്മിക്കുന്നു
         const uID = 'MD' + Math.random().toString(36).substr(2, 5).toUpperCase();
 
         const docData = {
-            uID: uID, // രഹസ്യ കോഡ്
+            uID: uID, 
             info: { name, phone, place },
             isPublished: false,
             isApproved: false,
@@ -167,7 +172,7 @@
         };
 
         await db.collection("madrasa_data").doc(phone).set(docData);
-        alert("രജിസ്ട്രേഷൻ വിജയിച്ചു! ലോഗിൻ ചെയ്യുക.");
+        alert("രജിസ്ട്രേഷൻ വിജയിച്ചു! ഇനി ലോഗിൻ ചെയ്യുക.");
         location.reload();
     }
 
@@ -183,27 +188,25 @@
                 document.getElementById('mInfoDisplay').innerHTML = `<h2>${mData.info.name}</h2><p>${mData.info.place || ''}</p>`;
                 refreshStudentDisplay();
             }
-        } else alert("രജിസ്റ്റർ ചെയ്തിട്ടില്ല!");
+        } else alert("ഈ നമ്പർ രജിസ്റ്റർ ചെയ്തിട്ടില്ല!");
     }
 
     function showStatusUI() {
-    document.getElementById('statusUI').classList.remove('hidden');
-    
-    // ഇവിടെ നിങ്ങളുടെ ശരിക്കുള്ള GitHub പേജിന്റെ ലിങ്ക് നൽകുക
-    // ഉദാഹരണത്തിന്: https://muhsin.github.io/madrasa-result/view.html
-    const baseURL = "https://mannanimuhsin-sys.github.io/my-website/view.html"; 
-    
-    // ഓരോ മദ്രസക്കും അവരുടെ തനതായ uID വെച്ച് ലിങ്ക് മാറുന്നു
-    const myUniqueLink = `${baseURL}?id=${mData.uID}`;
-    
-    document.getElementById('approvalSection').innerHTML = mData.isApproved ? 
-    `<div class="link-card">
-        <p style="color:#004d00; font-weight:bold;">നിങ്ങളുടെ മദ്രസയുടെ റിസൾട്ട് ലിങ്ക്:</p>
-        <input type="text" readonly value="${myUniqueLink}" id="resL" style="width:100%; padding:10px; text-align:center; border-radius:8px; border:1px solid #ddd;">
-        <button class="btn btn-primary" style="margin-top:10px;" onclick="copyMyLink()">COPY LINK</button>
-        <p style="font-size:11px; color:blue; margin-top:5px;">ഈ ലിങ്ക് വഴി വിദ്യാർത്ഥികൾക്ക് റിസൾട്ട് കാണാം.</p>
-     </div>` : `<p>അപ്രൂവലിനായി കാത്തിരിക്കുന്നു. അപ്രൂവ് ആയിക്കഴിഞ്ഞാൽ ലിങ്ക് ഇവിടെ ലഭ്യമാകും.</p>`;
-}
+        document.getElementById('statusUI').classList.remove('hidden');
+        const baseURL = "https://mannanimuhsin-sys.github.io/my-website/view.html"; 
+        
+        // ഇവിടെ mData.uID ഉണ്ടെന്ന് ഉറപ്പുവരുത്തുന്നു
+        const uniqueID = mData.uID || "ERROR";
+        const myUniqueLink = `${baseURL}?id=${uniqueID}`;
+        
+        document.getElementById('approvalSection').innerHTML = mData.isApproved ? 
+        `<div class="link-card">
+            <p style="color:#004d00; font-weight:bold;">റിസൾട്ട് ലിങ്ക് തയ്യാർ!</p>
+            <input type="text" readonly value="${myUniqueLink}" id="resL">
+            <button class="btn btn-primary" onclick="copyMyLink()">COPY LINK</button>
+            <p style="font-size:11px; color:blue; margin-top:5px;">ഈ ലിങ്ക് ഉപയോഗിച്ച് റിസൾട്ട് കാണാം.</p>
+         </div>` : `<p>അഡ്മിൻ അപ്രൂവലിനായി കാത്തിരിക്കുന്നു...</p>`;
+    }
 
     function copyMyLink() {
         const copyText = document.getElementById("resL");
@@ -212,6 +215,7 @@
         alert("Link Copied!");
     }
 
+    // --- ബാക്കി ഫംഗ്ഷനുകൾ മാറ്റമില്ലാതെ തുടരുന്നു ---
     function addStudent() {
         const cls = document.getElementById('stClass').value;
         const reg = document.getElementById('stRegNo').value;
@@ -234,6 +238,13 @@
                 html += `<tr><td>${reg}</td><td>${mData.students[cls][reg]}</td><td><i class="fa fa-trash" style="color:#c0392b; cursor:pointer;" onclick="deleteStudent('${cls}', '${reg}')"></i></td></tr>`; 
             }
             area.innerHTML += html + `</tbody></table></div>`;
+        }
+    }
+
+    function deleteStudent(cls, reg) {
+        if(confirm("Delete Student?")) {
+            delete mData.students[cls][reg];
+            refreshStudentDisplay();
         }
     }
 
@@ -281,7 +292,6 @@
         }
         document.getElementById('tBody').innerHTML = b;
         document.getElementById('tableWrapper').classList.remove('hidden');
-        document.querySelectorAll('.s-mark').forEach(input => calcStatus(input));
     }
 
     function calcStatus(input) {
@@ -341,11 +351,11 @@
 
     async function syncWithCloud() { 
         await db.collection("madrasa_data").doc(mData.info.phone).set(mData); 
-        alert("Saved!"); 
+        alert("Data Saved Successfully!"); 
     }
     
     async function publishResult() { 
-        if(confirm("Publish?")) { 
+        if(confirm("എല്ലാ റിസൾട്ടുകളും പബ്ലിഷ് ചെയ്യട്ടെ?")) { 
             mData.isPublished = true; 
             await syncWithCloud(); 
             location.reload(); 
@@ -353,7 +363,7 @@
     }
     
     function exportExcel() { 
-        XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("mainTable")), "Result.xlsx"); 
+        XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("mainTable")), "Madrasa_Result.xlsx"); 
     }
 </script>
 </body>
