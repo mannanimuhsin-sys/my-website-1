@@ -3,49 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Prayer Board</title>
+    <title>Digital Masjid Board</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Manjari:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #D4AF37; --green: #00ff88; --bg: #050505; }
-        body { font-family: 'Manjari', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; display: flex; justify-content: center; }
+        :root { --gold: #D4AF37; --green: #00ff88; --dark: #050505; --gray: #888; }
+        body { font-family: 'Manjari', sans-serif; background: var(--dark); color: white; margin: 0; padding: 15px; display: flex; justify-content: center; }
         
-        .board { width: 100%; max-width: 450px; background: #111; border-radius: 30px; border: 2px solid #222; overflow: hidden; box-shadow: 0 0 40px rgba(0,0,0,1); }
+        .board { width: 100%; max-width: 450px; background: #111; border-radius: 35px; border: 1px solid #333; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
 
-        /* ഡിജിറ്റൽ പോസ്റ്റർ നോട്ടീസ് */
-        .notice-poster { background: linear-gradient(145deg, #1a1a1a, #000); border-bottom: 3px solid var(--gold); padding: 20px; text-align: center; position: relative; }
-        .notice-poster::after { content: "NOTICE"; position: absolute; top: 5px; right: 15px; font-size: 10px; color: var(--gold); opacity: 0.5; }
-        .prog-title { font-size: 24px; font-weight: 700; color: var(--gold); margin: 0; display: block; }
-        .prog-desc { font-size: 16px; color: #ddd; margin-top: 5px; display: block; }
+        /* മുകൾ ഭാഗത്തെ പോസ്റ്റർ ഡിസൈൻ */
+        .poster-header { background: linear-gradient(180deg, #1a1a1a, #000); padding: 25px 15px; border-bottom: 2px solid var(--gold); text-align: center; }
+        .night-tag { display: inline-block; background: var(--gold); color: black; padding: 4px 15px; border-radius: 50px; font-weight: bold; font-size: 14px; margin-bottom: 10px; }
+        .night-info { display: block; font-size: 18px; color: #fff; font-weight: bold; margin-bottom: 5px; }
 
-        .date-area { text-align: center; padding: 15px; background: #181818; }
-        .hijri-text { font-size: 20px; font-weight: bold; color: #fff; letter-spacing: 1px; }
-        .eng-text { font-size: 13px; color: #777; margin-top: 4px; }
+        .date-display { padding: 15px; text-align: center; border-bottom: 1px solid #222; }
+        .h-date { font-size: 22px; font-weight: bold; color: var(--gold); display: block; }
+        .e-date { font-size: 13px; color: var(--gray); margin-top: 5px; }
 
-        .prayer-list { padding: 15px; }
-        .prayer-card { display: flex; justify-content: space-between; align-items: center; background: #222; padding: 15px 20px; border-radius: 18px; margin-bottom: 10px; border: 1px solid #333; }
-        .p-name b { font-size: 18px; display: block; color: var(--gold); }
-        .p-name span { font-size: 13px; color: #999; }
+        /* പ്രെയർ കാർഡ് ഡിസൈൻ */
+        .prayer-section { padding: 15px; }
+        .prayer-card { background: #181818; border-radius: 20px; padding: 18px; margin-bottom: 12px; border: 1px solid #222; }
+        .prayer-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; border-bottom: 1px solid #282828; padding-bottom: 8px; }
+        .p-name-ml { font-size: 22px; font-weight: 700; color: white; }
+        .p-name-en { font-size: 12px; color: var(--gray); text-transform: uppercase; margin-left: 8px; font-weight: normal; }
 
-        .t-group { display: flex; gap: 15px; text-align: center; }
-        .t-box small { display: block; font-size: 9px; color: #666; margin-bottom: 2px; }
-        .t-val { font-family: 'Orbitron', sans-serif; font-size: 17px; font-weight: bold; }
-        .iqamah { color: var(--green); }
+        .time-row { display: flex; justify-content: space-between; text-align: center; }
+        .time-box { flex: 1; }
+        .time-box span { display: block; font-size: 10px; color: var(--gray); text-transform: uppercase; margin-bottom: 5px; }
+        .time-val { font-family: 'Orbitron', sans-serif; font-size: 20px; color: #fff; }
+        .iqamah-val { color: var(--green); text-shadow: 0 0 10px rgba(0,255,136,0.3); }
     </style>
 </head>
 <body>
 
 <div class="board">
-    <div class="notice-poster" id="noticeBox" style="display:none;">
-        <span class="prog-title" id="pTitle"></span>
-        <span class="prog-desc" id="pDesc"></span>
+    <div class="poster-header" id="posterArea">
+        <div id="box11" style="margin-bottom: 15px;">
+            <span class="night-tag">പതിനൊന്നാം രാവ് ഖുത്ബിയ്യത്ത്</span>
+            <span class="night-info" id="n11Val">-- --- ----</span>
+        </div>
+        <div id="box12">
+            <span class="night-tag">പന്ത്രണ്ടാം രാവ് മൌലീദ്</span>
+            <span class="night-info" id="n12Val">-- --- ----</span>
+        </div>
     </div>
 
-    <div class="date-area">
-        <span class="hijri-text" id="hD">-- - --- - ----</span>
-        <div class="eng-text" id="eD">-- --- ----</div>
+    <div class="date-display">
+        <span class="h-date" id="hD">-- - --- - ----</span>
+        <span class="e-date" id="eD">-- --- ----</span>
     </div>
 
-    <div class="prayer-list" id="pList"></div>
+    <div class="prayer-section" id="pList"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -61,7 +69,7 @@ const db = firebase.firestore();
 
 const monthsML = { "Sha'ban": "ശഅ്ബാൻ", "Ramadan": "റമദാൻ", "Muharram": "മുഹറം", "Safar": "സഫർ", "Rabi' al-awwal": "റബീഉൽ അവ്വൽ", "Rabi' ath-thani": "റബീഉൽ ആഖിർ", "Jumada al-ula": "ജുമാദൽ ഊല", "Jumada al-akhira": "ജുമാദൽ ആഖിറ", "Rajab": "റജബ്", "Dhu al-Qi'dah": "ദുൽ ഖഅ്ദ്", "Dhu al-Hijjah": "ദുൽ ഹിജ്ജ", "Shawwal": "ശവ്വാൽ" };
 
-async function init() {
+async function start() {
     const locDoc = await db.collection("settings").doc("location_data").get();
     let lat = 12.0304, lng = 75.5317;
     if(locDoc.exists) { lat = locDoc.data().lat; lng = locDoc.data().lng; }
@@ -70,7 +78,6 @@ async function init() {
     const data = await res.json();
     const d = data.data;
 
-    // മലയാളം മാസം
     const h = d.date.hijri;
     const mlMonth = monthsML[h.month.en] || h.month.en;
     document.getElementById('hD').innerText = `${h.day} - ${mlMonth} - ${h.year}`;
@@ -79,14 +86,8 @@ async function init() {
     db.collection("settings").doc("prayer_master").onSnapshot(doc => {
         if(doc.exists) {
             const conf = doc.data();
-            // Notice Logic
-            if(conf.notice && conf.notice.title) {
-                document.getElementById('noticeBox').style.display = "block";
-                document.getElementById('pTitle').innerText = conf.notice.title;
-                document.getElementById('pDesc').innerText = conf.notice.desc;
-            } else {
-                document.getElementById('noticeBox').style.display = "none";
-            }
+            document.getElementById('n11Val').innerText = conf.nights.n11 || "സെറ്റ് ചെയ്തിട്ടില്ല";
+            document.getElementById('n12Val').innerText = conf.nights.n12 || "സെറ്റ് ചെയ്തിട്ടില്ല";
             render(d.timings, conf.tuning, conf.delays);
         }
     });
@@ -94,26 +95,28 @@ async function init() {
 
 function render(timings, tuning, delays) {
     const prayers = [
-        {k:'Fajr', e:'Subhi', m:'സുബ്ഹി'}, {k:'Dhuhr', e:'Dhuhr', m:'ളുഹർ'}, 
-        {k:'Asr', e:'Asr', m:'അസർ'}, {k:'Maghrib', e:'Maghrib', m:'മഗ്‌രിബ്'}, {k:'Isha', e:'Isha', m:'ഇശാ'}
+        {k:'Fajr', e:'Subhi', m:'സുബ്ഹി'}, {k:'Dhuhr', e:'Luhar', m:'ളുഹർ'}, 
+        {k:'Asr', e:'Asar', m:'അസർ'}, {k:'Maghrib', e:'Maghrib', m:'മഗ്‌രിബ്'}, {k:'Isha', e:'Isha', m:'ഇശാ'}
     ];
 
     document.getElementById('pList').innerHTML = prayers.map(p => {
-        const adhan = calculate(timings[p.k], tuning[p.k]);
-        const iqamah = calculate(adhan, delays[p.k]);
+        const adhan = adjust(timings[p.k], tuning[p.k]);
+        const iqamah = adjust(adhan, delays[p.k]);
         return `
             <div class="prayer-card">
-                <div class="p-name"><b>${p.m}</b><span>${p.e}</span></div>
-                <div class="t-group">
-                    <div><small>BANK</small><span class="t-val">${format(adhan)}</span></div>
-                    <div><small>IQAMAH</small><span class="t-val iqamah">${format(iqamah)}</span></div>
+                <div class="prayer-top">
+                    <span class="p-name-ml">${p.m} <span class="p-name-en">${p.e}</span></span>
+                </div>
+                <div class="time-row">
+                    <div class="time-box"><span>ബാങ്ക്</span><div class="time-val">${format(adhan)}</div></div>
+                    <div class="time-box"><span>ഇക്കാമത്ത്</span><div class="time-val iqamah-val">${format(iqamah)}</div></div>
                 </div>
             </div>
         `;
     }).join('');
 }
 
-function calculate(time, mins) {
+function adjust(time, mins) {
     let [h, m] = time.split(':').map(Number);
     let dt = new Date(); dt.setHours(h); dt.setMinutes(m + (mins || 0));
     return `${dt.getHours()}:${dt.getMinutes()}`;
@@ -125,7 +128,7 @@ function format(time) {
     return `${h}:${m.toString().padStart(2,'0')} ${am}`;
 }
 
-init();
+start();
 </script>
 </body>
 </html>
