@@ -5,19 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notice Admin - Madrasa</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f3; padding: 15px; margin: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #eef2f3; padding: 15px; margin: 0; }
         .admin-box { max-width: 500px; background: white; padding: 25px; margin: 20px auto; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+        h2 { text-align: center; color: #2c3e50; }
         label { display: block; margin: 15px 0 8px; font-weight: bold; color: #34495e; }
-        input, textarea { width: 100%; padding: 15px; border: 2px solid #dfe6e9; border-radius: 12px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
-        input:focus, textarea:focus { border-color: #198754; outline: none; }
-        
+        input, textarea { width: 100%; padding: 15px; border: 2px solid #dfe6e9; border-radius: 12px; box-sizing: border-box; font-size: 16px; }
         .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 25px; }
-        button { width: 100%; padding: 16px; font-size: 16px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; transition: 0.3s; }
-        
-        .update-btn { background: #198754; color: white; box-shadow: 0 4px 15px rgba(25, 135, 84, 0.3); }
-        .reset-btn { background: #dc3545; color: white; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); }
-        button:active { transform: scale(0.98); }
+        button { width: 100%; padding: 16px; font-size: 16px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; transition: 0.3s; color: white; }
+        .update-btn { background: #198754; }
+        .reset-btn { background: #dc3545; }
     </style>
 </head>
 <body>
@@ -26,13 +22,13 @@
     <h2>Notice Control Panel</h2>
     
     <label>നോട്ടീസ് ഹെഡിംഗ്</label>
-    <input type="text" id="noticeTitle" placeholder="ഉദാ: അവധി അറിയിപ്പ്">
+    <input type="text" id="noticeTitle" placeholder="വിഷയം നൽകുക">
     
     <label>വിശദവിവരങ്ങൾ</label>
-    <textarea id="noticeMsg" rows="4" placeholder="വിവരങ്ങൾ ഇവിടെ ടൈപ്പ് ചെയ്യുക..."></textarea>
+    <textarea id="noticeMsg" rows="4" placeholder="വിവരങ്ങൾ ടൈപ്പ് ചെയ്യുക..."></textarea>
     
     <div class="btn-group">
-        <button class="update-btn" onclick="updateNotice()">📢 UPDATE NOTICE & SEND NOTIFICATION</button>
+        <button class="update-btn" onclick="updateNotice()">📢 UPDATE & SEND NOTIFICATION</button>
         <button class="reset-btn" onclick="resetNotice()">🗑️ RESET (ക്ലിയർ ചെയ്യുക)</button>
     </div>
 </div>
@@ -41,7 +37,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-    // ഫയർബേസ് സെറ്റപ്പ്
+    // Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
         projectId: "misbahul-uloom-madrasa-4830c"
@@ -49,18 +45,14 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 1. നോട്ടീസ് അപ്‌ഡേറ്റ് ചെയ്യാനും നോട്ടിഫിക്കേഷൻ അയക്കാനും
+    // 1. Update Notice & Send Push
     async function updateNotice() {
         const title = document.getElementById('noticeTitle').value;
         const msg = document.getElementById('noticeMsg').value;
 
-        if(!title || !msg) {
-            alert("ദയവായി ഹെഡിംഗും വിവരങ്ങളും നൽകുക!");
-            return;
-        }
+        if(!title || !msg) return alert("രണ്ടും പൂരിപ്പിക്കുക!");
 
         try {
-            // Firestore അപ്‌ഡേറ്റ്
             await db.collection("notices").doc("latest").set({
                 title: title,
                 message: msg,
@@ -73,11 +65,11 @@
 
             alert("നോട്ടീസ് അപ്ഡേറ്റ് ആയി! എല്ലാവർക്കും നോട്ടിഫിക്കേഷൻ പോയിട്ടുണ്ട്.");
         } catch (error) {
-            alert("എറർ: " + error.message);
+            alert("Error: " + error.message);
         }
     }
 
-    // 2. നോട്ടീസ് ക്ലിയർ ചെയ്യാനുള്ള ഫങ്ഷൻ
+    // 2. Clear Notice
     async function resetNotice() {
         if(confirm("നോട്ടീസ് ബോർഡ് ക്ലിയർ ചെയ്യണമോ?")) {
             await db.collection("notices").doc("latest").set({
@@ -86,20 +78,18 @@
                 time: new Date(),
                 active: false
             });
-            document.getElementById('noticeTitle').value = "";
-            document.getElementById('noticeMsg').value = "";
             alert("നോട്ടീസ് ബോർഡ് ക്ലിയർ ചെയ്തു!");
         }
     }
 
-    // 3. വൺസിഗ്നൽ വഴി നോട്ടിഫിക്കേഷൻ അയക്കുന്ന കോഡ്
+    // 3. OneSignal API call
     function sendPushNotification(title, msg) {
         const options = {
             method: 'POST',
             headers: {
                 'accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Authorization': 'Basic YOUR_REST_API_KEY_HERE' // ഇവിടെ REST API KEY നൽകണം
+                'Authorization': 'Basic Os_v2_app_kuweczr77nagljjb4ferxeynidv6dase7q3uspefahvrjxszv6hnlkv2h4xh42apawabdfxptrvhnz3rerd7ldwnns4ctnwh6c5luja'
             },
             body: JSON.stringify({
                 app_id: "552c4166-3ffb-4065-a521-e1491b930d40",
@@ -111,9 +101,9 @@
         };
 
         fetch('https://onesignal.com/api/v1/notifications', options)
-            .then(response => response.json())
-            .then(response => console.log("Notification Sent:", response))
-            .catch(err => console.error("Notification Error:", err));
+            .then(res => res.json())
+            .then(data => console.log("Success:", data))
+            .catch(err => console.error("Error:", err));
     }
 </script>
 </body>
