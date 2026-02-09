@@ -2,47 +2,46 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <title>Madrasa Admin - Premium</title>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Program Control</title>
     <style>
-        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; padding: 20px; }
-        .admin-box { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .card { background: #f8f9fa; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #eee; }
-        h3 { color: #198754; text-align: center; margin-bottom: 20px; }
-        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        input { padding: 10px; border-radius: 8px; border: 1px solid #ddd; width: 100%; box-sizing: border-box; }
-        .num-in { width: 60px; text-align: center; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .btn-save { background: #198754; color: white; }
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 15px; max-width: 500px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; margin-bottom: 25px; }
+        .section { margin-bottom: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-items: center; margin-bottom: 10px; }
+        button { width: 100%; background: #007bff; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #0056b3; }
+        .info { font-size: 12px; color: #888; text-align: center; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="admin-box">
-    <h3>Admin Control Panel</h3>
+<div class="card">
+    <h2>പ്രോഗ്രാം കൺട്രോൾ</h2>
 
-    <div class="card">
-        <h4>1. വിശേഷ രാവുകൾ (Special Nights)</h4>
-        <label>പതിനൊന്നാം രാവ് തീയതി:</label>
-        <input type="text" id="night11" placeholder="ഉദാ: 2026 മാർച്ച് 10">
-        <label style="display:block; margin-top:10px;">പന്ത്രണ്ടാം രാവ് തീയതി:</label>
-        <input type="text" id="night12" placeholder="ഉദാ: 2026 മാർച്ച് 11">
+    <div class="section">
+        <label>നോട്ടീസ് ബോർഡ് (Notice Board)</label>
+        <input type="text" id="nTitle" placeholder="വിഷയം (ഉദാ: മൗലീദ് സദസ്സ്)">
+        <textarea id="nText" rows="3" placeholder="വിശദവിവരങ്ങൾ..."></textarea>
+        <p class="info">* ഹെഡിംഗ് ശൂന്യമാക്കിയാൽ നോട്ടീസ് ബോർഡ് മറഞ്ഞുനിൽക്കും.</p>
     </div>
 
-    <div class="card">
-        <h4>2. നിസ്കാര സമയം (Tuning & Delay)</h4>
-        <div class="row"><b>വക്ത്</b> <span>Tuning (+/-)</span> <span>Iqamah (Min)</span></div>
-        <hr>
-        <div class="row"><span>സുബ്ഹി:</span> <input type="number" id="t_Fajr" class="num-in" value="0"> <input type="number" id="i_Fajr" class="num-in" value="20"></div>
-        <div class="row"><span>ളുഹർ:</span> <input type="number" id="t_Dhuhr" class="num-in" value="0"> <input type="number" id="i_Dhuhr" class="num-in" value="15"></div>
-        <div class="row"><span>അസർ:</span> <input type="number" id="t_Asr" class="num-in" value="0"> <input type="number" id="i_Asr" class="num-in" value="15"></div>
-        <div class="row"><span>മഗ്‌രിബ്:</span> <input type="number" id="t_Maghrib" class="num-in" value="0"> <input type="number" id="i_Maghrib" class="num-in" value="10"></div>
-        <div class="row"><span>ഇശാ:</span> <input type="number" id="t_Isha" class="num-in" value="0"> <input type="number" id="i_Isha" class="num-in" value="15"></div>
+    <div class="section">
+        <label>സമയ ക്രമീകരണം</label>
+        <div class="grid" style="background:#eee; padding:5px; border-radius:5px;">
+            <small>നിസ്കാരം</small><small>Bank +/-</small><small>Iqamah</small>
+        </div>
+        <div id="prayerInputs"></div>
     </div>
 
-    <button class="btn btn-save" onclick="saveData()">SAVE CHANGES</button>
+    <button onclick="save()">വിവരങ്ങൾ സേവ് ചെയ്യുക</button>
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
 firebase.initializeApp({
@@ -51,15 +50,38 @@ firebase.initializeApp({
     projectId: "misbahul-uloom-madrasa-4830c"
 });
 const db = firebase.firestore();
+const prayers = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
+const ml = ["സുബ്ഹി", "ളുഹർ", "അസർ", "മഗ്‌രിബ്", "ഇശാ"];
 
-async function saveData() {
-    const data = {
-        nights: { n11: document.getElementById('night11').value, n12: document.getElementById('night12').value },
-        tuning: { Fajr: parseInt(document.getElementById('t_Fajr').value), Dhuhr: parseInt(document.getElementById('t_Dhuhr').value), Asr: parseInt(document.getElementById('t_Asr').value), Maghrib: parseInt(document.getElementById('t_Maghrib').value), Isha: parseInt(document.getElementById('t_Isha').value) },
-        delays: { Fajr: parseInt(document.getElementById('i_Fajr').value), Dhuhr: parseInt(document.getElementById('i_Dhuhr').value), Asr: parseInt(document.getElementById('i_Asr').value), Maghrib: parseInt(document.getElementById('i_Maghrib').value), Isha: parseInt(document.getElementById('i_Isha').value) }
-    };
-    await db.collection("settings").doc("prayer_master").set(data);
-    alert("വിജയകരമായി അപ്‌ഡേറ്റ് ചെയ്തു!");
+// പഴയ ഡാറ്റ ലോഡ് ചെയ്യുന്നു
+db.collection("settings").doc("prayer_master").get().then(doc => {
+    const data = doc.data() || { tuning: {}, delays: {} };
+    document.getElementById('nTitle').value = data.noticeTitle || "";
+    document.getElementById('nText').value = data.noticeText || "";
+    
+    document.getElementById('prayerInputs').innerHTML = prayers.map((p, i) => `
+        <div class="grid">
+            <span>${ml[i]}</span>
+            <input type="number" id="t_${p}" value="${data.tuning[p] || 0}">
+            <input type="number" id="d_${p}" value="${data.delays[p] || 15}">
+        </div>
+    `).join('');
+});
+
+function save() {
+    const tuning = {};
+    const delays = {};
+    prayers.forEach(p => {
+        tuning[p] = parseInt(document.getElementById(`t_${p}`).value) || 0;
+        delays[p] = parseInt(document.getElementById(`d_${p}`).value) || 0;
+    });
+
+    db.collection("settings").doc("prayer_master").set({
+        noticeTitle: document.getElementById('nTitle').value,
+        noticeText: document.getElementById('nText').value,
+        tuning: tuning,
+        delays: delays
+    }).then(() => alert("വിജയകരമായി സേവ് ചെയ്തു!"));
 }
 </script>
 </body>

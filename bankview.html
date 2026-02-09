@@ -2,58 +2,59 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Masjid Board</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Board - Misbahul Uloom</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Manjari:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #D4AF37; --green: #00ff88; --dark: #050505; --gray: #888; }
-        body { font-family: 'Manjari', sans-serif; background: var(--dark); color: white; margin: 0; padding: 15px; display: flex; justify-content: center; }
-        
-        .board { width: 100%; max-width: 450px; background: #111; border-radius: 35px; border: 1px solid #333; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        :root { --gold: #D4AF37; --green: #00ff88; --bg: #000; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Manjari', sans-serif; background: var(--bg); color: white; padding: 8px; display: flex; justify-content: center; }
+        .board { width: 100%; max-width: 450px; background: #050505; border-radius: 25px; border: 1.5px solid #222; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
 
-        /* മുകൾ ഭാഗത്തെ പോസ്റ്റർ ഡിസൈൻ */
-        .poster-header { background: linear-gradient(180deg, #1a1a1a, #000); padding: 25px 15px; border-bottom: 2px solid var(--gold); text-align: center; }
-        .night-tag { display: inline-block; background: var(--gold); color: black; padding: 4px 15px; border-radius: 50px; font-weight: bold; font-size: 14px; margin-bottom: 10px; }
-        .night-info { display: block; font-size: 18px; color: #fff; font-weight: bold; margin-bottom: 5px; }
+        /* രാവുകൾ */
+        .nights-row { display: flex; background: #111; border-bottom: 2px solid var(--gold); }
+        .night-card { flex: 1; text-align: center; padding: 12px 5px; border-right: 1px solid #222; }
+        .night-card b { color: var(--gold); font-size: 13px; display: block; }
+        .night-card span { font-size: 13px; font-weight: bold; color: #fff; display: block; margin-top: 3px; }
 
-        .date-display { padding: 15px; text-align: center; border-bottom: 1px solid #222; }
-        .h-date { font-size: 22px; font-weight: bold; color: var(--gold); display: block; }
-        .e-date { font-size: 13px; color: var(--gray); margin-top: 5px; }
+        /* നോട്ടീസ് ബോർഡ് */
+        #noticeBox { display: none; padding: 15px; margin: 10px; background: linear-gradient(45deg, #1a1a00, #000); border: 1px solid var(--gold); border-radius: 15px; text-align: center; animation: glow 2s infinite alternate; }
+        @keyframes glow { from { border-color: #554400; } to { border-color: var(--gold); } }
+        #noticeTitle { color: var(--gold); font-size: 20px; font-weight: 800; margin-bottom: 5px; }
+        #noticeText { font-size: 15px; color: #ccc; line-height: 1.4; }
 
-        /* പ്രെയർ കാർഡ് ഡിസൈൻ */
-        .prayer-section { padding: 15px; }
-        .prayer-card { background: #181818; border-radius: 20px; padding: 18px; margin-bottom: 12px; border: 1px solid #222; }
-        .prayer-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; border-bottom: 1px solid #282828; padding-bottom: 8px; }
-        .p-name-ml { font-size: 22px; font-weight: 700; color: white; }
-        .p-name-en { font-size: 12px; color: var(--gray); text-transform: uppercase; margin-left: 8px; font-weight: normal; }
+        .header { padding: 15px 10px; text-align: center; }
+        .hijri-lg { font-size: 24px; font-weight: 800; color: var(--gold); }
+        .eng-sm { font-size: 14px; color: #777; margin-top: 4px; }
 
-        .time-row { display: flex; justify-content: space-between; text-align: center; }
-        .time-box { flex: 1; }
-        .time-box span { display: block; font-size: 10px; color: var(--gray); text-transform: uppercase; margin-bottom: 5px; }
-        .time-val { font-family: 'Orbitron', sans-serif; font-size: 20px; color: #fff; }
-        .iqamah-val { color: var(--green); text-shadow: 0 0 10px rgba(0,255,136,0.3); }
+        .p-list { padding: 0 12px 12px 12px; }
+        .p-row { display: flex; align-items: center; background: #111; padding: 18px 15px; border-radius: 20px; margin-bottom: 10px; border: 1px solid #222; }
+        .active-now { border: 2.5px solid var(--green) !important; background: #001a0d !important; }
+        .p-name { flex: 1.2; font-size: 24px; font-weight: 800; }
+        .t-group { flex: 3; display: flex; justify-content: space-around; text-align: center; }
+        .t-val { font-family: 'Orbitron', sans-serif; font-size: 19px; font-weight: bold; }
+        .iq-color { color: var(--green); }
     </style>
 </head>
 <body>
 
 <div class="board">
-    <div class="poster-header" id="posterArea">
-        <div id="box11" style="margin-bottom: 15px;">
-            <span class="night-tag">പതിനൊന്നാം രാവ് ഖുത്ബിയ്യത്ത്</span>
-            <span class="night-info" id="n11Val">-- --- ----</span>
-        </div>
-        <div id="box12">
-            <span class="night-tag">പന്ത്രണ്ടാം രാവ് മൌലീദ്</span>
-            <span class="night-info" id="n12Val">-- --- ----</span>
-        </div>
+    <div class="nights-row">
+        <div class="night-card"><b>പതിനൊന്നാം രാവ്</b><span id="n11">...</span></div>
+        <div class="night-card" style="border-right:none;"><b>പന്ത്രണ്ടാം രാവ്</b><span id="n12">...</span></div>
     </div>
 
-    <div class="date-display">
-        <span class="h-date" id="hD">-- - --- - ----</span>
-        <span class="e-date" id="eD">-- --- ----</span>
+    <div id="noticeBox">
+        <div id="noticeTitle"></div>
+        <div id="noticeText"></div>
     </div>
 
-    <div class="prayer-section" id="pList"></div>
+    <div class="header">
+        <div class="hijri-lg" id="hijri">-- - --- - ----</div>
+        <div class="eng-sm" id="eng">-- --- ----</div>
+    </div>
+
+    <div class="p-list" id="pList"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -67,59 +68,87 @@ firebase.initializeApp({
 });
 const db = firebase.firestore();
 
-const monthsML = { "Sha'ban": "ശഅ്ബാൻ", "Ramadan": "റമദാൻ", "Muharram": "മുഹറം", "Safar": "സഫർ", "Rabi' al-awwal": "റബീഉൽ അവ്വൽ", "Rabi' ath-thani": "റബീഉൽ ആഖിർ", "Jumada al-ula": "ജുമാദൽ ഊല", "Jumada al-akhira": "ജുമാദൽ ആഖിറ", "Rajab": "റജബ്", "Dhu al-Qi'dah": "ദുൽ ഖഅ്ദ്", "Dhu al-Hijjah": "ദുൽ ഹിജ്ജ", "Shawwal": "ശവ്വാൽ" };
+const monthsML = { "Muharram": "മുഹറം", "Safar": "സഫർ", "Rabi' al-awwal": "റബീഉൽ അവ്വൽ", "Rabi' ath-thani": "റബീഉൽ ആഖിർ", "Jumada al-ula": "ജുമാദൽ ഊല", "Jumada al-akhira": "ജുമാദൽ ആഖിറ", "Rajab": "റജബ്", "Sha'ban": "ശഅ്ബാൻ", "Ramadan": "റമദാൻ", "Shawwal": "ശവ്വാൽ", "Dhu al-Qi'dah": "ദുൽ ഖഅ്ദ്", "Dhu al-Hijjah": "ദുൽ ഹിജ്ജ" };
+const daysML = ["ഞായർ", "തിങ്കൾ", "ചൊവ്വ", "ബുധൻ", "വ്യാഴം", "വെള്ളി", "ശനി"];
+const monthsEngML = ["ജനുവരി", "ഫെബ്രുവരി", "മാർച്ച്", "ഏപ്രിൽ", "മേയ്", "ജൂൺ", "ജൂലൈ", "ഓഗസ്റ്റ്", "സെപ്റ്റംബർ", "ഒക്ടോബർ", "നവംബർ", "ഡിസംബർ"];
 
-async function start() {
-    const locDoc = await db.collection("settings").doc("location_data").get();
-    let lat = 12.0304, lng = 75.5317;
-    if(locDoc.exists) { lat = locDoc.data().lat; lng = locDoc.data().lng; }
+async function run() {
+    try {
+        const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=Kannur&country=India&method=1`);
+        const data = await res.json();
+        const timings = data.data.timings;
+        const h = data.data.date.hijri;
+        const g = data.data.date.gregorian;
 
-    const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=1`);
-    const data = await res.json();
-    const d = data.data;
+        document.getElementById('hijri').innerText = `${h.day} - ${monthsML[h.month.en] || h.month.en} - ${h.year}`;
+        document.getElementById('eng').innerText = data.data.date.readable;
 
-    const h = d.date.hijri;
-    const mlMonth = monthsML[h.month.en] || h.month.en;
-    document.getElementById('hD').innerText = `${h.day} - ${mlMonth} - ${h.year}`;
-    document.getElementById('eD').innerText = d.date.readable;
+        // തീയതി കണക്കാക്കുന്നു (NaN പ്രശ്നം ഒഴിവാക്കാൻ)
+        calcNights(h.day, g.day, g.month.number, g.year);
 
-    db.collection("settings").doc("prayer_master").onSnapshot(doc => {
-        if(doc.exists) {
-            const conf = doc.data();
-            document.getElementById('n11Val').innerText = conf.nights.n11 || "സെറ്റ് ചെയ്തിട്ടില്ല";
-            document.getElementById('n12Val').innerText = conf.nights.n12 || "സെറ്റ് ചെയ്തിട്ടില്ല";
-            render(d.timings, conf.tuning, conf.delays);
-        }
-    });
+        db.collection("settings").doc("prayer_master").onSnapshot(doc => {
+            if(doc.exists) {
+                const conf = doc.data();
+                render(timings, conf.tuning, conf.delays);
+                updateNotice(conf.noticeTitle, conf.noticeText);
+            }
+        });
+    } catch(err) { console.error(err); }
+}
+
+function calcNights(hDay, gDay, gMonth, gYear) {
+    const today = new Date(gYear, gMonth-1, parseInt(gDay));
+    const hNum = parseInt(hDay);
+    
+    const d10 = new Date(today); d10.setDate(today.getDate() + (10 - hNum));
+    const d11 = new Date(today); d11.setDate(today.getDate() + (11 - hNum));
+
+    document.getElementById('n11').innerHTML = `${monthsEngML[d10.getMonth()]} ${d10.getDate()}<br>${daysML[d10.getDay()]}`;
+    document.getElementById('n12').innerHTML = `${monthsEngML[d11.getMonth()]} ${d11.getDate()}<br>${daysML[d11.getDay()]}`;
+}
+
+function updateNotice(title, text) {
+    const box = document.getElementById('noticeBox');
+    if(title && title.trim() !== "") {
+        box.style.display = "block";
+        document.getElementById('noticeTitle').innerText = title;
+        document.getElementById('noticeText').innerText = text || "";
+    } else {
+        box.style.display = "none";
+    }
 }
 
 function render(timings, tuning, delays) {
-    const prayers = [
-        {k:'Fajr', e:'Subhi', m:'സുബ്ഹി'}, {k:'Dhuhr', e:'Luhar', m:'ളുഹർ'}, 
-        {k:'Asr', e:'Asar', m:'അസർ'}, {k:'Maghrib', e:'Maghrib', m:'മഗ്‌രിബ്'}, {k:'Isha', e:'Isha', m:'ഇശാ'}
-    ];
+    const prayers = [{k:'Fajr', m:'സുബ്ഹി'}, {k:'Dhuhr', m:'ളുഹർ'}, {k:'Asr', m:'അസർ'}, {k:'Maghrib', m:'മഗ്‌രിബ്'}, {k:'Isha', m:'ഇശാ'}];
+    const now = new Date();
+    const curMin = now.getHours() * 60 + now.getMinutes();
+    let nextIdx = -1;
 
-    document.getElementById('pList').innerHTML = prayers.map(p => {
+    for(let i=0; i<prayers.length; i++) {
+        const adhan = adjust(timings[prayers[i].k], tuning[prayers[i].k]);
+        const [h, m] = adhan.split(':').map(Number);
+        if((h * 60 + m) > curMin) { nextIdx = i; break; }
+    }
+    if(nextIdx === -1) nextIdx = 0;
+
+    document.getElementById('pList').innerHTML = prayers.map((p, idx) => {
         const adhan = adjust(timings[p.k], tuning[p.k]);
         const iqamah = adjust(adhan, delays[p.k]);
         return `
-            <div class="prayer-card">
-                <div class="prayer-top">
-                    <span class="p-name-ml">${p.m} <span class="p-name-en">${p.e}</span></span>
+            <div class="p-row ${idx === nextIdx ? 'active-now' : ''}">
+                <div class="p-name">${p.m}</div>
+                <div class="t-group">
+                    <div class="t-box"><small>ബാങ്ക്</small><div class="t-val">${format(adhan)}</div></div>
+                    <div class="t-box"><small>ഇക്കാമത്ത്</small><div class="t-val iq-color">${format(iqamah)}</div></div>
                 </div>
-                <div class="time-row">
-                    <div class="time-box"><span>ബാങ്ക്</span><div class="time-val">${format(adhan)}</div></div>
-                    <div class="time-box"><span>ഇക്കാമത്ത്</span><div class="time-val iqamah-val">${format(iqamah)}</div></div>
-                </div>
-            </div>
-        `;
+            </div>`;
     }).join('');
 }
 
 function adjust(time, mins) {
     let [h, m] = time.split(':').map(Number);
-    let dt = new Date(); dt.setHours(h); dt.setMinutes(m + (mins || 0));
-    return `${dt.getHours()}:${dt.getMinutes()}`;
+    let d = new Date(); d.setHours(h, m + (parseInt(mins) || 0));
+    return d.getHours() + ":" + d.getMinutes();
 }
 
 function format(time) {
@@ -128,7 +157,8 @@ function format(time) {
     return `${h}:${m.toString().padStart(2,'0')} ${am}`;
 }
 
-start();
+run();
+setInterval(run, 60000);
 </script>
 </body>
 </html>
