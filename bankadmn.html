@@ -10,7 +10,8 @@
         .box { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         .section { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #eee; }
         .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        input { width: 50px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; text-align: center; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-top: 5px; }
+        .num-in { width: 50px; text-align: center; }
         button { width: 100%; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
         .btn-loc { background: #2196F3; color: white; }
         .btn-save { background: #4CAF50; color: white; font-size: 16px; }
@@ -19,38 +20,37 @@
 <body>
 
 <div class="box">
-    <h2 style="text-align:center; color:#333;">Master Control</h2>
+    <h2 style="text-align:center;">Master Control</h2>
 
     <div class="section">
-        <h4>1. ലൊക്കേഷൻ സെറ്റിംഗ്‌സ്</h4>
-        <button class="btn-loc" onclick="detectLoc()">DETECT MY LOCATION</button>
-        <p id="lStat" style="font-size: 11px; text-align:center; color: #666;"></p>
+        <h4>1. വിശേഷ പരിപാടികൾ (Notice Board)</h4>
+        <input type="text" id="prog_title" placeholder="പരിപാടിയുടെ പേര് (ഉദാ: പന്ത്രണ്ടാം രാവ്)">
+        <textarea id="prog_desc" placeholder="വിവരങ്ങൾ (ഉദാ: മൗലീദ് സദസ്സ്, ദുആ മജ്‌ലിസ്)"></textarea>
     </div>
 
     <div class="section">
         <h4>2. ബാങ്ക് ട്യൂണിംഗ് (+/- മിനിറ്റ്)</h4>
-        <p style="font-size: 11px; color: red;">പള്ളിയിലെ കലണ്ടറുമായി മാച്ച് ചെയ്യാൻ ഇവിടെ മിനിറ്റ് നൽകുക.</p>
-        <div class="row"><span>സുബ്ഹി:</span><input type="number" id="t_Fajr" value="0"></div>
-        <div class="row"><span>ളുഹർ:</span><input type="number" id="t_Dhuhr" value="0"></div>
-        <div class="row"><span>അസർ:</span><input type="number" id="t_Asr" value="0"></div>
-        <div class="row"><span>മഗ്‌രിബ്:</span><input type="number" id="t_Maghrib" value="0"></div>
-        <div class="row"><span>ഇശാ:</span><input type="number" id="t_Isha" value="0"></div>
+        <div class="row"><span>സുബ്ഹി:</span><input type="number" id="t_Fajr" class="num-in" value="0"></div>
+        <div class="row"><span>ളുഹർ:</span><input type="number" id="t_Dhuhr" class="num-in" value="0"></div>
+        <div class="row"><span>അസർ:</span><input type="number" id="t_Asr" class="num-in" value="0"></div>
+        <div class="row"><span>മഗ്‌രിബ്:</span><input type="number" id="t_Maghrib" class="num-in" value="0"></div>
+        <div class="row"><span>ഇശാ:</span><input type="number" id="t_Isha" class="num-in" value="0"></div>
     </div>
 
     <div class="section">
         <h4>3. ഇക്കാമത്ത് മിനിറ്റുകൾ</h4>
-        <div class="row"><span>സുബ്ഹി:</span><input type="number" id="i_Fajr" value="20"></div>
-        <div class="row"><span>ളുഹർ:</span><input type="number" id="i_Dhuhr" value="15"></div>
-        <div class="row"><span>അസർ:</span><input type="number" id="i_Asr" value="15"></div>
-        <div class="row"><span>മഗ്‌രിബ്:</span><input type="number" id="i_Maghrib" value="10"></div>
-        <div class="row"><span>ഇശാ:</span><input type="number" id="i_Isha" value="15"></div>
+        <div class="row"><span>സുബ്ഹി:</span><input type="number" id="i_Fajr" class="num-in" value="20"></div>
+        <div class="row"><span>ളുഹർ:</span><input type="number" id="i_Dhuhr" class="num-in" value="15"></div>
+        <div class="row"><span>അസർ:</span><input type="number" id="i_Asr" class="num-in" value="15"></div>
+        <div class="row"><span>മഗ്‌രിബ്:</span><input type="number" id="i_Maghrib" class="num-in" value="10"></div>
+        <div class="row"><span>ഇശാ:</span><input type="number" id="i_Isha" class="num-in" value="15"></div>
     </div>
 
+    <button class="btn-loc" onclick="detectLoc()">DETECT LOCATION</button>
     <button class="btn-save" onclick="saveData()">SAVE ALL SETTINGS</button>
 </div>
 
 <script>
-// Firebase Config (നിങ്ങളുടെ പഴയ ക്വിസ് ഫയർബേസ് തന്നെ ഉപയോഗിക്കുക)
 firebase.initializeApp({
     apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
     authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
@@ -61,28 +61,17 @@ const db = firebase.firestore();
 function detectLoc() {
     navigator.geolocation.getCurrentPosition(async (p) => {
         await db.collection("settings").doc("location_data").set({ lat: p.coords.latitude, lng: p.coords.longitude });
-        document.getElementById('lStat').innerText = "Location Updated!";
+        alert("Location Updated!");
     });
 }
 
 async function saveData() {
-    const tuning = {
-        Fajr: parseInt(document.getElementById('t_Fajr').value),
-        Dhuhr: parseInt(document.getElementById('t_Dhuhr').value),
-        Asr: parseInt(document.getElementById('t_Asr').value),
-        Maghrib: parseInt(document.getElementById('t_Maghrib').value),
-        Isha: parseInt(document.getElementById('t_Isha').value)
-    };
-    const delays = {
-        Fajr: parseInt(document.getElementById('i_Fajr').value),
-        Dhuhr: parseInt(document.getElementById('i_Dhuhr').value),
-        Asr: parseInt(document.getElementById('i_Asr').value),
-        Maghrib: parseInt(document.getElementById('i_Maghrib').value),
-        Isha: parseInt(document.getElementById('i_Isha').value)
-    };
+    const notice = { title: document.getElementById('prog_title').value, desc: document.getElementById('prog_desc').value };
+    const tuning = { Fajr: parseInt(document.getElementById('t_Fajr').value), Dhuhr: parseInt(document.getElementById('t_Dhuhr').value), Asr: parseInt(document.getElementById('t_Asr').value), Maghrib: parseInt(document.getElementById('t_Maghrib').value), Isha: parseInt(document.getElementById('t_Isha').value) };
+    const delays = { Fajr: parseInt(document.getElementById('i_Fajr').value), Dhuhr: parseInt(document.getElementById('i_Dhuhr').value), Asr: parseInt(document.getElementById('i_Asr').value), Maghrib: parseInt(document.getElementById('i_Maghrib').value), Isha: parseInt(document.getElementById('i_Isha').value) };
 
-    await db.collection("settings").doc("prayer_master").set({ tuning, delays });
-    alert("വിജയകരമായി സേവ് ചെയ്തു!");
+    await db.collection("settings").doc("prayer_master").set({ tuning, delays, notice });
+    alert("Saved Successfully!");
 }
 </script>
 </body>
