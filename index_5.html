@@ -48,6 +48,15 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
         }
     </style>
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "552c4166-3ffb-4065-a521-e1491b930d40",
+    });
+  });
+</script>
 </head>
 <body>
 
