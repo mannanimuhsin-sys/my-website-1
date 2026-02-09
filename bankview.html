@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Board - Misbahul Uloom</title>
+    <title>Digital Prayer Board - Misbahul Uloom</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --gold: #D4AF37; --green: #00ff88; --dark: #080808; }
@@ -11,14 +11,13 @@
         
         .master-board { width: 100%; max-width: 460px; background: #121212; border: 2px solid #222; border-radius: 40px; padding: 25px; box-shadow: 0 0 50px rgba(0,0,0,1); border-top: 5px solid var(--gold); }
 
-        /* ഹെഡർ */
         .header { text-align: center; margin-bottom: 20px; }
         .hij-date { font-size: 22px; font-weight: 800; color: #fff; display: block; letter-spacing: 1px; margin: 5px 0; }
         .eng-date { font-size: 14px; color: #777; }
 
-        /* സ്പെഷ്യൽ അറിയിപ്പ് */
+        /* നോട്ടീസ് ബോക്സ് */
         .event-box { background: rgba(212, 175, 55, 0.15); border: 1.5px solid var(--gold); border-radius: 20px; padding: 15px; text-align: center; margin-bottom: 25px; display: none; }
-        .event-text { color: var(--gold); font-weight: bold; font-size: 18px; text-shadow: 0 0 10px rgba(212,175,55,0.3); }
+        .event-text { color: var(--gold); font-weight: bold; font-size: 18px; }
 
         /* ടൈം ലിസ്റ്റ് */
         .prayer-row { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 18px 25px; border-radius: 22px; margin-bottom: 12px; border: 1px solid #222; }
@@ -58,16 +57,16 @@ firebase.initializeApp({
 const db = firebase.firestore();
 
 async function init() {
-    // അഡ്മിൻ സെറ്റ് ചെയ്ത ലൊക്കേഷൻ എടുക്കുന്നു
+    // അഡ്മിൻ സെറ്റ് ചെയ്ത ലൊക്കേഷൻ ലോഡ് ചെയ്യുന്നു
     const locDoc = await db.collection("settings").doc("location_data").get();
-    let lat = 12.0304, lng = 75.5317; // Default
+    let lat = 12.0304, lng = 75.5317; // Default (670581 പരിസരം)
     if(locDoc.exists) { lat = locDoc.data().lat; lng = locDoc.data().lng; }
 
     const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=1`);
     const data = await res.json();
     const d = data.data;
 
-    // Date with hyphen
+    // തീയതി സെറ്റിംഗ്‌സ്
     const h = d.date.hijri;
     document.getElementById('eD').innerText = d.date.readable;
     document.getElementById('hD').innerText = `${h.day} - ${h.month.en} - ${h.year}`;
@@ -79,22 +78,35 @@ async function init() {
         document.getElementById('eventMsg').innerText = `ഇന്ന് പുണ്യമായ ${day === 11 ? 'പതിനൊന്നാം' : 'പന്ത്രണ്ടാം'} രാവ്`;
     }
 
+    // അഡ്മിൻ പാനലിലെ ട്യൂണിംഗും ഡിലൈയും അനുസരിച്ച് സമയം പുതുക്കുന്നു
     db.collection("settings").doc("prayer_master").onSnapshot(doc => {
-        if(doc.exists) render(d.timings, doc.data().delays);
+        if(doc.exists) {
+            const config = doc.data();
+            render(d.timings, config.tuning, config.delays);
+        }
     });
 }
 
-function render(timings, delays) {
-    const pKeys = [{k:'Fajr', n:'Subhi'}, {k:'Dhuhr', n:'Luhar'}, {k:'Asr', n:'Asar'}, {k:'Maghrib', n:'Maghrib'}, {k:'Isha', n:'Isha'}];
+function render(timings, tuning, delays) {
+    const pKeys = [
+        {k:'Fajr', n:'Subhi'}, {k:'Dhuhr', n:'Luhar'}, {k:'Asr', n:'Asar'}, 
+        {k:'Maghrib', n:'Maghrib'}, {k:'Isha', n:'Isha'}
+    ];
+
     document.getElementById('prayerList').innerHTML = pKeys.map(p => {
-        const adhan = timings[p.k];
-        const iqamah = calculate(adhan, delays[p.k]);
+        // ബാങ്ക് സമയം ട്യൂണിംഗ് മിനിറ്റ് ചേർത്ത് അഡ്ജസ്റ്റ് ചെയ്യുന്നു
+        const adhanRaw = timings[p.k];
+        const adhanAdjusted = calculate(adhanRaw, tuning[p.k]);
+        
+        // ഇക്കാമത്ത് സമയം ബാങ്ക് സമയത്തിൽ നിന്നും കണക്കാക്കുന്നു
+        const iqamahFinal = calculate(adhanAdjusted, delays[p.k]);
+
         return `
             <div class="prayer-row">
                 <div class="p-label"><b>${p.k}</b><span>${p.n}</span></div>
                 <div class="time-group">
-                    <div><small>ADHAN</small><span class="t-val">${format(adhan)}</span></div>
-                    <div><small>IQAMAH</small><span class="t-val iqamah">${format(iqamah)}</span></div>
+                    <div><small>ADHAN</small><span class="t-val">${format(adhanAdjusted)}</span></div>
+                    <div><small>IQAMAH</small><span class="t-val iqamah">${format(iqamahFinal)}</span></div>
                 </div>
             </div>
         `;
@@ -103,13 +115,16 @@ function render(timings, delays) {
 
 function calculate(time, mins) {
     let [h, m] = time.split(':').map(Number);
-    let dt = new Date(); dt.setHours(h); dt.setMinutes(m + (mins || 0));
+    let dt = new Date(); 
+    dt.setHours(h); 
+    dt.setMinutes(m + (mins || 0));
     return `${dt.getHours()}:${dt.getMinutes()}`;
 }
 
 function format(time) {
     let [h, m] = time.split(':').map(Number);
-    let am = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+    let am = h >= 12 ? 'PM' : 'AM'; 
+    h = h % 12 || 12;
     return `${h}:${m.toString().padStart(2,'0')} ${am}`;
 }
 
