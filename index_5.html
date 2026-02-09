@@ -142,7 +142,7 @@
 <footer>© 2026 | Designed by Muhsin Mannani</footer>
 
 <script>
-    // 1. ഫയർബേസ് കോൺഫിഗറേഷൻ (നിങ്ങൾ അയച്ചുതന്നത്)
+    // 1. ഫയർബേസ് കോൺഫിഗറേഷൻ
     const firebaseConfig = {
         apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
         authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
@@ -153,33 +153,31 @@
         measurementId: "G-Q2GZ1R1CTL"
     };
 
-    // 2. ഫയർബേസ് ആദ്യം തുടങ്ങണം
+    // 2. ഫയർബേസ് തുടങ്ങുന്നു (ഇതാണ് ആദ്യം വരേണ്ടത്)
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-   // 3. നോട്ടീസ് ഉണ്ടോ എന്ന് പരിശോധിക്കാനുള്ള സ്ക്രിപ്റ്റ്
+    // 3. ലൈവ് നോട്ടീസ് പരിശോധിക്കുന്നു (ഇത് db സെറ്റ് ചെയ്തതിന് ശേഷം മാത്രം)
     db.collection("notices").doc("latest").onSnapshot((doc) => {
         const noticeBox = document.getElementById('liveNoticeBox');
+        const noticeTitleDisplay = document.getElementById('liveNoticeDesc');
+        
         if (doc.exists) {
             const data = doc.data();
-            // ടൈറ്റിൽ ഉണ്ടെങ്കിൽ മാത്രം ബോക്സ് കാണിക്കുക
             if (data && data.title && data.title.trim() !== "") {
-                noticeBox.style.display = "block"; 
-                document.getElementById('liveNoticeDesc').innerText = data.title;
+                noticeBox.style.display = "block"; // നോട്ടീസ് ഉണ്ടെങ്കിൽ ബോക്സ് കാണിക്കും
+                noticeTitleDisplay.innerText = data.title; // ടൈറ്റിൽ അവിടെ എഴുതും
             } else {
                 noticeBox.style.display = "none";
             }
         } else {
-            noticeBox.style.display = "none"; 
+            noticeBox.style.display = "none";
         }
-    }, (error) => {
-        console.log("Error getting notice: ", error);
     });
 
-    // 4. ബാക്കിയുള്ള ഫങ്ഷനുകൾ
+    // 4. ബാക്കി ഫങ്ഷനുകൾ
     function openDashboard(){ window.location.href="https://mannanimuhsin-sys.github.io/my-website/index_7.html"; }
     function openLocation(){ window.open("https://maps.google.com", "_blank"); }
-    function showResultAlert(){ alert("നിലവിൽ റിസൽട്ടുകൾ ലഭ്യമല്ല."); }
 
     function fetchDonors(group) {
         const display = document.getElementById('donorDisplay');
@@ -205,10 +203,7 @@
                         </div>`;
                 });
             }
-        }).catch(err => {
-            list.innerHTML = "<p class='text-center'>ഡാറ്റ ലഭിക്കുന്നതിൽ തടസ്സം നേരിട്ടു.</p>";
         });
-        display.scrollIntoView({ behavior: 'smooth' });
     }
 
     document.getElementById('bloodBankForm').onsubmit = function(e) {
