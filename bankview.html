@@ -12,27 +12,28 @@
         .board { width: 100%; max-width: 450px; background: #050505; border-radius: 25px; border: 1.5px solid #222; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
 
         /* രാവുകൾ */
-        .nights-row { display: flex; background: #111; border-bottom: 2px solid var(--gold); }
+        .nights-row { display: flex; background: #111; border-bottom: 2.5px solid var(--gold); }
         .night-card { flex: 1; text-align: center; padding: 12px 5px; border-right: 1px solid #222; }
-        .night-card b { color: var(--gold); font-size: 13px; display: block; }
-        .night-card span { font-size: 13px; font-weight: bold; color: #fff; display: block; margin-top: 3px; }
+        .night-card b { color: var(--gold); font-size: 13px; display: block; margin-bottom: 3px; }
+        .night-card span { font-size: 13px; font-weight: bold; color: #fff; display: block; line-height: 1.3; }
 
-        /* നോട്ടീസ് ബോർഡ് */
-        #noticeBox { display: none; padding: 15px; margin: 10px; background: linear-gradient(45deg, #1a1a00, #000); border: 1px solid var(--gold); border-radius: 15px; text-align: center; animation: glow 2s infinite alternate; }
-        @keyframes glow { from { border-color: #554400; } to { border-color: var(--gold); } }
-        #noticeTitle { color: var(--gold); font-size: 20px; font-weight: 800; margin-bottom: 5px; }
-        #noticeText { font-size: 15px; color: #ccc; line-height: 1.4; }
+        /* നോട്ടീസ് ബോർഡ് - മനോഹരമായ ഡിസൈൻ */
+        #noticeBox { display: none; padding: 18px; margin: 12px; background: linear-gradient(145deg, #1a1a00, #000); border: 1.5px solid var(--gold); border-radius: 20px; text-align: center; animation: glow 2s infinite alternate; }
+        @keyframes glow { from { border-color: #554400; box-shadow: 0 0 5px #554400; } to { border-color: var(--gold); box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); } }
+        #noticeTitle { color: var(--gold); font-size: 22px; font-weight: 800; margin-bottom: 8px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        #noticeText { font-size: 16px; color: #ddd; line-height: 1.5; white-space: pre-wrap; }
 
-        .header { padding: 15px 10px; text-align: center; }
-        .hijri-lg { font-size: 24px; font-weight: 800; color: var(--gold); }
-        .eng-sm { font-size: 14px; color: #777; margin-top: 4px; }
+        .header { padding: 20px 10px; text-align: center; }
+        .hijri-lg { font-size: 26px; font-weight: 800; color: var(--gold); }
+        .eng-sm { font-size: 15px; color: #777; margin-top: 5px; font-weight: bold; }
 
-        .p-list { padding: 0 12px 12px 12px; }
-        .p-row { display: flex; align-items: center; background: #111; padding: 18px 15px; border-radius: 20px; margin-bottom: 10px; border: 1px solid #222; }
-        .active-now { border: 2.5px solid var(--green) !important; background: #001a0d !important; }
-        .p-name { flex: 1.2; font-size: 24px; font-weight: 800; }
+        .p-list { padding: 0 12px 15px 12px; }
+        .p-row { display: flex; align-items: center; background: #111; padding: 20px 15px; border-radius: 20px; margin-bottom: 12px; border: 1.5px solid #222; position: relative; }
+        .active-now { border: 2.5px solid var(--green) !important; background: #001a0d !important; box-shadow: 0 0 20px rgba(0,255,136,0.2); }
+        .p-name { flex: 1.2; font-size: 26px; font-weight: 800; color: #fff; }
         .t-group { flex: 3; display: flex; justify-content: space-around; text-align: center; }
-        .t-val { font-family: 'Orbitron', sans-serif; font-size: 19px; font-weight: bold; }
+        .t-box small { display: block; font-size: 10px; color: #666; margin-bottom: 4px; text-transform: uppercase; }
+        .t-val { font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: bold; color: #fff; }
         .iq-color { color: var(--green); }
     </style>
 </head>
@@ -54,7 +55,7 @@
         <div class="eng-sm" id="eng">-- --- ----</div>
     </div>
 
-    <div class="p-list" id="pList"></div>
+    <div id="pList" class="p-list"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -76,35 +77,41 @@ async function run() {
     try {
         const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=Kannur&country=India&method=1`);
         const data = await res.json();
+        if(!data || !data.data) return;
+
         const timings = data.data.timings;
         const h = data.data.date.hijri;
         const g = data.data.date.gregorian;
 
-        document.getElementById('hijri').innerText = `${h.day} - ${monthsML[h.month.en] || h.month.en} - ${h.year}`;
+        // ശഅ്ബാൻ ഉൾപ്പെടെയുള്ള മാസങ്ങൾ മലയാളത്തിലാക്കുന്നു
+        const malMonth = monthsML[h.month.en] || h.month.en;
+        document.getElementById('hijri').innerText = h.day + " - " + malMonth + " - " + h.year;
         document.getElementById('eng').innerText = data.data.date.readable;
 
-        // തീയതി കണക്കാക്കുന്നു (NaN പ്രശ്നം ഒഴിവാക്കാൻ)
+        // രാവുകൾ കണക്കാക്കുന്നു
         calcNights(h.day, g.day, g.month.number, g.year);
 
+        // ഫയർബേസ് നോട്ടീസും പ്രെയർ സെറ്റിംഗും
         db.collection("settings").doc("prayer_master").onSnapshot(doc => {
             if(doc.exists) {
                 const conf = doc.data();
-                render(timings, conf.tuning, conf.delays);
+                renderList(timings, conf.tuning, conf.delays);
                 updateNotice(conf.noticeTitle, conf.noticeText);
             }
         });
-    } catch(err) { console.error(err); }
+    } catch(err) { console.log("Error loading data"); }
 }
 
 function calcNights(hDay, gDay, gMonth, gYear) {
     const today = new Date(gYear, gMonth-1, parseInt(gDay));
     const hNum = parseInt(hDay);
     
+    // 10-ാം രാവും 11-ാം രാവും അടിസ്ഥാനമാക്കി സിസ്റ്റം തീയതി കണ്ടെത്തുന്നു
     const d10 = new Date(today); d10.setDate(today.getDate() + (10 - hNum));
     const d11 = new Date(today); d11.setDate(today.getDate() + (11 - hNum));
 
-    document.getElementById('n11').innerHTML = `${monthsEngML[d10.getMonth()]} ${d10.getDate()}<br>${daysML[d10.getDay()]}`;
-    document.getElementById('n12').innerHTML = `${monthsEngML[d11.getMonth()]} ${d11.getDate()}<br>${daysML[d11.getDay()]}`;
+    document.getElementById('n11').innerHTML = monthsEngML[d10.getMonth()] + " " + d10.getDate() + "<br>" + daysML[d10.getDay()];
+    document.getElementById('n12').innerHTML = monthsEngML[d11.getMonth()] + " " + d11.getDate() + "<br>" + daysML[d11.getDay()];
 }
 
 function updateNotice(title, text) {
@@ -118,7 +125,7 @@ function updateNotice(title, text) {
     }
 }
 
-function render(timings, tuning, delays) {
+function renderList(timings, tuning, delays) {
     const prayers = [{k:'Fajr', m:'സുബ്ഹി'}, {k:'Dhuhr', m:'ളുഹർ'}, {k:'Asr', m:'അസർ'}, {k:'Maghrib', m:'മഗ്‌രിബ്'}, {k:'Isha', m:'ഇശാ'}];
     const now = new Date();
     const curMin = now.getHours() * 60 + now.getMinutes();
@@ -126,12 +133,12 @@ function render(timings, tuning, delays) {
 
     for(let i=0; i<prayers.length; i++) {
         const adhan = adjust(timings[prayers[i].k], tuning[prayers[i].k]);
-        const [h, m] = adhan.split(':').map(Number);
-        if((h * 60 + m) > curMin) { nextIdx = i; break; }
+        const [hr, min] = adhan.split(':').map(Number);
+        if((hr * 60 + min) > curMin) { nextIdx = i; break; }
     }
     if(nextIdx === -1) nextIdx = 0;
 
-    document.getElementById('pList').innerHTML = prayers.map((p, idx) => {
+    const html = prayers.map((p, idx) => {
         const adhan = adjust(timings[p.k], tuning[p.k]);
         const iqamah = adjust(adhan, delays[p.k]);
         return `
@@ -143,6 +150,7 @@ function render(timings, tuning, delays) {
                 </div>
             </div>`;
     }).join('');
+    document.getElementById('pList').innerHTML = html;
 }
 
 function adjust(time, mins) {
@@ -153,8 +161,9 @@ function adjust(time, mins) {
 
 function format(time) {
     let [h, m] = time.split(':').map(Number);
-    let am = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
-    return `${h}:${m.toString().padStart(2,'0')} ${am}`;
+    let ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return h + ":" + m.toString().padStart(2, '0') + " " + ampm;
 }
 
 run();
