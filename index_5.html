@@ -157,15 +157,23 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 3. നോട്ടീസ് ഉണ്ടോ എന്ന് പരിശോധിക്കാനുള്ള സ്ക്രിപ്റ്റ് (db-ക്ക് ശേഷം)
+   // 3. നോട്ടീസ് ഉണ്ടോ എന്ന് പരിശോധിക്കാനുള്ള സ്ക്രിപ്റ്റ്
     db.collection("notices").doc("latest").onSnapshot((doc) => {
         const noticeBox = document.getElementById('liveNoticeBox');
-        if (doc.exists && doc.data().title && doc.data().title.trim() !== "") {
-            noticeBox.style.display = "block"; 
-            document.getElementById('liveNoticeDesc').innerText = doc.data().title;
+        if (doc.exists) {
+            const data = doc.data();
+            // ടൈറ്റിൽ ഉണ്ടെങ്കിൽ മാത്രം ബോക്സ് കാണിക്കുക
+            if (data && data.title && data.title.trim() !== "") {
+                noticeBox.style.display = "block"; 
+                document.getElementById('liveNoticeDesc').innerText = data.title;
+            } else {
+                noticeBox.style.display = "none";
+            }
         } else {
             noticeBox.style.display = "none"; 
         }
+    }, (error) => {
+        console.log("Error getting notice: ", error);
     });
 
     // 4. ബാക്കിയുള്ള ഫങ്ഷനുകൾ
