@@ -1,11 +1,6 @@
-// import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyD6wG5vqu1QMmdt1yeiGRlE1dkkh9FqIeg",
   authDomain: "mum-peruvana.firebaseapp.com",
@@ -16,6 +11,17 @@ const firebaseConfig = {
   measurementId: "G-BPKH97NXL6"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+firebase.initializeApp(firebaseConfig);
+const messaging = firebase.messaging();
+
+// പശ്ചാത്തലത്തിൽ നോട്ടിഫിക്കേഷൻ കൈകാര്യം ചെയ്യാൻ
+messaging.onBackgroundMessage((payload) => {
+  console.log('Received background message ', payload);
+  const notificationTitle = payload.notification.title;
+  const notificationOptions = {
+    body: payload.notification.body,
+    icon: '/icon.png' // നിങ്ങളുടെ ആപ്പ് ഐക്കണിന്റെ പേര് ഇവിടെ നൽകുക
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});
