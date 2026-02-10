@@ -101,13 +101,17 @@
   const messaging = firebase.messaging();
 
   messaging.requestPermission()
-    .then(() => messaging.getToken())
-    .then((token) => {
-      console.log("Token generated:", token);
-    })
-    .catch((err) => {
-      console.log("Permission denied", err);
-    });
+        .then(() => {
+            return messaging.getToken({ 
+                vapidKey: 'BIeB20iYucJ8uDcrChJ13nITfygMOEsfcyoDzgLP0mAY1hvbXmV5HjzUlXpT7oMFSSjPPD7p1xGTD0zREf-FLWI' 
+            });
+        })
+        .then((token) => {
+            console.log("Token generated:", token);
+        })
+        .catch((err) => {
+            console.log("Error or Permission denied:", err);
+        });
 </script>
 </head>
 <body>
