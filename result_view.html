@@ -9,7 +9,6 @@
         :root { --primary: #00897b; --accent: #ffd700; --bg: #f4f7f6; }
         body { font-family: 'Poppins', 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; }
         
-        /* Premium Header */
         .header-card { background: white; margin: 15px; padding: 25px 15px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; border-bottom: 4px solid var(--primary); }
         .m-name { font-size: 24px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
         .m-place { font-size: 15px; color: #666; font-weight: 600; margin-bottom: 8px; display: block; }
@@ -18,26 +17,20 @@
         
         .exam-tag { display: block; font-size: 13px; font-weight: 700; color: #555; margin-bottom: 15px; }
 
-        /* Selection Box */
-        .select-wrapper { margin-bottom: 10px; }
-        select { padding: 12px 15px; border-radius: 15px; border: 2px solid #e0e0e0; font-size: 15px; font-weight: 600; width: 100%; max-width: 250px; outline: none; background: #fff; cursor: pointer; color: #444; }
+        .select-wrapper { margin-bottom: 10px; padding: 0 15px; }
+        select { padding: 12px 15px; border-radius: 15px; border: 2px solid #e0e0e0; font-size: 15px; font-weight: 600; width: 100%; max-width: 400px; outline: none; background: #fff; cursor: pointer; color: #444; margin: auto; display: block; }
         select:focus { border-color: var(--primary); }
 
-        /* Result Cards */
         .result-container { padding: 10px 15px; max-width: 500px; margin: auto; }
-        .student-card { background: #ffffff; padding: 15px 20px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: 0.3s; border: 1px solid #f0f0f0; }
+        .student-card { background: #ffffff; padding: 15px 20px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; }
         .student-name { font-weight: 700; color: #2c3e50; font-size: 16px; text-transform: uppercase; }
-        .status-badge { background: var(--primary); color: white; padding: 7px 18px; border-radius: 50px; font-weight: 800; font-size: 12px; min-width: 60px; text-align: center; box-shadow: 0 4px 10px rgba(0,137,123,0.2); }
-        .status-fail { background: #e53935; box-shadow: 0 4px 10px rgba(229,57,53,0.2); }
+        .status-badge { background: var(--primary); color: white; padding: 7px 18px; border-radius: 50px; font-weight: 800; font-size: 12px; min-width: 60px; text-align: center; }
+        .status-fail { background: #e53935; }
 
-        /* Executive Footer */
-        footer { margin: 20px 15px; padding: 15px; border-radius: 20px; text-align: center; background: #1a1a1a; color: #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .dev-box { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .dev-name { font-weight: 700; font-size: 14px; letter-spacing: 1px; color: var(--accent); }
-        .dev-tag { font-size: 10px; opacity: 0.7; text-transform: uppercase; }
+        footer { margin: 20px 15px; padding: 15px; border-radius: 20px; text-align: center; background: #1a1a1a; color: #fff; }
+        .dev-name { font-weight: 700; font-size: 14px; color: var(--accent); }
         .wa-btn { text-decoration: none; color: #1a1a1a; background: var(--accent); font-weight: 800; font-size: 11px; padding: 6px 15px; border-radius: 8px; margin-top: 8px; display: inline-flex; align-items: center; gap: 5px; }
         
-        /* Loader */
         #loader { text-align: center; padding: 120px 20px; font-weight: bold; color: var(--primary); font-size: 18px; }
         .spinner { margin: 0 auto 15px; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -54,39 +47,37 @@
     <div class="header-card">
         <div class="m-name" id="mName">MADRASA NAME</div>
         <div class="m-place" id="mPlace">LOCATION</div>
-        
         <div class="sadr-info">
-            <i class="fa-solid fa-user-tie"></i> Contact: <b id="sadrName">Sadr Name</b> | <i class="fa-solid fa-phone"></i> <b id="sadrPhone">0000</b>
+            <i class="fa-solid fa-user-tie"></i> Contact: <b id="sadrName">Sadr</b> | <i class="fa-solid fa-phone"></i> <b id="sadrPhone">0000</b>
         </div>
-
         <div class="exam-tag"><i class="fa-solid fa-calendar-check"></i> Annual Exam Result 2025-26</div>
         
-       <div class="select-wrapper">
-    <select id="classSelect" onchange="displayResults()" style="margin-bottom: 10px;">
-        <option value="">-- Select Class --</option>
-    </select>
-    
-    <select id="divSelect" onchange="displayResults()">
-        <option value="None">Division (None)</option>
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
-        <option value="E">E</option>
-        <option value="F">F</option>
-    </select>
-</div>
-
-    <div class="result-container" id="resultsArea">
+        <div class="select-wrapper">
+            <select id="classSelect" onchange="displayResults()" style="margin-bottom: 10px;">
+                <option value="">-- Select Class --</option>
+            </select>
+            
+            <div id="divWrapper" style="display:none;">
+                <select id="divSelect" onchange="displayResults()">
+                    <option value="None">Division (None)</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                </select>
+            </div>
         </div>
+    </div>
+
+    <div class="result-container" id="resultsArea"></div>
 
     <footer>
         <div class="dev-box">
-            <div class="dev-tag">Developed By</div>
+            <div class="dev-tag" style="font-size: 10px; opacity: 0.7;">Developed By</div>
             <div class="dev-name">MUHSIN MANNANI</div>
-            <a href="https://wa.me/917559950633" class="wa-btn">
-                <i class="fab fa-whatsapp"></i> WHATSAPP
-            </a>
+            <a href="https://wa.me/917559950633" class="wa-btn"><i class="fab fa-whatsapp"></i> WHATSAPP</a>
         </div>
     </footer>
 </div>
@@ -114,23 +105,21 @@ if(mId) {
     db.collection("exam_results_final").where("secretId", "==", mId).get().then((querySnapshot) => {
         if (!querySnapshot.empty) {
             madrasaData = querySnapshot.docs[0].data();
-            
-            // Setting Data
             document.getElementById('mName').innerText = madrasaData.madrasa;
             document.getElementById('mPlace').innerText = madrasaData.place || "";
             document.getElementById('sadrName').innerText = madrasaData.sadr || "Sadr";
             document.getElementById('sadrPhone').innerText = madrasaData.mobile || "";
             
-          const sel = document.getElementById('classSelect');
+            const sel = document.getElementById('classSelect');
             let classList = new Set();
+            let hasDivision = false;
 
             if (madrasaData.results) {
                 Object.keys(madrasaData.results).forEach(key => {
-                    let pureClass = key.split('-')[0]; 
-                    classList.add(pureClass);
+                    if(key.includes('-')) hasDivision = true; //
+                    classList.add(key.split('-')[0]); 
                 });
 
-                // നമ്പറുകൾ കൃത്യമായി അടുക്കാൻ Number() ഉപയോഗിക്കുന്നു
                 Array.from(classList).sort((a, b) => Number(a) - Number(b)).forEach(cls => {
                     let opt = document.createElement('option');
                     opt.value = cls;
@@ -138,6 +127,10 @@ if(mId) {
                     sel.appendChild(opt);
                 });
             }
+
+            // ഡിവിഷൻ ഉണ്ടെങ്കിൽ മാത്രം കാണിക്കുന്നു
+            document.getElementById('divWrapper').style.display = hasDivision ? 'block' : 'none';
+
             document.getElementById('loader').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
         } else {
@@ -154,23 +147,23 @@ function displayResults() {
     
     if(!cls || !madrasaData || !madrasaData.results) return;
 
-    // ഡിവിഷൻ 'None' ആണെങ്കിൽ ക്ലാസ്സ് മാത്രം, അല്ലെങ്കിൽ 'ക്ലാസ്സ്-ഡിവിഷൻ' എന്ന കീ ഉപയോഗിക്കുന്നു
-    const searchKey = (div === "None" || div === "") ? cls : cls + "-" + div;
+    // ഡിവിഷൻ ബോക്സ് മറഞ്ഞിരിക്കുകയാണെങ്കിൽ ക്ലാസ്സ് മാത്രം നോക്കുന്നു
+    const isDivHidden = document.getElementById('divWrapper').style.display === 'none';
+    const searchKey = (isDivHidden || div === "None") ? cls : cls + "-" + div;
     const students = madrasaData.results[searchKey];
 
     if(!students || students.length === 0) {
-        area.innerHTML = "<div style='text-align:center; padding:20px; color:#888;'>ഈ വിഭാഗത്തിൽ റിസൾട്ട് ലഭ്യമല്ല.</div>";
+        area.innerHTML = "<div style='text-align:center; padding:20px; color:#888;'>റിസൾട്ട് ലഭ്യമല്ല.</div>";
         return;
     }
 
     students.forEach(student => {
         const card = document.createElement('div');
         card.className = 'student-card';
-        // അക്ഷരവ്യത്യാസം (Capital/Small) വന്നാലും പാസ്സ് ആണോ എന്ന് തിരിച്ചറിയാൻtoUpperCase()
-        const statusClass = (student.status && student.status.toUpperCase() === 'PASS') ? '' : 'status-fail';
+        const isPass = student.status && student.status.toUpperCase() === 'PASS';
         card.innerHTML = `
             <div class="student-name">${student.name}</div>
-            <div class="status-badge ${statusClass}">${student.status}</div>
+            <div class="status-badge ${isPass ? '' : 'status-fail'}">${student.status}</div>
         `;
         area.appendChild(card);
     });
