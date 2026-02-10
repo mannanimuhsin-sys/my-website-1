@@ -1,149 +1,260 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ml">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student Result System</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Misbahul Uloom Madrasa | Peruvana</title>
+    <meta name="description" content="Misbahul Uloom Madrasa Peruvana - ഔദ്യോഗിക വെബ്സൈറ്റ്. അറിയിപ്പുകൾ, രജിസ്‌ട്രേഷൻ, ബ്ലഡ് ബാങ്ക് സേവനങ്ങൾ ഇവിടെ ലഭ്യമാണ്.">
+    <meta name="keywords" content="Misbahul Uloom Madrasa, Peruvana, Madrasa, Misbahul Uloom, Muhsin Mannani">
+    <meta name="author" content="Muhsin Mannani">
+   <meta name="google-site-verification" content="HUwfSaKZjE0L1uUTrx7RSZDbEWY2C8c__vYxCW-YJyM"/>
 
-<style>
-body{font-family:Arial,sans-serif;background:#f2f2f2;padding:20px;}
-.container{max-width:760px;margin:auto;background:#fff;padding:20px;border:1px solid #ccc;}
-h1{text-align:center;margin-bottom:5px;}
-h2{text-align:center;font-size:16px;margin-top:0;color:#555;}
-select{padding:8px;width:100%;margin-bottom:15px;}
-table{width:100%;border-collapse:collapse;margin-bottom:15px;}
-td{border:1px solid #000;padding:8px;font-size:14px;}
-.subject-title{text-align:center;font-weight:bold;background:#f0f0f0;}
-.total-row td{font-weight:bold;background:#f5f5f5;}
-.result.pass{text-align:center;font-size:18px;color:#155724;background:#d4edda;}
-.result.fail{text-align:center;font-size:18px;color:#721c24;background:#f8d7da;}
-.download-btn{display:block;text-align:center;margin:15px auto;padding:10px 25px;
-background:#28a745;color:#fff;font-weight:bold;text-decoration:none;border-radius:25px;}
-.footer{margin-top:30px;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-color:#fff;padding:20px;border-radius:12px;text-align:center;}
-.whatsapp-btn{display:inline-block;margin-top:10px;padding:10px 20px;
-background:#25D366;color:#fff;text-decoration:none;font-weight:bold;border-radius:25px;}
-</style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<link rel="icon" type="image/x-icon" href="madrasa.jpg">
+<link rel="apple-touch-icon" href="madrasa.jpg">
+    <style>
+        body{ background:#f4f7f6; font-family: 'Poppins', sans-serif; }
+        .jumbotron{
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url("madrasa.jpg");
+            background-size:cover; background-position:center; color:white; padding:70px 10px; border-radius: 0 0 30px 30px;
+        }
+        .box{ background:white; padding:20px; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.05); margin-bottom:20px; border-top: 4px solid #198754; }
+        .portal-card { background: linear-gradient(135deg, #198754, #20c997); color: white; padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 25px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(25,135,84,0.3); }
+        .quiz-card { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 25px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(245,87,108,0.3); }
+        
+        .blood-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0; }
+        .blood-btn { background: #fff; border: 2px solid #d9534f; color: #d9534f; padding: 10px 2px; border-radius: 10px; text-align: center; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.3s; }
+        .blood-btn:hover, .blood-btn.active { background: #d9534f; color: white; }
+
+        /* Donor List Style */
+        #donorDisplay { display: none; margin-top: 15px; padding: 15px; background: #fffcfc; border: 1px solid #f5c6cb; border-radius: 12px; }
+        .donor-card { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; }
+        
+        .contact-card { background: white; padding: 15px; border-radius: 12px; border-left: 5px solid #198754; margin-bottom: 15px; }
+        .contact-btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .contact-btn { flex: 1; padding: 8px; text-align: center; border-radius: 6px; color: white; font-size: 18px; }
+        .btn-call { background: #007bff; } .btn-wa { background: #25d366; }
+        footer{ background:#2c3e50; color:#fff; padding:20px; text-align:center; margin-top:40px; }
+        /* Live Notice Blinking Effect */
+        .live-notice-card { 
+            background: linear-gradient(135deg, #ff4757, #ff6b81); 
+            color: white; padding: 20px; border-radius: 15px; 
+            text-align: center; margin-bottom: 25px; cursor: pointer; 
+            transition: 0.3s; box-shadow: 0 4px 15px rgba(255,71,87,0.4);
+            animation: pulse-red 2s infinite; display: none; /* തുടക്കത്തിൽ ഹൈഡ് ചെയ്യുന്നു */
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 71, 87, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+        }
+    </style>
+   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "552c4166-3ffb-4065-a521-e1491b930d40",
+      // സബ്‌സ്‌ക്രിപ്ഷൻ പോപ്പ്-അപ്പ് വരാൻ താഴെ കാണുന്ന വരികൾ സഹായിക്കും
+      promptOptions: {
+        slidedown: {
+          prompts: [{
+            type: "push",
+            autoPrompt: true, // സൈറ്റിൽ കയറുമ്പോൾ തന്നെ ഓട്ടോമാറ്റിക് ആയി ചോദിക്കും
+            text: {
+              actionMessage: "മദ്രസ അറിയിപ്പുകൾ ഉടൻ ലഭിക്കാൻ നോട്ടിഫിക്കേഷൻ അനുവദിക്കുക.",
+              acceptButton: "അനുവദിക്കുക",
+              cancelButton: "വേണ്ട"
+            }
+          }]
+        }
+      },
+      // ബെൽ ഐക്കൺ കാണിക്കാൻ
+      notifyButton: {
+        enable: true,
+        position: 'bottom-right',
+        size: 'medium'
+      }
+    });
+  });
+</script>
 </head>
-
 <body>
 
+<div class="jumbotron text-center">
+    <h1>MISBAHUL ULOOM MADRASA</h1>
+    <p>Peruvana | Under SKIMVB Reg.No: 4224</p>
+</div>
+
 <div class="container">
+    <div class="portal-card" onclick="window.location.href='https://mannanimuhsin-sys.github.io/my-website/student.html'">
+        <i class="fas fa-id-card-alt fa-3x"></i>
+        <h2>Student Registration & ID Portal</h2>
+        <p>വിവരങ്ങൾ രജിസ്റ്റർ ചെയ്യാനും ഐഡി കാർഡ് ലഭിക്കാനും ക്ലിക്ക് ചെയ്യുക</p>
+    </div>
 
-<h1>MISBAHUL ULOOM MADRASA PERUVANA</h1>
-<h2>ANNUAL EXAM RESULT @2025-2026</h2>
+    <div id="liveNoticeBox" class="live-notice-card" onclick="window.location.href='notice.html'">
+        <i class="fas fa-bullhorn fa-2x"></i>
+        <h2 id="liveNoticeTitle" style="margin: 10px 0 5px; font-weight: 800;">LIVE NOTICE BOARD</h2>
+        <p id="liveNoticeDesc" style="margin: 0;">പുതിയ അറിയിപ്പുകൾ ഉണ്ട്. കാണാൻ ഇവിടെ ക്ലിക്ക് ചെയ്യുക.</p>
+    </div>
 
-<label><b>Select Class</b></label>
-<select id="classSelect" onchange="loadStudents()">
-<option value="">-- Select Class --</option>
-<option value="1">Class 1</option>
-<option value="2">Class 2</option>
-<option value="3">Class 3</option>
-<option value="4">Class 4</option>
-<option value="6">Class 6</option>
-<option value="8">Class 8</option>
-<option value="9">Class 9</option>
-<option value="+1">Class +1</option>
-</select>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="box text-center">
+                <h4>Dashboard</h4>
+                <button class="btn btn-success btn-block" onclick="openDashboard()">Open</button>
+            </div>
+        </div>
 
-<label><b>Select Student</b></label>
-<select id="studentSelect" onchange="showResult()">
-<option value="">-- Select Student --</option>
-</select>
+        <div class="col-sm-4">
+            <div class="box text-center" style="border-top-color: #D4AF37;">
+                <h4>Prayer Times</h4>
+                <button class="btn btn-warning btn-block" style="background-color: #D4AF37; border-color: #D4AF37; color: black; font-weight: bold;" onclick="window.location.href='https://mannanimuhsin-sys.github.io/my-website/bankview.html'">View Time</button>
+            </div>
+        </div>
 
-<div id="resultArea" style="display:none;">
+        <div class="col-sm-4">
+            <div class="box text-center">
+                <h4>Location</h4>
+                <button class="btn btn-primary btn-block" onclick="openLocation()">Map</button>
+            </div>
+        </div>
+    </div>
 
-<table>
-<tr><td><b>NAME</b></td><td id="sname"></td></tr>
-<tr><td><b>CLASS</b></td><td id="sclass"></td></tr>
-</table>
+    <div class="quiz-card" onclick="window.location.href='https://mannanimuhsin-sys.github.io/my-website/quiz.html'">
+        <i class="fas fa-lightbulb fa-3x"></i>
+        <h2>RAMADAN SPECIAL QUIZ</h2>
+        <p>ഓൺലൈൻ ക്വിസ് മത്സരത്തിൽ പങ്കെടുക്കാൻ ഇവിടെ ക്ലിക്ക് ചെയ്യുക.</p>
+    </div>
 
-<table id="subjectTable"></table>
+    <div class="box">
+        <h3 class="text-center">🩸 Blood Bank</h3>
+        <p class="text-center"><small>ലിസ്റ്റ് കാണാൻ ഗ്രൂപ്പിൽ ക്ലിക്ക് ചെയ്യുക</small></p>
+        <div class="blood-grid">
+            <div class="blood-btn" onclick="fetchDonors('A+')">A+</div>
+            <div class="blood-btn" onclick="fetchDonors('A-')">A-</div>
+            <div class="blood-btn" onclick="fetchDonors('B+')">B+</div>
+            <div class="blood-btn" onclick="fetchDonors('B-')">B-</div>
+            <div class="blood-btn" onclick="fetchDonors('O+')">O+</div>
+            <div class="blood-btn" onclick="fetchDonors('O-')">O-</div>
+            <div class="blood-btn" onclick="fetchDonors('AB+')">AB+</div>
+            <div class="blood-btn" onclick="fetchDonors('AB-')">AB-</div>
+        </div>
 
-<table>
-<tr><td><b>TOTAL ATTENDANCE</b></td><td id="attTotal"></td></tr>
-<tr><td><b>PRESENT</b></td><td id="attPresent"></td></tr>
-</table>
+        <div id="donorDisplay">
+            <h4 id="donorTitle" class="text-center" style="color:#d9534f"></h4>
+            <div id="donorList"></div>
+        </div>
+        <hr>
+        <h4>🩸 രജിസ്റ്റർ ചെയ്യുക</h4>
+        <form id="bloodBankForm">
+            <input type="text" class="form-control" id="bbName" placeholder="പേര്" required><br>
+            <input type="tel" class="form-control" id="bbPhone" placeholder="മൊബൈൽ" required><br>
+            <input type="text" class="form-control" id="bbAddress" placeholder="സ്ഥലം" required><br>
+            <select class="form-control" id="bbGroup" required>
+                <option value="">ബ്ലഡ് ഗ്രൂപ്പ്</option>
+                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                <option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
+            </select><br>
+            <button type="submit" class="btn btn-danger btn-block">Submit Donor</button>
+        </form>
+    </div>
 
-<a class="download-btn" onclick="window.print()">DOWNLOAD</a>
-
+    <h3 class="text-center">📞 ബന്ധപ്പെടുക</h3>
+    <div class="row">
+        <div class="col-sm-4"><div class="contact-card"><small>സദർ മുഅല്ലിം</small><h4>മുഹ്സിൻ മന്നാനി</h4><div class="contact-btn-group"><a href="tel:7559950633" class="contact-btn btn-call"><i class="fas fa-phone"></i></a><a href="https://wa.me/917559950633" class="contact-btn btn-wa"><i class="fab fa-whatsapp"></i></a></div></div></div>
+        <div class="col-sm-4"><div class="contact-card" style="border-left-color: #007bff;"><small>സെക്രട്ടറി</small><h4>മൊയ്‌ദു പി.കെ</h4><div class="contact-btn-group"><a href="tel:8304016701" class="contact-btn btn-call"><i class="fas fa-phone"></i></a><a href="https://wa.me/918304016701" class="contact-btn btn-wa"><i class="fab fa-whatsapp"></i></a></div></div></div>
+        <div class="col-sm-4"><div class="contact-card" style="border-left-color: #f1c40f;"><small>മദ്രസ ഇൻ ചാർജ്</small><h4>ജംഷീർ ദാരിമി</h4><div class="contact-btn-group"><a href="tel:9746969716" class="contact-btn btn-call"><i class="fas fa-phone"></i></a><a href="https://wa.me/919746969716" class="contact-btn btn-wa"><i class="fab fa-whatsapp"></i></a></div></div></div>
+    </div>
 </div>
-</div>
+
+<footer>© 2026 | Designed by Muhsin Mannani</footer>
 
 <script>
-/* SUBJECTS */
-const classSubjects={
- "1":["DUROOS","IMLAK","FIQH","AQLAK"],
- "2":["AQEEDA","DUROOS","QUR'AN","HIFL","LISAN","FIQH"],
- "3":["DUROOS","FIQH","LISAN","QUR'AN & THADREEB","HIFL","AQEEDA","THAREEKH"],
- "4":["FIQH","AQEEDA","THAREEKH","QUR'AN & THADREEB","HIFL","DUROOS","LISAN"],
- "6":["THAREEKH","FIQH","QUR'AN","HIFL","LISAN","DUROOS"],
- "8":["LISAN","DUROOS","THAREEKH","FIQH"],
- "9":["DUROOS","THAREEKH","LISAN","FIQH"],
- "+1":["FIQH","LISAN","THAFSEER","DUROOS"]
-};
+    // 1. ഫയർബേസ് കോൺഫിഗറേഷൻ
+    const firebaseConfig = {
+        apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
+        authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
+        projectId: "misbahul-uloom-madrasa-4830c",
+        storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app",
+        messagingSenderId: "370558703441",
+        appId: "1:370558703441:web:dc68dbdbd685c9d07ea570",
+        measurementId: "G-Q2GZ1R1CTL"
+    };
 
-/* COMPLETE DATA – EDITABLE */
-const data={
- "1":{
-  totalAttendance:180,
-  students:{
-   "MUHAMMED SHADIL":{present:168,marks:{DUROOS:24,IMLAK:22,FIQH:26,AQLAK:25}},
-   "NASIH SUNEER K P C":{present:170,marks:{DUROOS:23,IMLAK:24,FIQH:22,AQLAK:24}},
-   "AYAN ASIF":{present:165,marks:{DUROOS:21,IMLAK:23,FIQH:24,AQLAK:22}},
-   "INAAYA FATHIMA T K":{present:172,marks:{DUROOS:25,IMLAK:24,FIQH:26,AQLAK:25}},
-   "HIZA FATHIMA":{present:169,marks:{DUROOS:22,IMLAK:23,FIQH:24,AQLAK:23}},
-   "ARWA AFSAL":{present:171,marks:{DUROOS:24,IMLAK:25,FIQH:25,AQLAK:24}}
-  }
- }
-};
+    // 2. ഫയർബേസ് തുടങ്ങുന്നു (ഇതാണ് ആദ്യം വരേണ്ടത്)
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-/* LOAD STUDENTS */
-function loadStudents(){
- studentSelect.innerHTML='<option value="">-- Select Student --</option>';
- resultArea.style.display="none";
- const cls=classSelect.value;
- if(!data[cls]) return;
- Object.keys(data[cls].students).forEach(n=>{
-  studentSelect.innerHTML+=`<option value="${n}">${n}</option>`;
- });
-}
+    // 3. ലൈവ് നോട്ടീസ് പരിശോധിക്കുന്നു (ഇത് db സെറ്റ് ചെയ്തതിന് ശേഷം മാത്രം)
+    db.collection("notices").doc("latest").onSnapshot((doc) => {
+        const noticeBox = document.getElementById('liveNoticeBox');
+        const noticeTitleDisplay = document.getElementById('liveNoticeDesc');
+        
+        if (doc.exists) {
+            const data = doc.data();
+            if (data && data.title && data.title.trim() !== "") {
+                noticeBox.style.display = "block"; // നോട്ടീസ് ഉണ്ടെങ്കിൽ ബോക്സ് കാണിക്കും
+                noticeTitleDisplay.innerText = data.title; // ടൈറ്റിൽ അവിടെ എഴുതും
+            } else {
+                noticeBox.style.display = "none";
+            }
+        } else {
+            noticeBox.style.display = "none";
+        }
+    });
 
-/* SHOW RESULT */
-function showResult(){
- const cls=classSelect.value;
- const name=studentSelect.value;
- if(!name) return;
+    // 4. ബാക്കി ഫങ്ഷനുകൾ
+    function openDashboard(){ window.location.href="https://mannanimuhsin-sys.github.io/my-website/index_7.html"; }
+    function openLocation(){ window.open("https://maps.google.com", "_blank"); }
 
- const student=data[cls].students[name];
- sname.innerText=name;
- sclass.innerText=cls;
+    function fetchDonors(group) {
+        const display = document.getElementById('donorDisplay');
+        const list = document.getElementById('donorList');
+        document.getElementById('donorTitle').innerText = group + " Donors List";
+        list.innerHTML = "<p class='text-center'>തിരയുന്നു...</p>";
+        display.style.display = "block";
 
- subjectTable.innerHTML='<tr><td colspan="2" class="subject-title">SUBJECTS</td></tr>';
- let total=0,pass=true;
+        db.collection("donors").where("group", "==", group).get().then((querySnapshot) => {
+            list.innerHTML = "";
+            if (querySnapshot.empty) {
+                list.innerHTML = "<p class='text-center'>ഈ ഗ്രൂപ്പിൽ ആരും രജിസ്റ്റർ ചെയ്തിട്ടില്ല.</p>";
+            } else {
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    list.innerHTML += `
+                        <div class="donor-card">
+                            <div><p style="margin:0"><b>${data.name}</b></p><p style="margin:0"><small>${data.address}</small></p></div>
+                            <div style="display:flex; gap:15px">
+                                <a href="tel:${data.phone}" style="color:#007bff;font-size:18px"><i class="fas fa-phone-alt"></i></a>
+                                <a href="https://wa.me/91${data.phone}" style="color:#25d366;font-size:18px"><i class="fab fa-whatsapp"></i></a>
+                            </div>
+                        </div>`;
+                });
+            }
+        });
+    }
 
- classSubjects[cls].forEach(sub=>{
-  const m=student.marks[sub];
-  total+=m;
-  if(m<18) pass=false;
-  subjectTable.innerHTML+=`<tr><td>${sub}</td><td>${m}</td></tr>`;
- });
-
- subjectTable.innerHTML+=`
- <tr class="total-row"><td>TOTAL</td><td>${total}</td></tr>
- <tr><td colspan="2" class="result ${pass?'pass':'fail'}">${pass?'PASSED':'FAILED'}</td></tr>`;
-
- attTotal.innerText=data[cls].totalAttendance;
- attPresent.innerText=student.present;
- resultArea.style.display="block";
-}
+    document.getElementById('bloodBankForm').onsubmit = function(e) {
+        e.preventDefault();
+        const donor = {
+            name: document.getElementById('bbName').value,
+            phone: document.getElementById('bbPhone').value,
+            address: document.getElementById('bbAddress').value,
+            group: document.getElementById('bbGroup').value,
+            date: new Date()
+        };
+        db.collection("donors").add(donor).then(() => {
+            alert("വിജയകരമായി രജിസ്റ്റർ ചെയ്തു!");
+            document.getElementById('bloodBankForm').reset();
+            location.reload();
+        });
+    };
 </script>
-
-<div class="footer">
-<h3>MUHSIN MANNANI</h3>
-<p>📞 7559950633</p>
-<a class="whatsapp-btn" href="https://wa.me/917559950633" target="_blank">Chat on WhatsApp</a>
-</div>
-
 </body>
 </html>
