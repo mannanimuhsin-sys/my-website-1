@@ -53,7 +53,7 @@
         <div class="exam-tag"><i class="fa-solid fa-calendar-check"></i> Annual Exam Result 2025-26</div>
         
         <div class="select-wrapper">
-            <select id="classSelect" onchange="displayResults()" style="margin-bottom: 10px;">
+            <select id="classSelect" onchange="handleClassChange()" style="margin-bottom: 10px;">
                 <option value="">-- Select Class --</option>
             </select>
             
@@ -112,11 +112,10 @@ if(mId) {
             
             const sel = document.getElementById('classSelect');
             let classList = new Set();
-            let hasDivision = false;
 
             if (madrasaData.results) {
                 Object.keys(madrasaData.results).forEach(key => {
-                    if(key.includes('-')) hasDivision = true; //
+                    // കീയിൽ നിന്ന് ക്ലാസ് നമ്പർ മാത്രം എടുക്കുന്നു (ഉദാ: '5-A' എന്നതിൽ നിന്ന് '5')
                     classList.add(key.split('-')[0]); 
                 });
 
@@ -128,15 +127,42 @@ if(mId) {
                 });
             }
 
-            // ഡിവിഷൻ ഉണ്ടെങ്കിൽ മാത്രം കാണിക്കുന്നു
-            document.getElementById('divWrapper').style.display = hasDivision ? 'block' : 'none';
-
             document.getElementById('loader').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
         } else {
             document.getElementById('loader').innerHTML = "<b style='color:red;'>ലിങ്ക് അസാധുവാണ്!</b>";
         }
     });
+}
+
+// ക്ലാസ് മാറുമ്പോൾ ഡിവിഷൻ ഉണ്ടോ എന്ന് നോക്കാനുള്ള ഫംഗ്ഷൻ
+function handleClassChange() {
+    const cls = document.getElementById('classSelect').value;
+    const divWrapper = document.getElementById('divWrapper');
+    const divSelect = document.getElementById('divSelect');
+    
+    // ഡിവിഷൻ സെലക്ഷൻ റീസെറ്റ് ചെയ്യുന്നു
+    divSelect.value = "None";
+    
+    if(!cls || !madrasaData || !madrasaData.results) {
+        divWrapper.style.display = 'none';
+        displayResults();
+        return;
+    }
+
+    // സെലക്ട് ചെയ്ത ക്ലാസിന് ഏതെങ്കിലും ഡിവിഷൻ (ഉദാ: 1-A, 1-B) ഉണ്ടോ എന്ന് നോക്കുന്നു
+    let hasDiv = false;
+    Object.keys(madrasaData.results).forEach(key => {
+        if(key.startsWith(cls + "-")) {
+            hasDiv = true;
+        }
+    });
+
+    // ഡിവിഷൻ ഉണ്ടെങ്കിൽ മാത്രം കാണിക്കുന്നു
+    divWrapper.style.display = hasDiv ? 'block' : 'none';
+    
+    // ഉടനെ റിസൾട്ട് കാണിക്കാൻ
+    displayResults();
 }
 
 function displayResults() {
@@ -147,9 +173,10 @@ function displayResults() {
     
     if(!cls || !madrasaData || !madrasaData.results) return;
 
-    // ഡിവിഷൻ ബോക്സ് മറഞ്ഞിരിക്കുകയാണെങ്കിൽ ക്ലാസ്സ് മാത്രം നോക്കുന്നു
+    // ഡിവിഷൻ ബോക്സ് മറഞ്ഞിരിക്കുകയാണെങ്കിൽ അല്ലെങ്കിൽ 'None' ആണെങ്കിൽ വെറും ക്ലാസ് കീ ഉപയോഗിക്കുന്നു
     const isDivHidden = document.getElementById('divWrapper').style.display === 'none';
     const searchKey = (isDivHidden || div === "None") ? cls : cls + "-" + div;
+    
     const students = madrasaData.results[searchKey];
 
     if(!students || students.length === 0) {
