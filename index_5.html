@@ -48,17 +48,32 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
         }
     </style>
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "552c4166-3ffb-4065-a521-e1491b930d40",
-      notifyButton: {
-        enable: true, // ഇത് കൊടുത്താൽ സൈറ്റിൽ ഒരു ബെൽ ഐക്കൺ വരും
+      // സബ്‌സ്‌ക്രിപ്ഷൻ പോപ്പ്-അപ്പ് വരാൻ താഴെ കാണുന്ന വരികൾ സഹായിക്കും
+      promptOptions: {
+        slidedown: {
+          prompts: [{
+            type: "push",
+            autoPrompt: true, // സൈറ്റിൽ കയറുമ്പോൾ തന്നെ ഓട്ടോമാറ്റിക് ആയി ചോദിക്കും
+            text: {
+              actionMessage: "മദ്രസ അറിയിപ്പുകൾ ഉടൻ ലഭിക്കാൻ നോട്ടിഫിക്കേഷൻ അനുവദിക്കുക.",
+              acceptButton: "അനുവദിക്കുക",
+              cancelButton: "വേണ്ട"
+            }
+          }]
+        }
       },
+      // ബെൽ ഐക്കൺ കാണിക്കാൻ
+      notifyButton: {
+        enable: true,
+        position: 'bottom-right',
+        size: 'medium'
+      }
     });
   });
 </script>
