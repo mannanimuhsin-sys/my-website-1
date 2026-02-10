@@ -121,21 +121,23 @@ if(mId) {
             document.getElementById('sadrName').innerText = madrasaData.sadr || "Sadr";
             document.getElementById('sadrPhone').innerText = madrasaData.mobile || "";
             
-            const sel = document.getElementById('classSelect');
-// ഡ്യൂപ്ലിക്കേറ്റ് ഒഴിവാക്കാൻ ഒരു Set ഉപയോഗിക്കുന്നു
-let classList = new Set();
-Object.keys(madrasaData.results).forEach(key => {
-    let pureClass = key.split('-')[0]; // 5-A എന്നതിൽ നിന്ന് 5 മാത്രം എടുക്കുന്നു
-    classList.add(pureClass);
-});
+          const sel = document.getElementById('classSelect');
+            let classList = new Set();
 
-// ക്രമമായി അടുക്കി ലിസ്റ്റിലേക്ക് ചേർക്കുന്നു
-Array.from(classList).sort((a,b)=>a-b).forEach(cls => {
-    let opt = document.createElement('option');
-    opt.value = cls;
-    opt.innerText = "Class - " + cls;
-    sel.appendChild(opt);
-});
+            if (madrasaData.results) {
+                Object.keys(madrasaData.results).forEach(key => {
+                    let pureClass = key.split('-')[0]; 
+                    classList.add(pureClass);
+                });
+
+                // നമ്പറുകൾ കൃത്യമായി അടുക്കാൻ Number() ഉപയോഗിക്കുന്നു
+                Array.from(classList).sort((a, b) => Number(a) - Number(b)).forEach(cls => {
+                    let opt = document.createElement('option');
+                    opt.value = cls;
+                    opt.innerText = "Class - " + cls;
+                    sel.appendChild(opt);
+                });
+            }
             document.getElementById('loader').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
         } else {
@@ -150,10 +152,10 @@ function displayResults() {
     const area = document.getElementById('resultsArea');
     area.innerHTML = "";
     
-    if(!cls) return;
+    if(!cls || !madrasaData || !madrasaData.results) return;
 
-    // അഡ്മിൻ പാനലിലെ അതേ കീ (Key) ഇവിടെ നിർമ്മിക്കുന്നു
-    const searchKey = (div === "None") ? cls : cls + "-" + div;
+    // ഡിവിഷൻ 'None' ആണെങ്കിൽ ക്ലാസ്സ് മാത്രം, അല്ലെങ്കിൽ 'ക്ലാസ്സ്-ഡിവിഷൻ' എന്ന കീ ഉപയോഗിക്കുന്നു
+    const searchKey = (div === "None" || div === "") ? cls : cls + "-" + div;
     const students = madrasaData.results[searchKey];
 
     if(!students || students.length === 0) {
@@ -164,7 +166,8 @@ function displayResults() {
     students.forEach(student => {
         const card = document.createElement('div');
         card.className = 'student-card';
-        const statusClass = student.status === 'PASS' ? '' : 'status-fail';
+        // അക്ഷരവ്യത്യാസം (Capital/Small) വന്നാലും പാസ്സ് ആണോ എന്ന് തിരിച്ചറിയാൻtoUpperCase()
+        const statusClass = (student.status && student.status.toUpperCase() === 'PASS') ? '' : 'status-fail';
         card.innerHTML = `
             <div class="student-name">${student.name}</div>
             <div class="status-badge ${statusClass}">${student.status}</div>
