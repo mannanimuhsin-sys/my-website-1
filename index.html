@@ -108,6 +108,13 @@
         })
         .then((token) => {
             console.log("Token generated:", token);
+            // എല്ലാവർക്കും മെസ്സേജ് കിട്ടാൻ വേണ്ടി ഒരു ഗ്രൂപ്പിൽ (Topic) ആഡ് ചെയ്യുന്നു
+fetch('https://iid.googleapis.com/iid/v1/' + token + '/rel/topics/all_users', {
+  method: 'POST',
+  headers: new Headers({
+    'Authorization': 'key=YOUR_SERVER_KEY' // ഇത് നമുക്ക് പിന്നീട് ചേർക്കാം
+  })
+});
         })
         .catch((err) => {
             console.log("Error or Permission denied:", err);
