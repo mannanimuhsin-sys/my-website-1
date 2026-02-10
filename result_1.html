@@ -72,6 +72,15 @@
                 <option value="">ക്ലാസ്സ് തിരഞ്ഞെടുക്കുക</option>
                 <script>for(let i=1; i<=12; i++) document.write(`<option value="${i}">ക്ലാസ്സ് ${i}</option>`);</script>
             </select>
+            <select id="selDivision" onchange="loadClassData()" style="padding-left:15px; margin-bottom:10px;">
+    <option value="None">ഡിവിഷൻ (None)</option>
+    <option value="A">A</option>
+    <option value="B">B</option>
+    <option value="C">C</option>
+    <option value="D">D</option>
+    <option value="E">E</option>
+    <option value="F">F</option>
+</select>
             <div id="listArea"></div>
             <button class="btn" style="background:#6c757d; margin-bottom:10px;" onclick="addRow()">+ പേര് ചേർക്കുക</button>
             <button class="btn" style="background:var(--gold); color:var(--dark);" onclick="saveClass()">സേവ് ചെയ്യുക</button>
@@ -161,21 +170,33 @@ function toggleStatus(btn) {
 
 async function saveClass() {
     const c = document.getElementById('selClass').value;
+    const d = document.getElementById('selDivision').value; // ഡിവിഷൻ എടുക്കുന്നു
     if(!c) return alert("ക്ലാസ്സ് തിരഞ്ഞെടുക്കുക!");
+    
+    // ക്ലാസ്സും ഡിവിഷനും കൂടി ചേർത്ത് ഒരു കീ (Key) ഉണ്ടാക്കുന്നു (ഉദാ: 5-A)
+    const classKey = d === "None" ? c : c + "-" + d;
+
     let students = [];
     document.querySelectorAll('.st-row').forEach(r => {
         const name = r.querySelector('input').value;
         if(name) students.push({ name: name, status: r.querySelector('button').innerText });
     });
-    user.results[c] = students;
+
+    user.results[classKey] = students; // പുതിയ കീയിൽ സേവ് ചെയ്യുന്നു
     await db.collection("exam_results_final").doc(user.mobile).update({ results: user.results });
     alert("സേവ് ചെയ്തു!");
+
 }
 
 function loadClassData() {
     const c = document.getElementById('selClass').value;
+    const d = document.getElementById('selDivision').value;
+    const classKey = d === "None" ? c : c + "-" + d;
+
     document.getElementById('listArea').innerHTML = "";
-    if(user.results && user.results[c]) { user.results[c].forEach(s => addRow(s.name, s.status)); }
+    if(user.results && user.results[classKey]) { 
+        user.results[classKey].forEach(s => addRow(s.name, s.status)); 
+    }
 }
 
 async function finalSubmit() {

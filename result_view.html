@@ -61,12 +61,21 @@
 
         <div class="exam-tag"><i class="fa-solid fa-calendar-check"></i> Annual Exam Result 2025-26</div>
         
-        <div class="select-wrapper">
-            <select id="classSelect" onchange="displayResults()">
-                <option value="">-- Select Class --</option>
-            </select>
-        </div>
-    </div>
+       <div class="select-wrapper">
+    <select id="classSelect" onchange="displayResults()" style="margin-bottom: 10px;">
+        <option value="">-- Select Class --</option>
+    </select>
+    
+    <select id="divSelect" onchange="displayResults()">
+        <option value="None">Division (None)</option>
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+        <option value="E">E</option>
+        <option value="F">F</option>
+    </select>
+</div>
 
     <div class="result-container" id="resultsArea">
         </div>
@@ -113,13 +122,20 @@ if(mId) {
             document.getElementById('sadrPhone').innerText = madrasaData.mobile || "";
             
             const sel = document.getElementById('classSelect');
-            Object.keys(madrasaData.results).sort((a,b)=>a-b).forEach(cls => {
-                let opt = document.createElement('option');
-                opt.value = cls;
-                opt.innerText = "Class - " + cls;
-                sel.appendChild(opt);
-            });
+// ഡ്യൂപ്ലിക്കേറ്റ് ഒഴിവാക്കാൻ ഒരു Set ഉപയോഗിക്കുന്നു
+let classList = new Set();
+Object.keys(madrasaData.results).forEach(key => {
+    let pureClass = key.split('-')[0]; // 5-A എന്നതിൽ നിന്ന് 5 മാത്രം എടുക്കുന്നു
+    classList.add(pureClass);
+});
 
+// ക്രമമായി അടുക്കി ലിസ്റ്റിലേക്ക് ചേർക്കുന്നു
+Array.from(classList).sort((a,b)=>a-b).forEach(cls => {
+    let opt = document.createElement('option');
+    opt.value = cls;
+    opt.innerText = "Class - " + cls;
+    sel.appendChild(opt);
+});
             document.getElementById('loader').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
         } else {
@@ -130,12 +146,22 @@ if(mId) {
 
 function displayResults() {
     const cls = document.getElementById('classSelect').value;
+    const div = document.getElementById('divSelect').value;
     const area = document.getElementById('resultsArea');
     area.innerHTML = "";
     
-    if(!cls || !madrasaData.results[cls]) return;
+    if(!cls) return;
 
-    madrasaData.results[cls].forEach(student => {
+    // അഡ്മിൻ പാനലിലെ അതേ കീ (Key) ഇവിടെ നിർമ്മിക്കുന്നു
+    const searchKey = (div === "None") ? cls : cls + "-" + div;
+    const students = madrasaData.results[searchKey];
+
+    if(!students || students.length === 0) {
+        area.innerHTML = "<div style='text-align:center; padding:20px; color:#888;'>ഈ വിഭാഗത്തിൽ റിസൾട്ട് ലഭ്യമല്ല.</div>";
+        return;
+    }
+
+    students.forEach(student => {
         const card = document.createElement('div');
         card.className = 'student-card';
         const statusClass = student.status === 'PASS' ? '' : 'status-fail';
