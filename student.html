@@ -4,51 +4,54 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Official Student ID Portal</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 <style>
-    :root { --primary: #004d00; --accent: #ffd700; --white: #ffffff; }
-    body{background:#f0f2f5;font-family:'Poppins', sans-serif;margin:0;padding:10px;}
-    .container{max-width:450px;margin:auto}
+    :root { --primary: #004d00; --accent: #ffd700; --dark-red: #800000; --white: #ffffff; }
+    body{background:#f0f2f5; font-family:'Poppins', sans-serif; margin:0; padding:10px;}
+    .container{max-width:450px; margin:auto}
 
-    /* ലോഗിൻ - രജിസ്റ്റർ സ്വിച്ച് */
-    .switch{display:flex;background:white;border-radius:20px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,.1);margin-bottom:20px} 
-    .switch button{flex:1;padding:14px;border:none;font-weight:600;background:#eee;cursor:pointer} 
-    .switch .active{background:var(--primary);color:white}
+    /* മുമ്പുണ്ടായിരുന്ന ലോഗിൻ - രജിസ്റ്റർ സ്വിച്ച് അതുപോലെ തന്നെ നിലനിർത്തി */
+    .switch{display:flex; background:white; border-radius:20px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,.1); margin-bottom:20px} 
+    .switch button{flex:1; padding:14px; border:none; font-weight:600; background:#eee; cursor:pointer} 
+    .switch .active{background:var(--primary); color:white}
 
-    .card{background:white;padding:25px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:20px;border-top:6px solid var(--primary);}
-    label{font-weight:600;margin-top:10px;display:block;font-size:13px;}
-    input,select{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-top:5px;box-sizing:border-box;}
-    button.submit{background:var(--primary);color:white;border:none;padding:15px;border-radius:12px;width:100%;font-weight:600;margin-top:20px;cursor:pointer;}
+    .card{background:white; padding:25px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.1); margin-bottom:20px; border-top:6px solid var(--primary);}
+    label{font-weight:600; margin-top:10px; display:block; font-size:13px; color:#555;}
+    input,select{width:100%; padding:12px; border-radius:8px; border:1px solid #ddd; margin-top:5px; box-sizing:border-box;}
+    button.submit{background:var(--primary); color:white; border:none; padding:15px; border-radius:12px; width:100%; font-weight:600; margin-top:20px; cursor:pointer;}
     .upload{border:2px dashed #ccc; padding:15px; text-align:center; cursor:pointer; margin-top:10px; border-radius:10px; font-weight:600; color:var(--primary);}
 
-    /* ID CARD CSS (807x1280 Ratio) */
+    /* PROFESSIONAL ID DESIGN (807x1280) */
     #idCardSection{display:none; text-align:center; padding-bottom:50px;}
-    #actualPoster { width: 807px; height: 1280px; position: absolute; left: -9999px; background: white; overflow: hidden; }
-    .poster-bg { width: 100%; height: 100%; background: #fff; border: 20px solid var(--primary); box-sizing: border-box; position: relative; display: flex; flex-direction: column; align-items: center; }
-    .header-band { width: 100%; height: 220px; background: var(--primary); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
-    .header-band h1 { font-size: 50px; margin: 0; letter-spacing: 2px; }
-    .header-band p { font-size: 22px; margin: 5px 0; color: var(--accent); }
+    #actualPoster { width: 807px; height: 1280px; position: absolute; left: -9999px; background: white; overflow: hidden; border-radius: 40px; }
+    .id-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; border: 25px solid var(--primary); box-sizing: border-box; position: relative; }
     
-    .photo-wrap { margin-top: -60px; width: 450px; height: 450px; border: 15px solid white; border-radius: 40px; overflow: hidden; box-shadow: 0 15px 30px rgba(0,0,0,0.2); z-index: 5; background: #eee; }
-    .photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
-    
-    .id-info { margin-top: 30px; text-align: center; width: 90%; }
-    .id-info h2 { font-size: 60px; color: var(--primary); margin: 0; text-transform: uppercase; }
-    .id-info .reg-no { font-size: 35px; font-weight: 700; color: #555; margin-bottom: 20px; }
-    
-    .data-grid { display: grid; grid-template-columns: 1fr 1fr; width: 85%; gap: 30px; text-align: left; margin-top: 30px; }
-    .data-item b { color: #888; font-size: 20px; display: block; text-transform: uppercase; }
-    .data-item span { font-size: 30px; font-weight: 600; color: #222; }
-    
-    .footer { position: absolute; bottom: 40px; width: 85%; display: flex; justify-content: space-between; align-items: center; border-top: 3px solid #eee; padding-top: 30px; }
-    .qr-side img { width: 160px; height: 160px; }
-    .sign-side { text-align: center; font-size: 22px; color: #222; }
+    .id-header { background: var(--primary); padding: 45px 20px; text-align: center; color: white; }
+    .id-header h1 { margin: 0; font-size: 55px; font-weight: 800; letter-spacing: 2px; }
+    .id-header p { margin: 5px 0; font-size: 24px; color: var(--accent); }
 
-    .poster-wrapper { width: 350px; height: 555px; margin: 0 auto; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .id-tag { background: #e67e22; color: white; padding: 12px 50px; font-size: 30px; font-weight: 700; align-self: center; border-radius: 0 0 25px 25px; text-transform: uppercase; margin-top: -2px; }
+
+    .photo-area { margin-top: 40px; display: flex; flex-direction: column; align-items: center; }
+    .photo-frame { width: 380px; height: 380px; border: 12px solid #f0f0f0; border-radius: 35px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* വിവരങ്ങൾ ക്രമീകരിച്ച രീതി */
+    .details-box { padding: 40px 50px; flex-grow: 1; }
+    .info-line { display: flex; border-bottom: 2px solid #f2f2f2; padding: 12px 0; }
+    .info-lbl { width: 35%; font-size: 20px; font-weight: 600; color: #888; text-transform: uppercase; }
+    .info-val { width: 65%; font-size: 26px; font-weight: 700; color: #222; }
+
+    .footer-bar { display: flex; justify-content: space-between; align-items: flex-end; padding: 0 50px 40px 50px; }
+    .qr-frame { background: white; padding: 10px; border: 1px solid #eee; border-radius: 15px; }
+    .qr-frame img { width: 180px; height: 180px; }
+    .sign-area { text-align: center; border-top: 2px solid #333; padding-top: 10px; width: 240px; font-size: 22px; font-weight: 700; }
+
+    .preview-wrap { width: 350px; height: 555px; margin: 0 auto; border-radius: 15px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
     
-    /* ക്രോപ്പർ മോഡൽ */
-    #cropperModal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center; flex-direction:column;}
+    /* Cropper */
+    #cropperModal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center;}
     .crop-box{background:white; padding:15px; border-radius:15px; width: 90%; max-width: 400px;}
 </style>
 </head>
@@ -56,8 +59,8 @@
 
 <div class="container" id="mainBox">
     <div class="switch">
-        <button id="loginBtnTab" class="active" onclick="showTab('login')">LOGIN</button>
-        <button id="regBtnTab" onclick="showTab('register')">REGISTER</button>
+        <button id="lBtn" class="active" onclick="show('login')">LOGIN</button>
+        <button id="rBtn" onclick="show('reg')">REGISTER</button>
     </div>
 
     <div class="card" id="loginBox">
@@ -71,65 +74,64 @@
         <h3 style="text-align:center; color:var(--primary);">STUDENT REGISTRATION</h3>
         <label>Full Name</label><input id="rName">
         <label>Register Number</label><input type="number" id="rNumber">
-        <label>Date of Birth</label><input type="date" id="rDob">
         <label>Father's Name</label><input id="rFather">
+        <label>Date of Birth</label><input type="date" id="rDob">
         <label>Gender</label><select id="rGender"><option>Male</option><option>Female</option></select>
         <label>Class</label><input id="rClass">
         <label>Blood Group</label>
         <select id="rBlood">
-            <option>A+</option><option>A-</option>
-            <option>B+</option><option>B-</option>
-            <option>O+</option><option>O-</option>
-            <option>AB+</option><option>AB-</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
         </select>
-        <label>Mentor Name</label><input id="rMentor">
-        <label>Phone Number</label><input id="rPhone">
-        <div class="upload" onclick="rPhoto.click()" id="upTxt">Select Student Photo</div>
-        <input type="file" id="rPhoto" hidden accept="image/*">
+        <label>Mentor Name</label><input id="rMentor"> <label>Phone Number</label><input id="rPhone">
+        
+        <div class="upload" onclick="fInput.click()" id="upTxt">Select Student Photo</div>
+        <input type="file" id="fInput" hidden accept="image/*">
+        
         <button class="submit" id="regBtn" onclick="register()">SAVE & REGISTER</button>
     </div>
 </div>
 
 <div id="actualPoster">
-    <div class="poster-bg">
-        <div class="header-band">
+    <div class="id-wrapper">
+        <div class="id-header">
             <h1>MISBAHUL ULOOM</h1>
             <p>MADRASA PERUVANA | REG.NO: 4224</p>
         </div>
-        <div class="photo-wrap"><img id="pImg"></div>
-        <div class="id-info">
-            <h2 id="pName"></h2>
-            <div class="reg-no">ID NO: <span id="pNum"></span></div>
+        <div class="id-tag">Student ID Card</div>
+        
+        <div class="photo-area">
+            <div class="photo-frame"><img id="pImg"></div>
         </div>
-        <div class="data-grid">
-            <div class="data-item"><b>Date of Birth</b><span id="pDob"></span></div>
-            <div class="data-item"><b>Father's Name</b><span id="pFather"></span></div>
-            <div class="data-item"><b>Class</b><span id="pClass"></span></div>
-            <div class="data-item"><b>Blood Group</b><span id="pBlood"></span></div>
+
+        <div class="details-box">
+            <div class="info-line"><span class="info-lbl">Name</span><span class="info-val" id="pName"></span></div>
+            <div class="info-line"><span class="info-lbl">Father</span><span class="info-val" id="pFather"></span></div>
+            <div class="info-line"><span class="info-lbl">ID No</span><span class="info-val" id="pId"></span></div>
+            <div class="info-line"><span class="info-lbl">DOB</span><span class="info-val" id="pDob"></span></div>
+            <div class="info-line"><span class="info-lbl">Class</span><span class="info-val" id="pClass"></span></div>
+            <div class="info-line"><span class="info-lbl">Mentor</span><span class="info-val" id="pMentor"></span></div> <div class="info-line"><span class="info-lbl">Blood</span><span class="info-val" id="pBlood"></span></div>
+            <div class="info-line"><span class="info-lbl">Phone</span><span class="info-val" id="pPhone"></span></div>
         </div>
-        <div class="footer">
-            <div class="sign-side">
-                <div style="height:60px"></div>
-                <b>PRINCIPAL SIGN</b>
-            </div>
-            <div class="qr-side">
-                <img id="qrImg">
-            </div>
+
+        <div class="footer-bar">
+            <div class="qr-frame"><img id="pQr"></div>
+            <div class="sign-area">Principal Signature</div>
         </div>
     </div>
 </div>
 
 <div id="idCardSection">
-    <div class="poster-wrapper" id="previewBox"></div>
-    <div style="max-width:350px; margin: 20px auto;">
-        <button class="submit" onclick="downloadPoster()">Download ID Card (HQ)</button>
-        <button class="submit" onclick="location.reload()" style="background:#666">Back to Home</button>
+    <div class="preview-wrap" id="previewBox"></div>
+    <div style="max-width:350px; margin: 30px auto;">
+        <button class="submit" onclick="downloadID()">Download PNG</button>
+        <button class="submit" onclick="location.reload()" style="background:#555">Back</button>
     </div>
 </div>
 
 <div id="cropperModal">
     <div class="crop-box">
-        <img id="cropImgPreview" style="max-width:100%;">
+        <img id="cropImg" style="max-width:100%;">
         <button class="submit" onclick="startCrop()">Crop & Apply</button>
     </div>
 </div>
@@ -150,32 +152,29 @@ const IMGBB_API = "a0ec42450bb0e87699896f33dbd7c471";
 
 let cropper, croppedBlob;
 
-function showTab(type){
-    if(type=='login'){
-        loginBox.style.display='block'; registerBox.style.display='none';
-        loginBtnTab.classList.add('active'); regBtnTab.classList.remove('active');
-    } else {
-        loginBox.style.display='none'; registerBox.style.display='block';
-        regBtnTab.classList.add('active'); loginBtnTab.classList.remove('active');
-    }
+function show(t){
+    loginBox.style.display=(t=='login')?'block':'none';
+    registerBox.style.display=(t=='reg')?'block':'none';
+    lBtn.className=(t=='login')?'active':'';
+    rBtn.className=(t=='reg')?'active':'';
 }
 
-rPhoto.onchange = (e) => {
+fInput.onchange = (e) => {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = () => {
-            cropImgPreview.src = reader.result;
+            cropImg.src = reader.result;
             cropperModal.style.display = 'flex';
             if(cropper) cropper.destroy();
-            cropper = new Cropper(cropImgPreview, { aspectRatio: 1, viewMode: 1 });
+            cropper = new Cropper(cropImg, { aspectRatio: 1, viewMode: 1 });
         };
         reader.readAsDataURL(file);
     }
 };
 
 function startCrop() {
-    cropper.getCroppedCanvas({ width: 600, height: 600 }).toBlob((blob) => {
+    cropper.getCroppedCanvas({ width: 500, height: 500 }).toBlob((blob) => {
         croppedBlob = blob;
         upTxt.innerText = "Photo Ready ✅";
         cropperModal.style.display = 'none';
@@ -183,22 +182,21 @@ function startCrop() {
 }
 
 async function register(){
-    if(!rName.value || !rNumber.value || !croppedBlob) return alert("Fill all details and Photo!");
-    document.getElementById("regBtn").innerText = "Uploading...";
+    if(!rName.value || !rNumber.value || !croppedBlob) return alert("Fill all details!");
+    document.getElementById("regBtn").innerText = "Saving...";
     
     const f=new FormData(); f.append("image", croppedBlob);
-    const res = await fetch("https://api.imgbb.com/1/upload?key="+IMGBB_API, {method:"POST", body:f});
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API}`, {method:"POST", body:f});
     const imgData = await res.json();
     
     const u = {
-        name: rName.value, number: rNumber.value, dob: rDob.value,
-        father: rFather.value, gender: rGender.value, class: rClass.value, 
+        name: rName.value, reg: rNumber.value, father: rFather.value,
+        dob: rDob.value, gender: rGender.value, class: rClass.value, 
         blood: rBlood.value, mentor: rMentor.value, phone: rPhone.value,
         photo: imgData.data.url
     };
 
-    await db.collection("students").doc(u.number).set(u);
-    alert("Success!");
+    await db.collection("students").doc(u.reg).set(u);
     generateID(u);
 }
 
@@ -206,35 +204,37 @@ async function login(){
     const regNo = document.getElementById("lReg").value;
     if(!regNo) return alert("Enter Reg No");
     const doc = await db.collection("students").doc(regNo).get();
-    if(!doc.exists) return alert("No record found!");
+    if(!doc.exists) return alert("Student not found!");
     generateID(doc.data());
 }
 
 function generateID(u) {
     document.getElementById("pImg").src = u.photo;
     document.getElementById("pName").innerText = u.name;
-    document.getElementById("pNum").innerText = u.number;
-    document.getElementById("pFather").innerText = u.father || "N/A";
-    const d = u.dob.split("-");
-    document.getElementById("pDob").innerText = `${d[2]}-${d[1]}-${d[0]}`;
+    document.getElementById("pFather").innerText = u.father;
+    document.getElementById("pId").innerText = u.reg;
+    document.getElementById("pDob").innerText = u.dob.split('-').reverse().join('-');
     document.getElementById("pClass").innerText = u.class;
+    document.getElementById("pMentor").innerText = u.mentor || "N/A";
     document.getElementById("pBlood").innerText = u.blood;
+    document.getElementById("pPhone").innerText = u.phone;
 
-    const profileUrl = window.location.origin + "/profile.html?id=" + u.number;
-    document.getElementById("qrImg").src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(profileUrl);
+    // QR with Profile Link
+    const profileUrl = window.location.origin + "/profile.html?id=" + u.reg;
+    document.getElementById("pQr").src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(profileUrl)}`;
 
     setTimeout(() => {
         document.getElementById("mainBox").style.display = "none";
         document.getElementById("idCardSection").style.display = "block";
         document.getElementById("previewBox").innerHTML = document.getElementById("actualPoster").innerHTML;
-    }, 1000);
+    }, 800);
 }
 
-function downloadPoster() {
-    html2canvas(document.getElementById("actualPoster"), {scale:1, useCORS:true}).then(canvas => {
+function downloadID() {
+    html2canvas(document.getElementById("actualPoster"), {scale:2, useCORS:true}).then(canvas => {
         const link = document.createElement("a");
-        link.href = canvas.toDataURL();
-        link.download = document.getElementById("pName").innerText + "_ID.png";
+        link.href = canvas.toDataURL("image/png");
+        link.download = `ID_${document.getElementById("pId").innerText}.png`;
         link.click();
     });
 }
