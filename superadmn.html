@@ -96,6 +96,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // റിയൽ ടൈം ലിസണർ
     db.collection("madrasa_data").onSnapshot(snapshot => {
         const list = document.getElementById('mList');
         list.innerHTML = "";
@@ -106,8 +107,6 @@
             const docId = doc.id;
             count++;
             
-            // പ്രധാന മാറ്റം: uID ഉപയോഗിച്ച് ലിങ്ക് ഉണ്ടാക്കുന്നു.
-            // പഴയ മദ്രസകൾക്ക് uID ഇല്ലെങ്കിൽ docId (ഫോൺ) ഉപയോഗിക്കുന്നു.
             const uniqueID = data.uID || docId;
             const baseURL = "https://mannanimuhsin-sys.github.io/my-website/view.html";
             const resultURL = `${baseURL}?id=${uniqueID}`;
@@ -161,24 +160,33 @@
         document.getElementById('stats').innerText = "ആകെ മദ്രസകൾ: " + count;
     });
 
-   async function updateStatus(id, action) {
-    const ref = db.collection("madrasa_data").doc(id);
-    if (action === 'approve') {
-        // അപ്രൂവ് ചെയ്യുമ്പോൾ uID ഇല്ലെങ്കിൽ അത് ജനറേറ്റ് ചെയ്യാനുള്ള സുരക്ഷാ ക്രമീകരണം
+    // സ്റ്റാറ്റസ് മാറ്റാനുള്ള ഫംഗ്ഷൻ
+    async function updateStatus(id, action) {
+        const ref = db.collection("madrasa_data").doc(id);
         const doc = await ref.get();
-        if (!doc.data().uID) {
-            const newUID = "MD" + Math.floor(1000 + Math.random() * 9000);
-            await ref.update({ isApproved: true, isBlocked: false, uID: newUID });
-        } else {
-            await ref.update({ isApproved: true, isBlocked: false });
-        }
-    }
-    if (action === 'block') await ref.update({ isApproved: false, isBlocked: true });
-    if (action === 'unblock') await ref.update({ isApproved: true, isBlocked: false });
-}
+        const currentData = doc.data();
 
+        if (action === 'approve') {
+            let updateObj = { isApproved: true, isBlocked: false };
+            // uID ഇല്ലെങ്കിൽ മാത്രം പുതിയത് ആഡ് ചെയ്യുന്നു
+            if (!currentData.uID) {
+                updateObj.uID = "MD" + Math.floor(1000 + Math.random() * 9000);
+            }
+            await ref.update(updateObj);
+        }
+        if (action === 'block') await ref.update({ isApproved: false, isBlocked: true });
+        if (action === 'unblock') await ref.update({ isApproved: true, isBlocked: false });
+    }
+
+    // റിസൾട്ട് ലിങ്ക് കോപ്പി ചെയ്യാൻ
+    function copyResultLink(url) {
+        navigator.clipboard.writeText(url);
+        alert("റിസൾട്ട് ലിങ്ക് കോപ്പി ചെയ്തു!");
+    }
+
+    // എഡിറ്റിംഗ് റീസെറ്റ് ചെയ്യാൻ
     async function toggleEdit(id, currentPublished) {
-        if(confirm(currentPublished ? "എഡിറ്റിംഗ് അനുവദിക്കണോ?" : "ലോക്ക് ചെയ്യണോ?")) {
+        if(confirm(currentPublished ? "റിസൾട്ട് പിൻവലിച്ച് എഡിറ്റിംഗ് അനുവദിക്കണോ?" : "ലോക്ക് ചെയ്യണോ?")) {
             await db.collection("madrasa_data").doc(id).update({
                 isPublished: !currentPublished,
                 isApproved: false
@@ -186,12 +194,14 @@
         }
     }
 
+    // മദ്രസ ഡിലീറ്റ് ചെയ്യാൻ
     async function deleteMadrasa(id) {
-        if (confirm("ഈ മദ്രസ നീക്കം ചെയ്യട്ടെ?")) {
+        if (confirm("ഈ മദ്രസ പൂർണ്ണമായും നീക്കം ചെയ്യട്ടെ? ഈ നടപടി പിൻവലിക്കാൻ കഴിയില്ല.")) {
             await db.collection("madrasa_data").doc(id).delete();
         }
     }
 
+    // സെർച്ച് ഫിൽട്ടർ
     function filterTable() {
         let input = document.getElementById("searchInput").value.toLowerCase();
         let rows = document.querySelectorAll("#mList tr");
