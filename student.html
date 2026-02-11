@@ -239,22 +239,15 @@ function renderID(s){
 }
 
 function downloadID(){
- const imgs = idCard.querySelectorAll("img");
- Promise.all([...imgs].map(img=>{
-  if(img.complete) return Promise.resolve();
-  return new Promise(res=>img.onload=res);
- })).then(()=>{
-  html2canvas(idCard,{
-   scale:3,
-   width:554,
-   height:1280,
-   useCORS:true
-  }).then(canvas=>{
-   const a=document.createElement("a");
-   a.href=canvas.toDataURL("image/png");
-   a.download="STUDENT_ID.png";
-   a.click();
-  });
+ html2canvas(document.querySelector("#idCard"), {
+  scale: 3, 
+  useCORS: true,
+  allowTaint: true
+ }).then(c => {
+  let a = document.createElement("a");
+  a.href = c.toDataURL("image/png");
+  a.download = `ID_CARD_${pReg.innerText}.png`;
+  a.click();
  });
 }
 
