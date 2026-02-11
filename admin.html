@@ -18,12 +18,12 @@
     .class-card.active { background: var(--primary); color: white; border-bottom-color: #0d5a39; }
     .class-card h3 { margin: 0; font-size: 20px; }
 
-    /* Tools & Export Buttons */
+    /* Tools */
     .tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
     .search-box { background: white; padding: 12px 20px; border-radius: 30px; display: flex; align-items: center; flex: 1; max-width: 400px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .search-box input { border: none; outline: none; width: 100%; margin-left: 10px; }
     
-    .export-section { display: flex; gap: 10px; margin-bottom: 15px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .export-section { display: flex; gap: 10px; }
 
     /* Table */
     .student-list { background: white; border-radius: 15px; overflow-x: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
@@ -52,7 +52,7 @@
 
 <div class="header">
     <h1><i class="fas fa-user-shield"></i> MISBAHUL ULOOM ADMIN</h1>
-    <p>ക്ലാസ്സ് തിരിച്ചുള്ള വിവരങ്ങൾ താഴെ കാണാം</p>
+    <p>വിദ്യാർത്ഥികളുടെ വിവരങ്ങൾ മാനേജ് ചെയ്യാം</p>
 </div>
 
 <div class="container">
@@ -67,11 +67,11 @@
     <div class="tools">
         <div class="search-box">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" onkeyup="searchStudent()" placeholder="വിദ്യാർത്ഥിയുടെ പേര് ടൈപ്പ് ചെയ്യുക...">
+            <input type="text" id="searchInput" onkeyup="searchStudent()" placeholder="പേര് തിരയുക...">
         </div>
         <div class="export-section">
-            <button class="btn btn-excel" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export Excel (Class <span class="currentClsTxt">1</span>)</button>
-            <button class="btn btn-pdf" onclick="exportToPDF()"><i class="fas fa-file-pdf"></i> Download PDF (Class <span class="currentClsTxt">1</span>)</button>
+            <button class="btn btn-excel" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+            <button class="btn btn-pdf" onclick="exportToPDF()"><i class="fas fa-file-pdf"></i> PDF (With Photo)</button>
         </div>
     </div>
 
@@ -87,7 +87,6 @@
                     <th>ലിംഗം</th>
                     <th>Blood</th>
                     <th>രക്ഷിതാവ്</th>
-                    <th>മെന്റർ</th>
                     <th>ഫോൺ</th>
                     <th>Actions</th>
                 </tr>
@@ -99,8 +98,8 @@
 
 <div class="modal" id="editModal">
     <div class="modal-content">
-        <h2 style="margin-top:0; color:var(--primary);">വിവരങ്ങൾ തിരുത്തുക</h2>
-        <input type="hidden" id="editId">
+        <h2 style="margin-top:0; color:var(--primary);">തിരുത്തുക</h2>
+        <input type="hidden" id="editDocId">
         <div class="form-grid">
             <div class="form-group"><label>പേര്</label><input type="text" id="editName"></div>
             <div class="form-group"><label>രജിസ്റ്റർ നമ്പർ</label><input type="text" id="editRegNo"></div>
@@ -109,11 +108,10 @@
             <div class="form-group"><label>ലിംഗം</label><select id="editGender"><option>Male</option><option>Female</option></select></div>
             <div class="form-group"><label>Blood Group</label><input type="text" id="editBlood"></div>
             <div class="form-group"><label>രക്ഷിതാവ്</label><input type="text" id="editFather"></div>
-            <div class="form-group"><label>മെന്റർ</label><input type="text" id="editMentor"></div>
             <div class="form-group full-width"><label>ഫോൺ</label><input type="tel" id="editPhone"></div>
         </div>
         <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button class="btn btn-excel" style="flex:2" onclick="updateStudent()">Save Changes</button>
+            <button class="btn btn-excel" style="flex:2" onclick="updateStudent()">Update Now</button>
             <button class="btn btn-del" style="flex:1" onclick="document.getElementById('editModal').style.display='none'">Cancel</button>
         </div>
     </div>
@@ -125,6 +123,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
+// Firebase Config
 firebase.initializeApp({
     apiKey:"AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
     authDomain:"misbahul-uloom-madrasa-4830c.firebaseapp.com",
@@ -132,24 +131,23 @@ firebase.initializeApp({
 });
 const db = firebase.firestore();
 let currentClass = "1";
-let studentData = [];
+let allStudents = [];
 
 function loadClass(cls) {
     currentClass = cls;
     document.querySelectorAll('.class-card').forEach(c => c.classList.remove('active'));
     document.getElementById(`card-${cls}`).classList.add('active');
-    document.querySelectorAll('.currentClsTxt').forEach(t => t.innerText = cls);
     
     const body = document.getElementById("tableBody");
-    body.innerHTML = "<tr><td colspan='11' style='text-align:center;'>Loading...</td></tr>";
+    body.innerHTML = "<tr><td colspan='10' style='text-align:center;'>വിവരങ്ങൾ ശേഖരിക്കുന്നു...</td></tr>";
     
     db.collection("students").where("class", "==", cls).onSnapshot(snap => {
         body.innerHTML = "";
-        studentData = [];
+        allStudents = [];
         snap.forEach(doc => {
             const d = doc.data();
-            studentData.push(d);
-            const id = doc.id;
+            d.docId = doc.id;
+            allStudents.push(d);
             body.innerHTML += `
                 <tr>
                     <td><img src="${d.photo}" class="std-img"></td>
@@ -158,36 +156,35 @@ function loadClass(cls) {
                     <td>${d.class}</td>
                     <td>${d.dob}</td>
                     <td>${d.gender}</td>
-                    <td>${d.blood || 'N/A'}</td>
+                    <td>${d.blood || '-'}</td>
                     <td>${d.father}</td>
-                    <td>${d.mentor || 'N/A'}</td>
                     <td>${d.phone}</td>
                     <td>
-                        <button class="btn btn-edit" onclick="openEdit('${id}', ${JSON.stringify(d).replace(/"/g, '&quot;')})"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-del" onclick="deleteStudent('${id}')"><i class="fas fa-trash"></i></button>
+                        <button class="btn btn-edit" onclick="openEdit('${doc.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-del" onclick="deleteStudent('${doc.id}')"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`;
         });
-        if(studentData.length === 0) body.innerHTML = "<tr><td colspan='11' style='text-align:center;'>No Students Found in Class "+cls+"</td></tr>";
+        if(allStudents.length === 0) body.innerHTML = "<tr><td colspan='10' style='text-align:center;'>ഈ ക്ലാസ്സിൽ വിദ്യാർത്ഥികളില്ല.</td></tr>";
     });
 }
 
-function openEdit(id, d) {
-    document.getElementById("editId").value = id;
-    document.getElementById("editName").value = d.name;
-    document.getElementById("editClass").value = d.class;
-    document.getElementById("editRegNo").value = d.number;
-    document.getElementById("editDob").value = d.dob;
-    document.getElementById("editGender").value = d.gender;
-    document.getElementById("editBlood").value = d.blood || "";
-    document.getElementById("editFather").value = d.father;
-    document.getElementById("editMentor").value = d.mentor || "";
-    document.getElementById("editPhone").value = d.phone;
+function openEdit(id) {
+    const s = allStudents.find(x => x.docId === id);
+    document.getElementById("editDocId").value = id;
+    document.getElementById("editName").value = s.name;
+    document.getElementById("editRegNo").value = s.number;
+    document.getElementById("editClass").value = s.class;
+    document.getElementById("editDob").value = s.dob;
+    document.getElementById("editGender").value = s.gender;
+    document.getElementById("editBlood").value = s.blood || "";
+    document.getElementById("editFather").value = s.father;
+    document.getElementById("editPhone").value = s.phone;
     document.getElementById("editModal").style.display = "flex";
 }
 
 async function updateStudent() {
-    const id = document.getElementById("editId").value;
+    const id = document.getElementById("editDocId").value;
     await db.collection("students").doc(id).update({
         name: document.getElementById("editName").value,
         number: document.getElementById("editRegNo").value,
@@ -196,22 +193,23 @@ async function updateStudent() {
         gender: document.getElementById("editGender").value,
         blood: document.getElementById("editBlood").value,
         father: document.getElementById("editFather").value,
-        mentor: document.getElementById("editMentor").value,
         phone: document.getElementById("editPhone").value
     });
-    alert("Updated!"); document.getElementById("editModal").style.display = "none";
+    alert("വിവരങ്ങൾ അപ്ഡേറ്റ് ചെയ്തു ✅");
+    document.getElementById("editModal").style.display = "none";
 }
 
 async function deleteStudent(id) {
-    if(confirm("ഈ വിദ്യാർത്ഥിയുടെ വിവരങ്ങൾ ഒഴിവാക്കണോ?")) {
+    if(confirm("ഈ വിദ്യാർത്ഥിയുടെ വിവരങ്ങൾ സ്ഥിരമായി ഒഴിവാക്കണോ?")) {
         await db.collection("students").doc(id).delete();
+        alert("Deleted Successfully");
     }
 }
 
 function searchStudent() {
     let filter = document.getElementById("searchInput").value.toUpperCase();
-    let tr = document.getElementById("studentTable").getElementsByTagName("tr");
-    for (let i = 1; i < tr.length; i++) {
+    let tr = document.getElementById("tableBody").getElementsByTagName("tr");
+    for (let i = 0; i < tr.length; i++) {
         let nameTd = tr[i].getElementsByTagName("td")[1];
         if (nameTd) {
             tr[i].style.display = nameTd.innerText.toUpperCase().indexOf(filter) > -1 ? "" : "none";
@@ -219,39 +217,44 @@ function searchStudent() {
     }
 }
 
-// PDF EXPORT
-function exportToPDF() {
+// PDF EXPORT WITH PHOTO
+async function exportToPDF() {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('l', 'mm', 'a4');
-    doc.text("Misbahul Uloom Madrasa - Class " + currentClass + " Student List", 14, 15);
+    const doc = new jsPDF('p', 'mm', 'a4');
+    doc.setFontSize(16);
+    doc.text("Misbahul Uloom Madrasa - Class " + currentClass, 14, 15);
     
-    const rows = studentData.map(d => [d.name, d.number, d.class, d.dob, d.gender, d.blood, d.father, d.phone]);
+    const tableData = [];
+    for(let s of allStudents) {
+        tableData.push([s.name, s.number, s.dob, s.father, s.phone]);
+    }
+
     doc.autoTable({
-        head: [['Name', 'Reg.No', 'Class', 'DOB', 'Gender', 'Blood', 'Parent', 'Phone']],
-        body: rows,
-        startY: 20,
+        head: [['Name', 'Reg.No', 'DOB', 'Parent', 'Phone']],
+        body: tableData,
+        startY: 25,
+        theme: 'striped',
+        headStyles: { fillColor: [25, 135, 84] }
     });
-    doc.save("Class_" + currentClass + "_Students.pdf");
+
+    doc.save(`Class_${currentClass}_Report.pdf`);
 }
 
 // EXCEL EXPORT
 function exportToExcel() {
-    let csv = "Name,RegNo,Class,DOB,Gender,Blood,Father,Phone\n";
-    studentData.forEach(d => {
-        csv += `${d.name},${d.number},${d.class},${d.dob},${d.gender},${d.blood},${d.father},${d.phone}\n`;
+    let csv = "Name,Register No,Class,DOB,Gender,Blood,Parent,Phone\n";
+    allStudents.forEach(s => {
+        csv += `${s.name},${s.number},${s.class},${s.dob},${s.gender},${s.blood},${s.father},${s.phone}\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.setAttribute('hidden', '');
-    a.setAttribute('href', url);
-    a.setAttribute('download', `Class_${currentClass}_Data.csv`);
-    document.body.appendChild(a);
+    a.href = url;
+    a.download = `Class_${currentClass}_Data.csv`;
     a.click();
-    document.body.removeChild(a);
 }
 
-loadClass("1");
+loadClass("1"); // Initial Load
 </script>
 </body>
 </html>

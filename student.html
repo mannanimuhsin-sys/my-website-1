@@ -44,10 +44,45 @@ button{width:100%;padding:14px;margin-top:15px;border:none;border-radius:10px;ba
 .sign div{border-top:2px solid #333;width:90px;margin:4px auto 0}
 
 /* Cropper Modal */
-#cropBox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:999;align-items:center;justify-content:center;flex-direction:column}
-.crop-container{background:#fff;padding:15px;border-radius:14px;width:90%;max-width:350px}
-.crop-btn{background:var(--green);color:#fff;border:none;padding:12px;width:100%;margin-top:10px;border-radius:8px;font-weight:bold}
+#cropBox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 10px;
+}
 
+.crop-container {
+  background: #fff;
+  padding: 10px;
+  border-radius: 14px;
+  width: 95%;
+  max-width: 320px; /* ബോക്സ് ഒതുക്കി നിർത്തി */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#cropImg {
+  display: block;
+  max-width: 100%;
+  max-height: 350px; /* ഫോട്ടോയുടെ നീളം കുറച്ചു, അപ്പോൾ ബട്ടൺ താഴെ കാണാം */
+}
+
+.crop-btn {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  padding: 14px;
+  width: 100%;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
 /* QR PREVIEW PAGE */
 #qrPage{display:none;min-height:100vh;background:#f4f6f8;align-items:center;justify-content:center}
 .qrCard{background:#fff;padding:25px;border-radius:18px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25)}
