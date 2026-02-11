@@ -118,7 +118,9 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <script>
+// 1. ഫയർബേസ് കോൺഫിഗറേഷൻ (ഒറ്റത്തവണ മാത്രം)
 const firebaseConfig = {
   apiKey: "AIzaSyAUkOIp33p7sMviItKLEP6EGyPQvFBuQeY",
   authDomain: "result-aedec.firebaseapp.com",
@@ -127,11 +129,14 @@ const firebaseConfig = {
   messagingSenderId: "654773450983",
   appId: "1:654773450983:web:463a919c5c83ec55134a42"
 };
+
+// ഫയർബേസ് ഇനിഷ്യലൈസ് ചെയ്യുക
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 let user = null;
 
-const SITE_URL = "https://mannanimuhsin-sys.github.io/my-website/result_view.html";
+// നിങ്ങളുടെ പുതിയ വെബ്സൈറ്റ് ലിങ്ക് ഇവിടെ മാറ്റിയിട്ടുണ്ട്
+const SITE_URL = "https://mannanimuhsin-sys.github.io/my-website-1/result_view.html";
 
 function switchTab(t) {
     document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
@@ -293,5 +298,6 @@ function shareWhatsapp() {
     window.open("https://wa.me/?text=" + encodeURIComponent(text));
 }
 </script>
+
 </body>
 </html>
