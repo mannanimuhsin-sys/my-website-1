@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Madrasa Admin Panel | Executive</title>
+<title>Madrasa Admin Panel | Official</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     :root { --primary: #198754; --dark: #2c3e50; --light: #f4f7f6; }
     body { background: var(--light); font-family: 'Poppins', sans-serif; margin: 0; }
     .header { background: var(--primary); color: white; padding: 25px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .container { max-width: 1250px; margin: 20px auto; padding: 0 15px; }
+    .container { max-width: 1300px; margin: 20px auto; padding: 0 15px; }
 
     /* Class Cards */
     .class-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 30px; }
@@ -18,40 +18,41 @@
     .class-card.active { background: var(--primary); color: white; border-bottom-color: #0d5a39; }
     .class-card h3 { margin: 0; font-size: 20px; }
 
-    /* Tools */
+    /* Tools & Export Buttons */
     .tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
     .search-box { background: white; padding: 12px 20px; border-radius: 30px; display: flex; align-items: center; flex: 1; max-width: 400px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .search-box input { border: none; outline: none; width: 100%; margin-left: 10px; }
-    .btn-group { display: flex; gap: 10px; }
+    
+    .export-section { display: flex; gap: 10px; margin-bottom: 15px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
 
     /* Table */
     .student-list { background: white; border-radius: 15px; overflow-x: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-    table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+    table { width: 100%; border-collapse: collapse; min-width: 1100px; }
     th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #555; border-bottom: 2px solid #eee; }
     td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 13px; vertical-align: middle; }
     .std-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
 
     /* Buttons */
-    .btn { padding: 9px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s; }
+    .btn { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
     .btn-edit { background: #e3f2fd; color: #1976d2; }
     .btn-del { background: #ffebee; color: #d32f2f; }
     .btn-excel { background: #2e7d32; color: white; }
+    .btn-pdf { background: #c62828; color: white; }
 
     /* Modal */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
     .modal-content { background: white; padding: 25px; border-radius: 20px; width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .form-group { margin-bottom: 10px; }
     .form-group label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 5px; color: #666; }
-    .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
     .full-width { grid-column: span 2; }
 </style>
 </head>
 <body>
 
 <div class="header">
-    <h1><i class="fas fa-database"></i> MISBAHUL ULOOM ADMIN PANEL</h1>
-    <p>വിദ്യാർത്ഥികളുടെ മുഴുവൻ വിവരങ്ങളും ഇവിടെ മാനേജ് ചെയ്യാം</p>
+    <h1><i class="fas fa-user-shield"></i> MISBAHUL ULOOM ADMIN</h1>
+    <p>ക്ലാസ്സ് തിരിച്ചുള്ള വിവരങ്ങൾ താഴെ കാണാം</p>
 </div>
 
 <div class="container">
@@ -66,10 +67,11 @@
     <div class="tools">
         <div class="search-box">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" onkeyup="searchStudent()" placeholder="പേര് സെർച്ച് ചെയ്യുക...">
+            <input type="text" id="searchInput" onkeyup="searchStudent()" placeholder="വിദ്യാർത്ഥിയുടെ പേര് ടൈപ്പ് ചെയ്യുക...">
         </div>
-        <div class="btn-group">
-            <button class="btn btn-excel" onclick="exportToCSV('full')"><i class="fas fa-file-export"></i> Download Full Data (Excel)</button>
+        <div class="export-section">
+            <button class="btn btn-excel" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export Excel (Class <span class="currentClsTxt">1</span>)</button>
+            <button class="btn btn-pdf" onclick="exportToPDF()"><i class="fas fa-file-pdf"></i> Download PDF (Class <span class="currentClsTxt">1</span>)</button>
         </div>
     </div>
 
@@ -104,10 +106,7 @@
             <div class="form-group"><label>രജിസ്റ്റർ നമ്പർ</label><input type="text" id="editRegNo"></div>
             <div class="form-group"><label>ക്ലാസ്</label><input type="text" id="editClass"></div>
             <div class="form-group"><label>DOB</label><input type="date" id="editDob"></div>
-            <div class="form-group">
-                <label>ലിംഗം</label>
-                <select id="editGender"><option>Male</option><option>Female</option></select>
-            </div>
+            <div class="form-group"><label>ലിംഗം</label><select id="editGender"><option>Male</option><option>Female</option></select></div>
             <div class="form-group"><label>Blood Group</label><input type="text" id="editBlood"></div>
             <div class="form-group"><label>രക്ഷിതാവ്</label><input type="text" id="editFather"></div>
             <div class="form-group"><label>മെന്റർ</label><input type="text" id="editMentor"></div>
@@ -120,6 +119,8 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -131,19 +132,23 @@ firebase.initializeApp({
 });
 const db = firebase.firestore();
 let currentClass = "1";
+let studentData = [];
 
 function loadClass(cls) {
     currentClass = cls;
     document.querySelectorAll('.class-card').forEach(c => c.classList.remove('active'));
     document.getElementById(`card-${cls}`).classList.add('active');
+    document.querySelectorAll('.currentClsTxt').forEach(t => t.innerText = cls);
     
     const body = document.getElementById("tableBody");
     body.innerHTML = "<tr><td colspan='11' style='text-align:center;'>Loading...</td></tr>";
     
     db.collection("students").where("class", "==", cls).onSnapshot(snap => {
         body.innerHTML = "";
+        studentData = [];
         snap.forEach(doc => {
             const d = doc.data();
+            studentData.push(d);
             const id = doc.id;
             body.innerHTML += `
                 <tr>
@@ -163,6 +168,7 @@ function loadClass(cls) {
                     </td>
                 </tr>`;
         });
+        if(studentData.length === 0) body.innerHTML = "<tr><td colspan='11' style='text-align:center;'>No Students Found in Class "+cls+"</td></tr>";
     });
 }
 
@@ -193,12 +199,11 @@ async function updateStudent() {
         mentor: document.getElementById("editMentor").value,
         phone: document.getElementById("editPhone").value
     });
-    alert("Updated Successfully!");
-    document.getElementById("editModal").style.display = "none";
+    alert("Updated!"); document.getElementById("editModal").style.display = "none";
 }
 
 async function deleteStudent(id) {
-    if(confirm("Are you sure?")) {
+    if(confirm("ഈ വിദ്യാർത്ഥിയുടെ വിവരങ്ങൾ ഒഴിവാക്കണോ?")) {
         await db.collection("students").doc(id).delete();
     }
 }
@@ -214,19 +219,36 @@ function searchStudent() {
     }
 }
 
-async function exportToCSV(type) {
-    let rows = [["Name", "RegNo", "Class", "DOB", "Gender", "Blood", "Father", "Mentor", "Phone"]];
-    const snap = await db.collection("students").get();
-    snap.forEach(doc => {
-        const d = doc.data();
-        rows.push([d.name, d.number, d.class, d.dob, d.gender, d.blood, d.father, d.mentor, d.phone]);
-    });
+// PDF EXPORT
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4');
+    doc.text("Misbahul Uloom Madrasa - Class " + currentClass + " Student List", 14, 15);
     
-    let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
-    let link = document.createElement("a");
-    link.href = encodeURI(csvContent);
-    link.download = "Madrasa_Students_Full_Data.csv";
-    link.click();
+    const rows = studentData.map(d => [d.name, d.number, d.class, d.dob, d.gender, d.blood, d.father, d.phone]);
+    doc.autoTable({
+        head: [['Name', 'Reg.No', 'Class', 'DOB', 'Gender', 'Blood', 'Parent', 'Phone']],
+        body: rows,
+        startY: 20,
+    });
+    doc.save("Class_" + currentClass + "_Students.pdf");
+}
+
+// EXCEL EXPORT
+function exportToExcel() {
+    let csv = "Name,RegNo,Class,DOB,Gender,Blood,Father,Phone\n";
+    studentData.forEach(d => {
+        csv += `${d.name},${d.number},${d.class},${d.dob},${d.gender},${d.blood},${d.father},${d.phone}\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', `Class_${currentClass}_Data.csv`);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
 
 loadClass("1");
