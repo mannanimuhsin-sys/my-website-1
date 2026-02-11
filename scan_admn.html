@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Admin Pro | Misbahul Uloom</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root { --primary: #198754; --danger: #dc3545; --dark: #212529; }
+        body { font-family: 'Poppins', sans-serif; background: #f0f4f7; margin: 0; padding: 15px; }
+        .container { max-width: 800px; margin: auto; }
+        
+        /* Header & Control Box */
+        .admin-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { margin: 0 0 15px 0; color: var(--primary); font-size: 20px; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        input { padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; width: 100%; box-sizing: border-box; }
+        
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; color: white; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-start { background: var(--primary); }
+        .btn-refresh { background: #6c757d; }
+        .btn-export { background: #0d6efd; grid-column: span 2; }
+        .btn:active { transform: scale(0.98); }
+
+        /* Scanner Box */
+        #reader { width: 100%; border-radius: 12px; overflow: hidden; border: 4px solid var(--primary); margin-bottom: 20px; display: none; background: #000; }
+
+        /* Attendees Listing */
+        .list-header { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; }
+        .class-group { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .class-title { margin: 0 0 10px 0; color: var(--primary); font-size: 16px; border-left: 4px solid var(--primary); padding-left: 10px; }
+        
+        .student-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+        .student-item:last-child { border: none; }
+        .std-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #eee; }
+        .std-info { flex-grow: 1; }
+        .std-name { font-weight: 600; font-size: 14px; display: block; }
+        .std-time { font-size: 12px; color: #777; }
+        
+        .btn-delete { background: none; border: none; color: var(--danger); font-size: 18px; cursor: pointer; padding: 5px; }
+
+        /* Mobile Adjustments */
+        @media (max-width: 480px) {
+            h2 { font-size: 18px; }
+            .btn { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="admin-card">
+        <h2>ADMIN ATTENDANCE PANEL</h2>
+        <div class="input-group">
+            <input type="text" id="eventName" placeholder="പ്രോഗ്രാമിന്റെ പേര് (eg: Parents Meet)">
+            <input type="date" id="eventDate">
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-start" onclick="startScanner()">📷 Start Scan</button>
+            <button class="btn btn-refresh" onclick="location.reload()">🔄 Refresh</button>
+            <button class="btn btn-export" onclick="exportData()">📥 Download Report (Excel)</button>
+        </div>
+    </div>
+
+    <div id="reader"></div>
+
+    <div id="attendanceView">
+        <div class="list-header">
+            <h3 style="font-size: 18px;">Attendees List</h3>
+            <span id="countBadge" style="background:var(--primary); color:white; padding:4px 12px; border-radius:20px; font-size:12px;">Count: 0</span>
+        </div>
+        <div id="classListing">
+            <p style="text-align:center; color:#999; margin-top:20px;">സ്കാനിംഗ് തുടങ്ങൂ...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Firebase Initialization
+firebase.initializeApp({
+    apiKey:"AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
+    authDomain:"misbahul-uloom-madrasa-4830c.firebaseapp.com",
+    projectId:"misbahul-uloom-madrasa-4830c"
+});
+const db = firebase.firestore();
+
+let html5QrCode;
+
+// 1. സ്കാനർ തുടങ്ങാനുള്ള ഫംഗ്ഷൻ
+async function startScanner() {
+    const name = document.getElementById("eventName").value;
+    if(!name) return alert("ദയവായി പ്രോഗ്രാം പേര് നൽകുക!");
+    
+    document.getElementById("reader").style.display = "block";
+    html5QrCode = new Html5Qrcode("reader");
+    
+    html5QrCode.start(
+        { facingMode: "environment" }, 
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+            try {
+                const url = new URL(decodedText);
+                const studentID = url.searchParams.get("id");
+                if(studentID) {
+                    processAttendance(studentID);
+                    // ബീപ് സൗണ്ട് അല്ലെങ്കിൽ ചെറിയ വൈബ്രേഷൻ നൽകാൻ:
+                    if(navigator.vibrate) navigator.vibrate(100);
+                }
+            } catch(e) { console.error("Invalid QR"); }
+        }
+    ).catch(err => alert("ക്യാമറ ഓപ്പൺ ചെയ്യാൻ സാധിച്ചില്ല!"));
+}
+
+// 2. അറ്റൻഡൻസ് രേഖപ്പെടുത്തൽ
+async function processAttendance(id) {
+    const event = document.getElementById("eventName").value;
+    const date = document.getElementById("eventDate").value || new Date().toISOString().split('T')[0];
+
+    // നേരത്തെ സ്കാൻ ചെയ്തതാണോ എന്ന് പരിശോധിക്കുന്നു
+    const check = await db.collection("attendance")
+        .where("studentID", "==", id)
+        .where("program", "==", event)
+        .get();
+
+    if(!check.empty) return; // ആൾറെഡി സ്കാൻ ചെയ്തതാണ്
+
+    const stdDoc = await db.collection("students").doc(id).get();
+    if(stdDoc.exists) {
+        const u = stdDoc.data();
+        await db.collection("attendance").add({
+            studentID: id,
+            name: u.name,
+            class: u.class,
+            photo: u.photo,
+            program: event,
+            date: date,
+            timestamp: Date.now(),
+            timeStr: new Date().toLocaleTimeString()
+        });
+        loadAttendance();
+    }
+}
+
+// 3. ലിസ്റ്റ് ലോഡ് ചെയ്യൽ (ക്ലാസ് തിരിച്ച്)
+async function loadAttendance() {
+    const event = document.getElementById("eventName").value;
+    const snap = await db.collection("attendance")
+        .where("program", "==", event)
+        .orderBy("timestamp", "desc")
+        .get();
+
+    const groups = {};
+    let total = 0;
+
+    snap.forEach(doc => {
+        const d = doc.data();
+        d.docId = doc.id; // ഡിലീറ്റ് ചെയ്യാൻ ആവശ്യമാണ്
+        if(!groups[d.class]) groups[d.class] = [];
+        groups[d.class].push(d);
+        total++;
+    });
+
+    document.getElementById("countBadge").innerText = "Count: " + total;
+
+    let html = "";
+    for(let cls in groups) {
+        html += `<div class="class-group">
+            <h4 class="class-title">Class: ${cls}</h4>`;
+        groups[cls].forEach(s => {
+            html += `<div class="student-item">
+                <img src="${s.photo}" class="std-img">
+                <div class="std-info">
+                    <span class="std-name">${s.name}</span>
+                    <span class="std-time">${s.timeStr}</span>
+                </div>
+                <button class="btn-delete" onclick="deleteEntry('${s.docId}')">🗑️</button>
+            </div>`;
+        });
+        html += `</div>`;
+    }
+    document.getElementById("classListing").innerHTML = html || '<p style="text-align:center; color:#999;">സ്കാൻ ചെയ്തവർ ആരുമില്ല.</p>';
+}
+
+// 4. എൻട്രി ഡിലീറ്റ് ചെയ്യൽ
+async function deleteEntry(docId) {
+    if(confirm("ഈ എൻട്രി ഡിലീറ്റ് ചെയ്യണോ?")) {
+        await db.collection("attendance").doc(docId).delete();
+        loadAttendance();
+    }
+}
+
+// 5. Excel ഫയലായി ഡൗൺലോഡ് ചെയ്യൽ
+async function exportData() {
+    const event = document.getElementById("eventName").value;
+    const snap = await db.collection("attendance").where("program", "==", event).get();
+    
+    let data = [];
+    snap.forEach(doc => {
+        const d = doc.data();
+        data.push({
+            "Student Name": d.name,
+            "Class": d.class,
+            "Date": d.date,
+            "Scan Time": d.timeStr,
+            "Program": d.program
+        });
+    });
+
+    if(data.length === 0) return alert("ഡാറ്റ ലഭ്യമല്ല!");
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+    XLSX.writeFile(workbook, `${event}_Attendance.xlsx`);
+}
+
+// പ്രോഗ്രാം പേര് ടൈപ്പ് ചെയ്യുമ്പോൾ തന്നെ ലിസ്റ്റ് അപ്ഡേറ്റ് ചെയ്യാൻ
+document.getElementById("eventName").addEventListener("change", loadAttendance);
+</script>
+</body>
+</html>
