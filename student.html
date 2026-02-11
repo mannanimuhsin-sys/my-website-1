@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student ID Card System</title>
+<title>Official Student ID System</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
@@ -14,62 +14,44 @@ body{margin:0;background:#e9ecef;font-family:Roboto}
 .container{max-width:430px;margin:auto;padding:15px}
 .card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 10px 25px rgba(0,0,0,.15)}
 .tabs{display:flex;margin-bottom:15px}
-.tabs button{flex:1;padding:12px;border:none;font-weight:bold}
+.tabs button{flex:1;padding:12px;border:none;font-weight:bold;cursor:pointer}
 .tabs .active{background:var(--green);color:#fff}
-input,select{width:100%;padding:12px;margin-top:8px;border-radius:8px;border:1px solid #ccc}
+input,select{width:100%;padding:12px;margin-top:8px;border-radius:8px;border:1px solid #ccc;box-sizing:border-box;display:block}
+label{font-size:12px;font-weight:bold;color:var(--green);margin-top:10px;display:block}
 button{width:100%;padding:14px;margin-top:15px;border:none;border-radius:10px;background:var(--green);color:#fff;font-weight:bold;cursor:pointer}
 
 /* ID CARD */
-#idArea{display:none;text-align:center}
+#idArea{display:none;text-align:center;padding:20px 10px}
 #idCard{
  width:360px;background:#fff;margin:auto;border-radius:18px;
- overflow:hidden;box-shadow:0 20px 45px rgba(0,0,0,.4);border:2px solid #ddd
+ overflow:hidden;box-shadow:0 20px 45px rgba(0,0,0,.4);border:2px solid #ddd;
+ position:relative;
 }
 .header{background:var(--green);color:#fff;padding:18px}
 .header h1{margin:0;font-size:22px}
 .header p{margin:4px 0 0;font-size:13px}
-.ribbon{background:var(--orange);color:#fff;font-weight:900;width:80%;margin:-15px auto 10px;padding:6px;border-radius:20px}
+.ribbon{background:var(--orange);color:#fff;font-weight:900;width:80%;margin:-15px auto 10px;padding:6px;border-radius:20px;position:relative;z-index:2}
 .photoBox{width:150px;height:190px;margin:10px auto;border-radius:14px;overflow:hidden;border:4px solid #fff;box-shadow:0 8px 20px rgba(0,0,0,.2)}
 .photoBox img{width:100%;height:100%;object-fit:cover}
 .details{padding:15px;text-align:left;font-size:13px}
 .row{display:flex;border-bottom:1px solid #eee;padding:6px 0}
-.row span:first-child{width:90px;color:#666}
-.row span:last-child{font-weight:bold}
+.row span:first-child{width:90px;color:#666;font-weight:bold}
+.row span:last-child{font-weight:bold;color:#111}
 .footer{display:flex;justify-content:space-between;align-items:center;padding:10px 15px 15px}
-.footer img{width:80px}
-.sign{
- text-align:center;
- font-size:11px;
-}
+.footer img#qr{width:80px;height:80px}
+.sign{text-align:center;font-size:11px}
+#signImg{width:90px;height:auto;display:block;margin:0 auto -6px;filter:grayscale(1) contrast(1.5);}
+.sign div{border-top:2px solid #333;width:90px;margin:4px auto 0}
 
-#signImg{
- width:90px;
- height:auto;
- display:block;
- margin:0 auto -6px;
-}
+/* Cropper Modal */
+#cropBox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:999;align-items:center;justify-content:center;flex-direction:column}
+.crop-container{background:#fff;padding:15px;border-radius:14px;width:90%;max-width:350px}
+.crop-btn{background:var(--green);color:#fff;border:none;padding:12px;width:100%;margin-top:10px;border-radius:8px;font-weight:bold}
 
-.sign div{
- border-top:2px solid #333;
- width:90px;
- margin:4px auto 0;
-}
 /* QR PREVIEW PAGE */
-#qrPage{
- display:none;min-height:100vh;background:#f4f6f8;
- display:flex;align-items:center;justify-content:center
-}
-.qrCard{
- background:#fff;padding:25px;border-radius:18px;
- text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25)
-}
-.qrCard img{width:140px;height:180px;object-fit:cover;border-radius:12px}
-.qrCard h2{margin:10px 0 5px}
-.qrCard p{margin:0;font-weight:bold;color:#555}
-
-/* Cropper */
-#cropBox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;align-items:center;justify-content:center}
-#cropBox div{background:#fff;padding:15px;border-radius:14px;width:90%;max-width:350px}
+#qrPage{display:none;min-height:100vh;background:#f4f6f8;align-items:center;justify-content:center}
+.qrCard{background:#fff;padding:25px;border-radius:18px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.qrCard img{width:150px;height:200px;object-fit:cover;border-radius:12px}
 </style>
 </head>
 
@@ -83,7 +65,7 @@ button{width:100%;padding:14px;margin-top:15px;border:none;border-radius:10px;ba
   </div>
 
   <div id="regTab">
-   <input id="name" placeholder="Student Name">
+   <input id="name" placeholder="Full Name">
    <input id="regno" placeholder="Register Number">
    <input id="classN" placeholder="Class">
    <input id="father" placeholder="Father Name">
@@ -94,35 +76,35 @@ button{width:100%;padding:14px;margin-top:15px;border:none;border-radius:10px;ba
     <option value="">Select Gender</option>
     <option>Male</option>
     <option>Female</option>
-    <option>General</option>
    </select>
 
    <select id="blood">
     <option value="">Select Blood Group</option>
-    <option>A+</option><option>A-</option>
-    <option>B+</option><option>B-</option>
-    <option>O+</option><option>O-</option>
-    <option>AB+</option><option>AB-</option>
+    <option>A+</option><option>B+</option><option>O+</option><option>AB+</option>
+    <option>A-</option><option>B-</option><option>O-</option><option>AB-</option>
    </select>
 
+   <label>Select Date of Birth</label>
    <input type="date" id="dob">
+   
+   <label>Upload & Crop Photo</label>
    <input type="file" id="photoInp" accept="image/*">
-   <button onclick="saveStudent()">SAVE & VIEW ID</button>
+   
+   <button onclick="saveStudent()">SAVE & GENERATE ID CARD</button>
   </div>
 
   <div id="logTab" style="display:none">
    <input id="loginReg" placeholder="Enter Register Number">
-   <button onclick="login()">VIEW ID</button>
+   <button onclick="login()">VIEW ID CARD</button>
   </div>
  </div>
 </div>
 
-<!-- ID CARD -->
 <div id="idArea">
  <div id="idCard">
   <div class="header">
    <h1>MISBAHUL ULOOM</h1>
-   <p>MADRASA PERUVANA</p>
+   <p>MADRASA - PERUVANA | REG.NO: 4224</p>
   </div>
   <div class="ribbon">STUDENT IDENTITY CARD</div>
 
@@ -133,7 +115,6 @@ button{width:100%;padding:14px;margin-top:15px;border:none;border-radius:10px;ba
    <div class="row"><span>Father</span><span id="pFather"></span></div>
    <div class="row"><span>Class</span><span id="pClass"></span></div>
    <div class="row"><span>Mentor</span><span id="pMentor"></span></div>
-   <div class="row"><span>Gender</span><span id="pGender"></span></div>
    <div class="row"><span>Blood</span><span id="pBlood"></span></div>
    <div class="row"><span>Phone</span><span id="pPhone"></span></div>
    <div class="row"><span>DOB</span><span id="pDob"></span></div>
@@ -141,17 +122,26 @@ button{width:100%;padding:14px;margin-top:15px;border:none;border-radius:10px;ba
   </div>
 
   <div class="footer">
-  <img id="qr">
-
-  <div class="sign">
-    <img src="signature.png" id="signImg">
-    <div></div>
-    Sadar Muallim
+    <img id="qr" src="">
+    <div class="sign">
+      <img src="signature.png" id="signImg">
+      <div></div>
+      Sadar Muallim
+    </div>
   </div>
+ </div>
+
+ <div style="max-width:360px; margin:20px auto;">
+  <button onclick="downloadID()">DOWNLOAD ID (PNG)</button>
+  <button onclick="location.reload()" style="background:#555">GO BACK</button>
+ </div>
 </div>
 
- <button onclick="downloadID()">DOWNLOAD ID</button>
- <button onclick="location.reload()" style="background:#555">GO BACK</button>
+<div id="cropBox">
+ <div class="crop-container">
+  <img id="cropImg">
+  <button class="crop-btn" onclick="applyCrop()">CROP & APPLY PHOTO</button>
+ </div>
 </div>
 
 <div id="qrPage">
@@ -159,13 +149,6 @@ button{width:100%;padding:14px;margin-top:15px;border:none;border-radius:10px;ba
   <img id="qrPhoto">
   <h2 id="qrName"></h2>
   <p id="qrClass"></p>
- </div>
-</div>
-
-<div id="cropBox">
- <div>
-  <img id="cropImg" style="width:100%">
-  <button onclick="applyCrop()">CROP & APPLY</button>
  </div>
 </div>
 
@@ -182,126 +165,113 @@ function showTab(t){
  tLog.classList.toggle("active",t=="log");
 }
 
-photoInp.onchange = e => {
+photoInp.onchange=e=>{
  const file = e.target.files[0];
- if(!file) return;
-
- const imgURL = URL.createObjectURL(file);
-
- cropImg.onload = () => {
-  cropBox.style.display = "flex";
-
-  if(cropper){
-   cropper.destroy();
-  }
-
-  cropper = new Cropper(cropImg,{
-   aspectRatio:3/4,
-   viewMode:1,
-   dragMode:'move',
-   autoCropArea:1,
-   responsive:true
-  });
- };
-
- cropImg.src = imgURL;
-};
-function applyCrop(){
- const canvas = cropper.getCroppedCanvas({
-  width:600,
-  height:800
- });
-
- canvas.toBlob(blob=>{
-  const reader = new FileReader();
-  reader.onload = ()=>{
-   photoData = reader.result;
+ if (file) {
+  const r = new FileReader();
+  r.onload = () => {
+   cropImg.src = r.result;
+   cropBox.style.display = "flex";
+   if (cropper) cropper.destroy();
+   cropper = new Cropper(cropImg, {
+    aspectRatio: 3/4,
+    viewMode: 1
+   });
   };
-  reader.readAsDataURL(blob);
- },'image/jpeg',0.9);
+  r.readAsDataURL(file);
+ }
+}
 
- cropBox.style.display="none";
+function applyCrop(){
+ photoData = cropper.getCroppedCanvas({ width: 300, height: 400 }).toDataURL("image/jpeg");
+ cropBox.style.display = "none";
+ alert("ഫോട്ടോ ക്രോപ്പ് ചെയ്ത് അറ്റാച്ച് ചെയ്തിരിക്കുന്നു ✅");
 }
 
 function saveStudent(){
+ if(!photoData) { alert("ദയവായി ഫോട്ടോ അപ്‌ലോഡ് ചെയ്ത് ക്രോപ്പ് ചെയ്യുക!"); return; }
+ if(!regno.value) { alert("രജിസ്റ്റർ നമ്പർ നിർബന്ധമാണ്!"); return; }
 
- if(!photoData){
-  alert("Please crop & apply photo first");
-  return;
- }
-
- const s={
-  name:name.value,
-  reg:regno.value,
-  class:classN.value,
-  father:father.value,
-  mentor:mentor.value,
-  phone:phone.value,
-  gender:gender.value,
-  blood:blood.value,
-  dob:dob.value,
-  photo:photoData
+ const s = {
+  name: name.value,
+  reg: regno.value,
+  class: classN.value,
+  father: father.value,
+  mentor: mentor.value,
+  phone: phone.value,
+  gender: gender.value,
+  blood: blood.value,
+  dob: dob.value,
+  photo: photoData
  };
-
- localStorage.setItem("STU_"+s.reg,JSON.stringify(s));
+ 
+ localStorage.setItem("STU_"+s.reg, JSON.stringify(s));
  renderID(s);
 }
 
 function login(){
- const d=localStorage.getItem("STU_"+loginReg.value);
- if(!d){alert("Student not found");return;}
+ const d = localStorage.getItem("STU_"+loginReg.value);
+ if(!d){ alert("ഈ രജിസ്റ്റർ നമ്പറിൽ വിദ്യാർത്ഥിയെ കണ്ടെത്തിയില്ല!"); return; }
  renderID(JSON.parse(d));
 }
 
 function renderID(s){
- pName.innerText=s.name;
- pFather.innerText=s.father;
- pClass.innerText=s.class;
- pMentor.innerText=s.mentor;
- pGender.innerText=s.gender;
- pBlood.innerText=s.blood;
- pPhone.innerText=s.phone;
- pDob.innerText=s.dob.split("-").reverse().join("-");
- pReg.innerText=s.reg;
- pImg.src=s.photo;
+ pName.innerText = s.name;
+ pFather.innerText = s.father;
+ pClass.innerText = s.class;
+ pMentor.innerText = s.mentor;
+ pBlood.innerText = s.blood;
+ pPhone.innerText = s.phone;
+ pDob.innerText = s.dob.split("-").reverse().join("-");
+ pReg.innerText = s.reg;
+ pImg.src = s.photo;
 
- const qrData=encodeURIComponent(JSON.stringify({
-  name:s.name,
-  class:s.class,
-  photo:s.photo
+ const qrInfo = encodeURIComponent(JSON.stringify({
+  name: s.name,
+  class: s.class,
+  photo: s.photo
  }));
- qr.src=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${location.href.split("#")[0]}#QR=${qrData}`;
+ 
+ qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${location.href.split("#")[0]}#QR=${qrInfo}`;
 
- panel.style.display="none";
- idArea.style.display="block";
+ panel.style.display = "none";
+ idArea.style.display = "block";
 }
 
 function downloadID(){
- html2canvas(idCard,{
-  scale:1.5,              // mobile safe
-  backgroundColor:'#fff',
-  useCORS:true
- }).then(canvas=>{
-  
-  canvas.toBlob(blob=>{
-   const url = URL.createObjectURL(blob);
-   const a = document.createElement("a");
-   a.href = url;
-   a.download = "STUDENT_ID_1080x2400.png";
-   a.click();
-   URL.revokeObjectURL(url);
-  },'image/png',0.95);
-
+ html2canvas(document.querySelector("#idCard"), {
+  scale: 3, 
+  useCORS: true,
+  allowTaint: true
+ }).then(c => {
+  let a = document.createElement("a");
+  a.href = c.toDataURL("image/png");
+  a.download = `ID_CARD_${pReg.innerText}.png`;
+  a.click();
  });
 }
 
+// Handling QR Scan View
 if(location.hash.startsWith("#QR=")){
- document.body.innerHTML="";
- qrPage.style.display="flex";
- const d=JSON.parse(decodeURIComponent(location.hash.replace("#QR=","")));
- qrPhoto.src=d.photo;
- qrName.innerText=d.name;
- qrClass.innerText="Class : "+d.class;
+ document.body.innerHTML = "";
+ document.body.style.display = "flex";
+ document.body.style.alignItems = "center";
+ document.body.style.justifyContent = "center";
+ document.body.style.minHeight = "100vh";
+ document.body.style.background = "#f0f2f5";
+ 
+ const qrDataRaw = decodeURIComponent(location.hash.replace("#QR=", ""));
+ const d = JSON.parse(qrDataRaw);
+ 
+ const qrHtml = `
+  <div style="background:#fff; padding:30px; border-radius:20px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.1); max-width:300px">
+   <img src="${d.photo}" style="width:150px; height:200px; object-fit:cover; border-radius:12px; border:4px solid var(--green)">
+   <h2 style="margin:15px 0 5px; color:#111">${d.name}</h2>
+   <p style="margin:0; font-weight:bold; color:var(--green)">Class: ${d.class}</p>
+   <p style="margin-top:10px; font-size:12px; color:#666">Verified Student Identity</p>
+  </div>
+ `;
+ document.body.innerHTML = qrHtml;
 }
 </script>
 
