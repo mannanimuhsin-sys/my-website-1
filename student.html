@@ -189,6 +189,8 @@ button{width:100%;padding:14px;margin-top:15px;border:none;border-radius:10px;ba
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
 let cropper, photoData;
@@ -223,25 +225,41 @@ function applyCrop(){
  alert("ഫോട്ടോ ക്രോപ്പ് ചെയ്ത് അറ്റാച്ച് ചെയ്തിരിക്കുന്നു ✅");
 }
 
-function saveStudent(){
+async function saveStudent(){
+ // 1. ഫോട്ടോയും നമ്പറും ഉണ്ടെന്ന് ഉറപ്പുവരുത്തുന്നു
  if(!photoData) { alert("ദയവായി ഫോട്ടോ അപ്‌ലോഡ് ചെയ്ത് ക്രോപ്പ് ചെയ്യുക!"); return; }
  if(!regno.value) { alert("രജിസ്റ്റർ നമ്പർ നിർബന്ധമാണ്!"); return; }
 
+ // 2. വിവരങ്ങൾ ഒരുമിച്ച് ചേർക്കുന്നു (ഇവിടെയാണ് name, number എന്നിവയുള്ളത്)
  const s = {
-  name: name.value,
-  reg: regno.value,
-  class: classN.value,
-  father: father.value,
-  mentor: mentor.value,
-  phone: phone.value,
-  gender: gender.value,
-  blood: blood.value,
-  dob: dob.value,
-  photo: photoData
+  name: name.value,     // വിദ്യാർത്ഥിയുടെ പേര്
+  number: regno.value,  // രജിസ്റ്റർ നമ്പർ (അഡ്മിൻ പാനലിൽ കാണാൻ 'number' എന്ന് തന്നെ വേണം)
+  class: classN.value,  // ക്ലാസ്സ്
+  father: father.value, // രക്ഷിതാവ്
+  mentor: mentor.value, // മെന്റർ
+  phone: phone.value,   // ഫോൺ നമ്പർ
+  gender: gender.value, // ലിംഗം
+  blood: blood.value,   // ബ്ലഡ് ഗ്രൂപ്പ്
+  dob: dob.value,       // ജനനത്തീയതി
+  photo: photoData      // ക്രോപ്പ് ചെയ്ത ഫോട്ടോ
  };
  
- localStorage.setItem("STU_"+s.reg, JSON.stringify(s));
- renderID(s);
+ try {
+  // 3. ഫയർബേസ് ഡാറ്റാബേസിലേക്ക് അയക്കുന്നു (ഓൺലൈൻ സേവ്)
+  await db.collection("students").add(s);
+  
+  // 4. ബാക്കപ്പിന് വേണ്ടി ഫോണിലും സേവ് ചെയ്യുന്നു
+  localStorage.setItem("STU_"+s.number, JSON.stringify(s));
+  
+  alert("വിവരങ്ങൾ അഡ്മിൻ പാനലിലേക്ക് വിജയകരമായി സേവ് ചെയ്തു ✅");
+  
+  // 5. ഐഡി കാർഡ് സ്ക്രീനിൽ കാണിക്കുന്നു
+  renderID(s); 
+  
+ } catch (e) {
+  console.error("Error adding document: ", e);
+  alert("Error: വിവരങ്ങൾ സേവ് ചെയ്യാൻ കഴിഞ്ഞില്ല. ഇന്റർനെറ്റ് ഉണ്ടെന്ന് ഉറപ്പുവരുത്തുക!");
+ }
 }
 
 function login(){
