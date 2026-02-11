@@ -182,21 +182,54 @@ function showTab(t){
  tLog.classList.toggle("active",t=="log");
 }
 
-photoInp.onchange=e=>{
- const r=new FileReader();
- r.onload=()=>{
-  cropImg.src=r.result;
-  cropBox.style.display="flex";
-  cropper=new Cropper(cropImg,{aspectRatio:3/4});
+photoInp.onchange = e => {
+ const file = e.target.files[0];
+ if(!file) return;
+
+ const imgURL = URL.createObjectURL(file);
+
+ cropImg.onload = () => {
+  cropBox.style.display = "flex";
+
+  if(cropper){
+   cropper.destroy();
+  }
+
+  cropper = new Cropper(cropImg,{
+   aspectRatio:3/4,
+   viewMode:1,
+   dragMode:'move',
+   autoCropArea:1,
+   responsive:true
+  });
  };
- r.readAsDataURL(e.target.files[0]);
-}
+
+ cropImg.src = imgURL;
+};
 function applyCrop(){
- photoData=cropper.getCroppedCanvas().toDataURL("image/jpeg");
+ const canvas = cropper.getCroppedCanvas({
+  width:600,
+  height:800
+ });
+
+ canvas.toBlob(blob=>{
+  const reader = new FileReader();
+  reader.onload = ()=>{
+   photoData = reader.result;
+  };
+  reader.readAsDataURL(blob);
+ },'image/jpeg',0.9);
+
  cropBox.style.display="none";
 }
 
 function saveStudent(){
+
+ if(!photoData){
+  alert("Please crop & apply photo first");
+  return;
+ }
+
  const s={
   name:name.value,
   reg:regno.value,
@@ -209,6 +242,7 @@ function saveStudent(){
   dob:dob.value,
   photo:photoData
  };
+
  localStorage.setItem("STU_"+s.reg,JSON.stringify(s));
  renderID(s);
 }
@@ -243,11 +277,21 @@ function renderID(s){
 }
 
 function downloadID(){
- html2canvas(idCard,{scale:2,useCORS:true}).then(c=>{
-  let a=document.createElement("a");
-  a.href=c.toDataURL("image/png");
-  a.download="STUDENT_ID.png";
-  a.click();
+ html2canvas(idCard,{
+  scale:1.5,              // mobile safe
+  backgroundColor:'#fff',
+  useCORS:true
+ }).then(canvas=>{
+  
+  canvas.toBlob(blob=>{
+   const url = URL.createObjectURL(blob);
+   const a = document.createElement("a");
+   a.href = url;
+   a.download = "STUDENT_ID_1080x2400.png";
+   a.click();
+   URL.revokeObjectURL(url);
+  },'image/png',0.95);
+
  });
 }
 
