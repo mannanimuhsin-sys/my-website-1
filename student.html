@@ -3,173 +3,116 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Student Portal | Digital Poster</title>
+<title>Official Student ID Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 <style>
-    :root { --primary: #198754; --gradient: linear-gradient(135deg, #198754, #20c997); }
-    body{background:#eef3f7;font-family:'Poppins', sans-serif;padding:15px;margin:0;}
-    .container{max-width:500px;margin:auto}
+    :root { --primary: #004d00; --accent: #ffd700; --white: #ffffff; }
+    body{background:#f0f2f5;font-family:'Poppins', sans-serif;margin:0;padding:10px;}
+    .container{max-width:450px;margin:auto}
 
-    /* SWITCH BUTTON */
-    .switch{display:flex;background:white;border-radius:20px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,.15);margin-bottom:20px} 
+    /* ലോഗിൻ - രജിസ്റ്റർ സ്വിച്ച് */
+    .switch{display:flex;background:white;border-radius:20px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,.1);margin-bottom:20px} 
     .switch button{flex:1;padding:14px;border:none;font-weight:600;background:#eee;cursor:pointer} 
     .switch .active{background:var(--primary);color:white}
 
-    .card{background:white;padding:26px;border-radius:22px;box-shadow:0 12px 30px rgba(0,0,0,.15);border-top:8px solid var(--primary);margin-bottom:20px} 
-    label{font-weight:600;margin-top:12px;display:block;color:#444;font-size:14px;} 
-    input,select{width:100%;padding:12px;border-radius:12px;border:1px solid #ccc;margin-top:4px;box-sizing: border-box;font-family:inherit;} 
-    button.submit{background:var(--primary);color:white;border:none;padding:15px;border-radius:12px;width:100%;font-weight:600;margin-top:18px;cursor:pointer; transition: 0.3s;font-size:16px;}
-    button.submit:hover{background: #146c43;}
+    .card{background:white;padding:25px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:20px;border-top:6px solid var(--primary);}
+    label{font-weight:600;margin-top:10px;display:block;font-size:13px;}
+    input,select{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-top:5px;box-sizing:border-box;}
+    button.submit{background:var(--primary);color:white;border:none;padding:15px;border-radius:12px;width:100%;font-weight:600;margin-top:20px;cursor:pointer;}
+    .upload{border:2px dashed #ccc; padding:15px; text-align:center; cursor:pointer; margin-top:10px; border-radius:10px; font-weight:600; color:var(--primary);}
 
-    .upload{border:2px dashed var(--primary);padding:18px;border-radius:14px;text-align:center;margin-top:8px;cursor:pointer;background:#f9fffb;color:var(--primary);font-weight:600;}
-
-    /* DIGITAL POSTER DESIGN (807x1280 Ratio) */
-    #idCardSection{display:none; text-align:center; padding-bottom: 50px;}
+    /* ID CARD CSS (807x1280 Ratio) */
+    #idCardSection{display:none; text-align:center; padding-bottom:50px;}
+    #actualPoster { width: 807px; height: 1280px; position: absolute; left: -9999px; background: white; overflow: hidden; }
+    .poster-bg { width: 100%; height: 100%; background: #fff; border: 20px solid var(--primary); box-sizing: border-box; position: relative; display: flex; flex-direction: column; align-items: center; }
+    .header-band { width: 100%; height: 220px; background: var(--primary); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
+    .header-band h1 { font-size: 50px; margin: 0; letter-spacing: 2px; }
+    .header-band p { font-size: 22px; margin: 5px 0; color: var(--accent); }
     
-    .poster-wrapper {
-        width: 350px; /* Display width */
-        height: 555px; /* Display height to maintain 807:1280 ratio */
-        margin: 0 auto;
-        position: relative;
-        background: white;
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-    }
+    .photo-wrap { margin-top: -60px; width: 450px; height: 450px; border: 15px solid white; border-radius: 40px; overflow: hidden; box-shadow: 0 15px 30px rgba(0,0,0,0.2); z-index: 5; background: #eee; }
+    .photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .id-info { margin-top: 30px; text-align: center; width: 90%; }
+    .id-info h2 { font-size: 60px; color: var(--primary); margin: 0; text-transform: uppercase; }
+    .id-info .reg-no { font-size: 35px; font-weight: 700; color: #555; margin-bottom: 20px; }
+    
+    .data-grid { display: grid; grid-template-columns: 1fr 1fr; width: 85%; gap: 30px; text-align: left; margin-top: 30px; }
+    .data-item b { color: #888; font-size: 20px; display: block; text-transform: uppercase; }
+    .data-item span { font-size: 30px; font-weight: 600; color: #222; }
+    
+    .footer { position: absolute; bottom: 40px; width: 85%; display: flex; justify-content: space-between; align-items: center; border-top: 3px solid #eee; padding-top: 30px; }
+    .qr-side img { width: 160px; height: 160px; }
+    .sign-side { text-align: center; font-size: 22px; color: #222; }
 
-    /* Hidden actual size element for high-quality download */
-    #actualPoster {
-        width: 807px;
-        height: 1280px;
-        position: absolute;
-        left: -9999px; /* Hide from view */
-        background: white;
-    }
-
-    .poster-bg {
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(180deg, #198754 0%, #004d00 100%);
-        position: relative;
-        color: white;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .poster-header { padding-top: 60px; text-align: center; width: 100%; }
-    .poster-header h1 { margin: 0; font-size: 38px; text-transform: uppercase; letter-spacing: 2px; }
-    .poster-header p { margin: 10px 0; font-size: 18px; opacity: 0.9; }
-
-    .photo-area { margin-top: 40px; position: relative; }
-    .main-photo {
-        width: 320px;
-        height: 320px;
-        border-radius: 30px;
-        border: 10px solid rgba(255,255,255,0.2);
-        object-fit: cover;
-        background: #fff;
-    }
-
-    .student-info { margin-top: 40px; width: 85%; }
-    .student-info h2 { font-size: 50px; margin: 0; color: #ffeb3b; text-transform: uppercase; }
-    .student-info .reg-tag { background: white; color: #198754; padding: 5px 25px; border-radius: 50px; font-weight: 800; font-size: 24px; margin-top: 15px; display: inline-block; }
-
-    .details-grid {
-        margin-top: 50px;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-        width: 85%;
-        text-align: left;
-    }
-    .detail-item b { display: block; font-size: 16px; color: #a5d6a7; text-transform: uppercase; }
-    .detail-item span { font-size: 24px; font-weight: 600; }
-
-    .poster-footer {
-        position: absolute;
-        bottom: 50px;
-        width: 85%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-top: 2px solid rgba(255,255,255,0.1);
-        padding-top: 30px;
-    }
-    .qr-box img { width: 120px; height: 120px; background: white; padding: 10px; border-radius: 10px; }
-    .footer-note { font-size: 16px; text-align: left; opacity: 0.8; }
-
-    /* CROPPER MODAL */
+    .poster-wrapper { width: 350px; height: 555px; margin: 0 auto; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    
+    /* ക്രോപ്പർ മോഡൽ */
     #cropperModal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center; flex-direction:column;}
-    .crop-container{background:white; padding:15px; border-radius:15px; max-width:90%;}
+    .crop-box{background:white; padding:15px; border-radius:15px; width: 90%; max-width: 400px;}
 </style>
 </head>
 <body>
 
 <div class="container" id="mainBox">
     <div class="switch">
-        <button id="loginBtn" class="active" onclick="showLogin()">LOGIN</button>
-        <button id="regBtn" onclick="showRegister()">REGISTER</button>
+        <button id="loginBtnTab" class="active" onclick="showTab('login')">LOGIN</button>
+        <button id="regBtnTab" onclick="showTab('register')">REGISTER</button>
     </div>
 
     <div class="card" id="loginBox">
-        <div style="text-align:center;margin-bottom:15px;font-weight:700;color:var(--primary);">VIEW DIGITAL POSTER</div>
-        <label>Student Register Number</label>
-        <input type="number" id="lReg" placeholder="Enter Register Number">
-        <button class="submit" onclick="login()">Generate My Poster</button>
+        <h3 style="text-align:center; color:var(--primary);">VIEW ID CARD</h3>
+        <label>Register Number</label>
+        <input type="number" id="lReg" placeholder="Enter Reg No">
+        <button class="submit" onclick="login()">Download My ID</button>
     </div>
 
     <div class="card" id="registerBox" style="display:none">
-        <div style="text-align:center;margin-bottom:15px;font-weight:700;color:var(--primary);">STUDENT REGISTRATION</div>
-        <div class=""><label>Student Name</label><input id="rName"></div>
-        <div class=""><label>Register Number</label><input type="number" id="rNumber"></div>
-        <div class=""><label>Date of Birth</label><input type="date" id="rDob"></div>
-        <div class=""><label>Gender</label>
-            <select id="rGender"><option value="">Select</option><option>Male</option><option>Female</option></select>
-        </div>
-        <div class=""><label>Blood Group</label>
-            <select id="rBlood"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select>
-        </div>
-        <div class=""><label>Class</label><input id="rClass"></div>
-        <div class=""><label>Father's Name</label><input id="rFather"></div>
-        <div class=""><label>Mentor Name</label><input id="rMentor"></div>
-        <div class=""><label>Contact Number</label><input id="rPhone"></div>
-        <div class="">
-            <label>Profile Photo</label>
-            <div class="upload" onclick="rPhoto.click()" id="uploadBtnText">Select & Crop Photo</div>
-            <input type="file" id="rPhoto" hidden accept="image/*">
-        </div>
-        <button class="submit" id="regSubmitBtn" onclick="register()">Submit Registration</button>
+        <h3 style="text-align:center; color:var(--primary);">STUDENT REGISTRATION</h3>
+        <label>Full Name</label><input id="rName">
+        <label>Register Number</label><input type="number" id="rNumber">
+        <label>Date of Birth</label><input type="date" id="rDob">
+        <label>Father's Name</label><input id="rFather">
+        <label>Gender</label><select id="rGender"><option>Male</option><option>Female</option></select>
+        <label>Class</label><input id="rClass">
+        <label>Blood Group</label>
+        <select id="rBlood">
+            <option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option>
+            <option>O+</option><option>O-</option>
+            <option>AB+</option><option>AB-</option>
+        </select>
+        <label>Mentor Name</label><input id="rMentor">
+        <label>Phone Number</label><input id="rPhone">
+        <div class="upload" onclick="rPhoto.click()" id="upTxt">Select Student Photo</div>
+        <input type="file" id="rPhoto" hidden accept="image/*">
+        <button class="submit" id="regBtn" onclick="register()">SAVE & REGISTER</button>
     </div>
 </div>
 
 <div id="actualPoster">
     <div class="poster-bg">
-        <div class="poster-header">
+        <div class="header-band">
             <h1>MISBAHUL ULOOM</h1>
             <p>MADRASA PERUVANA | REG.NO: 4224</p>
         </div>
-        <div class="photo-area">
-            <img class="main-photo" id="pImg">
-        </div>
-        <div class="student-info">
+        <div class="photo-wrap"><img id="pImg"></div>
+        <div class="id-info">
             <h2 id="pName"></h2>
-            <div class="reg-tag">REG NO: <span id="pNum"></span></div>
+            <div class="reg-no">ID NO: <span id="pNum"></span></div>
         </div>
-        <div class="details-grid">
-            <div class="detail-item"><b>Date of Birth</b><span id="pDob"></span></div>
-            <div class="detail-item"><b>Blood Group</b><span id="pBlood"></span></div>
-            <div class="detail-item"><b>Class</b><span id="pClass"></span></div>
-            <div class="detail-item"><b>Mentor</b><span id="pMentor"></span></div>
+        <div class="data-grid">
+            <div class="data-item"><b>Date of Birth</b><span id="pDob"></span></div>
+            <div class="data-item"><b>Father's Name</b><span id="pFather"></span></div>
+            <div class="data-item"><b>Class</b><span id="pClass"></span></div>
+            <div class="data-item"><b>Blood Group</b><span id="pBlood"></span></div>
         </div>
-        <div class="poster-footer">
-            <div class="footer-note">
-                OFFICIAL STUDENT POSTER<br>
-                academic year 2025-26<br>
-                Contact: 7559950633
+        <div class="footer">
+            <div class="sign-side">
+                <div style="height:60px"></div>
+                <b>PRINCIPAL SIGN</b>
             </div>
-            <div class="qr-box">
+            <div class="qr-side">
                 <img id="qrImg">
             </div>
         </div>
@@ -177,20 +120,17 @@
 </div>
 
 <div id="idCardSection">
-    <div style="margin-bottom: 20px; color: #555;">Preview of your Digital Poster:</div>
-    <div class="poster-wrapper" id="previewBox">
-        </div>
-    
-    <div style="max-width:350px; margin: 25px auto;">
-        <button class="submit" onclick="downloadPoster()">Download for Status (HQ)</button> 
-        <button class="submit" onclick="location.reload()" style="background:#555">Back to Home</button>
+    <div class="poster-wrapper" id="previewBox"></div>
+    <div style="max-width:350px; margin: 20px auto;">
+        <button class="submit" onclick="downloadPoster()">Download ID Card (HQ)</button>
+        <button class="submit" onclick="location.reload()" style="background:#666">Back to Home</button>
     </div>
 </div>
 
 <div id="cropperModal">
-    <div class="crop-container">
+    <div class="crop-box">
         <img id="cropImgPreview" style="max-width:100%;">
-        <button class="submit" onclick="startCrop()">Apply Crop</button>
+        <button class="submit" onclick="startCrop()">Crop & Apply</button>
     </div>
 </div>
 
@@ -210,8 +150,15 @@ const IMGBB_API = "a0ec42450bb0e87699896f33dbd7c471";
 
 let cropper, croppedBlob;
 
-function showLogin(){loginBox.style.display="block";registerBox.style.display="none";loginBtn.classList.add("active");regBtn.classList.remove("active")}
-function showRegister(){loginBox.style.display="none";registerBox.style.display="block";regBtn.classList.add("active");loginBtn.classList.remove("active")}
+function showTab(type){
+    if(type=='login'){
+        loginBox.style.display='block'; registerBox.style.display='none';
+        loginBtnTab.classList.add('active'); regBtnTab.classList.remove('active');
+    } else {
+        loginBox.style.display='none'; registerBox.style.display='block';
+        regBtnTab.classList.add('active'); loginBtnTab.classList.remove('active');
+    }
+}
 
 rPhoto.onchange = (e) => {
     const file = e.target.files[0];
@@ -228,69 +175,66 @@ rPhoto.onchange = (e) => {
 };
 
 function startCrop() {
-    cropper.getCroppedCanvas({ width: 500, height: 500 }).toBlob((blob) => {
+    cropper.getCroppedCanvas({ width: 600, height: 600 }).toBlob((blob) => {
         croppedBlob = blob;
-        uploadBtnText.innerText = "Photo Selected ✅";
+        upTxt.innerText = "Photo Ready ✅";
         cropperModal.style.display = 'none';
     }, 'image/jpeg');
 }
 
 async function register(){
-    if(!rName.value || !rNumber.value || !croppedBlob) return alert("Fill all fields and select photo!");
-    const btn = document.getElementById("regSubmitBtn");
-    btn.innerText = "Saving Data..."; btn.disabled = true;
-    try {
-        const f=new FormData(); f.append("image", croppedBlob);
-        const res = await fetch("https://api.imgbb.com/1/upload?key="+IMGBB_API, {method:"POST", body:f});
-        const img = await res.json();
-        await db.collection("students").doc(rNumber.value).set({
-            name: rName.value, number: rNumber.value, dob: rDob.value, gender: rGender.value,
-            blood: rBlood.value, class: rClass.value, father: rFather.value, mentor: rMentor.value,
-            phone: rPhone.value, photo: img.data.url, time: Date.now()
-        });
-        alert("Registration Successful!"); location.reload();
-    } catch(err) { alert("Registration Error!"); btn.disabled = false; }
+    if(!rName.value || !rNumber.value || !croppedBlob) return alert("Fill all details and Photo!");
+    document.getElementById("regBtn").innerText = "Uploading...";
+    
+    const f=new FormData(); f.append("image", croppedBlob);
+    const res = await fetch("https://api.imgbb.com/1/upload?key="+IMGBB_API, {method:"POST", body:f});
+    const imgData = await res.json();
+    
+    const u = {
+        name: rName.value, number: rNumber.value, dob: rDob.value,
+        father: rFather.value, gender: rGender.value, class: rClass.value, 
+        blood: rBlood.value, mentor: rMentor.value, phone: rPhone.value,
+        photo: imgData.data.url
+    };
+
+    await db.collection("students").doc(u.number).set(u);
+    alert("Success!");
+    generateID(u);
 }
 
 async function login(){
     const regNo = document.getElementById("lReg").value;
-    if(!regNo) return alert("Enter Register Number");
+    if(!regNo) return alert("Enter Reg No");
     const doc = await db.collection("students").doc(regNo).get();
-    if(!doc.exists) return alert("Student not found!");
-    const u = doc.data();
+    if(!doc.exists) return alert("No record found!");
+    generateID(doc.data());
+}
 
-    document.getElementById("mainBox").style.display = "none";
-    document.getElementById("idCardSection").style.display = "block";
-    
-    // Set Data
+function generateID(u) {
     document.getElementById("pImg").src = u.photo;
     document.getElementById("pName").innerText = u.name;
     document.getElementById("pNum").innerText = u.number;
-    document.getElementById("pDob").innerText = u.dob;
-    document.getElementById("pBlood").innerText = u.blood || "N/A";
+    document.getElementById("pFather").innerText = u.father || "N/A";
+    const d = u.dob.split("-");
+    document.getElementById("pDob").innerText = `${d[2]}-${d[1]}-${d[0]}`;
     document.getElementById("pClass").innerText = u.class;
-    document.getElementById("pMentor").innerText = u.mentor || "N/A";
-    document.getElementById("qrImg").src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(u.number);
+    document.getElementById("pBlood").innerText = u.blood;
 
-    // Create Preview
+    const profileUrl = window.location.origin + "/profile.html?id=" + u.number;
+    document.getElementById("qrImg").src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(profileUrl);
+
     setTimeout(() => {
-        const actual = document.getElementById("actualPoster");
-        const preview = document.getElementById("previewBox");
-        preview.innerHTML = actual.innerHTML;
-    }, 500);
+        document.getElementById("mainBox").style.display = "none";
+        document.getElementById("idCardSection").style.display = "block";
+        document.getElementById("previewBox").innerHTML = document.getElementById("actualPoster").innerHTML;
+    }, 1000);
 }
 
 function downloadPoster() {
-    const poster = document.getElementById("actualPoster");
-    html2canvas(poster, {
-        scale: 1, /* Already at 807x1280 */
-        useCORS: true,
-        width: 807,
-        height: 1280
-    }).then(canvas => {
+    html2canvas(document.getElementById("actualPoster"), {scale:1, useCORS:true}).then(canvas => {
         const link = document.createElement("a");
-        link.href = canvas.toDataURL("image/png");
-        link.download = document.getElementById("pName").innerText + "_Poster.png";
+        link.href = canvas.toDataURL();
+        link.download = document.getElementById("pName").innerText + "_ID.png";
         link.click();
     });
 }
