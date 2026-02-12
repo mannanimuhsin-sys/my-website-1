@@ -2,49 +2,44 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <title>Live Attendance Admin Portal</title>
+    <title>Master Admin - Control Center</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
-        :root { --green: #0b5d1e; }
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; }
-        .header { background: var(--green); color: white; padding: 20px; text-align: center; }
-        .control-panel { background: white; padding: 15px; margin: 10px; border-radius: 10px; display: flex; gap: 10px; flex-wrap: wrap; box-shadow: 0 2px 5px rgba(0,0,0,0.1); justify-content: center; }
-        .class-box { background: white; padding: 15px; border-radius: 10px; margin: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .class-title { font-weight: bold; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 10px; color: var(--green); display: flex; justify-content: space-between; }
-        .stu-row { display: flex; align-items: center; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #ddd; transition: 0.3s; }
-        .stu-row:hover { background: #f9f9f9; }
-        .stu-row img { width: 45px; height: 45px; border-radius: 50%; margin-right: 15px; border: 2px solid var(--green); object-fit: cover; }
-        .stu-row .time { margin-left: auto; font-size: 11px; color: #666; font-family: monospace; text-align: right; }
-        select, button { padding: 10px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; font-weight: bold; }
-        .btn-pdf { background: #e74c3c; color: white; border: none; }
-        .btn-refresh { background: #3498db; color: white; border: none; }
+        :root { --green: #0b5d1e; --red: #d63031; }
+        body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
+        .control-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; }
+        input, select { padding: 12px; margin: 10px; border-radius: 5px; border: 1px solid #ddd; width: 250px; }
+        button { padding: 12px 25px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; color: white; }
+        .btn-start { background: var(--green); }
+        .btn-stop { background: var(--red); }
+        .status-active { color: var(--green); font-weight: bold; }
+        .status-off { color: var(--red); font-weight: bold; }
+        .attendance-list { background: white; padding: 15px; border-radius: 12px; }
+        .stu-row { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .stu-row img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; object-fit: cover; border: 2px solid var(--green); }
+        .time { margin-left: auto; color: #666; font-family: monospace; font-size: 13px; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h2 style="margin:0;">LIVE ATTENDANCE PORTAL</h2>
-    <p id="currentProg" style="margin:5px 0 0; opacity:0.9;">ഏതെങ്കിലും പ്രോഗ്രാം സെലക്ട് ചെയ്യുക</p>
+<div class="control-box">
+    <h2>PROGRAM CONTROL CENTER</h2>
+    <div id="statusIndicator">Status: <span class="status-off">Offline</span></div>
+    <input type="text" id="progName" placeholder="Program Name">
+    <input type="date" id="progDate">
+    <br>
+    <button class="btn-start" onclick="updateStatus(true)">START SCANNING</button>
+    <button class="btn-stop" onclick="updateStatus(false)">STOP & BLOCK</button>
 </div>
 
-<div class="control-panel">
-    <select id="progSelect" onchange="loadAttendance()">
-        <option value="">Select Program</option>
-    </select>
-    <select id="classFilter" onchange="renderAttendance()">
-        <option value="All">All Classes</option>
-    </select>
-    <button class="btn-pdf" onclick="downloadPDF()">DOWNLOAD PDF</button>
-    <button class="btn-refresh" onclick="location.reload()">REFRESH</button>
+<div class="attendance-list">
+    <h3 id="listTitle">Live Attendance (Latest on Top)</h3>
+    <div id="liveFeed"></div>
 </div>
-
-<div id="attendanceGrid"></div>
 
 <script>
-// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
     authDomain: "mum-new-id.firebaseapp.com",
@@ -56,151 +51,55 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let allEntries = [];
-let unsubscribe = null;
+// സ്റ്റാറ്റസ് മാറ്റാൻ
+async function updateStatus(isActive) {
+    const name = document.getElementById('progName').value;
+    const date = document.getElementById('progDate').value;
+    if(isActive && (!name || !date)) { alert("പ്രോഗ്രാം വിവരങ്ങൾ നൽകുക"); return; }
+    
+    await db.collection("settings").doc("scanner_control").set({
+        isActive: isActive,
+        progName: name,
+        progDate: date,
+        lastUpdated: new Date()
+    });
+    alert(isActive ? "സ്കാനിംഗ് ആരംഭിച്ചു!" : "സ്കാനിംഗ് ബ്ലോക്ക് ചെയ്തു!");
+}
 
-// പ്രോഗ്രാമുകൾ ലിസ്റ്റ് ചെയ്യുന്നു
-db.collection("attendance").get().then(snap => {
-    let progs = new Set();
-    snap.forEach(doc => {
-        let d = doc.data();
-        if(d.progName && d.progDate) {
-            progs.add(`${d.progName} (${d.progDate})`);
-        }
-    });
-    const sel = document.getElementById('progSelect');
-    progs.forEach(p => {
-        sel.innerHTML += `<option value="${p}">${p}</option>`;
-    });
+// അഡ്മിൻ പാനലിലെ ലൈവ് ഫീഡ്
+db.collection("settings").doc("scanner_control").onSnapshot(doc => {
+    const data = doc.data();
+    const statusSpan = document.getElementById('statusIndicator');
+    if(data && data.isActive) {
+        statusSpan.innerHTML = `Status: <span class="status-active">Scanning Open (${data.progName})</span>`;
+        loadLiveAttendance(data.progName, data.progDate);
+    } else {
+        statusSpan.innerHTML = `Status: <span class="status-off">Blocked / Offline</span>`;
+    }
 });
 
-async function loadAttendance() {
-    const progInfo = document.getElementById('progSelect').value;
-    if(!progInfo) {
-        document.getElementById('attendanceGrid').innerHTML = "";
-        return;
-    }
-    
-    document.getElementById('currentProg').innerText = "Program: " + progInfo;
-    
-    // പ്രോഗ്രാം പേരും തീയതിയും വേർതിരിച്ചെടുക്കുന്നു
-    const name = progInfo.substring(0, progInfo.lastIndexOf(" ("));
-    const date = progInfo.substring(progInfo.lastIndexOf(" (") + 2, progInfo.length - 1);
-
-    // പഴയ ലിസണർ ഉണ്ടെങ്കിൽ അത് നിർത്തുന്നു
-    if(unsubscribe) unsubscribe();
-
-    // ലൈവ് ലിസണർ തുടങ്ങുന്നു
-    unsubscribe = db.collection("attendance")
-        .where("progName", "==", name)
-        .where("progDate", "==", date)
-        .orderBy("time", "desc")
+let currentUnsub = null;
+function loadLiveAttendance(pName, pDate) {
+    if(currentUnsub) currentUnsub();
+    currentUnsub = db.collection("attendance")
+        .where("progName", "==", pName)
+        .where("progDate", "==", pDate)
+        .orderBy("time", "desc") // പുതിയത് മുകളിൽ വരാൻ
         .onSnapshot(snap => {
-            allEntries = [];
-            let classes = new Set();
+            const feed = document.getElementById('liveFeed');
+            feed.innerHTML = "";
             snap.forEach(doc => {
-                let d = doc.data();
-                d.id = doc.id;
-                allEntries.push(d);
-                classes.add(d.class);
+                const s = doc.data();
+                const t = s.time.toDate();
+                const ts = `${t.getHours()}:${t.getMinutes()}:${t.getSeconds()}.${t.getMilliseconds()}`;
+                feed.innerHTML += `
+                    <div class="stu-row">
+                        <img src="${s.photo}">
+                        <div><b>${s.name}</b><br><small>Class: ${s.class} | ID: ${s.number}</small></div>
+                        <div class="time">${ts}</div>
+                    </div>`;
             });
-            
-            // ക്ലാസ് ഫിൽട്ടർ സെറ്റ് ചെയ്യുന്നു
-            const cSel = document.getElementById('classFilter');
-            const currentFilter = cSel.value;
-            cSel.innerHTML = '<option value="All">All Classes</option>';
-            Array.from(classes).sort((a,b) => a-b).forEach(c => {
-                cSel.innerHTML += `<option value="${c}">Class ${c}</option>`;
-            });
-            cSel.value = currentFilter;
-            
-            renderAttendance();
         });
-}
-
-function renderAttendance() {
-    const filter = document.getElementById('classFilter').value;
-    const grid = document.getElementById('attendanceGrid');
-    grid.innerHTML = "";
-
-    if(allEntries.length === 0) {
-        grid.innerHTML = "<p style='text-align:center; padding:20px;'>ഈ പ്രോഗ്രാമിൽ ഇതുവരെ ആരും സ്കാൻ ചെയ്തിട്ടില്ല.</p>";
-        return;
-    }
-
-    // ക്ലാസ് അനുസരിച്ച് ഗ്രൂപ്പ് ചെയ്യുന്നു
-    let grouped = {};
-    allEntries.forEach(s => {
-        if(filter !== "All" && s.class !== filter) return;
-        if(!grouped[s.class]) grouped[s.class] = [];
-        grouped[s.class].push(s);
-    });
-
-    // ഗ്രൂപ്പ് ചെയ്ത ഡാറ്റ കാണിക്കുന്നു
-    const sortedClasses = Object.keys(grouped).sort((a,b) => a-b);
-    
-    sortedClasses.forEach(cls => {
-        let box = document.createElement('div');
-        box.className = 'class-box';
-        
-        let total = grouped[cls].length;
-        box.innerHTML = `<div class="class-title"><span>Class: ${cls}</span> <span>ഹാജർ: ${total}</span></div>`;
-        
-        grouped[cls].forEach(s => {
-            let t = s.time ? s.time.toDate() : new Date();
-            let ts = `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')}:${t.getSeconds().toString().padStart(2,'0')}.${t.getMilliseconds()}`;
-            
-            box.innerHTML += `
-                <div class="stu-row">
-                    <img src="${s.photo || ''}" onerror="this.src='https://via.placeholder.com/50'">
-                    <div>
-                        <b>${s.name}</b><br>
-                        <small style="color:#555">Reg.No: ${s.number}</small>
-                    </div>
-                    <div class="time">
-                        ${ts}<br>
-                        <span style="color:red; cursor:pointer; font-size:14px;" onclick="deleteEntry('${s.id}')">✕ Delete</span>
-                    </div>
-                </div>`;
-        });
-        grid.appendChild(box);
-    });
-}
-
-async function deleteEntry(id) {
-    if(confirm("ഈ വിദ്യാർത്ഥിയുടെ ഹാജർ പട്ടികയിൽ നിന്നും ഒഴിവാക്കണോ?")) {
-        await db.collection("attendance").doc(id).delete();
-    }
-}
-
-function downloadPDF() {
-    if(allEntries.length === 0) { alert("ഡാറ്റ ലഭ്യമല്ല!"); return; }
-    
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const prog = document.getElementById('progSelect').value;
-    
-    doc.setFontSize(16);
-    doc.text("Attendance Report", 14, 15);
-    doc.setFontSize(10);
-    doc.text("Program: " + prog, 14, 22);
-    
-    let rows = allEntries.map((s, i) => [
-        i + 1, 
-        s.number, 
-        s.name, 
-        s.class, 
-        s.time ? s.time.toDate().toLocaleString() : ""
-    ]);
-    
-    doc.autoTable({
-        head: [['#', 'ID', 'Name', 'Class', 'Time']],
-        body: rows,
-        startY: 28,
-        headStyles: { fillColor: [11, 93, 30] }
-    });
-    
-    doc.save("Attendance_" + prog.replace(/ /g, "_") + ".pdf");
 }
 </script>
 </body>
