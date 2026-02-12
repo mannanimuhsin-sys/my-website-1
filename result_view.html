@@ -58,33 +58,56 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+// സ്പീഡ് കൂട്ടാൻ ഓഫ്‌ലൈൻ കാഷെ എനേബിൾ ചെയ്യുന്നു
+db.settings({ persistence: true });
+
 let madrasaData = null;
 const mId = new URLSearchParams(window.location.search).get('id');
 
 if(mId) {
-    db.collection("exam_results_final").where("secretId", "==", mId).get().then((snap) => {
+    // വേഗത്തിൽ ഡാറ്റ ലഭിക്കാൻ onSnapshot ഉപയോഗിക്കുന്നു
+    db.collection("exam_results_final").where("secretId", "==", mId).limit(1).onSnapshot((snap) => {
         if (!snap.empty) {
             madrasaData = snap.docs[0].data();
             document.getElementById('mName').innerText = madrasaData.madrasa;
             document.getElementById('mPlace').innerText = madrasaData.place;
             document.getElementById('sadrName').innerText = madrasaData.sadr;
             document.getElementById('sadrPhone').innerText = madrasaData.mobile;
+            
             const sel = document.getElementById('classSelect');
-            Object.keys(madrasaData.results).forEach(key => {
+            const currentVal = sel.value; // സെലക്ഷൻ നഷ്ടപ്പെടാതിരിക്കാൻ
+            sel.innerHTML = '<option value="">-- Select Class --</option>';
+            
+            // ക്ലാസ്സുകൾ ക്രമമായി അടുക്കുന്നു
+            const sortedKeys = Object.keys(madrasaData.results).sort((a, b) => parseInt(a) - parseInt(b));
+            
+            sortedKeys.forEach(key => {
                 let cls = key.split('-')[0];
                 if(![...sel.options].some(o => o.value == cls)) {
-                    let opt = document.createElement('option'); opt.value = cls; opt.innerText = "Class " + cls; sel.appendChild(opt);
+                    let opt = document.createElement('option'); 
+                    opt.value = cls; 
+                    opt.innerText = "Class " + cls; 
+                    sel.appendChild(opt);
                 }
             });
+            
+            if(currentVal) sel.value = currentVal;
             document.getElementById('loader').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
+        } else {
+            document.getElementById('loader').innerHTML = "<i class='fa-solid fa-circle-exclamation'></i><br>റിസൾട്ട് ലഭ്യമല്ല!";
         }
+    }, (error) => {
+        console.error("Error fetching data: ", error);
+        document.getElementById('loader').innerText = "കണക്ഷൻ പ്രശ്നം! ദയവായി വീണ്ടും ശ്രമിക്കുക.";
     });
 }
 
 function handleClassChange() {
     const cls = document.getElementById('classSelect').value;
     const divWrapper = document.getElementById('divWrapper');
+    if(!cls) { divWrapper.style.display = 'none'; area.innerHTML = ""; return; }
+    
     let hasDiv = Object.keys(madrasaData.results).some(k => k.startsWith(cls + "-"));
     divWrapper.style.display = hasDiv ? 'block' : 'none';
     displayResults();
@@ -95,14 +118,20 @@ function displayResults() {
     const div = document.getElementById('divSelect').value;
     const area = document.getElementById('resultsArea');
     area.innerHTML = "";
+    
+    if(!cls) return;
+
     const key = (document.getElementById('divWrapper').style.display === 'none' || div === "None") ? cls : cls + "-" + div;
     const students = madrasaData.results[key];
+    
     if(students) {
         students.forEach(s => {
             const card = document.createElement('div'); card.className = 'student-card';
             card.innerHTML = `<b>${s.name}</b><span class="status-badge ${s.status === 'PASS' ? '' : 'status-fail'}">${s.status}</span>`;
             area.appendChild(card);
         });
+    } else {
+        area.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>ഈ ക്ലാസ്സിലെ ഡാറ്റ ലഭ്യമല്ല.</p>";
     }
 }
 </script>
