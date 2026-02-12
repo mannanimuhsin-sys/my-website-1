@@ -2,41 +2,82 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <title>Master Admin - Control Center</title>
+    <title>Master Admin - Live Control & Reports</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
     <style>
-        :root { --green: #0b5d1e; --red: #d63031; }
-        body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
-        .control-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; }
-        input, select { padding: 12px; margin: 10px; border-radius: 5px; border: 1px solid #ddd; width: 250px; }
-        button { padding: 12px 25px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; color: white; }
+        :root { --green: #0b5d1e; --red: #d63031; --blue: #0984e3; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .main-container { max-width: 1100px; margin: auto; }
+        
+        /* Control Section */
+        .control-box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 25px; border-top: 5px solid var(--green); }
+        input { padding: 12px; margin: 10px; border-radius: 8px; border: 1px solid #ddd; width: 200px; }
+        .btn { padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; margin: 5px; }
         .btn-start { background: var(--green); }
         .btn-stop { background: var(--red); }
-        .status-active { color: var(--green); font-weight: bold; }
-        .status-off { color: var(--red); font-weight: bold; }
-        .attendance-list { background: white; padding: 15px; border-radius: 12px; }
-        .stu-row { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .stu-row img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; object-fit: cover; border: 2px solid var(--green); }
-        .time { margin-left: auto; color: #666; font-family: monospace; font-size: 13px; }
+        
+        /* Live Feed Section */
+        .live-section { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .prog-header { color: var(--green); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        #liveFeed { max-height: 400px; overflow-y: auto; padding: 10px; border: 1px solid #f9f9f9; }
+        .stu-row { display: flex; align-items: center; padding: 12px; background: #fff; border: 1px solid #eee; margin-bottom: 8px; border-radius: 10px; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .stu-row img { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; border: 2px solid var(--green); object-fit: cover; }
+        .stu-info { flex-grow: 1; }
+        .stu-time { color: #666; font-family: monospace; font-size: 13px; font-weight: bold; }
+
+        /* Report Section */
+        .report-box { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
+        select { padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-weight: bold; }
+        .btn-ex { background: #27ae60; font-size: 12px; }
+        .btn-pd { background: #e74c3c; font-size: 12px; }
     </style>
 </head>
 <body>
 
-<div class="control-box">
-    <h2>PROGRAM CONTROL CENTER</h2>
-    <div id="statusIndicator">Status: <span class="status-off">Offline</span></div>
-    <input type="text" id="progName" placeholder="Program Name">
-    <input type="date" id="progDate">
-    <br>
-    <button class="btn-start" onclick="updateStatus(true)">START SCANNING</button>
-    <button class="btn-stop" onclick="updateStatus(false)">STOP & BLOCK</button>
-</div>
+<div class="main-container">
+    <div class="control-box">
+        <h2>PROGRAM CONTROL HUB</h2>
+        <div id="statusTag">Status: <span style="color:red">Offline</span></div>
+        <input type="text" id="progName" placeholder="Program Name">
+        <input type="date" id="progDate">
+        <br>
+        <button class="btn btn-start" onclick="updateScanner(true)">START PROGRAM</button>
+        <button class="btn btn-stop" onclick="updateScanner(false)">STOP & BLOCK</button>
+    </div>
 
-<div class="attendance-list">
-    <h3 id="listTitle">Live Attendance (Latest on Top)</h3>
-    <div id="liveFeed"></div>
+    <div class="live-section">
+        <div class="prog-header">
+            <h3 id="activeProgTitle">Live Feed: No Active Program</h3>
+            <span id="liveCount" style="background:var(--green); color:white; padding:5px 12px; border-radius:20px; font-size:14px;">Total: 0</span>
+        </div>
+        <div id="liveFeed">
+            <p style="text-align:center; color:#999;">സ്കാൻ ചെയ്യുന്ന വിവരങ്ങൾ ഇവിടെ ലൈവായി കാണാം...</p>
+        </div>
+    </div>
+
+    <div class="report-box">
+        <h3>Class-wise Reports & Downloads</h3>
+        <div class="filter-bar">
+            <select id="classFilter" onchange="filterReport()">
+                <option value="All">All Classes</option>
+                <option value="1">Class 1</option><option value="2">Class 2</option>
+                <option value="3">Class 3</option><option value="4">Class 4</option>
+                <option value="5">Class 5</option><option value="6">Class 6</option>
+                <option value="7">Class 7</option><option value="8">Class 8</option>
+                <option value="9">Class 9</option><option value="10">Class 10</option>
+            </select>
+            <button class="btn btn-ex" onclick="downloadExcel()">DOWNLOAD EXCEL</button>
+            <button class="btn btn-pd" onclick="downloadPDF()">DOWNLOAD PDF</button>
+        </div>
+        <div id="reportDisplay"></div>
+    </div>
 </div>
 
 <script>
@@ -51,55 +92,124 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// സ്റ്റാറ്റസ് മാറ്റാൻ
-async function updateStatus(isActive) {
+let currentProg = "";
+let currentDate = "";
+let attendanceData = [];
+
+// 1. സ്കാനർ കൺട്രോൾ
+async function updateScanner(status) {
     const name = document.getElementById('progName').value;
     const date = document.getElementById('progDate').value;
-    if(isActive && (!name || !date)) { alert("പ്രോഗ്രാം വിവരങ്ങൾ നൽകുക"); return; }
+    if(status && (!name || !date)) { alert("പ്രോഗ്രാം വിവരങ്ങൾ നൽകുക!"); return; }
     
     await db.collection("settings").doc("scanner_control").set({
-        isActive: isActive,
+        isActive: status,
         progName: name,
         progDate: date,
         lastUpdated: new Date()
     });
-    alert(isActive ? "സ്കാനിംഗ് ആരംഭിച്ചു!" : "സ്കാനിംഗ് ബ്ലോക്ക് ചെയ്തു!");
 }
 
-// അഡ്മിൻ പാനലിലെ ലൈവ് ഫീഡ്
+// 2. ലൈവ് അറ്റൻഡൻസ് ലിസണർ
 db.collection("settings").doc("scanner_control").onSnapshot(doc => {
     const data = doc.data();
-    const statusSpan = document.getElementById('statusIndicator');
+    const statusTag = document.getElementById('statusTag');
     if(data && data.isActive) {
-        statusSpan.innerHTML = `Status: <span class="status-active">Scanning Open (${data.progName})</span>`;
-        loadLiveAttendance(data.progName, data.progDate);
+        currentProg = data.progName;
+        currentDate = data.progDate;
+        statusTag.innerHTML = `Status: <span style="color:green">LIVE - ${currentProg}</span>`;
+        document.getElementById('activeProgTitle').innerText = `Live Feed: ${currentProg}`;
+        listenToAttendance();
     } else {
-        statusSpan.innerHTML = `Status: <span class="status-off">Blocked / Offline</span>`;
+        statusTag.innerHTML = `Status: <span style="color:red">OFFLINE</span>`;
+        document.getElementById('activeProgTitle').innerText = `Live Feed: No Active Program`;
     }
 });
 
-let currentUnsub = null;
-function loadLiveAttendance(pName, pDate) {
-    if(currentUnsub) currentUnsub();
-    currentUnsub = db.collection("attendance")
-        .where("progName", "==", pName)
-        .where("progDate", "==", pDate)
-        .orderBy("time", "desc") // പുതിയത് മുകളിൽ വരാൻ
+let unsub = null;
+function listenToAttendance() {
+    if(unsub) unsub();
+    unsub = db.collection("attendance")
+        .where("progName", "==", currentProg)
+        .where("progDate", "==", currentDate)
+        .orderBy("time", "desc") // ഏറ്റവും പുതിയത് മുകളിൽ
         .onSnapshot(snap => {
+            attendanceData = [];
             const feed = document.getElementById('liveFeed');
             feed.innerHTML = "";
+            let count = 0;
+            
             snap.forEach(doc => {
                 const s = doc.data();
+                attendanceData.push(s);
+                count++;
+                
                 const t = s.time.toDate();
-                const ts = `${t.getHours()}:${t.getMinutes()}:${t.getSeconds()}.${t.getMilliseconds()}`;
+                const timeStr = `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')}:${t.getSeconds().toString().padStart(2,'0')}.${t.getMilliseconds()}`;
+                
                 feed.innerHTML += `
                     <div class="stu-row">
                         <img src="${s.photo}">
-                        <div><b>${s.name}</b><br><small>Class: ${s.class} | ID: ${s.number}</small></div>
-                        <div class="time">${ts}</div>
+                        <div class="stu-info">
+                            <b>${s.name}</b><br>
+                            <small>ID: ${s.number} | Class: ${s.class}</small>
+                        </div>
+                        <div class="stu-time">${timeStr}</div>
                     </div>`;
             });
+            document.getElementById('liveCount').innerText = `Total: ${count}`;
+            filterReport(); // റിപ്പോർട്ട് ടേബിളും അപ്ഡേറ്റ് ചെയ്യുന്നു
         });
+}
+
+// 3. റിപ്പോർട്ട് ഫിൽട്ടറിംഗ്
+function filterReport() {
+    const cls = document.getElementById('classFilter').value;
+    const display = document.getElementById('reportDisplay');
+    let filtered = attendanceData;
+    
+    if(cls !== "All") {
+        filtered = attendanceData.filter(d => d.class == cls);
+    }
+    
+    let html = `<table border="1" style="width:100%; border-collapse:collapse; margin-top:10px; background:white;">
+                <tr style="background:#eee;"><th>ID</th><th>Name</th><th>Class</th><th>Time</th></tr>`;
+    filtered.forEach(d => {
+        const t = d.time.toDate();
+        html += `<tr style="text-align:center;">
+                    <td>${d.number}</td><td>${d.name}</td><td>${d.class}</td>
+                    <td>${t.toLocaleTimeString()}</td>
+                 </tr>`;
+    });
+    html += `</table>`;
+    display.innerHTML = filtered.length > 0 ? html : "<p>No data found for this class.</p>";
+}
+
+// 4. ഡൗൺലോഡ് ഫംഗ്ഷനുകൾ
+function downloadExcel() {
+    const cls = document.getElementById('classFilter').value;
+    let dataToExport = attendanceData;
+    if(cls !== "All") dataToExport = attendanceData.filter(d => d.class == cls);
+    
+    const ws = XLSX.utils.json_to_sheet(dataToExport.map(d => ({
+        "ID": d.number, "Name": d.name, "Class": d.class, "Time": d.time.toDate().toLocaleString()
+    })));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Attendance");
+    XLSX.writeFile(wb, `${currentProg}_Class_${cls}.xlsx`);
+}
+
+function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const cls = document.getElementById('classFilter').value;
+    let dataToExport = attendanceData;
+    if(cls !== "All") dataToExport = attendanceData.filter(d => d.class == cls);
+
+    doc.text(`Attendance: ${currentProg} - Class: ${cls}`, 14, 15);
+    const rows = dataToExport.map(d => [d.number, d.name, d.class, d.time.toDate().toLocaleString()]);
+    doc.autoTable({ head: [['ID', 'Name', 'Class', 'Time']], body: rows, startY: 20 });
+    doc.save(`${currentProg}_Report.pdf`);
 }
 </script>
 </body>
