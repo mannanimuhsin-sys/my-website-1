@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Official Student ID System - Misbahul Uloom</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
+<style>
+:root{--green:#0b5d1e;--orange:#f39c12}
+body{margin:0;background:#e9ecef;font-family:Roboto}
+.container{max-width:430px;margin:auto;padding:15px}
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 10px 25px rgba(0,0,0,.15)}
+.tabs{display:flex;margin-bottom:15px;gap:5px}
+.tabs button{flex:1;padding:12px;border:none;font-weight:bold;cursor:pointer;border-radius:8px;background:#eee;transition:0.3s}
+.tabs .active{background:var(--green);color:#fff}
+input,select{width:100%;padding:12px;margin-top:8px;border-radius:8px;border:1px solid #ccc;box-sizing:border-box;display:block;outline:none}
+label{font-size:12px;font-weight:bold;color:var(--green);margin-top:10px;display:block}
+.main-btn{width:100%;padding:14px;margin-top:15px;border:none;border-radius:10px;background:var(--green);color:#fff;font-weight:bold;cursor:pointer;transition:0.3s}
+.main-btn:disabled{background:#ccc;cursor:not-allowed}
+
+/* ID CARD DESIGN (PROTECTED) */
+#idArea{display:none;text-align:center;padding:20px 10px}
+#idCard{
+ width:280px;background:#fff;margin:auto;border-radius:12px;
+ overflow:hidden;box-shadow:0 20px 45px rgba(0,0,0,.4);border:2px solid #ddd;
+ position:relative;
+}
+.header{background:var(--green);color:#fff;padding:10px}
+.header h1{margin:0;font-size:18px}
+.header p{margin:4px 0 0;font-size:13px}
+.ribbon{background:var(--orange);color:#fff;font-weight:900;width:80%;margin:10px auto;padding:6px;border-radius:20px;position:relative;z-index:2;display:block}
+.photoBox{width:100px;height:130px;margin:5px auto;border-radius:14px;overflow:hidden;border:4px solid #fff;box-shadow:0 8px 20px rgba(0,0,0,.2)}
+.photoBox img{width:100%;height:100%;object-fit:cover}
+.details{padding:15px;text-align:left;font-size:11px}
+.row{display:flex;border-bottom:1px solid #eee;padding:3px 0}
+.row span:first-child{width:90px;color:#666;font-weight:bold}
+.row span:last-child{font-weight:bold;color:#111}
+.footer{display:flex;justify-content:space-between;align-items:center;padding:5px 15px 10px}
+.footer img#qr{width:60px;height:60px}
+.sign{text-align:center;font-size:11px}
+#signImg{width:70px;height:auto;display:block;margin:0 auto -6px;filter:grayscale(1) contrast(1.5);}
+.sign div{border-top:2px solid #333;width:90px;margin:4px auto 0}
+
+/* Cropper Modal */
+#cropBox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.crop-container { background: #fff; padding: 10px; border-radius: 14px; width: 90%; max-width: 320px; }
+#cropImg { display: block; max-width: 100%; max-height: 350px; }
+
+</style>
+</head>
+<body>
+
+<div class="container" id="panel">
+ <div class="card">
+  <div class="tabs">
+   <button id="tReg" class="active" onclick="showTab('reg')">REGISTER</button>
+   <button id="tLog" onclick="showTab('log')">LOGIN</button>
+  </div>
+
+  <div id="regTab">
+   <input id="name" placeholder="Full Name">
+   <input id="regno" placeholder="Register Number">
+   <input id="classN" placeholder="Class">
+   <input id="father" placeholder="Father Name">
+   <input id="mentor" placeholder="Mentor Name">
+   <input id="phone" placeholder="Phone Number">
+
+   <select id="gender">
+    <option value="">Select Gender</option>
+    <option>Male</option><option>Female</option>
+   </select>
+
+   <select id="blood">
+    <option value="">Select Blood Group</option>
+    <option>A+</option><option>B+</option><option>O+</option><option>AB+</option>
+    <option>A-</option><option>B-</option><option>O-</option><option>AB-</option>
+   </select>
+
+   <label>Date of Birth</label>
+   <input type="date" id="dob">
+   
+   <label>Student Photo</label>
+   <input type="file" id="photoInp" accept="image/*">
+   
+   <button id="saveBtn" class="main-btn" onclick="saveStudent()">SAVE & GENERATE ID CARD</button>
+  </div>
+
+  <div id="logTab" style="display:none">
+   <input id="loginReg" placeholder="Enter Register Number">
+   <button class="main-btn" onclick="login()">VIEW ID CARD</button>
+  </div>
+ </div>
+</div>
+
+<div id="idArea">
+ <div id="idCard">
+  <div class="header">
+   <h1>MISBAHUL ULOOM</h1>
+   <p>MADRASA - PERUVANA | REG.NO: 4224</p>
+  </div>
+  <div class="ribbon">STUDENT IDENTITY CARD</div>
+  <div class="photoBox"><img id="pImg"></div>
+  <div class="details">
+   <div class="row"><span>Name</span><span id="pName"></span></div>
+   <div class="row"><span>Father</span><span id="pFather"></span></div>
+   <div class="row"><span>Class</span><span id="pClass"></span></div>
+   <div class="row"><span>Mentor</span><span id="pMentor"></span></div>
+   <div class="row"><span>Blood</span><span id="pBlood"></span></div>
+   <div class="row"><span>Phone</span><span id="pPhone"></span></div>
+   <div class="row"><span>DOB</span><span id="pDob"></span></div>
+   <div class="row"><span>ID No</span><span id="pReg"></span></div>
+  </div>
+  <div class="footer">
+    <img id="qr" src="">
+    <div class="sign">
+      <img src="signature.png" id="signImg" onerror="this.style.display='none'">
+      <div></div>Sadar Muallim
+    </div>
+  </div>
+ </div>
+ <div style="max-width:360px; margin:20px auto; display:flex; gap:10px;">
+  <button class="main-btn" onclick="downloadID()">DOWNLOAD</button>
+  <button class="main-btn" style="background:#555" onclick="location.reload()">BACK</button>
+ </div>
+</div>
+
+<div id="cropBox">
+ <div class="crop-container">
+  <img id="cropImg">
+  <button class="main-btn" onclick="applyCrop()">CROP & APPLY</button>
+ </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+let cropper, photoData = "";
+
+// Firebase Configuration (പഴയത് തന്നെ നിലനിർത്തി)
+const firebaseConfig = {
+  apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
+  authDomain: "mum-new-id.firebaseapp.com",
+  projectId: "mum-new-id",
+  storageBucket: "mum-new-id.firebasestorage.app",
+  messagingSenderId: "794343464244",
+  appId: "1:794343464244:web:f9083036490e3609bf1961"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function showTab(t){
+ document.getElementById('regTab').style.display = t=="reg"?"block":"none";
+ document.getElementById('logTab').style.display = t=="log"?"block":"none";
+ document.getElementById('tReg').className = t=="reg"?"active":"";
+ document.getElementById('tLog').className = t=="log"?"active":"";
+}
+
+document.getElementById('photoInp').onchange = e => {
+ const file = e.target.files[0];
+ if (file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+   document.getElementById('cropImg').src = reader.result;
+   document.getElementById('cropBox').style.display = "flex";
+   if (cropper) cropper.destroy();
+   cropper = new Cropper(document.getElementById('cropImg'), { aspectRatio: 3/4, viewMode: 1 });
+  };
+  reader.readAsDataURL(file);
+ }
+};
+
+function applyCrop(){
+ photoData = cropper.getCroppedCanvas({ width: 300, height: 400 }).toDataURL("image/jpeg", 0.7);
+ document.getElementById('cropBox').style.display = "none";
+ alert("ഫോട്ടോ തയ്യാറായിക്കഴിഞ്ഞു ✅");
+}
+
+async function saveStudent(){
+ const fields = ['name', 'regno', 'classN', 'father', 'mentor', 'phone', 'gender', 'blood', 'dob'];
+ const data = {};
+ 
+ for(let f of fields) {
+   const val = document.getElementById(f).value;
+   if(!val) { alert("എല്ലാ കോളങ്ങളും പൂരിപ്പിക്കുക!"); return; }
+   data[f] = val;
+ }
+
+ if(!photoData) { alert("ഫോട്ടോ അപ്‌ലോഡ് ചെയ്യുക!"); return; }
+ 
+ const btn = document.getElementById('saveBtn');
+ btn.disabled = true;
+ btn.innerText = "SAVING... PLEASE WAIT";
+
+ const studentObj = {
+  name: data.name,
+  number: data.regno,
+  class: data.classN,
+  father: data.father,
+  mentor: data.mentor,
+  phone: data.phone,
+  gender: data.gender,
+  blood: data.blood,
+  dob: data.dob,
+  photo: photoData,
+  timestamp: new Date().getTime()
+ };
+
+ try {
+  await db.collection("students").doc(studentObj.number).set(studentObj);
+  localStorage.setItem("STU_"+studentObj.number, JSON.stringify(studentObj));
+  alert("വിജയകരമായി സേവ് ചെയ്തു ✅");
+  renderID(studentObj);
+ } catch (e) {
+  alert("Error: സേവ് ചെയ്യാൻ കഴിഞ്ഞില്ല. ഇന്റർനെറ്റ് പരിശോധിക്കുക.");
+  btn.disabled = false;
+  btn.innerText = "SAVE & GENERATE ID CARD";
+ }
+}
+
+async function login(){
+ const rNo = document.getElementById('loginReg').value;
+ if(!rNo) return;
+ 
+ // ആദ്യം ലോക്കൽ സ്റ്റോറേജിൽ നോക്കും, ഇല്ലെങ്കിൽ ഫയർബേസിൽ നോക്കും
+ let d = localStorage.getItem("STU_"+rNo);
+ if(d) {
+   renderID(JSON.parse(d));
+ } else {
+   try {
+     const doc = await db.collection("students").doc(rNo).get();
+     if(doc.exists) {
+       renderID(doc.data());
+     } else {
+       alert("ഈ നമ്പർ കണ്ടെത്തിയില്ല!");
+     }
+   } catch(e) { alert("Error connecting to Database"); }
+ }
+}
+
+function renderID(s){
+ document.getElementById('pName').innerText = s.name;
+ document.getElementById('pFather').innerText = s.father;
+ document.getElementById('pClass').innerText = s.class;
+ document.getElementById('pMentor').innerText = s.mentor;
+ document.getElementById('pBlood').innerText = s.blood;
+ document.getElementById('pPhone').innerText = s.phone;
+ document.getElementById('pDob').innerText = s.dob.split("-").reverse().join("-");
+ document.getElementById('pReg').innerText = s.number;
+ document.getElementById('pImg').src = s.photo;
+
+ const qrData = `Student: ${s.name}, ID: ${s.number}, Class: ${s.class}`;
+ document.getElementById('qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(qrData)}`;
+
+ document.getElementById('panel').style.display = "none";
+ document.getElementById('idArea').style.display = "block";
+}
+
+function downloadID(){
+ const card = document.querySelector("#idCard");
+ html2canvas(card, { scale: 3, useCORS: true }).then(canvas => {
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/png");
+  link.download = `ID_${document.getElementById('pReg').innerText}.png`;
+  link.click();
+ });
+}
+</script>
+</body>
+</html>
