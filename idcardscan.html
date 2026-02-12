@@ -72,7 +72,7 @@ db.collection("settings").doc("scanner_control").onSnapshot(doc => {
 });
 
 function startCamera() {
-    html5QrScanner = new Html5QrcodeScanner("reader", { fps: 15, qrbox: 280 });
+    html5QrScanner = new Html5QrcodeScanner("reader", { fps: 20, qrbox: 280 });
     html5QrScanner.render(onScanSuccess);
 }
 
