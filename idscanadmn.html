@@ -13,25 +13,18 @@
         :root { --green: #0b5d1e; --red: #d63031; --blue: #0984e3; }
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
         .main-container { max-width: 1100px; margin: auto; }
-        
-        /* Control Section */
         .control-box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 25px; border-top: 5px solid var(--green); }
         input { padding: 12px; margin: 10px; border-radius: 8px; border: 1px solid #ddd; width: 200px; }
         .btn { padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; margin: 5px; }
         .btn-start { background: var(--green); }
         .btn-stop { background: var(--red); }
-        
-        /* Live Feed Section */
         .live-section { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
         .prog-header { color: var(--green); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        #liveFeed { max-height: 400px; overflow-y: auto; padding: 10px; border: 1px solid #f9f9f9; }
-        .stu-row { display: flex; align-items: center; padding: 12px; background: #fff; border: 1px solid #eee; margin-bottom: 8px; border-radius: 10px; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        #liveFeed { max-height: 500px; overflow-y: auto; padding: 10px; }
+        .stu-row { display: flex; align-items: center; padding: 12px; background: #fff; border: 1px solid #eee; margin-bottom: 8px; border-radius: 10px; transition: 0.3s; }
         .stu-row img { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; border: 2px solid var(--green); object-fit: cover; }
         .stu-info { flex-grow: 1; }
-        .stu-time { color: #666; font-family: monospace; font-size: 13px; font-weight: bold; }
-
-        /* Report Section */
+        .stu-time { color: #666; font-family: monospace; font-size: 13px; font-weight: bold; text-align: right; }
         .report-box { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
         select { padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-weight: bold; }
@@ -95,105 +88,93 @@ const db = firebase.firestore();
 let currentProg = "";
 let currentDate = "";
 let attendanceData = [];
+let unsub = null;
 
-// 1. സ്കാനർ കൺട്രോൾ
 async function updateScanner(status) {
     const name = document.getElementById('progName').value;
     const date = document.getElementById('progDate').value;
     if(status && (!name || !date)) { alert("പ്രോഗ്രാം വിവരങ്ങൾ നൽകുക!"); return; }
-    
     await db.collection("settings").doc("scanner_control").set({
-        isActive: status,
-        progName: name,
-        progDate: date,
-        lastUpdated: new Date()
+        isActive: status, progName: name, progDate: date, lastUpdated: new Date()
     });
 }
 
-// 2. ലൈവ് അറ്റൻഡൻസ് ലിസണർ
 db.collection("settings").doc("scanner_control").onSnapshot(doc => {
     const data = doc.data();
-    const statusTag = document.getElementById('statusTag');
     if(data && data.isActive) {
         currentProg = data.progName;
         currentDate = data.progDate;
-        statusTag.innerHTML = `Status: <span style="color:green">LIVE - ${currentProg}</span>`;
+        document.getElementById('statusTag').innerHTML = `Status: <span style="color:green">LIVE - ${currentProg}</span>`;
         document.getElementById('activeProgTitle').innerText = `Live Feed: ${currentProg}`;
         listenToAttendance();
     } else {
-        statusTag.innerHTML = `Status: <span style="color:red">OFFLINE</span>`;
+        document.getElementById('statusTag').innerHTML = `Status: <span style="color:red">OFFLINE</span>`;
         document.getElementById('activeProgTitle').innerText = `Live Feed: No Active Program`;
     }
 });
 
-let unsub = null;
 function listenToAttendance() {
     if(unsub) unsub();
+    // orderBy നീക്കം ചെയ്തു, പകരം ക്ലയന്റ് സൈഡിൽ സോർട്ട് ചെയ്യുന്നു (ഡാറ്റ മിസ് ആകാതിരിക്കാൻ)
     unsub = db.collection("attendance")
         .where("progName", "==", currentProg)
         .where("progDate", "==", currentDate)
-        .orderBy("time", "desc") // ഏറ്റവും പുതിയത് മുകളിൽ
         .onSnapshot(snap => {
             attendanceData = [];
-            const feed = document.getElementById('liveFeed');
-            feed.innerHTML = "";
-            let count = 0;
-            
             snap.forEach(doc => {
-                const s = doc.data();
-                attendanceData.push(s);
-                count++;
-                
-                const t = s.time.toDate();
-                const timeStr = `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')}:${t.getSeconds().toString().padStart(2,'0')}.${t.getMilliseconds()}`;
-                
-                feed.innerHTML += `
-                    <div class="stu-row">
-                        <img src="${s.photo}">
-                        <div class="stu-info">
-                            <b>${s.name}</b><br>
-                            <small>ID: ${s.number} | Class: ${s.class}</small>
-                        </div>
-                        <div class="stu-time">${timeStr}</div>
-                    </div>`;
+                let d = doc.data();
+                d.id = doc.id;
+                attendanceData.push(d);
             });
-            document.getElementById('liveCount').innerText = `Total: ${count}`;
-            filterReport(); // റിപ്പോർട്ട് ടേബിളും അപ്ഡേറ്റ് ചെയ്യുന്നു
+            
+            // സമയം അനുസരിച്ച് സോർട്ട് ചെയ്യുന്നു (പുതിയത് മുകളിൽ)
+            attendanceData.sort((a, b) => b.time.toDate() - a.time.toDate());
+            
+            renderLiveFeed();
+            filterReport();
         });
 }
 
-// 3. റിപ്പോർട്ട് ഫിൽട്ടറിംഗ്
+function renderLiveFeed() {
+    const feed = document.getElementById('liveFeed');
+    feed.innerHTML = "";
+    attendanceData.forEach(s => {
+        const t = s.time.toDate();
+        const timeStr = `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')}:${t.getSeconds().toString().padStart(2,'0')}.${t.getMilliseconds()}`;
+        feed.innerHTML += `
+            <div class="stu-row">
+                <img src="${s.photo}">
+                <div class="stu-info">
+                    <b>${s.name}</b><br>
+                    <small>ID: ${s.number} | Class: ${s.class}</small>
+                </div>
+                <div class="stu-time">${timeStr} <br> <span style="color:red; cursor:pointer;" onclick="deleteEntry('${s.id}')">✕</span></div>
+            </div>`;
+    });
+    document.getElementById('liveCount').innerText = `Total: ${attendanceData.length}`;
+}
+
+async function deleteEntry(id) {
+    if(confirm("ഡിലീറ്റ് ചെയ്യണോ?")) await db.collection("attendance").doc(id).delete();
+}
+
 function filterReport() {
     const cls = document.getElementById('classFilter').value;
     const display = document.getElementById('reportDisplay');
-    let filtered = attendanceData;
-    
-    if(cls !== "All") {
-        filtered = attendanceData.filter(d => d.class == cls);
-    }
+    let filtered = (cls === "All") ? attendanceData : attendanceData.filter(d => d.class == cls);
     
     let html = `<table border="1" style="width:100%; border-collapse:collapse; margin-top:10px; background:white;">
                 <tr style="background:#eee;"><th>ID</th><th>Name</th><th>Class</th><th>Time</th></tr>`;
     filtered.forEach(d => {
-        const t = d.time.toDate();
-        html += `<tr style="text-align:center;">
-                    <td>${d.number}</td><td>${d.name}</td><td>${d.class}</td>
-                    <td>${t.toLocaleTimeString()}</td>
-                 </tr>`;
+        html += `<tr style="text-align:center;"><td>${d.number}</td><td>${d.name}</td><td>${d.class}</td><td>${d.time.toDate().toLocaleTimeString()}</td></tr>`;
     });
-    html += `</table>`;
-    display.innerHTML = filtered.length > 0 ? html : "<p>No data found for this class.</p>";
+    display.innerHTML = filtered.length > 0 ? html + `</table>` : "<p>ഡാറ്റ ലഭ്യമല്ല.</p>";
 }
 
-// 4. ഡൗൺലോഡ് ഫംഗ്ഷനുകൾ
 function downloadExcel() {
     const cls = document.getElementById('classFilter').value;
-    let dataToExport = attendanceData;
-    if(cls !== "All") dataToExport = attendanceData.filter(d => d.class == cls);
-    
-    const ws = XLSX.utils.json_to_sheet(dataToExport.map(d => ({
-        "ID": d.number, "Name": d.name, "Class": d.class, "Time": d.time.toDate().toLocaleString()
-    })));
+    let exportData = (cls === "All") ? attendanceData : attendanceData.filter(d => d.class == cls);
+    const ws = XLSX.utils.json_to_sheet(exportData.map(d => ({ "ID": d.number, "Name": d.name, "Class": d.class, "Time": d.time.toDate().toLocaleString() })));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Attendance");
     XLSX.writeFile(wb, `${currentProg}_Class_${cls}.xlsx`);
@@ -203,11 +184,9 @@ function downloadPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const cls = document.getElementById('classFilter').value;
-    let dataToExport = attendanceData;
-    if(cls !== "All") dataToExport = attendanceData.filter(d => d.class == cls);
-
+    let exportData = (cls === "All") ? attendanceData : attendanceData.filter(d => d.class == cls);
     doc.text(`Attendance: ${currentProg} - Class: ${cls}`, 14, 15);
-    const rows = dataToExport.map(d => [d.number, d.name, d.class, d.time.toDate().toLocaleString()]);
+    const rows = exportData.map(d => [d.number, d.name, d.class, d.time.toDate().toLocaleString()]);
     doc.autoTable({ head: [['ID', 'Name', 'Class', 'Time']], body: rows, startY: 20 });
     doc.save(`${currentProg}_Report.pdf`);
 }
