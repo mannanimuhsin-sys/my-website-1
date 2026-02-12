@@ -1,217 +1,237 @@
 <!DOCTYPE html>
 <html lang="ml">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Class Strength & Usthad Details</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Strength & Usthad Details</title>
 
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<style>
-body{
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg,#eef2f3,#dfe9f3);
-    padding:20px;
-}
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #eef2f3, #dfe9f3);
+            padding: 15px;
+            margin: 0;
+        }
 
-.container{
-    max-width:1100px;
-    margin:auto;
-    background:#fff;
-    border-radius:12px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.1);
-    padding:25px;
-}
+        .container {
+            max-width: 1100px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 25px;
+        }
 
-h1{
-    text-align:center;
-    color:#2c3e50;
-    margin-bottom:8px;
-}
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 24px;
+        }
 
-.subtitle{
-    text-align:center;
-    color:#555;
-    margin-bottom:25px;
-    font-size:14px;
-}
+        .subtitle {
+            text-align: center;
+            color: #555;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-}
+        /* മൊബൈലിൽ ടേബിൾ സ്ക്രോൾ ചെയ്യാൻ ഇത് സഹായിക്കും */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
 
-th, td{
-    border:1px solid #ddd;
-    padding:10px;
-    text-align:center;
-    font-size:14px;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px; /* ടേബിൾ ഒതുങ്ങിപ്പോകാതിരിക്കാൻ */
+        }
 
-th{
-    background:#2c3e50;
-    color:#fff;
-}
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 14px;
+        }
 
-.boys{ color:#0b5ed7; font-weight:bold; }
-.girls{ color:#d63384; font-weight:bold; }
-.total{ color:#198754; font-weight:bold; }
+        th {
+            background: #2c3e50;
+            color: #fff;
+            text-transform: uppercase;
+        }
 
-.usthad{
-    text-align:left;
-    font-weight:600;
-}
+        .boys { color: #0b5ed7; font-weight: bold; }
+        .girls { color: #d63384; font-weight: bold; }
+        .total { color: #198754; font-weight: bold; }
 
-.contact{
-    display:flex;
-    justify-content:center;
-    gap:12px;
-}
+        .usthad {
+            text-align: left;
+            font-weight: 600;
+            padding-left: 15px;
+        }
 
-.contact a{
-    font-size:18px;
-    text-decoration:none;
-}
+        .contact {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
 
-.call{ color:#0d6efd; }
-.whatsapp{ color:#25D366; }
+        .contact a {
+            font-size: 20px;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
 
-tfoot td{
-    background:#f8f9fa;
-    font-weight:bold;
-    font-size:15px;
-}
+        .contact a:hover {
+            transform: scale(1.2);
+        }
 
-@media(max-width:768px){
-    th, td{ font-size:12px; }
-}
-</style>
+        .call { color: #0d6efd; }
+        .whatsapp { color: #25D366; }
+
+        tfoot td {
+            background: #f8f9fa;
+            font-weight: bold;
+            font-size: 15px;
+            color: #333;
+        }
+
+        @media(max-width: 768px) {
+            h1 { font-size: 20px; }
+            th, td { font-size: 13px; padding: 8px 5px; }
+            .container { padding: 15px; }
+        }
+    </style>
 </head>
 
 <body>
 
 <div class="container">
-<h1>വിദ്യാർത്ഥി വിവര പട്ടിക</h1>
-<div class="subtitle">Class-wise Strength & Usthad Contact</div>
+    <h1>വിദ്യാർത്ഥി വിവര പട്ടിക</h1>
+    <div class="subtitle">Class-wise Strength & Usthad Contact</div>
 
-<table>
-<thead>
-<tr>
-    <th rowspan="2">CLASS</th>
-    <th colspan="3">വിദ്യാർത്ഥികളുടെ എണ്ണം</th>
-    <th rowspan="2">CLASS USTHAD</th>
-    <th rowspan="2">CONTACT</th>
-</tr>
-<tr>
-    <th>BOYS</th>
-    <th>GIRLS</th>
-    <th>TOTAL</th>
-</tr>
-</thead>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th rowspan="2">CLASS</th>
+                    <th colspan="3">വിദ്യാർത്ഥികളുടെ എണ്ണം</th>
+                    <th rowspan="2">CLASS USTHAD</th>
+                    <th rowspan="2">CONTACT</th>
+                </tr>
+                <tr>
+                    <th>BOYS</th>
+                    <th>GIRLS</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
 
-<tbody>
-<tr>
-<td>I</td><td class="boys">3</td><td class="girls">3</td><td class="total">6</td>
-<td class="usthad">SAITHALAVI FAIZY IRFANI</td>
-<td class="contact">
-<a href="tel:9447483109" class="call"><i class="fa fa-phone"></i></a>
-<a href="https://wa.me/919447483109" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-</td>
-</tr>
+            <tbody>
+                <tr>
+                    <td>I</td><td class="boys">3</td><td class="girls">3</td><td class="total">6</td>
+                    <td class="usthad">SAITHALAVI FAIZY IRFANI</td>
+                    <td class="contact">
+                        <a href="tel:9447483109" class="call"><i class="fa fa-phone"></i></a>
+                        <a href="https://wa.me/919447483109" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </td>
+                </tr>
 
-<tr>
-<td>II</td><td class="boys">8</td><td class="girls">6</td><td class="total">14</td>
-<td class="usthad">ABDU RAHMAN BADRI</td>
-<td class="contact">
-<a href="tel:7695020736" class="call"><i class="fa fa-phone"></i></a>
-<a href="https://wa.me/917695020736" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-</td>
-</tr>
+                <tr>
+                    <td>II</td><td class="boys">8</td><td class="girls">6</td><td class="total">14</td>
+                    <td class="usthad">ABDU RAHMAN BADRI</td>
+                    <td class="contact">
+                        <a href="tel:7695020736" class="call"><i class="fa fa-phone"></i></a>
+                        <a href="https://wa.me/917695020736" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </td>
+                </tr>
 
-<tr>
-<td>III</td><td class="boys">12</td><td class="girls">8</td><td class="total">20</td>
-<td class="usthad">ABDUL JALEEL FAIZY IRFANI</td>
-<td class="contact">
-<a href="tel:9961292787" class="call"><i class="fa fa-phone"></i></a>
-<a href="https://wa.me/919961292787" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-</td>
-</tr>
+                <tr>
+                    <td>III</td><td class="boys">12</td><td class="girls">8</td><td class="total">20</td>
+                    <td class="usthad">ABDUL JALEEL FAIZY IRFANI</td>
+                    <td class="contact">
+                        <a href="tel:9961292787" class="call"><i class="fa fa-phone"></i></a>
+                        <a href="https://wa.me/919961292787" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </td>
+                </tr>
 
-<tr>
-<td>IV</td><td class="boys">6</td><td class="girls">7</td><td class="total">13</td>
-<td class="usthad">MUHSIN MANNANI</td>
-<td class="contact">
-<a href="tel:7559950633" class="call"><i class="fa fa-phone"></i></a>
-<a href="https://wa.me/917559950633" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-</td>
-</tr>
+                <tr>
+                    <td>IV</td><td class="boys">6</td><td class="girls">7</td><td class="total">13</td>
+                    <td class="usthad">MUHSIN MANNANI</td>
+                    <td class="contact">
+                        <a href="tel:7559950633" class="call"><i class="fa fa-phone"></i></a>
+                        <a href="https://wa.me/917559950633" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </td>
+                </tr>
 
-<tr>
-<td>V</td><td class="boys">7</td><td class="girls">9</td><td class="total">16</td>
-<td class="usthad">ABDUL JALEEL FAIZY IRFANI</td>
-<td class="contact">
-<a href="tel:9961292787" class="call"><i class="fa fa-phone"></i></a>
-<a href="https://wa.me/919961292787" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-</td>
-</tr>
+                <tr>
+                    <td>V</td><td class="boys">7</td><td class="girls">9</td><td class="total">16</td>
+                    <td class="usthad">ABDUL JALEEL FAIZY IRFANI</td>
+                    <td class="contact">
+                        <a href="tel:9961292787" class="call"><i class="fa fa-phone"></i></a>
+                        <a href="https://wa.me/919961292787" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </td>
+                </tr>
 
-<tr>
-<td>VI</td><td class="boys">1</td><td class="girls">2</td><td class="total">3</td>
-<td class="usthad">ABDU RAHMAN BADRI</td>
-<td class="contact">
-<a href="tel:7695020736" class="call"><i class="fa fa-phone"></i></a>
-<a href="https://wa.me/917695020736" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-</td>
-</tr>
+                <tr>
+                    <td>VI</td><td class="boys">1</td><td class="girls">2</td><td class="total">3</td>
+                    <td class="usthad">ABDU RAHMAN BADRI</td>
+                    <td class="contact">
+                        <a href="tel:7695020736" class="call"><i class="fa fa-phone"></i></a>
+                        <a href="https://wa.me/917695020736" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </td>
+                </tr>
 
-<tr>
-<td>VII</td><td class="boys">6</td><td class="girls">5</td><td class="total">11</td>
-<td class="usthad">MUHSIN MANNANI</td>
-<td class="contact">
-<a href="tel:7559950633" class="call"><i class="fa fa-phone"></i></a>
-<a href="https://wa.me/917559950633" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-</td>
-</tr>
+                <tr>
+                    <td>VII</td><td class="boys">6</td><td class="girls">5</td><td class="total">11</td>
+                    <td class="usthad">MUHSIN MANNANI</td>
+                    <td class="contact">
+                        <a href="tel:7559950633" class="call"><i class="fa fa-phone"></i></a>
+                        <a href="https://wa.me/917559950633" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </td>
+                </tr>
 
-<tr>
-<td>VIII</td><td class="boys">7</td><td class="girls">7</td><td class="total">14</td>
-<td class="usthad">SAITHALAVI FAIZY IRFANI</td>
-<td class="contact">
-<a href="tel:9447483109" class="call"><i class="fa fa-phone"></i></a>
-<a href="https://wa.me/919447483109" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-</td>
-</tr>
+                <tr>
+                    <td>VIII</td><td class="boys">7</td><td class="girls">7</td><td class="total">14</td>
+                    <td class="usthad">SAITHALAVI FAIZY IRFANI</td>
+                    <td class="contact">
+                        <a href="tel:9447483109" class="call"><i class="fa fa-phone"></i></a>
+                        <a href="https://wa.me/919447483109" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </td>
+                </tr>
 
-<tr>
-<td>IX</td><td class="boys">1</td><td class="girls">4</td><td class="total">5</td>
-<td class="usthad">ABDUL JALEEL FAIZY IRFANI</td>
-<td class="contact">
-<a href="tel:9961292787" class="call"><i class="fa fa-phone"></i></a>
-<a href="https://wa.me/919961292787" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-</td>
-</tr>
+                <tr>
+                    <td>IX</td><td class="boys">1</td><td class="girls">4</td><td class="total">5</td>
+                    <td class="usthad">ABDUL JALEEL FAIZY IRFANI</td>
+                    <td class="contact">
+                        <a href="tel:9961292787" class="call"><i class="fa fa-phone"></i></a>
+                        <a href="https://wa.me/919961292787" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </td>
+                </tr>
 
-<tr>
-<td>X</td><td class="boys">2</td><td class="girls">2</td><td class="total">4</td>
-<td class="usthad">MUHSIN MANNANI</td>
-<td class="contact">
-<a href="tel:7559950633" class="call"><i class="fa fa-phone"></i></a>
-<a href="https://wa.me/917559950633" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-</td>
-</tr>
-</tbody>
+                <tr>
+                    <td>X</td><td class="boys">2</td><td class="girls">2</td><td class="total">4</td>
+                    <td class="usthad">MUHSIN MANNANI</td>
+                    <td class="contact">
+                        <a href="tel:7559950633" class="call"><i class="fa fa-phone"></i></a>
+                        <a href="https://wa.me/917559950633" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </td>
+                </tr>
+            </tbody>
 
-<tfoot>
-<tr>
-<td>ആകെ</td>
-<td class="boys">53</td>
-<td class="girls">53</td>
-<td class="total">106</td>
-<td colspan="2"></td>
-</tr>
-</tfoot>
-</table>
+            <tfoot>
+                <tr>
+                    <td>ആകെ</td>
+                    <td class="boys">53</td>
+                    <td class="girls">53</td>
+                    <td class="total">106</td>
+                    <td colspan="2"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 </div>
 
 </body>
