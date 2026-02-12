@@ -11,33 +11,40 @@
         :root { --green: #0b5d1e; }
         body { font-family: sans-serif; background: #f0f2f5; margin: 0; }
         .header { background: var(--green); color: white; padding: 20px; text-align: center; }
-        .control-panel { background: white; padding: 15px; margin: 10px; border-radius: 10px; display: flex; gap: 10px; flex-wrap: wrap; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .control-panel { background: white; padding: 15px; margin: 10px; border-radius: 10px; display: flex; gap: 10px; flex-wrap: wrap; box-shadow: 0 2px 5px rgba(0,0,0,0.1); justify-content: center; }
         .class-box { background: white; padding: 15px; border-radius: 10px; margin: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .class-title { font-weight: bold; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 10px; color: var(--green); display: flex; justify-content: space-between; }
-        .stu-row { display: flex; align-items: center; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #ddd; }
-        .stu-row img { width: 45px; height: 45px; border-radius: 50%; margin-right: 15px; border: 2px solid var(--green); }
-        .stu-row .time { margin-left: auto; font-size: 11px; color: #666; font-family: monospace; }
-        select, button { padding: 10px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; }
+        .stu-row { display: flex; align-items: center; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #ddd; transition: 0.3s; }
+        .stu-row:hover { background: #f9f9f9; }
+        .stu-row img { width: 45px; height: 45px; border-radius: 50%; margin-right: 15px; border: 2px solid var(--green); object-fit: cover; }
+        .stu-row .time { margin-left: auto; font-size: 11px; color: #666; font-family: monospace; text-align: right; }
+        select, button { padding: 10px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; font-weight: bold; }
         .btn-pdf { background: #e74c3c; color: white; border: none; }
+        .btn-refresh { background: #3498db; color: white; border: none; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <h2 style="margin:0;">LIVE ATTENDANCE PORTAL</h2>
-    <p id="currentProg" style="margin:5px 0 0; opacity:0.8;">Select a program to view attendance</p>
+    <p id="currentProg" style="margin:5px 0 0; opacity:0.9;">ഏതെങ്കിലും പ്രോഗ്രാം സെലക്ട് ചെയ്യുക</p>
 </div>
 
 <div class="control-panel">
-    <select id="progSelect" onchange="loadAttendance()"><option value="">Select Program</option></select>
-    <select id="classFilter" onchange="renderAttendance()"><option value="All">All Classes</option></select>
+    <select id="progSelect" onchange="loadAttendance()">
+        <option value="">Select Program</option>
+    </select>
+    <select id="classFilter" onchange="renderAttendance()">
+        <option value="All">All Classes</option>
+    </select>
     <button class="btn-pdf" onclick="downloadPDF()">DOWNLOAD PDF</button>
-    <button onclick="location.reload()">REFRESH</button>
+    <button class="btn-refresh" onclick="location.reload()">REFRESH</button>
 </div>
 
 <div id="attendanceGrid"></div>
 
 <script>
+// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
     authDomain: "mum-new-id.firebaseapp.com",
@@ -50,24 +57,41 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let allEntries = [];
+let unsubscribe = null;
 
-// നിലവിലുള്ള പ്രോഗ്രാമുകൾ ലിസ്റ്റ് ചെയ്യുന്നു
+// പ്രോഗ്രാമുകൾ ലിസ്റ്റ് ചെയ്യുന്നു
 db.collection("attendance").get().then(snap => {
     let progs = new Set();
-    snap.forEach(doc => progs.add(`${doc.data().progName} (${doc.data().progDate})`));
+    snap.forEach(doc => {
+        let d = doc.data();
+        if(d.progName && d.progDate) {
+            progs.add(`${d.progName} (${d.progDate})`);
+        }
+    });
     const sel = document.getElementById('progSelect');
-    progs.forEach(p => sel.innerHTML += `<option value="${p}">${p}</option>`);
+    progs.forEach(p => {
+        sel.innerHTML += `<option value="${p}">${p}</option>`;
+    });
 });
 
 async function loadAttendance() {
     const progInfo = document.getElementById('progSelect').value;
-    if(!progInfo) return;
+    if(!progInfo) {
+        document.getElementById('attendanceGrid').innerHTML = "";
+        return;
+    }
     
     document.getElementById('currentProg').innerText = "Program: " + progInfo;
-    const name = progInfo.split(" (")[0];
-    const date = progInfo.split(" (")[1].replace(")", "");
+    
+    // പ്രോഗ്രാം പേരും തീയതിയും വേർതിരിച്ചെടുക്കുന്നു
+    const name = progInfo.substring(0, progInfo.lastIndexOf(" ("));
+    const date = progInfo.substring(progInfo.lastIndexOf(" (") + 2, progInfo.length - 1);
 
-    db.collection("attendance")
+    // പഴയ ലിസണർ ഉണ്ടെങ്കിൽ അത് നിർത്തുന്നു
+    if(unsubscribe) unsubscribe();
+
+    // ലൈവ് ലിസണർ തുടങ്ങുന്നു
+    unsubscribe = db.collection("attendance")
         .where("progName", "==", name)
         .where("progDate", "==", date)
         .orderBy("time", "desc")
@@ -81,10 +105,14 @@ async function loadAttendance() {
                 classes.add(d.class);
             });
             
-            // ക്ലാസ് ഫിൽട്ടർ അപ്ഡേറ്റ് ചെയ്യുന്നു
+            // ക്ലാസ് ഫിൽട്ടർ സെറ്റ് ചെയ്യുന്നു
             const cSel = document.getElementById('classFilter');
+            const currentFilter = cSel.value;
             cSel.innerHTML = '<option value="All">All Classes</option>';
-            Array.from(classes).sort().forEach(c => cSel.innerHTML += `<option value="${c}">Class ${c}</option>`);
+            Array.from(classes).sort((a,b) => a-b).forEach(c => {
+                cSel.innerHTML += `<option value="${c}">Class ${c}</option>`;
+            });
+            cSel.value = currentFilter;
             
             renderAttendance();
         });
@@ -95,6 +123,12 @@ function renderAttendance() {
     const grid = document.getElementById('attendanceGrid');
     grid.innerHTML = "";
 
+    if(allEntries.length === 0) {
+        grid.innerHTML = "<p style='text-align:center; padding:20px;'>ഈ പ്രോഗ്രാമിൽ ഇതുവരെ ആരും സ്കാൻ ചെയ്തിട്ടില്ല.</p>";
+        return;
+    }
+
+    // ക്ലാസ് അനുസരിച്ച് ഗ്രൂപ്പ് ചെയ്യുന്നു
     let grouped = {};
     allEntries.forEach(s => {
         if(filter !== "All" && s.class !== filter) return;
@@ -102,38 +136,71 @@ function renderAttendance() {
         grouped[s.class].push(s);
     });
 
-    for(let cls in grouped) {
+    // ഗ്രൂപ്പ് ചെയ്ത ഡാറ്റ കാണിക്കുന്നു
+    const sortedClasses = Object.keys(grouped).sort((a,b) => a-b);
+    
+    sortedClasses.forEach(cls => {
         let box = document.createElement('div');
         box.className = 'class-box';
-        box.innerHTML = `<div class="class-title"><span>Class: ${cls}</span> <span>Total: ${grouped[cls].length}</span></div>`;
+        
+        let total = grouped[cls].length;
+        box.innerHTML = `<div class="class-title"><span>Class: ${cls}</span> <span>ഹാജർ: ${total}</span></div>`;
         
         grouped[cls].forEach(s => {
-            let t = s.time.toDate();
-            let ts = `${t.getHours()}:${t.getMinutes()}:${t.getSeconds()}.${t.getMilliseconds()}`;
+            let t = s.time ? s.time.toDate() : new Date();
+            let ts = `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')}:${t.getSeconds().toString().padStart(2,'0')}.${t.getMilliseconds()}`;
+            
             box.innerHTML += `
                 <div class="stu-row">
-                    <img src="${s.photo}">
-                    <div><b>${s.name}</b><br><small>ID: ${s.number}</small></div>
-                    <div class="time">${ts} <span style="color:red; cursor:pointer; margin-left:10px;" onclick="deleteEntry('${s.id}')">✕</span></div>
+                    <img src="${s.photo || ''}" onerror="this.src='https://via.placeholder.com/50'">
+                    <div>
+                        <b>${s.name}</b><br>
+                        <small style="color:#555">Reg.No: ${s.number}</small>
+                    </div>
+                    <div class="time">
+                        ${ts}<br>
+                        <span style="color:red; cursor:pointer; font-size:14px;" onclick="deleteEntry('${s.id}')">✕ Delete</span>
+                    </div>
                 </div>`;
         });
         grid.appendChild(box);
-    }
+    });
 }
 
 async function deleteEntry(id) {
-    if(confirm("ഈ എൻട്രി ഒഴിവാക്കണോ?")) await db.collection("attendance").doc(id).delete();
+    if(confirm("ഈ വിദ്യാർത്ഥിയുടെ ഹാജർ പട്ടികയിൽ നിന്നും ഒഴിവാക്കണോ?")) {
+        await db.collection("attendance").doc(id).delete();
+    }
 }
 
 function downloadPDF() {
+    if(allEntries.length === 0) { alert("ഡാറ്റ ലഭ്യമല്ല!"); return; }
+    
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const prog = document.getElementById('progSelect').value;
-    doc.text("Attendance Report: " + prog, 14, 15);
     
-    let rows = allEntries.map((s, i) => [i+1, s.number, s.name, s.class, s.time.toDate().toLocaleString()]);
-    doc.autoTable({ head: [['#', 'ID', 'Name', 'Class', 'Time']], body: rows, startY: 20 });
-    doc.save("Attendance_Report.pdf");
+    doc.setFontSize(16);
+    doc.text("Attendance Report", 14, 15);
+    doc.setFontSize(10);
+    doc.text("Program: " + prog, 14, 22);
+    
+    let rows = allEntries.map((s, i) => [
+        i + 1, 
+        s.number, 
+        s.name, 
+        s.class, 
+        s.time ? s.time.toDate().toLocaleString() : ""
+    ]);
+    
+    doc.autoTable({
+        head: [['#', 'ID', 'Name', 'Class', 'Time']],
+        body: rows,
+        startY: 28,
+        headStyles: { fillColor: [11, 93, 30] }
+    });
+    
+    doc.save("Attendance_" + prog.replace(/ /g, "_") + ".pdf");
 }
 </script>
 </body>
