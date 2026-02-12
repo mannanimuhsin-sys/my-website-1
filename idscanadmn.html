@@ -2,25 +2,37 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <title>Live Attendance Admin</title>
+    <title>Live Attendance Admin Portal</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; margin: 20px; }
-        .header { background: #0b5d1e; color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .class-box { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .class-title { font-weight: bold; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 10px; color: #0b5d1e; }
+        :root { --green: #0b5d1e; }
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; }
+        .header { background: var(--green); color: white; padding: 20px; text-align: center; }
+        .control-panel { background: white; padding: 15px; margin: 10px; border-radius: 10px; display: flex; gap: 10px; flex-wrap: wrap; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .class-box { background: white; padding: 15px; border-radius: 10px; margin: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .class-title { font-weight: bold; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 10px; color: var(--green); display: flex; justify-content: space-between; }
         .stu-row { display: flex; align-items: center; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #ddd; }
-        .stu-row img { width: 40px; height: 40px; border-radius: 50%; margin-right: 15px; }
-        .stu-row .time { margin-left: auto; font-size: 12px; color: #666; font-family: monospace; }
-        .del-btn { color: red; cursor: pointer; margin-left: 15px; font-weight: bold; }
+        .stu-row img { width: 45px; height: 45px; border-radius: 50%; margin-right: 15px; border: 2px solid var(--green); }
+        .stu-row .time { margin-left: auto; font-size: 11px; color: #666; font-family: monospace; }
+        select, button { padding: 10px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; }
+        .btn-pdf { background: #e74c3c; color: white; border: none; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h2>LIVE ATTENDANCE PORTAL</h2>
-    <div id="liveStatus">Waiting for scans...</div>
+    <h2 style="margin:0;">LIVE ATTENDANCE PORTAL</h2>
+    <p id="currentProg" style="margin:5px 0 0; opacity:0.8;">Select a program to view attendance</p>
+</div>
+
+<div class="control-panel">
+    <select id="progSelect" onchange="loadAttendance()"><option value="">Select Program</option></select>
+    <select id="classFilter" onchange="renderAttendance()"><option value="All">All Classes</option></select>
+    <button class="btn-pdf" onclick="downloadPDF()">DOWNLOAD PDF</button>
+    <button onclick="location.reload()">REFRESH</button>
 </div>
 
 <div id="attendanceGrid"></div>
@@ -37,48 +49,92 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ലൈവ് ലിസണർ (തത്സമയം ഡാറ്റ മാറുന്നത് ശ്രദ്ധിക്കുന്നു)
-db.collection("attendance").orderBy("time", "desc").onSnapshot(snapshot => {
+let allEntries = [];
+
+// നിലവിലുള്ള പ്രോഗ്രാമുകൾ ലിസ്റ്റ് ചെയ്യുന്നു
+db.collection("attendance").get().then(snap => {
+    let progs = new Set();
+    snap.forEach(doc => progs.add(`${doc.data().progName} (${doc.data().progDate})`));
+    const sel = document.getElementById('progSelect');
+    progs.forEach(p => sel.innerHTML += `<option value="${p}">${p}</option>`);
+});
+
+async function loadAttendance() {
+    const progInfo = document.getElementById('progSelect').value;
+    if(!progInfo) return;
+    
+    document.getElementById('currentProg').innerText = "Program: " + progInfo;
+    const name = progInfo.split(" (")[0];
+    const date = progInfo.split(" (")[1].replace(")", "");
+
+    db.collection("attendance")
+        .where("progName", "==", name)
+        .where("progDate", "==", date)
+        .orderBy("time", "desc")
+        .onSnapshot(snap => {
+            allEntries = [];
+            let classes = new Set();
+            snap.forEach(doc => {
+                let d = doc.data();
+                d.id = doc.id;
+                allEntries.push(d);
+                classes.add(d.class);
+            });
+            
+            // ക്ലാസ് ഫിൽട്ടർ അപ്ഡേറ്റ് ചെയ്യുന്നു
+            const cSel = document.getElementById('classFilter');
+            cSel.innerHTML = '<option value="All">All Classes</option>';
+            Array.from(classes).sort().forEach(c => cSel.innerHTML += `<option value="${c}">Class ${c}</option>`);
+            
+            renderAttendance();
+        });
+}
+
+function renderAttendance() {
+    const filter = document.getElementById('classFilter').value;
     const grid = document.getElementById('attendanceGrid');
     grid.innerHTML = "";
-    
-    // ഡാറ്റ ക്ലാസ് തിരിച്ച് ഗ്രൂപ്പ് ചെയ്യുന്നു
-    let groups = {};
-    snapshot.forEach(doc => {
-        let s = doc.data();
-        s.id = doc.id;
-        if(!groups[s.class]) groups[s.class] = [];
-        groups[s.class].push(s);
+
+    let grouped = {};
+    allEntries.forEach(s => {
+        if(filter !== "All" && s.class !== filter) return;
+        if(!grouped[s.class]) grouped[s.class] = [];
+        grouped[s.class].push(s);
     });
 
-    for(let className in groups) {
+    for(let cls in grouped) {
         let box = document.createElement('div');
         box.className = 'class-box';
-        box.innerHTML = `<div class="class-title">Class: ${className} (${groups[className].length})</div>`;
+        box.innerHTML = `<div class="class-title"><span>Class: ${cls}</span> <span>Total: ${grouped[cls].length}</span></div>`;
         
-        groups[className].forEach(s => {
+        grouped[cls].forEach(s => {
             let t = s.time.toDate();
-            let timeStr = `${t.getHours()}:${t.getMinutes()}:${t.getSeconds()}.${t.getMilliseconds()}`;
-            
+            let ts = `${t.getHours()}:${t.getMinutes()}:${t.getSeconds()}.${t.getMilliseconds()}`;
             box.innerHTML += `
                 <div class="stu-row">
                     <img src="${s.photo}">
-                    <div><b>${s.name}</b> (${s.number})</div>
-                    <div class="time">${timeStr}</div>
-                    <div class="del-btn" onclick="deleteEntry('${s.id}')">✕</div>
-                </div>
-            `;
+                    <div><b>${s.name}</b><br><small>ID: ${s.number}</small></div>
+                    <div class="time">${ts} <span style="color:red; cursor:pointer; margin-left:10px;" onclick="deleteEntry('${s.id}')">✕</span></div>
+                </div>`;
         });
         grid.appendChild(box);
     }
-});
-
-async function deleteEntry(id) {
-    if(confirm("ഈ റെക്കോർഡ് ഒഴിവാക്കണോ?")) {
-        await db.collection("attendance").doc(id).delete();
-    }
 }
 
+async function deleteEntry(id) {
+    if(confirm("ഈ എൻട്രി ഒഴിവാക്കണോ?")) await db.collection("attendance").doc(id).delete();
+}
+
+function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const prog = document.getElementById('progSelect').value;
+    doc.text("Attendance Report: " + prog, 14, 15);
+    
+    let rows = allEntries.map((s, i) => [i+1, s.number, s.name, s.class, s.time.toDate().toLocaleString()]);
+    doc.autoTable({ head: [['#', 'ID', 'Name', 'Class', 'Time']], body: rows, startY: 20 });
+    doc.save("Attendance_Report.pdf");
+}
 </script>
 </body>
 </html>
