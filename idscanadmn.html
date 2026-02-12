@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Attendance Admin</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; margin: 20px; }
+        .header { background: #0b5d1e; color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .class-box { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .class-title { font-weight: bold; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 10px; color: #0b5d1e; }
+        .stu-row { display: flex; align-items: center; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #ddd; }
+        .stu-row img { width: 40px; height: 40px; border-radius: 50%; margin-right: 15px; }
+        .stu-row .time { margin-left: auto; font-size: 12px; color: #666; font-family: monospace; }
+        .del-btn { color: red; cursor: pointer; margin-left: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2>LIVE ATTENDANCE PORTAL</h2>
+    <div id="liveStatus">Waiting for scans...</div>
+</div>
+
+<div id="attendanceGrid"></div>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
+    authDomain: "mum-new-id.firebaseapp.com",
+    projectId: "mum-new-id",
+    storageBucket: "mum-new-id.firebasestorage.app",
+    messagingSenderId: "794343464244",
+    appId: "1:794343464244:web:f9083036490e3609bf1961"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ലൈവ് ലിസണർ (തത്സമയം ഡാറ്റ മാറുന്നത് ശ്രദ്ധിക്കുന്നു)
+db.collection("attendance").orderBy("time", "desc").onSnapshot(snapshot => {
+    const grid = document.getElementById('attendanceGrid');
+    grid.innerHTML = "";
+    
+    // ഡാറ്റ ക്ലാസ് തിരിച്ച് ഗ്രൂപ്പ് ചെയ്യുന്നു
+    let groups = {};
+    snapshot.forEach(doc => {
+        let s = doc.data();
+        s.id = doc.id;
+        if(!groups[s.class]) groups[s.class] = [];
+        groups[s.class].push(s);
+    });
+
+    for(let className in groups) {
+        let box = document.createElement('div');
+        box.className = 'class-box';
+        box.innerHTML = `<div class="class-title">Class: ${className} (${groups[className].length})</div>`;
+        
+        groups[className].forEach(s => {
+            let t = s.time.toDate();
+            let timeStr = `${t.getHours()}:${t.getMinutes()}:${t.getSeconds()}.${t.getMilliseconds()}`;
+            
+            box.innerHTML += `
+                <div class="stu-row">
+                    <img src="${s.photo}">
+                    <div><b>${s.name}</b> (${s.number})</div>
+                    <div class="time">${timeStr}</div>
+                    <div class="del-btn" onclick="deleteEntry('${s.id}')">✕</div>
+                </div>
+            `;
+        });
+        grid.appendChild(box);
+    }
+});
+
+async function deleteEntry(id) {
+    if(confirm("ഈ റെക്കോർഡ് ഒഴിവാക്കണോ?")) {
+        await db.collection("attendance").doc(id).delete();
+    }
+}
+</script>
+</body>
+</html>

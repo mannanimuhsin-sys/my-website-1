@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Entry Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <style>
+        body { margin: 0; background: #000; font-family: 'Roboto', sans-serif; overflow: hidden; color: white; }
+        #reader { width: 100%; height: 100vh; }
+        #displayScreen { 
+            display: none; position: fixed; inset: 0; background: #000; 
+            z-index: 100; flex-direction: column; align-items: center; justify-content: center; 
+        }
+        .photo-circle { 
+            width: 250px; height: 250px; border-radius: 50%; border: 8px solid #0b5d1e; 
+            object-fit: cover; margin-bottom: 20px; box-shadow: 0 0 30px rgba(11, 93, 30, 0.5);
+        }
+        .info { text-align: center; }
+        .info h1 { font-size: 45px; margin: 10px 0; color: #fff; }
+        .info p { font-size: 24px; color: #f39c12; margin: 5px 0; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="reader"></div>
+
+    <div id="displayScreen">
+        <img id="stuPhoto" class="photo-circle" src="">
+        <div class="info">
+            <h1 id="stuName"></h1>
+            <p id="stuReg"></p>
+            <p id="stuClass"></p>
+            <p id="stuMentor" style="color: #ccc; font-size: 18px;"></p>
+        </div>
+    </div>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
+    authDomain: "mum-new-id.firebaseapp.com",
+    projectId: "mum-new-id",
+    storageBucket: "mum-new-id.firebasestorage.app",
+    messagingSenderId: "794343464244",
+    appId: "1:794343464244:web:f9083036490e3609bf1961"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function onScanSuccess(decodedText) {
+    // QR ഡാറ്റയിൽ നിന്ന് ID മാത്രം എടുക്കുന്നു (ഉദാ: ID: 101)
+    let regNo = decodedText.split("ID: ")[1]?.split(",")[0];
+    if(regNo) fetchAndShow(regNo);
+}
+
+async function fetchAndShow(id) {
+    const doc = await db.collection("students").doc(id).get();
+    if (doc.exists) {
+        const s = doc.data();
+        
+        // ഡിസ്പ്ലേ കാണിക്കുന്നു
+        document.getElementById('stuPhoto').src = s.photo;
+        document.getElementById('stuName').innerText = s.name;
+        document.getElementById('stuReg').innerText = "Reg.No: " + s.number;
+        document.getElementById('stuClass').innerText = "Class: " + s.class;
+        document.getElementById('stuMentor').innerText = "Mentor: " + s.mentor;
+        
+        document.getElementById('displayScreen').style.display = 'flex';
+
+        // ലൈവ് അറ്റൻഡൻസ് സേവ് ചെയ്യുന്നു
+        await db.collection("attendance").add({
+            name: s.name,
+            number: s.number,
+            class: s.class,
+            photo: s.photo,
+            time: new Date()
+        });
+
+        // 3 സെക്കൻഡ് കഴിഞ്ഞ് ക്ലോസ് ചെയ്യുന്നു
+        setTimeout(() => {
+            document.getElementById('displayScreen').style.display = 'none';
+        }, 3000);
+    }
+}
+
+let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+html5QrcodeScanner.render(onScanSuccess);
+</script>
+</body>
+</html>
