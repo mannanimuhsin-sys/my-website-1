@@ -7,16 +7,19 @@
     <meta name="description" content="Misbahul Uloom Madrasa Peruvana - ഔദ്യോഗിക വെബ്സൈറ്റ്. അറിയിപ്പുകൾ, രജിസ്‌ട്രേഷൻ, ബ്ലഡ് ബാങ്ക് സേവനങ്ങൾ ഇവിടെ ലഭ്യമാണ്.">
     <meta name="keywords" content="Misbahul Uloom Madrasa, Peruvana, Madrasa, Misbahul Uloom, Muhsin Mannani">
     <meta name="author" content="Muhsin Mannani">
-   <meta name="google-site-verification" content="HUwfSaKZjE0L1uUTrx7RSZDbEWY2C8c__vYxCW-YJyM"/>
+    <meta name="google-site-verification" content="HUwfSaKZjE0L1uUTrx7RSZDbEWY2C8c__vYxCW-YJyM"/>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-<link rel="icon" type="image/x-icon" href="madrasa.jpg">
-<link rel="apple-touch-icon" href="madrasa.jpg">
-<link rel="manifest" href="manifest.json">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
+
+    <link rel="icon" type="image/x-icon" href="madrasa.jpg">
+    <link rel="apple-touch-icon" href="madrasa.jpg">
+    <link rel="manifest" href="manifest.json">
+
     <style>
         body{ background:#f4f7f6; font-family: 'Poppins', sans-serif; }
         .jumbotron{
@@ -31,7 +34,6 @@
         .blood-btn { background: #fff; border: 2px solid #d9534f; color: #d9534f; padding: 10px 2px; border-radius: 10px; text-align: center; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.3s; }
         .blood-btn:hover, .blood-btn.active { background: #d9534f; color: white; }
 
-        /* Donor List Style */
         #donorDisplay { display: none; margin-top: 15px; padding: 15px; background: #fffcfc; border: 1px solid #f5c6cb; border-radius: 12px; }
         .donor-card { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; }
         
@@ -40,13 +42,13 @@
         .contact-btn { flex: 1; padding: 8px; text-align: center; border-radius: 6px; color: white; font-size: 18px; }
         .btn-call { background: #007bff; } .btn-wa { background: #25d366; }
         footer{ background:#2c3e50; color:#fff; padding:20px; text-align:center; margin-top:40px; }
-        /* Live Notice Blinking Effect */
+
         .live-notice-card { 
             background: linear-gradient(135deg, #ff4757, #ff6b81); 
             color: white; padding: 20px; border-radius: 15px; 
             text-align: center; margin-bottom: 25px; cursor: pointer; 
             transition: 0.3s; box-shadow: 0 4px 15px rgba(255,71,87,0.4);
-            animation: pulse-red 2s infinite; display: none; /* തുടക്കത്തിൽ ഹൈഡ് ചെയ്യുന്നു */
+            animation: pulse-red 2s infinite; display: none; 
         }
         @keyframes pulse-red {
             0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
@@ -54,63 +56,6 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
         }
     </style>
-   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "552c4166-3ffb-4065-a521-e1491b930d40",
-      // സബ്‌സ്‌ക്രിപ്ഷൻ പോപ്പ്-അപ്പ് വരാൻ താഴെ കാണുന്ന വരികൾ സഹായിക്കും
-      promptOptions: {
-        slidedown: {
-          prompts: [{
-            type: "push",
-            autoPrompt: true, // സൈറ്റിൽ കയറുമ്പോൾ തന്നെ ഓട്ടോമാറ്റിക് ആയി ചോദിക്കും
-            text: {
-              actionMessage: "മദ്രസ അറിയിപ്പുകൾ ഉടൻ ലഭിക്കാൻ നോട്ടിഫിക്കേഷൻ അനുവദിക്കുക.",
-              acceptButton: "അനുവദിക്കുക",
-              cancelButton: "വേണ്ട"
-            }
-          }]
-        }
-      },
-      // ബെൽ ഐക്കൺ കാണിക്കാൻ
-      notifyButton: {
-        enable: true,
-        position: 'bottom-right',
-        size: 'medium'
-      }
-    });
-  });
-</script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
-
-<script>
-    
-  firebase.initializeApp(firebaseConfig);
-  const messaging = firebase.messaging();
-
-  messaging.requestPermission()
-        .then(() => {
-            return messaging.getToken({ 
-                vapidKey: 'BIeB20iYucJ8uDcrChJ13nITfygMOEsfcyoDzgLP0mAY1hvbXmV5HjzUlXpT7oMFSSjPPD7p1xGTD0zREf-FLWI' 
-            });
-        })
-        .then((token) => {
-            console.log("Token generated:", token);
-            // എല്ലാവർക്കും മെസ്സേജ് കിട്ടാൻ വേണ്ടി ഒരു ഗ്രൂപ്പിൽ (Topic) ആഡ് ചെയ്യുന്നു
-fetch('https://iid.googleapis.com/iid/v1/' + token + '/rel/topics/all_users', {
-  method: 'POST',
-  headers: new Headers({
-    'Authorization': 'key=YOUR_SERVER_KEY' // ഇത് നമുക്ക് പിന്നീട് ചേർക്കാം
-  })
-});
-        })
-        .catch((err) => {
-            console.log("Error or Permission denied:", err);
-        });
-</script>
 </head>
 <body>
 
@@ -141,12 +86,13 @@ fetch('https://iid.googleapis.com/iid/v1/' + token + '/rel/topics/all_users', {
         </div>
 
         <div class="col-sm-4">
-    <div class="box text-center" style="border-top-color: #3498db;">
-        <h4>Exam Result</h4>
-        <p style="font-size: 13px; color: #555;">ANNUAL EXAM RESULT</p>
-        <button class="btn btn-info btn-block" style="background-color: #3498db; border-color: #3498db; font-weight: bold;" onclick="showResultNotice()">View</button>
-    </div>
-</div>
+            <div class="box text-center" style="border-top-color: #3498db;">
+                <h4>Exam Result</h4>
+                <p style="font-size: 13px; color: #555;">ANNUAL EXAM RESULT</p>
+                <button class="btn btn-info btn-block" style="background-color: #3498db; border-color: #3498db; font-weight: bold;" onclick="showResultNotice()">View</button>
+            </div>
+        </div>
+
         <div class="col-sm-4">
             <div class="box text-center">
                 <h4>Location</h4>
@@ -163,7 +109,6 @@ fetch('https://iid.googleapis.com/iid/v1/' + token + '/rel/topics/all_users', {
 
     <div class="box">
         <h3 class="text-center">🩸 Blood Bank</h3>
-        <p class="text-center"><small>ലിസ്റ്റ് കാണാൻ ഗ്രൂപ്പിൽ ക്ലിക്ക് ചെയ്യുക</small></p>
         <div class="blood-grid">
             <div class="blood-btn" onclick="fetchDonors('A+')">A+</div>
             <div class="blood-btn" onclick="fetchDonors('A-')">A-</div>
@@ -205,31 +150,45 @@ fetch('https://iid.googleapis.com/iid/v1/' + token + '/rel/topics/all_users', {
 <footer>© 2026 | Designed by Muhsin Mannani</footer>
 
 <script>
-    // 2. ഫയർബേസ് തുടങ്ങുന്നു (ഇതാണ് ആദ്യം വരേണ്ടത്)
+    // **പ്രധാനപ്പെട്ട ഭാഗം: ഈ Config നിങ്ങളുടെ ഡാറ്റാബേസിന് കൃത്യമായിരിക്കണം**
+    const firebaseConfig = {
+        apiKey: "AIzaSyAUkOIp33p7sMviItKLEP6EGyPQvFBuQeY",
+        authDomain: "result-aedec.firebaseapp.com",
+        projectId: "result-aedec",
+        storageBucket: "result-aedec.firebasestorage.app",
+        messagingSenderId: "654773450983",
+        appId: "1:654773450983:web:463a919c5c83ec55134a42"
+    };
+
+    // ഫയർബേസ് തുടങ്ങുന്നു
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 3. ലൈവ് നോട്ടീസ് പരിശോധിക്കുന്നു (ഇത് db സെറ്റ് ചെയ്തതിന് ശേഷം മാത്രം)
+    // ലൈവ് നോട്ടീസ് പരിശോധിക്കുന്നു
     db.collection("notices").doc("latest").onSnapshot((doc) => {
         const noticeBox = document.getElementById('liveNoticeBox');
         const noticeTitleDisplay = document.getElementById('liveNoticeDesc');
-        
         if (doc.exists) {
             const data = doc.data();
             if (data && data.title && data.title.trim() !== "") {
-                noticeBox.style.display = "block"; // നോട്ടീസ് ഉണ്ടെങ്കിൽ ബോക്സ് കാണിക്കും
-                noticeTitleDisplay.innerText = data.title; // ടൈറ്റിൽ അവിടെ എഴുതും
-            } else {
-                noticeBox.style.display = "none";
-            }
-        } else {
-            noticeBox.style.display = "none";
-        }
+                noticeBox.style.display = "block";
+                noticeTitleDisplay.innerText = data.title;
+            } else { noticeBox.style.display = "none"; }
+        } else { noticeBox.style.display = "none"; }
     });
 
-    // 4. ബാക്കി ഫങ്ഷനുകൾ
-    function openDashboard(){ window.location.href="https://mannanimuhsin-sys.github.io/my-website-1/index_7.html"; }
-    function openLocation(){ window.open("https://maps.google.com", "_blank"); }
+    // ബട്ടൺ ഫംഗ്ഷനുകൾ
+    function openDashboard() {
+        window.location.href = "https://mannanimuhsin-sys.github.io/my-website-1/index_7.html";
+    }
+
+    function openLocation() {
+        window.open("https://maps.app.goo.gl/YourLocationLink", "_blank");
+    }
+
+    function showResultNotice() {
+        alert("നിലവിൽ പരീക്ഷാ ഫലം പ്രസിദ്ധീകരിച്ചിട്ടില്ല. ദയവായി പിന്നീട് പരിശോധിക്കുക.");
+    }
 
     function fetchDonors(group) {
         const display = document.getElementById('donorDisplay');
@@ -270,20 +229,8 @@ fetch('https://iid.googleapis.com/iid/v1/' + token + '/rel/topics/all_users', {
         db.collection("donors").add(donor).then(() => {
             alert("വിജയകരമായി രജിസ്റ്റർ ചെയ്തു!");
             document.getElementById('bloodBankForm').reset();
-            location.reload();
         });
     };
-</script>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-  }
-  function showResultNotice() {
-    alert("നിലവിൽ പരീക്ഷാ ഫലം പ്രസിദ്ധീകരിച്ചിട്ടില്ല. ദയവായി പിന്നീട് പരിശോധിക്കുക.");
-}
-function openDashboard() {
-    window.location.href = "https://mannanimuhsin-sys.github.io/my-website-1/index_7.html";
-}
 </script>
 </body>
 </html>
