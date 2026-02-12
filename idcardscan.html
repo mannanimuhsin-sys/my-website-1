@@ -2,45 +2,36 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Entry Scanner</title>
+    <title>Student Scanner Portal</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <style>
-        body { margin: 0; background: #000; font-family: 'Roboto', sans-serif; overflow: hidden; color: white; text-align: center; }
-        #reader { width: 100%; height: 80vh; }
-        .setup-box { padding: 20px; background: #222; border-radius: 10px; margin: 10px; }
-        input { padding: 10px; margin: 5px; border-radius: 5px; border: none; width: 80%; }
+        body { margin: 0; background: #000; font-family: sans-serif; color: white; text-align: center; }
+        #reader { width: 100%; height: 90vh; }
+        #blockScreen { display: flex; position: fixed; inset: 0; background: #222; z-index: 1000; align-items: center; justify-content: center; flex-direction: column; }
         #displayScreen { 
             display: none; position: fixed; inset: 0; background: #000; 
-            z-index: 100; flex-direction: column; align-items: center; justify-content: center; 
+            z-index: 2000; flex-direction: column; align-items: center; justify-content: center; 
         }
-        .photo-circle { 
-            width: 250px; height: 250px; border-radius: 50%; border: 8px solid #0b5d1e; 
-            object-fit: cover; margin-bottom: 20px; box-shadow: 0 0 30px rgba(11, 93, 30, 0.5);
-        }
-        .info h1 { font-size: 40px; margin: 10px 0; }
-        .info p { font-size: 20px; color: #f39c12; }
-        .already-msg { color: #ff4757; font-size: 30px; font-weight: bold; }
+        .photo-circle { width: 280px; height: 280px; border-radius: 50%; border: 10px solid #0b5d1e; object-fit: cover; }
+        .msg { font-size: 24px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="setupArea" class="setup-box">
-        <h3>Program Setup</h3>
-        <input type="text" id="progName" placeholder="Program Name (eg: PTA Meeting)">
-        <input type="date" id="progDate">
-        <button onclick="startScanner()" style="padding:10px 20px; background:#0b5d1e; color:white; border:none; border-radius:5px; margin-top:10px;">START SCANNING</button>
+    <div id="blockScreen">
+        <h1 id="blockTitle">SCANNING BLOCKED</h1>
+        <p id="blockSub">അഡ്മിൻ പാനലിൽ നിന്നും സ്കാനിംഗ് ആരംഭിച്ചിട്ടില്ല.</p>
     </div>
 
-    <div id="reader" style="display:none;"></div>
+    <div id="reader"></div>
 
     <div id="displayScreen">
         <img id="stuPhoto" class="photo-circle" src="">
-        <div id="infoArea" class="info">
+        <div class="msg">
             <h1 id="stuName"></h1>
-            <p id="stuDetails"></p>
+            <p id="stuInfo"></p>
             <div id="statusMsg"></div>
         </div>
     </div>
@@ -57,53 +48,65 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+let activeProg = null;
+let activeDate = null;
+let isScanningAllowed = false;
 let isProcessing = false;
-let programName = "";
-let programDate = "";
+let html5QrScanner = null;
 
-function startScanner() {
-    programName = document.getElementById('progName').value;
-    programDate = document.getElementById('progDate').value;
-    if(!programName || !programDate) { alert("Please fill Program details"); return; }
-    document.getElementById('setupArea').style.display = 'none';
-    document.getElementById('reader').style.display = 'block';
-    
-    let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-    html5QrcodeScanner.render(onScanSuccess);
+// അഡ്മിൻ കൺട്രോൾ ലൈവ് ആയി ശ്രദ്ധിക്കുന്നു
+db.collection("settings").doc("scanner_control").onSnapshot(doc => {
+    const data = doc.data();
+    if(data && data.isActive) {
+        activeProg = data.progName;
+        activeDate = data.progDate;
+        isScanningAllowed = true;
+        document.getElementById('blockScreen').style.display = 'none';
+        if(!html5QrScanner) startCamera();
+    } else {
+        isScanningAllowed = false;
+        document.getElementById('blockScreen').style.display = 'flex';
+        document.getElementById('blockTitle').innerText = "SCANNING BLOCKED";
+        if(html5QrScanner) { html5QrScanner.clear(); html5QrScanner = null; }
+    }
+});
+
+function startCamera() {
+    html5QrScanner = new Html5QrcodeScanner("reader", { fps: 15, qrbox: 280 });
+    html5QrScanner.render(onScanSuccess);
 }
 
 async function onScanSuccess(decodedText) {
-    if(isProcessing) return;
+    if(!isScanningAllowed || isProcessing) return;
     isProcessing = true;
 
     let regNo = decodedText.split("ID: ")[1]?.split(",")[0];
     if(!regNo) { isProcessing = false; return; }
 
     const studentDoc = await db.collection("students").doc(regNo).get();
-    if (studentDoc.exists) {
+    if(studentDoc.exists) {
         const s = studentDoc.data();
         
-        // ഒരേ കുട്ടി വീണ്ടും സ്കാൻ ചെയ്യുന്നത് തടയാൻ പരിശോധിക്കുന്നു
-        const today = new Date().toISOString().split('T')[0];
+        // ഡ്യൂപ്ലിക്കേറ്റ് ചെക്ക്
         const check = await db.collection("attendance")
             .where("number", "==", s.number)
-            .where("progName", "==", programName)
-            .where("progDate", "==", programDate)
+            .where("progName", "==", activeProg)
+            .where("progDate", "==", activeDate)
             .get();
 
         document.getElementById('stuPhoto').src = s.photo;
         document.getElementById('stuName').innerText = s.name;
-        document.getElementById('stuDetails').innerText = `ID: ${s.number} | Class: ${s.class}`;
+        document.getElementById('stuInfo').innerText = `ID: ${s.number} | Class: ${s.class}`;
         document.getElementById('displayScreen').style.display = 'flex';
 
-        if (check.empty) {
+        if(check.empty) {
             await db.collection("attendance").add({
                 name: s.name, number: s.number, class: s.class, photo: s.photo,
-                progName: programName, progDate: programDate, time: new Date()
+                progName: activeProg, progDate: activeDate, time: new Date()
             });
-            document.getElementById('statusMsg').innerHTML = "<p style='color:#2ed573'>ഹാജർ രേഖപ്പെടുത്തി ✅</p>";
+            document.getElementById('statusMsg').innerHTML = "<h2 style='color:#2ed573'>ഹാജർ രേഖപ്പെടുത്തി ✅</h2>";
         } else {
-            document.getElementById('statusMsg').innerHTML = "<p class='already-msg'>സ്കാനിംഗ് പൂർത്തിയായി ⚠️</p>";
+            document.getElementById('statusMsg').innerHTML = "<h2 style='color:#ff4757'>സ്കാനിംഗ് പൂർത്തിയായി ⚠️</h2>";
         }
 
         setTimeout(() => {
