@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Admin Panel - Misbahul Uloom</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        :root { --green: #0b5d1e; --orange: #f39c12; --red: #d63031; }
+        body { font-family: 'Roboto', sans-serif; background: #eef2f3; margin: 0; padding: 15px; }
+        .header { background: var(--green); color: white; padding: 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        
+        .action-bar { background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        button { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
+        .btn-excel { background: #27ae60; }
+        .btn-pdf { background: #e74c3c; }
+        .btn-edit { background: #2980b9; padding: 5px 10px; font-size: 12px; }
+        .btn-delete { background: var(--red); padding: 5px 10px; font-size: 12px; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+        th { background: #f8f9fa; padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6; color: var(--green); }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .stu-img { width: 50px; height: 60px; object-fit: cover; border-radius: 5px; cursor: pointer; }
+
+        /* Modal Style for Editing */
+        #editModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center; }
+        .modal-content { background:white; padding:25px; border-radius:15px; width:90%; max-width:500px; max-height:90vh; overflow-y:auto; }
+        .modal-content input, .modal-content select { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:5px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div><h2 style="margin:0;">ADMIN DASHBOARD</h2><small>Misbahul Uloom Madrasa</small></div>
+    <div id="stats">Total: 0</div>
+</div>
+
+<div class="action-bar">
+    <input type="text" id="search" placeholder="Search anything..." onkeyup="filterData()" style="flex:1; min-width:200px; padding:10px; border-radius:8px; border:1px solid #ddd;">
+    <select id="classFilter" onchange="fetchData()" style="padding:10px; border-radius:8px;">
+        <option value="All">All Classes</option>
+        <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+        <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+    </select>
+    <button class="btn-excel" onclick="exportToExcel()">DOWNLOAD EXCEL</button>
+    <button class="btn-pdf" onclick="exportToPDF()">DOWNLOAD PDF</button>
+</div>
+
+<div style="overflow-x:auto;">
+    <table>
+        <thead>
+            <tr>
+                <th>Photo</th>
+                <th>Reg.No</th>
+                <th>Name</th>
+                <th>Class</th>
+                <th>Father</th>
+                <th>Phone</th>
+                <th>Blood</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="studentBody"></tbody>
+    </table>
+</div>
+
+<div id="editModal">
+    <div class="modal-content">
+        <h3 style="color:var(--green); margin-top:0;">Edit Student Details</h3>
+        <input type="hidden" id="editDocId">
+        <label>Full Name</label><input type="text" id="editName">
+        <label>Register Number</label><input type="text" id="editReg" disabled>
+        <label>Class</label><input type="text" id="editClass">
+        <label>Father's Name</label><input type="text" id="editFather">
+        <label>Mentor Name</label><input type="text" id="editMentor">
+        <label>Phone Number</label><input type="text" id="editPhone">
+        <label>Blood Group</label><input type="text" id="editBlood">
+        <label>Date of Birth</label><input type="date" id="editDob">
+        <label>Change Photo</label><input type="file" id="editPhotoInp" accept="image/*">
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button class="btn-excel" onclick="updateData()" style="flex:1;">SAVE CHANGES</button>
+            <button style="background:#666; flex:1;" onclick="closeModal()">CANCEL</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Firebase Initialization
+const firebaseConfig = {
+    apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
+    authDomain: "mum-new-id.firebaseapp.com",
+    projectId: "mum-new-id",
+    storageBucket: "mum-new-id.firebasestorage.app",
+    messagingSenderId: "794343464244",
+    appId: "1:794343464244:web:f9083036490e3609bf1961"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let studentData = [];
+
+async function fetchData() {
+    const classVal = document.getElementById('classFilter').value;
+    const tbody = document.getElementById('studentBody');
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Loading Data...</td></tr>';
+
+    try {
+        let query = db.collection("students");
+        if (classVal !== "All") query = query.where("class", "==", classVal);
+        
+        const snapshot = await query.get();
+        studentData = [];
+        tbody.innerHTML = '';
+
+        snapshot.forEach(doc => {
+            const s = doc.data();
+            const id = doc.id;
+            studentData.push({ ...s, docId: id });
+
+            tbody.innerHTML += `
+                <tr>
+                    <td><img src="${s.photo}" class="stu-img" onclick="window.open('${s.photo}')"></td>
+                    <td><b>${s.number}</b></td>
+                    <td>${s.name}</td>
+                    <td>${s.class}</td>
+                    <td>${s.father}</td>
+                    <td>${s.phone}</td>
+                    <td>${s.blood}</td>
+                    <td>
+                        <button class="btn-edit" onclick="openEditModal('${id}')">Edit</button>
+                        <button class="btn-delete" onclick="deleteData('${id}')">Del</button>
+                    </td>
+                </tr>
+            `;
+        });
+        document.getElementById('stats').innerText = `Total Students: ${studentData.length}`;
+    } catch (e) { alert("Error fetching data!"); }
+}
+
+function openEditModal(docId) {
+    const s = studentData.find(item => item.docId === docId);
+    document.getElementById('editDocId').value = docId;
+    document.getElementById('editName').value = s.name;
+    document.getElementById('editReg').value = s.number;
+    document.getElementById('editClass').value = s.class;
+    document.getElementById('editFather').value = s.father;
+    document.getElementById('editMentor').value = s.mentor;
+    document.getElementById('editPhone').value = s.phone;
+    document.getElementById('editBlood').value = s.blood;
+    document.getElementById('editDob').value = s.dob;
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+async function updateData() {
+    const docId = document.getElementById('editDocId').value;
+    const updated = {
+        name: document.getElementById('editName').value,
+        class: document.getElementById('editClass').value,
+        father: document.getElementById('editFather').value,
+        mentor: document.getElementById('editMentor').value,
+        phone: document.getElementById('editPhone').value,
+        blood: document.getElementById('editBlood').value,
+        dob: document.getElementById('editDob').value
+    };
+
+    const photoInp = document.getElementById('editPhotoInp');
+    if(photoInp.files[0]) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            updated.photo = e.target.result;
+            await saveToFirebase(docId, updated);
+        };
+        reader.readAsDataURL(photoInp.files[0]);
+    } else {
+        await saveToFirebase(docId, updated);
+    }
+}
+
+async function saveToFirebase(docId, data) {
+    await db.collection("students").doc(docId).update(data);
+    alert("Updated Successfully! ✅");
+    closeModal();
+    fetchData();
+}
+
+function closeModal() { document.getElementById('editModal').style.display = 'none'; }
+
+async function deleteData(id) {
+    if(confirm("Are you sure you want to delete?")) {
+        await db.collection("students").doc(id).delete();
+        fetchData();
+    }
+}
+
+function exportToExcel() {
+    const cleanData = studentData.map(s => ({
+        "Reg.No": s.number,
+        "Name": s.name,
+        "Class": s.class,
+        "Father": s.father,
+        "Mentor": s.mentor,
+        "Phone": s.phone,
+        "Blood": s.blood,
+        "DOB": s.dob
+    }));
+    const ws = XLSX.utils.json_to_sheet(cleanData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Students");
+    XLSX.writeFile(wb, "Student_Data_Misbahul_Uloom.xlsx");
+}
+
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4'); // Landscape for more details
+    doc.text("Student Report - Misbahul Uloom Madrasa", 14, 15);
+    
+    const rows = studentData.map(s => [s.number, s.name, s.class, s.father, s.mentor, s.phone, s.blood, s.dob]);
+    doc.autoTable({
+        head: [['Reg.No', 'Name', 'Class', 'Father', 'Mentor', 'Phone', 'Blood', 'DOB']],
+        body: rows,
+        startY: 20,
+        theme: 'grid',
+        headStyles: { fillColor: [11, 93, 30] }
+    });
+    doc.save("Student_Report.pdf");
+}
+
+fetchData();
+</script>
+</body>
+</html>
