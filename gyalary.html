@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Your Work | Misbahul Uloom</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <style>
+        :root { --green: #0b5d1e; --bg: #e9ecef; }
+        body { font-family: 'Roboto', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .card { max-width: 400px; margin: auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        .title { color: var(--green); font-weight: 900; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        .main-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; background: var(--green); color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .secondary-btn { background: #666; margin-top: 5px; }
+
+        /* Profile Style */
+        .profile-box { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-top: 15px; border: 2px solid #eee; }
+        .st-photo { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--green); margin-bottom: 10px; }
+
+        /* Preview Area */
+        #previewContainer { margin-top: 10px; border: 2px dashed #ccc; border-radius: 10px; padding: 5px; min-height: 100px; display: flex; align-items: center; justify-content: center; }
+        #workPreview { max-width: 100%; border-radius: 8px; display: none; }
+
+        /* Cropper Modal */
+        #cropModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
+        .crop-wrapper { background: white; padding: 10px; border-radius: 15px; width: 100%; max-width: 350px; }
+        #cropImg { display: block; max-width: 100%; max-height: 400px; }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2 class="title">ഡിജിറ്റൽ സർഗ്ഗവേദി</h2>
+
+    <div id="searchStep">
+        <p style="font-size: 14px;">വിദ്യാർത്ഥിയുടെ രജിസ്റ്റർ നമ്പർ നൽകുക</p>
+        <input type="number" id="regInput" placeholder="Register Number">
+        <button class="main-btn" onclick="findStudent()">FIND PROFILE</button>
+    </div>
+
+    <div id="confirmStep" class="hidden">
+        <div class="profile-box">
+            <img id="stImg" src="" class="st-photo">
+            <span id="stName" style="font-weight: bold; display: block;">---</span>
+            <p style="font-size: 13px; color: #666;">Class: <b id="stClass">---</b></p>
+        </div>
+        <p style="font-size: 12px; margin-top: 10px;">ഇത് നിങ്ങളുടെ പ്രൊഫൈൽ തന്നെയാണോ?</p>
+        <button class="main-btn" onclick="showUpload()">YES, CONFIRM</button>
+        <button class="main-btn secondary-btn" onclick="resetSearch()">NOT ME</button>
+    </div>
+
+    <div id="uploadStep" class="hidden">
+        <div style="text-align: left;">
+            <label style="font-size: 12px; font-weight: bold; color: var(--green);">HEADING / TITLE</label>
+            <input type="text" id="workTitle" placeholder="സൃഷ്ടിയുടെ പേര് നൽകുക">
+            
+            <label style="font-size: 12px; font-weight: bold; color: var(--green);">SELECT PHOTO (Gellery)</label>
+            <input type="file" id="fileInput" accept="image/*">
+            
+            <div id="previewContainer">
+                <p id="preText" style="font-size: 11px; color: #999;">ഫോട്ടോ ക്രോപ്പ് ചെയ്ത് ഇവിടെ കാണാം</p>
+                <img id="workPreview">
+            </div>
+            
+            <button id="submitBtn" class="main-btn" onclick="submitToUstad()">SUBMIT WORK</button>
+        </div>
+    </div>
+</div>
+
+<div id="cropModal">
+    <div class="crop-wrapper">
+        <img id="cropImg">
+        <button class="main-btn" onclick="applyCrop()">CROP & APPLY</button>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
+  authDomain: "mum-new-id.firebaseapp.com",
+  projectId: "mum-new-id",
+  storageBucket: "mum-new-id.firebasestorage.app",
+  appId: "1:794343464244:web:f9083036490e3609bf1961"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let userData = null;
+let cropper, base64Work = "";
+
+async function findStudent() {
+    const reg = document.getElementById('regInput').value;
+    if(!reg) return alert("രജിസ്റ്റർ നമ്പർ നൽകുക!");
+    const doc = await db.collection("students").doc(reg).get();
+    if(doc.exists) {
+        userData = doc.data();
+        document.getElementById('stName').innerText = userData.name;
+        document.getElementById('stClass').innerText = userData.class;
+        document.getElementById('stImg').src = userData.photo || "https://via.placeholder.com/100";
+        document.getElementById('searchStep').classList.add('hidden');
+        document.getElementById('confirmStep').classList.remove('hidden');
+    } else { alert("നമ്പർ കണ്ടെത്തിയില്ല!"); }
+}
+
+function resetSearch() {
+    document.getElementById('confirmStep').classList.add('hidden');
+    document.getElementById('searchStep').classList.remove('hidden');
+}
+
+function showUpload() {
+    document.getElementById('confirmStep').classList.add('hidden');
+    document.getElementById('uploadStep').classList.remove('hidden');
+}
+
+// ഫോട്ടോ സെലക്ട് ചെയ്യുമ്പോൾ ക്രോപ്പർ കാണിക്കാൻ
+document.getElementById('fileInput').onchange = e => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            document.getElementById('cropImg').src = reader.result;
+            document.getElementById('cropModal').style.display = "flex";
+            if (cropper) cropper.destroy();
+            // ഫ്രീ ക്രോപ്പിംഗിനായി ആസ്പെക്ട് റേഷ്യോ ഒഴിവാക്കി
+            cropper = new Cropper(document.getElementById('cropImg'), { viewMode: 1 });
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+function applyCrop() {
+    // ക്രോപ്പ് ചെയ്ത ചിത്രം ലഭിക്കുന്നു
+    base64Work = cropper.getCroppedCanvas({ maxWidth: 800 }).toDataURL("image/jpeg", 0.8);
+    document.getElementById('workPreview').src = base64Work;
+    document.getElementById('workPreview').style.display = "block";
+    document.getElementById('preText').style.display = "none";
+    document.getElementById('cropModal').style.display = "none";
+}
+
+async function submitToUstad() {
+    const title = document.getElementById('workTitle').value;
+    if(!title || !base64Work) return alert("പേരും ഫോട്ടോയും നൽകുക!");
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.innerText = "UPLOADING...";
+
+    const submission = {
+        studentName: userData.name,
+        regNo: userData.number,
+        class: userData.class,
+        stPhoto: userData.photo,
+        mentor: userData.mentor || "",
+        workTitle: title,
+        workImage: base64Work,
+        status: "pending",
+        timestamp: new Date().getTime()
+    };
+
+    try {
+        await db.collection("gallery_submissions").add(submission);
+        alert("വിജയകരമായി സബ്മിറ്റ് ചെയ്തു ✅");
+        location.reload();
+    } catch(e) { alert("Error!"); btn.disabled = false; }
+}
+</script>
+</body>
+</html>

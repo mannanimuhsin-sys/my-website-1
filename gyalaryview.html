@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madrasa Instagram Gallery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --insta-gray: #fafafa; --insta-border: #dbdbdb; --insta-text: #262626; --insta-link: #00376b; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--insta-gray); margin: 0; color: var(--insta-text); }
+        
+        /* Navigation Bar */
+        .navbar { background: white; border-bottom: 1px solid var(--insta-border); padding: 10px 0; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: center; align-items: center; }
+        .navbar h1 { font-size: 22px; margin: 0; font-family: 'Grand Hotel', cursive, sans-serif; font-weight: 500; }
+
+        .main-container { max-width: 500px; margin: 20px auto; padding-bottom: 50px; }
+
+        /* Instagram Post Card */
+        .insta-post { background: white; border: 1px solid var(--insta-border); border-radius: 10px; margin-bottom: 25px; overflow: hidden; }
+        
+        .post-header { display: flex; align-items: center; padding: 14px; }
+        .story-border { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); padding: 2px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .st-photo { width: 38px; height: 38px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
+        
+        .header-text { margin-left: 12px; flex-grow: 1; }
+        .st-name { font-weight: 700; font-size: 14px; display: block; }
+        .st-mentor { font-size: 11px; color: #8e8e8e; display: block; }
+
+        .post-img-container { width: 100%; min-height: 300px; background: #efefef; display: flex; align-items: center; }
+        .post-img { width: 100%; height: auto; display: block; }
+
+        .post-content { padding: 14px; }
+        .interaction-row { margin-bottom: 10px; display: flex; gap: 15px; }
+        .interaction-row i { font-size: 24px; cursor: pointer; transition: 0.2s; }
+        .fa-heart.active { color: #ed4956; }
+
+        .likes-count { font-weight: 700; font-size: 14px; margin-bottom: 6px; display: block; }
+        .caption { font-size: 14px; line-height: 1.5; }
+        .caption b { margin-right: 6px; }
+        .post-time { font-size: 10px; color: #8e8e8e; margin-top: 10px; text-transform: uppercase; }
+
+        /* Loader */
+        #loader { text-align: center; padding: 20px; color: #8e8e8e; font-size: 14px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <h1>മിസ്ബാഹ് സർഗ്ഗവേദി</h1>
+</div>
+
+<div class="main-container">
+    <div id="loader">ഡാറ്റ ലോഡ് ചെയ്യുന്നു...</div>
+    <div id="instaFeed"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
+  authDomain: "mum-new-id.firebaseapp.com",
+  projectId: "mum-new-id",
+  storageBucket: "mum-new-id.firebasestorage.app",
+  appId: "1:794343464244:web:f9083036490e3609bf1961"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function loadGallery() {
+    // ഇൻഡക്സ് പ്രശ്നം ഒഴിവാക്കാൻ സിംപിൾ ക്വറി ഉപയോഗിക്കുന്നു
+    db.collection("gallery_submissions")
+      .onSnapshot(snapshot => {
+        const feed = document.getElementById('instaFeed');
+        const loader = document.getElementById('loader');
+        
+        let postsHTML = "";
+        let approvedCount = 0;
+
+        // ഡാറ്റയെ സമയക്രമത്തിൽ സോർട്ട് ചെയ്യുന്നു (JS ഉപയോഗിച്ച്)
+        const docs = [];
+        snapshot.forEach(doc => docs.push({id: doc.id, ...doc.data()}));
+        docs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+        docs.forEach(data => {
+            if(data.status === "approved") {
+                approvedCount++;
+                const id = data.id;
+                const likes = data.likes || 0;
+                const isLiked = localStorage.getItem('liked_'+id);
+                const heartClass = isLiked ? 'fa-solid fa-heart active' : 'fa-regular fa-heart';
+                const timeStr = data.timestamp ? new Date(data.timestamp).toLocaleDateString('ml-IN') : "";
+
+                postsHTML += `
+                    <div class="insta-post">
+                        <div class="post-header">
+                            <div class="story-border">
+                                <img src="${data.stPhoto || 'https://via.placeholder.com/150'}" class="st-photo">
+                            </div>
+                            <div class="header-text">
+                                <span class="st-name">${data.studentName}</span>
+                                <span class="st-mentor">Mentor: ${data.mentor || 'Not Assigned'}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="post-img-container">
+                            <img src="${data.workImage}" class="post-img">
+                        </div>
+                        
+                        <div class="post-content">
+                            <div class="interaction-row">
+                                <i class="${heartClass}" onclick="likePost('${id}', ${likes})"></i>
+                            </div>
+                            <span class="likes-count">${likes} likes</span>
+                            <div class="caption">
+                                <b>${data.studentName}</b> ${data.workTitle}
+                            </div>
+                            <div class="post-time">${timeStr}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        loader.classList.add('hidden');
+        feed.innerHTML = approvedCount > 0 ? postsHTML : "<p style='text-align:center'>അപ്രൂവ് ചെയ്ത പോസ്റ്റുകൾ ഒന്നുമില്ല.</p>";
+    });
+}
+
+async function likePost(id, currentLikes) {
+    const key = 'liked_' + id;
+    if(localStorage.getItem(key)) {
+        await db.collection("gallery_submissions").doc(id).update({ likes: Math.max(0, currentLikes - 1) });
+        localStorage.removeItem(key);
+    } else {
+        await db.collection("gallery_submissions").doc(id).update({ likes: currentLikes + 1 });
+        localStorage.setItem(key, 'true');
+    }
+}
+
+loadGallery();
+</script>
+</body>
+</html>

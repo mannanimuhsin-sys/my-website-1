@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery Admin Panel | Misbahul Uloom</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #0b5d1e; --pending: #f39c12; --approved: #27ae60; --danger: #c0392b; }
+        body { font-family: 'Roboto', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .header { background: var(--primary); color: white; padding: 20px; text-align: center; border-radius: 15px; margin-bottom: 30px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; border: 1px solid #ddd; }
+        
+        /* Image Style */
+        .work-img { width: 100%; height: 200px; object-fit: cover; cursor: pointer; transition: 0.3s; }
+        .work-img:hover { opacity: 0.8; }
+        
+        .content { padding: 15px; }
+        .st-info { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .st-photo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .st-name { font-weight: bold; font-size: 14px; }
+        
+        .work-title { font-size: 16px; font-weight: bold; color: #333; margin: 5px 0; }
+        .meta { font-size: 11px; color: #777; display: flex; justify-content: space-between; }
+        
+        /* Buttons */
+        .actions { display: flex; gap: 5px; margin-top: 15px; }
+        .btn { flex: 1; padding: 8px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; font-size: 12px; }
+        .btn-approve { background: var(--approved); }
+        .btn-edit { background: #3498db; }
+        .btn-delete { background: var(--danger); }
+        
+        /* Badge */
+        .badge { position: absolute; top: 10px; right: 10px; padding: 5px 10px; border-radius: 20px; color: white; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .pending { background: var(--pending); }
+        .approved { background: var(--approved); }
+
+        /* Full View Modal */
+        #imgModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
+        #imgModal img { max-width: 100%; max-height: 90vh; border-radius: 10px; }
+        .close-modal { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1><i class="fa fa-tasks"></i> Gallery Admin Panel</h1>
+    <p>വിദ്യാർത്ഥികൾ അയച്ച സൃഷ്ടികൾ ഇവിടെ കൈകാര്യം ചെയ്യാം</p>
+</div>
+
+<div class="grid" id="adminGrid">
+    </div>
+
+<div id="imgModal">
+    <span class="close-modal" onclick="closeModal()">&times;</span>
+    <img id="fullImg" src="">
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
+  authDomain: "mum-new-id.firebaseapp.com",
+  projectId: "mum-new-id",
+  storageBucket: "mum-new-id.firebasestorage.app",
+  appId: "1:794343464244:web:f9083036490e3609bf1961"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ഡാറ്റ ലോഡ് ചെയ്യാൻ
+function loadSubmissions() {
+    db.collection("gallery_submissions").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+        const grid = document.getElementById('adminGrid');
+        grid.innerHTML = "";
+        
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const id = doc.id;
+            const date = new Date(data.timestamp).toLocaleString('ml-IN');
+            
+            grid.innerHTML += `
+                <div class="card">
+                    <span class="badge ${data.status}">${data.status}</span>
+                    <img src="${data.workImage}" class="work-img" onclick="openModal('${data.workImage}')">
+                    
+                    <div class="content">
+                        <div class="st-info">
+                            <img src="${data.stPhoto || 'https://via.placeholder.com/40'}" class="st-photo">
+                            <div>
+                                <div class="st-name">${data.studentName}</div>
+                                <div style="font-size:11px; color:#666;">Reg No: ${data.regNo} | Class: ${data.class}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="work-title" id="title-${id}">${data.workTitle}</div>
+                        <div class="meta">
+                            <span><i class="fa fa-clock"></i> ${date}</span>
+                        </div>
+
+                        <div class="actions">
+                            <button class="btn btn-approve" onclick="toggleStatus('${id}', '${data.status}')">
+                                ${data.status === 'pending' ? 'APPROVE' : 'PENDING'}
+                            </button>
+                            <button class="btn btn-edit" onclick="editTitle('${id}', '${data.workTitle}')">EDIT</button>
+                            <button class="btn btn-delete" onclick="deleteWork('${id}')">DELETE</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    });
+}
+
+// സ്റ്റാറ്റസ് മാറ്റാൻ (Approve/Pending)
+async function toggleStatus(id, currentStatus) {
+    const newStatus = currentStatus === 'pending' ? 'approved' : 'pending';
+    await db.collection("gallery_submissions").doc(id).update({ status: newStatus });
+}
+
+// ടൈറ്റിൽ എഡിറ്റ് ചെയ്യാൻ
+async function editTitle(id, oldTitle) {
+    const newTitle = prompt("പുതിയ ഹെഡിംഗ് നൽകുക:", oldTitle);
+    if(newTitle && newTitle !== oldTitle) {
+        await db.collection("gallery_submissions").doc(id).update({ workTitle: newTitle });
+    }
+}
+
+// ഡിലീറ്റ് ചെയ്യാൻ
+async function deleteWork(id) {
+    if(confirm("ഈ സൃഷ്ടി ഡിലീറ്റ് ചെയ്യട്ടെ?")) {
+        await db.collection("gallery_submissions").doc(id).delete();
+    }
+}
+
+// ഫോട്ടോ വലുതാക്കി കാണാൻ
+function openModal(src) {
+    document.getElementById('fullImg').src = src;
+    document.getElementById('imgModal').style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById('imgModal').style.display = "none";
+}
+
+loadSubmissions();
+</script>
+</body>
+</html>
