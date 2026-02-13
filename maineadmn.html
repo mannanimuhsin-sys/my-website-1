@@ -311,44 +311,58 @@ function editStudentReg(cls, oldReg, newReg) {
                 const oldMark = (oldRes.marks && oldRes.marks[s]) ? oldRes.marks[s] : "";
                 b += `<td><input type="number" class="m-input s-mark" data-sub="${s}" value="${oldMark}" oninput="calcStatus(this)"></td>`;
             });
-            b += `<td class="r-tot">${oldRes.total || "0"}</td><td class="r-sts ${oldRes.status === 'Passed' ? 'status-pass' : 'status-fail'}">${oldRes.status || "-"}</td><td class="r-rank">${oldRes.rank || "-"}</td></tr>`;
+           // പുതിയ മാറ്റം വരുത്തിയ വരികൾ:
+b += `<td class="r-tot">${oldRes.total || "0"}</td>
+    <td>
+        <select class="r-sts-select" onchange="manualStatusChange(this)" style="padding:5px; border-radius:4px; font-weight:bold; border:1px solid #ccc; color: ${oldRes.status === 'Passed' ? 'green' : (oldRes.status === 'Promoted' ? 'blue' : 'red')}">
+            <option value="Passed" ${oldRes.status === 'Passed' ? 'selected' : ''}>Passed</option>
+            <option value="Failed" ${oldRes.status === 'Failed' ? 'selected' : ''}>Failed</option>
+            <option value="Promoted" ${oldRes.status === 'Promoted' ? 'selected' : ''}>Promoted</option>
+        </select>
+    </td>
+    <td>
+        <input type="text" class="m-input r-rank" value="${oldRes.rank || ""}" oninput="autoSave()" style="width:40px;">
+    </td></tr>`;
         }
         document.getElementById('tBody').innerHTML = b;
         document.getElementById('tableWrapper').classList.remove('hidden');
     }
 
     function calcStatus(input) {
-        const row = input.closest('tr');
-        let total = 0, isFailed = false, hasValue = false;
-        row.querySelectorAll('.s-mark').forEach(i => {
-            if(i.value !== "") {
-                hasValue = true;
-                let val = parseFloat(i.value) || 0;
-                total += val;
-                if(val < 18) isFailed = true; 
-            }
-        });
-        if(!hasValue) return;
-        row.querySelector('.r-tot').innerText = total;
-        const sts = row.querySelector('.r-sts');
-        if(isFailed) { sts.innerText = "Failed"; sts.className = "r-sts status-fail"; } 
-        else { sts.innerText = "Passed"; sts.className = "r-sts status-pass"; }
-        calculateRanks(); autoSave();
-    }
-
-    function calculateRanks() {
-        let rows = Array.from(document.querySelectorAll('#tBody tr'));
-        let passedStudents = rows.filter(row => row.querySelector('.r-sts').innerText === "Passed");
-        passedStudents.sort((a, b) => parseFloat(b.querySelector('.r-tot').innerText) - parseFloat(a.querySelector('.r-tot').innerText));
-        rows.forEach(row => row.querySelector('.r-rank').innerText = "-");
-        let currentRank = 1;
-        for (let i = 0; i < passedStudents.length; i++) {
-            if (i > 0 && passedStudents[i].querySelector('.r-tot').innerText !== passedStudents[i-1].querySelector('.r-tot').innerText) {
-                currentRank = i + 1;
-            }
-            passedStudents[i].querySelector('.r-rank').innerText = currentRank;
+    const row = input.closest('tr');
+    let total = 0, isFailed = false, hasValue = false;
+    row.querySelectorAll('.s-mark').forEach(i => {
+        if(i.value !== "") {
+            hasValue = true;
+            let val = parseFloat(i.value) || 0;
+            total += val;
+            if(val < 18) isFailed = true; 
         }
+    });
+    if(!hasValue) return;
+    row.querySelector('.r-tot').innerText = total;
+    
+    const stsSelect = row.querySelector('.r-sts-select');
+    if(isFailed) { 
+        stsSelect.value = "Failed"; 
+        stsSelect.style.color = "red";
+    } else { 
+        stsSelect.value = "Passed"; 
+        stsSelect.style.color = "green";
     }
+    autoSave();
+}
+
+function manualStatusChange(select) {
+    if(select.value === "Passed") select.style.color = "green";
+    else if(select.value === "Promoted") select.style.color = "blue";
+    else select.style.color = "red";
+    autoSave();
+}
+   function calculateRanks() {
+    // ഓട്ടോമാറ്റിക് റാങ്ക് വേണ്ടെന്ന് വെച്ചു. 
+    // ഇനി മുതൽ ഉസ്താദുമാർ നേരിട്ട് ടൈപ്പ് ചെയ്യുന്നത് റാങ്ക് ആയി സേവ് ആകും.
+}
 
     function autoSave() {
         const cls = document.getElementById('markClass').value;
@@ -365,8 +379,8 @@ function editStudentReg(cls, oldReg, newReg) {
                 att: row.querySelector('.s-att').value,
                 marks: marks,
                 total: row.querySelector('.r-tot').innerText,
-                status: row.querySelector('.r-sts').innerText,
-                rank: row.querySelector('.r-rank').innerText
+              status: row.querySelector('.r-sts-select').value,
+              rank: row.querySelector('.r-rank').value
             };
         });
     }
