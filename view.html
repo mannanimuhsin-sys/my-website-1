@@ -49,9 +49,19 @@
         .stat-box small { display: block; color: #666; font-size: 10px; font-weight: bold; }
         .stat-box span { font-size: 18px; font-weight: 800; color: var(--primary); }
         .status-badge-container { text-align: center; padding: 20px; background: white; }
-        .badge { padding: 10px 30px; border-radius: 50px; font-weight: 800; font-size: 18px; text-transform: uppercase; }
-        .passed { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
-        .failed { background: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
+        
+        /* ബഡ്ജ് സെക്ഷൻ തിരുത്തിയത് */
+        .badge { 
+            padding: 10px 30px; 
+            border-radius: 50px; 
+            font-weight: 800; 
+            font-size: 18px; 
+            text-transform: uppercase;
+            min-width: 150px; 
+            display: inline-block;
+            border: 2px solid transparent;
+        }
+        
         .btn-print { width: 100%; padding: 18px; border: none; background: var(--primary); color: white; font-weight: bold; cursor: pointer; font-size: 15px; }
         .dev-footer { background: white; padding: 30px 20px; text-align: center; border-top: 1px solid #eee; margin-top: 40px; }
         .dev-text { font-size: 13px; color: #777; margin-bottom: 15px; }
@@ -130,9 +140,7 @@
         appId: "1:370558703441:web:dc68dbdbd685c9d07ea570" 
     };
 
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -143,22 +151,18 @@
         db.collection("madrasa_data").where("uID", "==", mId).get().then((snapshot) => {
             if (!snapshot.empty) {
                 fullData = snapshot.docs[0].data();
-                
                 if(!fullData.isApproved || fullData.isBlocked) {
                     document.getElementById('madHeader').innerText = "ഫലം ലഭ്യമായിട്ടില്ല";
                     document.getElementById('madPlace').innerText = "മദ്രസ അഡ്മിനുമായി ബന്ധപ്പെടുക";
                     document.getElementById('searchSection').style.display = 'none';
                     return;
                 }
-
                 document.getElementById('madHeader').innerText = fullData.info.name;
                 document.getElementById('madPlace').innerText = fullData.info.place || "";
                 document.getElementById('sadrName').innerText = fullData.info.headmaster || "സദർ മുഅല്ലിം";
                 document.getElementById('sadrPhone').innerText = fullData.info.phone || "---";
-
             } else {
                 document.getElementById('madHeader').innerText = "INVALID ID";
-                document.getElementById('madPlace').innerText = "ലിങ്ക് പരിശോധിക്കുക";
                 document.getElementById('searchSection').style.display = 'none';
             }
         });
@@ -170,7 +174,6 @@
         if(!fullData || !fullData.results) return alert("Results not published yet");
 
         let found = false;
-        // ക്‌ളാസ്സുകൾ ലൂപ്പ് ചെയ്ത് രജിസ്റ്റർ നമ്പർ സെർച്ച് ചെയ്യുന്നു
         for(let cls in fullData.results) {
             if(fullData.results[cls][regInput]) {
                 displayResult(cls, regInput, fullData.results[cls][regInput]);
@@ -195,17 +198,30 @@
         }
         document.getElementById('markList').innerHTML = mHtml;
         document.getElementById('totalMark').innerText = res.total || "0";
-        document.getElementById('rank').innerText = res.rank || "---";
+        document.getElementById('rank').innerText = res.rank || "---"; // അഡ്മിൻ നൽകുന്ന റാങ്ക് നേരിട്ട് വരും
         
         const totalDays = (fullData.classAtt && fullData.classAtt[cls]) ? fullData.classAtt[cls] : '0';
         document.getElementById('attendance').innerText = (res.att || '0') + "/" + totalDays;
 
+        // സ്റ്റാറ്റസ് ലേബൽ കളർ തിരുത്തിയത്
         const stLabel = document.getElementById('statusLabel');
         const status = (res.status || "---").toLowerCase();
         stLabel.innerText = status.toUpperCase();
-        stLabel.className = "badge " + (status === 'passed' ? 'passed' : 'failed');
+        
+        if (status === 'passed') {
+            stLabel.style.background = "#d4edda";
+            stLabel.style.color = "#155724";
+            stLabel.style.borderColor = "#c3e6cb";
+        } else if (status === 'promoted') {
+            stLabel.style.background = "#e7f3ff"; 
+            stLabel.style.color = "#004085";      
+            stLabel.style.borderColor = "#b8daff";
+        } else {
+            stLabel.style.background = "#f8d7da";
+            stLabel.style.color = "#721c24";
+            stLabel.style.borderColor = "#f5c6cb";
+        }
 
-        // സ്ക്രോൾ ടു റിസൾട്ട്
         document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
     }
 </script>
