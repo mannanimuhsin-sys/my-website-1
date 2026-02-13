@@ -311,17 +311,17 @@ function editStudentReg(cls, oldReg, newReg) {
                 const oldMark = (oldRes.marks && oldRes.marks[s]) ? oldRes.marks[s] : "";
                 b += `<td><input type="number" class="m-input s-mark" data-sub="${s}" value="${oldMark}" oninput="calcStatus(this)"></td>`;
             });
-           // പുതിയ മാറ്റം വരുത്തിയ വരികൾ:
+// പുതിയതായി ചേർക്കേണ്ടത്:
 b += `<td class="r-tot">${oldRes.total || "0"}</td>
-    <td>
-        <select class="r-sts-select" onchange="manualStatusChange(this)" style="padding:5px; border-radius:4px; font-weight:bold; border:1px solid #ccc; color: ${oldRes.status === 'Passed' ? 'green' : (oldRes.status === 'Promoted' ? 'blue' : 'red')}">
+    <td style="width: 130px; min-width: 130px;"> 
+        <select class="r-sts-select" onchange="manualStatusChange(this)" style="padding:6px; border-radius:4px; font-weight:bold; border:1px solid #ccc; width:100%; cursor:pointer; color: ${oldRes.status === 'Passed' ? 'green' : (oldRes.status === 'Promoted' ? 'blue' : 'red')}">
             <option value="Passed" ${oldRes.status === 'Passed' ? 'selected' : ''}>Passed</option>
             <option value="Failed" ${oldRes.status === 'Failed' ? 'selected' : ''}>Failed</option>
             <option value="Promoted" ${oldRes.status === 'Promoted' ? 'selected' : ''}>Promoted</option>
         </select>
     </td>
     <td>
-        <input type="text" class="m-input r-rank" value="${oldRes.rank || ""}" oninput="autoSave()" style="width:40px;">
+        <input type="text" class="m-input r-rank" value="${oldRes.rank || ""}" oninput="autoSave()" style="width:50px; text-align:center;">
     </td></tr>`;
         }
         document.getElementById('tBody').innerHTML = b;
