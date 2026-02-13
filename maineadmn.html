@@ -225,18 +225,55 @@
         refreshStudentDisplay();
     }
 
-    function refreshStudentDisplay() {
-        const area = document.getElementById('studentListArea'); area.innerHTML = "";
-        for(let cls in mData.students) {
-            let html = `<div class="class-box"><strong>${cls}</strong><table class="st-list-table"><thead><tr><th>Reg No</th><th>Name</th><th>Action</th></tr></thead><tbody>`;
-            for(let reg in mData.students[cls]) { 
-                html += `<tr><td>${reg}</td><td>${mData.students[cls][reg]}</td><td><i class="fa fa-trash" style="color:#c0392b; cursor:pointer;" onclick="deleteStudent('${cls}', '${reg}')"></i></td></tr>`; 
-            }
-            area.innerHTML += html + `</tbody></table></div>`;
+   function refreshStudentDisplay() {
+    const area = document.getElementById('studentListArea'); 
+    area.innerHTML = "";
+    for(let cls in mData.students) {
+        let html = `<div class="class-box"><strong>${cls}</strong>
+            <table class="st-list-table">
+                <thead><tr><th>Reg No</th><th>Name</th><th>Action</th></tr></thead>
+                <tbody>`;
+        
+        for(let reg in mData.students[cls]) { 
+            html += `<tr>
+                <td><input type="number" value="${reg}" onchange="editStudentReg('${cls}', '${reg}', this.value)" style="width:70px; border:1px solid #ddd; padding:4px;"></td>
+                <td><input type="text" value="${mData.students[cls][reg]}" onchange="editStudentName('${cls}', '${reg}', this.value)" style="width:90%; border:1px solid #ddd; padding:4px;"></td>
+                <td><i class="fa fa-trash" style="color:#c0392b; cursor:pointer;" onclick="deleteStudent('${cls}', '${reg}')"></i></td>
+            </tr>`; 
         }
+        area.innerHTML += html + `</tbody></table></div>`;
     }
+}
 
     function deleteStudent(cls, reg) { if(confirm("Delete Student?")) { delete mData.students[cls][reg]; refreshStudentDisplay(); } }
+    // പേര് മാറ്റം വരുത്താൻ
+function editStudentName(cls, reg, newName) {
+    if(newName.trim() === "") return alert("പേര് ഒഴിച്ചിടരുത്!");
+    mData.students[cls][reg] = newName.trim();
+}
+
+// രജിസ്റ്റർ നമ്പർ മാറ്റം വരുത്താൻ
+function editStudentReg(cls, oldReg, newReg) {
+    if(newReg.trim() === "" || oldReg === newReg) return;
+    
+    // പുതിയ നമ്പർ നിലവിൽ ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു
+    if(mData.students[cls][newReg]) {
+        alert("ഈ നമ്പർ നിലവിൽ വേറെ വിദ്യാർത്ഥിക്കുണ്ട്!");
+        refreshStudentDisplay();
+        return;
+    }
+    
+    // വിവരങ്ങൾ പുതിയ നമ്പറിലേക്ക് മാറ്റുന്നു
+    mData.students[cls][newReg] = mData.students[cls][oldReg];
+    delete mData.students[cls][oldReg];
+    
+    // റിസൾട്ടിലും മാറ്റം വരുത്തുന്നു
+    if(mData.results && mData.results[cls] && mData.results[cls][oldReg]) {
+        mData.results[cls][newReg] = mData.results[cls][oldReg];
+        delete mData.results[cls][oldReg];
+    }
+    refreshStudentDisplay();
+}
 
     function addSubject() {
         const cls = document.getElementById('subClass').value;
