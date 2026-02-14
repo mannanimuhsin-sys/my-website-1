@@ -127,7 +127,7 @@ function displayResults() {
     if(students) {
         students.forEach(s => {
             const card = document.createElement('div'); card.className = 'student-card';
-            card.innerHTML = `<b>${s.name}</b><span class="status-badge ${s.status === 'PASS' ? '' : 'status-fail'}">${s.status}</span>`;
+            card.innerHTML = `<b>${s.name}</b><span class="status-badge ${s.status === 'PASSED' ? '' : 'status-failed'}">${s.status}</span>`;
             area.appendChild(card);
         });
     } else {
