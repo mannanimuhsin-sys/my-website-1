@@ -104,7 +104,7 @@
         </div>
         <div style="overflow-x: auto;">
             <table class="mark-table">
-                <thead><tr><th>Subject</th><th style="text-align:center;">Marks</th></tr></thead>
+                <thead><tr><th>Subject</th><th style="text-align:center;">Marks</th><th style="text-align:center;">Grade</th></tr></thead>
                 <tbody id="markList"></tbody>
             </table>
         </div>
@@ -192,10 +192,30 @@
         document.getElementById('stReg').innerText = reg;
         document.getElementById('stClass').innerText = cls;
 
-        let mHtml = "";
-        for(let sub in res.marks) {
-            mHtml += `<tr><td>${sub}</td><td class="m-val">${res.marks[sub]}</td></tr>`;
-        }
+        function calculateGrade(mark) {
+    let m = parseFloat(mark);
+    if (m >= 45 && m <= 50) return "A+";
+    if (m >= 40 && m <= 44) return "A";
+    if (m >= 35 && m <= 39) return "B+";
+    if (m >= 30 && m <= 34) return "B";
+    if (m >= 25 && m <= 29) return "C+";
+    if (m >= 20 && m <= 24) return "C";
+    if (m >= 18 && m <= 19) return "D+";
+    if (m >= 1 && m <= 17) return "D";
+    return "---";
+}
+
+let mHtml = "";
+for(let sub in res.marks) {
+    let currentMark = res.marks[sub];
+    let currentGrade = calculateGrade(currentMark); // ഗ്രേഡ് കണ്ടെത്തുന്നു
+    
+    mHtml += `<tr>
+                <td>${sub}</td>
+                <td class="m-val">${currentMark}</td>
+                <td class="m-val" style="color:#d35400;">${currentGrade}</td>
+              </tr>`;
+}
         document.getElementById('markList').innerHTML = mHtml;
         document.getElementById('totalMark').innerText = res.total || "0";
         document.getElementById('rank').innerText = res.rank || "---"; // അഡ്മിൻ നൽകുന്ന റാങ്ക് നേരിട്ട് വരും
