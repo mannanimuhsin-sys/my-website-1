@@ -6,15 +6,16 @@
     <title>Madrasa Result Online</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #00897b; --accent: #ffd700; --bg: #f4f7f6; }
+        :root { --primary: #00897b; --accent: #ffd700; --bg: #f4f7f6; --success: #2e7d32; --danger: #e53935; }
         body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding: 0; }
         .header-card { background: white; margin: 15px; padding: 25px 15px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; border-bottom: 4px solid var(--primary); }
         .m-name { font-size: 24px; font-weight: 800; color: var(--primary); text-transform: uppercase; }
         .select-wrapper { margin-top: 20px; padding: 0 15px; }
         select { padding: 12px; border-radius: 15px; border: 2px solid #e0e0e0; width: 100%; max-width: 400px; margin: auto; display: block; }
-        .student-card { background: white; padding: 15px 20px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; margin: 10px 15px; border: 1px solid #f0f0f0; }
-        .status-badge { background: var(--primary); color: white; padding: 7px 18px; border-radius: 50px; font-weight: 800; }
-        .status-fail { background: #e53935; }
+        .student-card { background: white; padding: 15px 20px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; margin: 10px 15px; border: 1px solid #f0f0f0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .status-badge { color: white; padding: 7px 18px; border-radius: 50px; font-weight: 800; font-size: 14px; text-transform: uppercase; min-width: 80px; text-align: center; }
+        .bg-passed { background: var(--success); }
+        .bg-failed { background: var(--danger); }
         footer { margin: 40px 15px 20px; padding: 20px; text-align: center; border-top: 1px solid #eee; }
     </style>
 </head>
@@ -50,7 +51,7 @@
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyAUkOIp33p7sMviItKLEP6EGyPQvFBuQeY",
-  authDomain: "result-aedec.firebaseapp.com",
+  authDomain: "result-aedec.firebaseapp.app",
   projectId: "result-aedec",
   storageBucket: "result-aedec.firebasestorage.app",
   messagingSenderId: "654773450983",
@@ -58,14 +59,11 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-// സ്പീഡ് കൂട്ടാൻ ഓഫ്‌ലൈൻ കാഷെ എനേബിൾ ചെയ്യുന്നു
-db.settings({ persistence: true });
 
 let madrasaData = null;
 const mId = new URLSearchParams(window.location.search).get('id');
 
 if(mId) {
-    // വേഗത്തിൽ ഡാറ്റ ലഭിക്കാൻ onSnapshot ഉപയോഗിക്കുന്നു
     db.collection("exam_results_final").where("secretId", "==", mId).limit(1).onSnapshot((snap) => {
         if (!snap.empty) {
             madrasaData = snap.docs[0].data();
@@ -75,39 +73,30 @@ if(mId) {
             document.getElementById('sadrPhone').innerText = madrasaData.mobile;
             
             const sel = document.getElementById('classSelect');
-            const currentVal = sel.value; // സെലക്ഷൻ നഷ്ടപ്പെടാതിരിക്കാൻ
+            const currentVal = sel.value;
             sel.innerHTML = '<option value="">-- Select Class --</option>';
-            
-            // ക്ലാസ്സുകൾ ക്രമമായി അടുക്കുന്നു
             const sortedKeys = Object.keys(madrasaData.results).sort((a, b) => parseInt(a) - parseInt(b));
-            
             sortedKeys.forEach(key => {
                 let cls = key.split('-')[0];
                 if(![...sel.options].some(o => o.value == cls)) {
                     let opt = document.createElement('option'); 
-                    opt.value = cls; 
-                    opt.innerText = "Class " + cls; 
+                    opt.value = cls; opt.innerText = "Class " + cls; 
                     sel.appendChild(opt);
                 }
             });
-            
             if(currentVal) sel.value = currentVal;
             document.getElementById('loader').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
         } else {
-            document.getElementById('loader').innerHTML = "<i class='fa-solid fa-circle-exclamation'></i><br>റിസൾട്ട് ലഭ്യമല്ല!";
+            document.getElementById('loader').innerHTML = "റിസൾട്ട് ലഭ്യമല്ല!";
         }
-    }, (error) => {
-        console.error("Error fetching data: ", error);
-        document.getElementById('loader').innerText = "കണക്ഷൻ പ്രശ്നം! ദയവായി വീണ്ടും ശ്രമിക്കുക.";
     });
 }
 
 function handleClassChange() {
     const cls = document.getElementById('classSelect').value;
     const divWrapper = document.getElementById('divWrapper');
-    if(!cls) { divWrapper.style.display = 'none'; area.innerHTML = ""; return; }
-    
+    if(!cls) { divWrapper.style.display = 'none'; return; }
     let hasDiv = Object.keys(madrasaData.results).some(k => k.startsWith(cls + "-"));
     divWrapper.style.display = hasDiv ? 'block' : 'none';
     displayResults();
@@ -118,20 +107,17 @@ function displayResults() {
     const div = document.getElementById('divSelect').value;
     const area = document.getElementById('resultsArea');
     area.innerHTML = "";
-    
     if(!cls) return;
-
     const key = (document.getElementById('divWrapper').style.display === 'none' || div === "None") ? cls : cls + "-" + div;
     const students = madrasaData.results[key];
-    
     if(students) {
         students.forEach(s => {
             const card = document.createElement('div'); card.className = 'student-card';
-            card.innerHTML = `<b>${s.name}</b><span class="status-badge ${s.status === 'PASSED' ? '' : 'status-failed'}">${s.status}</span>`;
+            const statusText = (s.status || "PASSED").toUpperCase();
+            const badgeColor = statusText === 'PASSED' ? 'bg-passed' : 'bg-failed';
+            card.innerHTML = `<b>${s.name}</b><span class="status-badge ${badgeColor}">${statusText}</span>`;
             area.appendChild(card);
         });
-    } else {
-        area.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>ഈ ക്ലാസ്സിലെ ഡാറ്റ ലഭ്യമല്ല.</p>";
     }
 }
 </script>
