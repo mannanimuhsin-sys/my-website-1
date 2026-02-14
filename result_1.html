@@ -183,18 +183,18 @@ async function doLogin() {
     } else { alert("തെറ്റായ വിവരം!"); }
 }
 
-function addRow(n = '', s = 'PASS') {
+function addRow(n = '', s = 'PASSED') {
     const div = document.createElement('div');
     div.className = 'st-row';
-    const btnClass = s === 'PASS' ? 'bg-pass' : 'bg-fail';
+    const btnClass = s === 'PASSED' ? 'bg-passed' : 'bg-failed';
     div.innerHTML = `<input type="text" value="${n}" placeholder="പേര്" style="flex:1; padding:10px; border-radius:8px; border:1px solid #ddd;">
     <button class="status-btn ${btnClass}" onclick="toggleStatus(this)">${s}</button>`;
     document.getElementById('listArea').appendChild(div);
 }
 
 function toggleStatus(btn) {
-    if(btn.innerText === 'PASS') { btn.innerText = 'FAIL'; btn.classList.replace('bg-pass', 'bg-fail'); }
-    else { btn.innerText = 'PASS'; btn.classList.replace('bg-fail', 'bg-pass'); }
+    if(btn.innerText === 'PASSED') { btn.innerText = 'FAILED'; btn.classList.replace('bg-passed', 'bg-failed'); }
+    else { btn.innerText = 'PASSED'; btn.classList.replace('bg-failed', 'bg-passed'); }
 }
 
 async function saveClass() {
