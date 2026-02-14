@@ -300,8 +300,8 @@ function editStudentReg(cls, oldReg, newReg) {
         const studs = mData.students[cls] || {};
         if(mData.classAtt && mData.classAtt[cls]) document.getElementById('classAtt').value = mData.classAtt[cls];
         let h = `<tr><th>Reg</th><th>Name</th><th>ഹാജർ</th>`;
-        subs.forEach(s => h += `<th>${s}</th>`);
-        h += `<th>Total</th><th>Status</th><th>Rank</th></tr>`;
+subs.forEach(s => h += `<th>${s}</th>`);
+h += `<th>Total</th><th>Grade</th><th>Status</th><th>Rank</th></tr>`;
         document.getElementById('tHead').innerHTML = h;
         let b = "";
         for(let reg in studs) {
