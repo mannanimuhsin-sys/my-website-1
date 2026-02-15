@@ -275,24 +275,76 @@ function editStudentReg(cls, oldReg, newReg) {
     refreshStudentDisplay();
 }
 
-    function addSubject() {
-        const cls = document.getElementById('subClass').value;
-        const sub = document.getElementById('newSub').value;
-        if(!cls || !sub) return;
-        if(!mData.subjects) mData.subjects = {};
-        if(!mData.subjects[cls]) mData.subjects[cls] = [];
-        mData.subjects[cls].push(sub);
-        document.getElementById('newSub').value = ""; loadSubjects();
-    }
+   function addSubject() {
+    const cls = document.getElementById('subClass').value;
+    const sub = document.getElementById('newSub').value.trim();
+    if(!cls || !sub) return alert("ക്ലാസ്സും വിഷയവും നൽകുക");
+    if(!mData.subjects) mData.subjects = {};
+    if(!mData.subjects[cls]) mData.subjects[cls] = [];
+    
+    if(mData.subjects[cls].includes(sub)) return alert("ഈ വിഷയം നിലവിൽ ഉണ്ട്");
+    
+    mData.subjects[cls].push(sub);
+    document.getElementById('newSub').value = ""; 
+    loadSubjects();
+}
 
-    function loadSubjects() {
-        const cls = document.getElementById('subClass').value;
-        const area = document.getElementById('subjectChips'); area.innerHTML = "";
-        if(mData.subjects && mData.subjects[cls]) {
-            mData.subjects[cls].forEach(s => area.innerHTML += `<span style="background:var(--primary); color:white; padding:5px 10px; border-radius:15px; margin-right:5px; font-size:12px;">${s}</span>`);
+function loadSubjects() {
+    const cls = document.getElementById('subClass').value;
+    const area = document.getElementById('subjectChips'); 
+    area.innerHTML = "";
+    
+    if(mData.subjects && mData.subjects[cls]) {
+        let html = `<table class="st-list-table" style="margin-top:10px;">
+            <thead><tr><th>Subject Name</th><th style="width:50px; text-align:center;">Action</th></tr></thead>
+            <tbody>`;
+        
+        mData.subjects[cls].forEach((s, index) => {
+            html += `<tr>
+                <td>
+                    <input type="text" value="${s}" 
+                    onchange="editSubjectName('${cls}', ${index}, this.value)" 
+                    style="width:95%; border:1px solid #ddd; padding:6px; border-radius:4px;">
+                </td>
+                <td style="text-align:center;">
+                    <i class="fa fa-trash" style="color:#c0392b; cursor:pointer;" onclick="deleteSubject('${cls}', ${index})"></i>
+                </td>
+            </tr>`;
+        });
+        area.innerHTML = html + `</tbody></table>`;
+    }
+}
+
+function editSubjectName(cls, index, newName) {
+    if(newName.trim() === "") return alert("വിഷയത്തിന്റെ പേര് ഒഴിച്ചിടരുത്!");
+    const oldName = mData.subjects[cls][index];
+    mData.subjects[cls][index] = newName.trim();
+    
+    if(mData.results && mData.results[cls]) {
+        for(let reg in mData.results[cls]) {
+            if(mData.results[cls][reg].marks && mData.results[cls][reg].marks[oldName]) {
+                mData.results[cls][reg].marks[newName.trim()] = mData.results[cls][reg].marks[oldName];
+                delete mData.results[cls][reg].marks[oldName];
+            }
         }
     }
+}
 
+function deleteSubject(cls, index) {
+    if(confirm("ഈ വിഷയം നീക്കം ചെയ്യട്ടെ? ഈ വിഷയത്തിലെ മാർക്കുകളും നീക്കം ചെയ്യപ്പെടും.")) {
+        const subName = mData.subjects[cls][index];
+        mData.subjects[cls].splice(index, 1);
+        
+        if(mData.results && mData.results[cls]) {
+            for(let reg in mData.results[cls]) {
+                if(mData.results[cls][reg].marks) {
+                    delete mData.results[cls][reg].marks[subName];
+                }
+            }
+        }
+        loadSubjects();
+    }
+}
     function loadMarkTable() {
         const cls = document.getElementById('markClass').value;
         if (!cls) return alert("ക്ലാസ് തിരഞ്ഞെടുക്കുക");
