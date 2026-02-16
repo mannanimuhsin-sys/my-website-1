@@ -10,23 +10,18 @@
         .header { background: #004d00; color: white; padding: 30px; text-align: center; border-bottom: 5px solid #ffd700; }
         .container { max-width: 1100px; margin: 20px auto; padding: 10px; }
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 25px; }
-        
-        /* Auth Styles */
         .auth-box { max-width: 450px; margin: -50px auto 30px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
         .auth-tabs { display: flex; background: #eee; }
         .auth-tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; }
         .auth-tab.active { background: white; border-top: 4px solid #004d00; color: #004d00; }
-        
         input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
         .btn { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .btn-green { background: #004d00; color: white; width: 100%; }
         .btn-blue { background: #2980b9; color: white; }
         .btn-red { background: #c0392b; color: white; }
-
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
         th { background: #004d00; color: white; padding: 12px; border: 1px solid #ddd; font-size: 14px; }
         td { padding: 10px; border: 1px solid #ddd; text-align: center; }
-        
         .m-input.s-att { width: 85px; padding: 8px; border: 2px solid #004d00; border-radius: 4px; text-align: center; font-weight: bold; }
         .m-input.s-mark { width: 55px; text-align: center; border: 1px solid #bbb; border-radius: 4px; padding: 8px; }
         .hidden { display: none; }
@@ -135,7 +130,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let mData = { info: {}, students: {}, subjects: {}, results: {}, photos: {}, attSettings: {}, isSubmitted: false };
+    let mData = { info: {}, students: {}, subjects: {}, results: {}, photos: {}, attSettings: {}, isSubmitted: false, uID: '' };
     const classes = ["Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"];
 
     window.onload = () => {
@@ -150,6 +145,19 @@
         document.getElementById('tabR').classList.toggle('active', t === 'R');
     }
 
+    async function register() {
+        const n = document.getElementById('rName').value.trim();
+        const p = document.getElementById('rPlace').value.trim();
+        const s = document.getElementById('rSadr').value.trim();
+        const ph = document.getElementById('rPhone').value.trim();
+        if(!n || !p || !s || !ph) return alert("എല്ലാം പൂരിപ്പിക്കുക!");
+        const uID = "MID" + Math.floor(1000 + Math.random() * 9000);
+        mData = { info: { name: n, place: p, sadr: s, phone: ph }, uID: uID, students: {}, subjects: {}, results: {}, photos: {}, attSettings: {}, isSubmitted: false };
+        await db.collection("madrasa_data").doc(ph).set(mData);
+        alert("രജിസ്ട്രേഷൻ വിജയിച്ചു! ലോഗിൻ ചെയ്യുക.");
+        showAuth('L');
+    }
+
     async function login() {
         const ph = document.getElementById('lPhone').value.trim();
         const doc = await db.collection("madrasa_data").doc(ph).get();
@@ -159,7 +167,6 @@
             document.getElementById('adminPanel').classList.remove('hidden');
             document.getElementById('displayMName').innerText = mData.info.name;
             document.getElementById('displayDetails').innerText = `${mData.info.place} | Sadr: ${mData.info.sadr}`;
-            
             checkStatus();
             refreshStList();
         } else { alert("നമ്പർ തെറ്റാണ്!"); }
@@ -216,10 +223,8 @@
         if(!c) return;
         let h = `<table><tr><th>Subject</th><th>Action</th></tr>`;
         (mData.subjects[c] || []).forEach((s, i) => {
-            h += `<tr>
-                <td><input class="edit-input" value="${s}" onchange="mData.subjects['${c}'][${i}]=this.value"></td>
-                <td><button onclick="mData.subjects['${c}'].splice(${i},1); refreshSubList()">Delete</button></td>
-            </tr>`;
+            h += `<tr><td><input class="edit-input" value="${s}" onchange="mData.subjects['${c}'][${i}]=this.value"></td>
+                <td><button onclick="mData.subjects['${c}'].splice(${i},1); refreshSubList()">Delete</button></td></tr>`;
         });
         document.getElementById('subjectListArea').innerHTML = h + `</table>`;
     }
@@ -230,27 +235,20 @@
         const studs = mData.students[c] || {};
         const subs = mData.subjects[c] || [];
         document.getElementById('totalAttDays').value = (mData.attSettings && mData.attSettings[c]) ? mData.attSettings[c] : "";
-
         let h = `<table><thead><tr><th>Reg</th><th>Name</th><th>Att.</th>`;
         subs.forEach(s => h += `<th>${s}</th>`);
         h += `<th>Total</th><th>Status</th></tr></thead><tbody>`;
-
         for(let r in studs) {
             const res = (mData.results[c] && mData.results[c][r]) ? mData.results[c][r] : { marks: {}, att: '', total: 0, status: 'Passed' };
-            h += `<tr data-reg="${r}">
-                <td>${r}</td>
-                <td style="text-align:left">${studs[r]}</td>
-                <td><input type="number" class="m-input s-att" value="${res.att || ''}"></td>`;
+            h += `<tr data-reg="${r}"><td>${r}</td><td style="text-align:left">${studs[r]}</td><td><input type="number" class="m-input s-att" value="${res.att || ''}"></td>`;
             subs.forEach(s => {
                 let m = (res.marks && res.marks[s]) ? res.marks[s] : '';
                 h += `<td><input type="number" class="m-input s-mark" data-sub="${s}" value="${m}" oninput="updateRowLogic(this)"></td>`;
             });
-            h += `<td class="r-tot">${res.total || 0}</td>
-                <td><select class="r-sts ${res.status=='Failed'?'status-failed':'status-passed'}">
+            h += `<td class="r-tot">${res.total || 0}</td><td><select class="r-sts ${res.status=='Failed'?'status-failed':'status-passed'}">
                     <option value="Passed" ${res.status=='Passed'?'selected':''}>Passed</option>
                     <option value="Failed" ${res.status=='Failed'?'selected':''}>Failed</option>
-                    <option value="Promoted" ${res.status=='Promoted'?'selected':''}>Promoted</option>
-                </select></td></tr>`;
+                    <option value="Promoted" ${res.status=='Promoted'?'selected':''}>Promoted</option></select></td></tr>`;
         }
         document.getElementById('mainTableWrapper').innerHTML = h + `</tbody></table>`;
         if(mData.isSubmitted) refreshPhotoStatusTable(c);
@@ -287,11 +285,11 @@
     }
 
     async function finalSubmit() {
-        if(!confirm("എല്ലാ വിവരങ്ങളും ശരിയാണെന്ന് ഉറപ്പാണോ? സബ്മിറ്റ് ചെയ്തു കഴിഞ്ഞാൽ പിന്നീട് പേരും വിഷയങ്ങളും എഡിറ്റ് ചെയ്യാൻ കഴിയില്ല.")) return;
+        if(!confirm("സബ്മിറ്റ് ചെയ്തു കഴിഞ്ഞാൽ പിന്നീട് എഡിറ്റ് ചെയ്യാൻ കഴിയില്ല. ഉറപ്പാണോ?")) return;
         mData.isSubmitted = true;
         await saveAllData();
         checkStatus();
-        alert("സബ്മിറ്റ് വിജയകരമായി! ഇനി ഫോട്ടോ അപ്‌ലോഡ് ലിങ്ക് ഉപയോഗിക്കാം.");
+        alert("സബ്മിറ്റ് വിജയകരമായി!");
     }
 
     function refreshPhotoStatusTable(c) {
@@ -305,7 +303,8 @@
     }
 
     async function publishFinal() {
-        const link = "https://mannanimuhsin-sys.github.io/my-website-1/examview.html?id=" + mData.uID;
+        // ഇതാണ് വ്യൂ പേജുമായുള്ള ലിങ്ക്
+        const link = "https://mannanimuhsin-sys.github.io/my-website-1/misbahresult.html?id=" + mData.uID;
         document.getElementById('rLinkText').innerText = link;
         document.getElementById('linkSection').classList.remove('hidden');
     }
