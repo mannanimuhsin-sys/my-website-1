@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Photo | മദ്രസ</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn { background: #004d00; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
+        #preview { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin: 15px auto; display: none; border: 3px solid #004d00; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2 id="mName">മദ്രസ ഫോട്ടോ പോർട്ടൽ</h2>
+        <div id="step1">
+            <input type="number" id="regNo" placeholder="രജിസ്റ്റർ നമ്പർ നൽകുക">
+            <button class="btn" onclick="findMe()">SUBMIT</button>
+        </div>
+        <div id="step2" style="display:none;">
+            <p>വിദ്യാർത്ഥി: <b id="sName"></b></p>
+            <p>ക്ലാസ്സ്: <b id="sCls"></b></p>
+            <img id="preview">
+            <input type="file" id="fileInp" accept="image/*" onchange="showPrev(event)">
+            <button class="btn" onclick="upload()">CONFIRM & UPLOAD</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = { /* നിങ്ങളുടെ പഴയ Config ഇവിടെയും നൽകുക */ };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        let mDocId = new URLSearchParams(window.location.search).get('id');
+        let fullData, myReg;
+
+        async function findMe() {
+            myReg = document.getElementById('regNo').value;
+            const snap = await db.collection("madrasa_data").where("uID", "==", mDocId).get();
+            fullData = snap.docs[0].data();
+            for(let cls in fullData.students) {
+                if(fullData.students[cls][myReg]) {
+                    document.getElementById('sName').innerText = fullData.students[cls][myReg];
+                    document.getElementById('sCls').innerText = cls;
+                    document.getElementById('step1').style.display = 'none';
+                    document.getElementById('step2').style.display = 'block';
+                    return;
+                }
+            }
+            alert("Register Number Not Found!");
+        }
+
+        function showPrev(e) {
+            const reader = new FileReader();
+            reader.onload = () => { 
+                const img = document.getElementById('preview');
+                img.src = reader.result; img.style.display = 'block';
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+
+        async function upload() {
+            const imgStr = document.getElementById('preview').src;
+            if(!fullData.photos) fullData.photos = {};
+            fullData.photos[myReg] = imgStr;
+            await db.collection("madrasa_data").doc(fullData.info.phone).update({ photos: fullData.photos });
+            alert("Photo Uploaded Successfully!");
+            location.reload();
+        }
+    </script>
+</body>
+</html>
