@@ -66,7 +66,7 @@
 
     <div id="managementSection">
         <div class="card">
-            <h3>വിദ്യാർത്ഥികളെ ചേർക്കുക / എഡിറ്റ് ചെയ്യുക</h3>
+            <h3>വിദ്യാർത്ഥികളെ ചേർക്കുക</h3>
             <div style="display: flex; gap: 10px;">
                 <select id="selClass"></select>
                 <input type="number" id="inReg" placeholder="Reg No">
@@ -77,7 +77,7 @@
         </div>
 
         <div class="card">
-            <h3>വിഷയങ്ങൾ എഡിറ്റ് ചെയ്യുക</h3>
+            <h3>വിഷയങ്ങൾ ചേർക്കുക</h3>
             <div style="display: flex; gap: 10px;">
                 <select id="selSubClass" onchange="refreshSubList()"></select>
                 <input type="text" id="inSubName" placeholder="Subject Name">
@@ -189,6 +189,8 @@
         if(!c || !r || !n) return;
         if(!mData.students[c]) mData.students[c] = {};
         mData.students[c][r] = n;
+        document.getElementById('inReg').value = '';
+        document.getElementById('inName').value = '';
         refreshStList();
     }
 
@@ -197,17 +199,12 @@
         for(let c in mData.students) {
             h += `<h4>${c}</h4><table><tr><th>Reg</th><th>Name</th><th>Action</th></tr>`;
             for(let r in mData.students[c]) {
-                h += `<tr>
-                    <td><input class="edit-input" value="${r}" onchange="updateReg('${c}','${r}',this.value)"></td>
-                    <td><input class="edit-input" value="${mData.students[c][r]}" onchange="mData.students['${c}']['${r}']=this.value"></td>
-                    <td><button onclick="delete mData.students['${c}']['${r}']; refreshStList()">Delete</button></td>
-                </tr>`;
+                h += `<tr><td>${r}</td><td>${mData.students[c][r]}</td><td><button onclick="delete mData.students['${c}']['${r}']; refreshStList()">Delete</button></td></tr>`;
             }
             h += `</table>`;
         }
         document.getElementById('studentListArea').innerHTML = h;
     }
-    function updateReg(c, o, n){ mData.students[c][n]=mData.students[c][o]; delete mData.students[c][o]; refreshStList(); }
 
     function addSubject() {
         const c = document.getElementById('selSubClass').value;
@@ -215,6 +212,7 @@
         if(!c || !s) return;
         if(!mData.subjects[c]) mData.subjects[c] = [];
         mData.subjects[c].push(s);
+        document.getElementById('inSubName').value = '';
         refreshSubList();
     }
 
@@ -223,8 +221,7 @@
         if(!c) return;
         let h = `<table><tr><th>Subject</th><th>Action</th></tr>`;
         (mData.subjects[c] || []).forEach((s, i) => {
-            h += `<tr><td><input class="edit-input" value="${s}" onchange="mData.subjects['${c}'][${i}]=this.value"></td>
-                <td><button onclick="mData.subjects['${c}'].splice(${i},1); refreshSubList()">Delete</button></td></tr>`;
+            h += `<tr><td>${s}</td><td><button onclick="mData.subjects['${c}'].splice(${i},1); refreshSubList()">Delete</button></td></tr>`;
         });
         document.getElementById('subjectListArea').innerHTML = h + `</table>`;
     }
@@ -245,26 +242,16 @@
                 let m = (res.marks && res.marks[s]) ? res.marks[s] : '';
                 h += `<td><input type="number" class="m-input s-mark" data-sub="${s}" value="${m}" oninput="updateRowLogic(this)"></td>`;
             });
-            h += `<td class="r-tot">${res.total || 0}</td><td><select class="r-sts ${res.status=='Failed'?'status-failed':'status-passed'}">
-                    <option value="Passed" ${res.status=='Passed'?'selected':''}>Passed</option>
-                    <option value="Failed" ${res.status=='Failed'?'selected':''}>Failed</option>
-                    <option value="Promoted" ${res.status=='Promoted'?'selected':''}>Promoted</option></select></td></tr>`;
+            h += `<td class="r-tot">${res.total || 0}</td><td><select class="r-sts ${res.status=='Failed'?'status-failed':'status-passed'}"><option value="Passed">Passed</option><option value="Failed">Failed</option></select></td></tr>`;
         }
         document.getElementById('mainTableWrapper').innerHTML = h + `</tbody></table>`;
-        if(mData.isSubmitted) refreshPhotoStatusTable(c);
     }
 
     function updateRowLogic(el) {
         const row = el.closest('tr');
-        let tot = 0; let failed = false;
-        row.querySelectorAll('.s-mark').forEach(i => {
-            let val = parseFloat(i.value);
-            if(!isNaN(val)) { tot += val; if(val <= 17) failed = true; }
-        });
+        let tot = 0;
+        row.querySelectorAll('.s-mark').forEach(i => tot += (parseFloat(i.value) || 0));
         row.querySelector('.r-tot').innerText = tot;
-        const st = row.querySelector('.r-sts');
-        st.value = failed ? "Failed" : "Passed";
-        st.className = failed ? "r-sts status-failed" : "r-sts status-passed";
     }
 
     async function saveAllData() {
@@ -285,33 +272,18 @@
     }
 
     async function finalSubmit() {
-        if(!confirm("സബ്മിറ്റ് ചെയ്തു കഴിഞ്ഞാൽ പിന്നീട് എഡിറ്റ് ചെയ്യാൻ കഴിയില്ല. ഉറപ്പാണോ?")) return;
         mData.isSubmitted = true;
         await saveAllData();
         checkStatus();
-        alert("സബ്മിറ്റ് വിജയകരമായി!");
-    }
-
-    function refreshPhotoStatusTable(c) {
-        const studs = mData.students[c] || {};
-        let h = "<table><tr><th>Student</th><th>Status</th></tr>";
-        for(let r in studs) {
-            const hasPhoto = mData.photos && mData.photos[r];
-            h += `<tr><td>${studs[r]}</td><td>${hasPhoto ? "<b style='color:green'>✅ Uploaded</b>" : "<b style='color:red'>❌ Pending</b>"}</td></tr>`;
-        }
-        document.getElementById('photoStatusTable').innerHTML = h + "</table>";
     }
 
     async function publishFinal() {
-        // ഇതാണ് വ്യൂ പേജുമായുള്ള ലിങ്ക്
-        const link = "https://mannanimuhsin-sys.github.io/my-website-1/misbahresult.html?id=" + mData.uID;
-        document.getElementById('rLinkText').innerText = link;
+        const link = window.location.origin + window.location.pathname.replace('admin.html', 'misbahresult.html') + "?id=" + mData.uID;
+        document.getElementById('rLinkText').innerText = "https://mannanimuhsin-sys.github.io/my-website-1/misbahresult.html?id=" + mData.uID;
         document.getElementById('linkSection').classList.remove('hidden');
     }
-    
-    function copyLink() { navigator.clipboard.writeText(document.getElementById('photoLinkDisp').innerText); alert("Copied!"); }
-    function shareWhatsApp() { window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent("റിസൾട്ട് ലിങ്ക്: " + document.getElementById('rLinkText').innerText)); }
-</script>
 
+    function copyLink() { navigator.clipboard.writeText(document.getElementById('photoLinkDisp').innerText); alert("Link Copied!"); }
+</script>
 </body>
 </html>
