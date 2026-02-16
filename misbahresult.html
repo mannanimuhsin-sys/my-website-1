@@ -8,32 +8,29 @@
     <style>
         :root { --primary: #004d00; --gold: #ffd700; --blue: #2980b9; --red: #c0392b; --orange: #e67e22; }
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; }
-        .header { background: var(--primary); color: white; padding: 30px; text-align: center; border-bottom: 5px solid var(--gold); }
-        .container { max-width: 1100px; margin: 20px auto; padding: 10px; }
+        .header { background: var(--primary); color: white; padding: 25px; text-align: center; border-bottom: 5px solid var(--gold); }
+        .container { max-width: 1200px; margin: 20px auto; padding: 10px; }
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 25px; }
         
-        /* Auth Design */
-        .auth-box { max-width: 450px; margin: -50px auto 30px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
-        .auth-tabs { display: flex; background: #eee; }
-        .auth-tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; }
-        .auth-tab.active { background: white; border-top: 4px solid var(--primary); color: var(--primary); }
-        
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
         .btn { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .btn-green { background: var(--primary); color: white; width: 100%; }
         .btn-blue { background: var(--blue); color: white; }
-        .btn-red { background: var(--red); color: white; }
-        .btn-orange { background: var(--orange); color: white; }
+        .btn-red { background: var(--red); color: white; padding: 8px 12px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
-        th { background: var(--primary); color: white; padding: 12px; border: 1px solid #ddd; }
-        td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; min-width: 800px; }
+        th { background: var(--primary); color: white; padding: 12px; border: 1px solid #ddd; font-size: 14px; }
+        td { padding: 8px; border: 1px solid #ddd; text-align: center; }
         
-        .m-input { width: 60px !important; padding: 8px; border: 2px solid #ddd; border-radius: 4px; text-align: center; font-size: 15px; font-weight: bold; }
+        .m-input { width: 70px !important; padding: 8px; border: 1px solid #aaa; border-radius: 4px; text-align: center; font-size: 16px; font-weight: bold; }
         .hidden { display: none; }
-        .status-up { color: green; font-weight: bold; }
-        .status-pen { color: red; font-weight: bold; }
-        .link-box { background: #f8f9fa; padding: 10px; border: 1px solid #ddd; border-radius: 5px; word-break: break-all; font-family: monospace; margin: 10px 0; display: block; }
+        .link-box { background: #f8f9fa; padding: 15px; border: 1px dashed #2980b9; border-radius: 5px; word-break: break-all; font-family: monospace; display: block; margin: 10px 0; color: #2980b9; }
+        
+        /* Auth Tabs */
+        .auth-box { max-width: 450px; margin: -40px auto 30px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+        .auth-tabs { display: flex; background: #eee; }
+        .auth-tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; }
+        .auth-tab.active { background: white; border-top: 4px solid var(--primary); color: var(--primary); }
     </style>
 </head>
 <body>
@@ -53,6 +50,7 @@
             <div id="regForm" class="hidden">
                 <input type="text" id="rName" placeholder="മദ്രസയുടെ പേര്">
                 <input type="text" id="rPlace" placeholder="സ്ഥലം">
+                <input type="text" id="rSadar" placeholder="സദർ ഉസ്താദിന്റെ പേര്">
                 <input type="tel" id="rPhone" placeholder="മൊബൈൽ നമ്പർ">
                 <button class="btn btn-green" onclick="register()">രജിസ്റ്റർ ചെയ്യുക</button>
             </div>
@@ -61,80 +59,72 @@
 </div>
 
 <div id="adminPanel" class="container hidden">
-    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="card" style="display: flex; justify-content: space-between; align-items: center; border-left: 10px solid var(--gold);">
         <div>
             <h2 id="displayMName" style="margin:0; color:var(--primary);">---</h2>
-            <p id="displayDetails" style="margin:5px 0; color:#666;"></p>
+            <p style="margin:5px 0; color:#666;"><span id="displayDetails"></span> | Sadar: <b id="displaySadar"></b></p>
         </div>
-        <button id="topSaveBtn" class="btn btn-blue" onclick="saveAllData()">SAVE DATA ✅</button>
+        <button id="topSaveBtn" class="btn btn-blue" onclick="saveAllData()">SAVE ALL DATA ✅</button>
     </div>
 
     <div id="mainWorkArea">
         <div class="card">
-            <h3>വിദ്യാർത്ഥികളെ ചേർക്കുക</h3>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <select id="selClass" style="width: 200px;"></select>
-                <input type="number" id="inReg" placeholder="Reg No" style="width: 100px;">
-                <input type="text" id="inName" placeholder="Student Name" style="width: 250px;">
-                <button class="btn btn-green" style="width:auto" onclick="addStudent()">ADD</button>
+            <h3>1. വിദ്യാർത്ഥികളെ ചേർക്കുക</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                <select id="selClass"></select>
+                <input type="number" id="inReg" placeholder="Reg No">
+                <input type="text" id="inName" placeholder="Student Name">
+                <button class="btn btn-green" onclick="addStudent()">ADD STUDENT</button>
             </div>
             <div id="studentListArea"></div>
         </div>
 
         <div class="card">
-            <h3>വിഷയങ്ങൾ ചേർക്കുക</h3>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <select id="selSubClass" onchange="refreshSubList()" style="width: 200px;"></select>
-                <input type="text" id="inSubName" placeholder="Subject Name" style="width: 250px;">
-                <button class="btn btn-green" style="width:auto" onclick="addSubject()">ADD</button>
+            <h3>2. വിഷയങ്ങൾ ചേർക്കുക</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                <select id="selSubClass" onchange="refreshSubList()"></select>
+                <input type="text" id="inSubName" placeholder="Subject Name">
+                <button class="btn btn-green" onclick="addSubject()">ADD SUBJECT</button>
             </div>
             <div id="subjectListArea"></div>
         </div>
 
         <div class="card">
-            <h3>മാർക്ക് എൻട്രി & ഹാജർ</h3>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
-                <select id="selMarkClass" style="width: 200px;"></select>
+            <h3>3. മാർക്ക് എൻട്രി & ഹാജർ</h3>
+            <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
+                <select id="selMarkClass" style="width: 200px;" onchange="updateTotalAttField()"></select>
                 <input type="number" id="totalAttDays" placeholder="Total Working Days" style="width: 200px;">
                 <button class="btn btn-blue" onclick="loadMainTable()">LOAD TABLE</button>
             </div>
             <div id="mainTableWrapper" style="overflow-x: auto;"></div>
         </div>
-        <button id="finalSubmitBtn" class="btn btn-green" style="width:100%" onclick="finalSubmit()">PUBLISH TO SUPER ADMIN 🚀</button>
+        <button id="finalSubmitBtn" class="btn btn-green" style="font-size: 18px; padding: 20px;" onclick="finalSubmit()">PUBLISH TO SUPER ADMIN 🚀</button>
     </div>
 
     <div id="photoWorkArea" class="hidden">
-        <div class="card" style="text-align: center; border: 2px solid #2ecc71;">
-            <h3 id="statusText">പ്രോസസ്സിംഗിലാണ്...</h3>
-            
+        <div class="card" style="text-align: center;">
+            <h2 id="statusText" style="color: var(--blue);">കാത്തിരിക്കുക...</h2>
             <div id="approvedSection" class="hidden">
-                <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd;">
-                    <p><strong>1. ഫോട്ടോ അപ്‌ലോഡ് ലിങ്ക് (ഉസ്താദുമാർക്ക്):</strong></p>
-                    <span id="photoLinkDisp" class="link-box"></span>
-                    <button class="btn btn-blue" onclick="copyText('photoLinkDisp')">COPY LINK</button>
-                </div>
+                <p>അപ്രൂവൽ ലഭിച്ചു. താഴെ കാണുന്ന ലിങ്ക് ഉസ്താദുമാർക്ക് നൽകി ഫോട്ടോ അപ്‌ലോഡ് പൂർത്തിയാക്കുക.</p>
+                <span id="photoLinkDisp" class="link-box"></span>
+                <button class="btn btn-blue" onclick="copyText('photoLinkDisp')">COPY PHOTO LINK</button>
 
-                <div class="card" style="box-shadow: none; border: 1px solid #ddd;">
-                    <h3>2. ഫോട്ടോ സ്റ്റാറ്റസ് & ഡിലീറ്റ് ഓപ്ഷൻ</h3>
+                <div class="card" style="margin-top: 30px; border: 1px solid #ddd;">
+                    <h3>ഫോട്ടോ അപ്‌ലോഡ് സ്റ്റാറ്റസ്</h3>
                     <select id="selStatusClass" onchange="showPhotoStatusList()" style="width: 250px;"></select>
                     <div id="photoStatusTableArea"></div>
                 </div>
-
-                <div id="finalPublishStep" class="card" style="background: #fff3cd; border: 1px solid #ffeeba;">
-                    <p>എല്ലാ കുട്ടികളുടെയും ഫോട്ടോകൾ അപ്‌ലോഡ് ചെയ്തോ? എങ്കിൽ റിസൾട്ട് പബ്ലിഷ് ചെയ്യാം.</p>
-                    <button id="btnFinalPub" class="btn btn-orange" onclick="makeFinalPublish()">FINAL PUBLISH (VIEW RESULT) 🚀</button>
-                </div>
+                <button id="btnFinalPub" class="btn btn-orange" style="width: 100%; margin-top: 20px; background: var(--orange); color: white;" onclick="makeFinalPublish()">FINAL PUBLISH (VIEW RESULT) 🚀</button>
             </div>
         </div>
     </div>
 
     <div id="finalResultArea" class="hidden">
-        <div class="card" style="text-align: center; background: #eef9f0; border: 2px solid #27ae60;">
-            <h2 style="color: green;">റിസൾട്ട് പബ്ലിഷ് ചെയ്തിരിക്കുന്നു! ✅</h2>
-            <p><strong>രക്ഷിതാക്കൾക്കുള്ള ലിങ്ക്:</strong></p>
+        <div class="card" style="text-align: center; border: 3px solid #27ae60;">
+            <h2 style="color: #27ae60;">റിസൾട്ട് പബ്ലിഷ് ചെയ്തു! ✅</h2>
+            <p>രക്ഷിതാക്കൾക്ക് നൽകേണ്ട ലിങ്ക്:</p>
             <span id="viewLinkDisp" class="link-box"></span>
             <button class="btn btn-red" onclick="copyText('viewLinkDisp')">COPY RESULT LINK</button>
-            <p style="font-size: 12px; color: #666; margin-top: 15px;">ഇപ്പോൾ രക്ഷിതാക്കൾക്ക് അവരുടെ രജിസ്റ്റർ നമ്പർ ഉപയോഗിച്ച് റിസൾട്ട് കാണാവുന്നതാണ്.</p>
         </div>
     </div>
 </div>
@@ -172,15 +162,16 @@
         const ph = document.getElementById('rPhone').value.trim();
         const n = document.getElementById('rName').value.trim();
         const p = document.getElementById('rPlace').value.trim();
-        if(!ph || !n || !p) return alert("എല്ലാ വിവരങ്ങളും നൽകുക!");
+        const s = document.getElementById('rSadar').value.trim();
+        if(!ph || !n || !p || !s) return alert("എല്ലാ വിവരങ്ങളും നൽകുക!");
         
         const check = await db.collection("madrasa_data").doc(ph).get();
         if(check.exists) return alert("ഈ നമ്പർ നിലവിലുണ്ട്!");
 
         const uID = "MID" + Math.floor(1000 + Math.random() * 9000);
-        mData = { info: { name: n, place: p, phone: ph }, uID: uID, students: {}, subjects: {}, results: {}, attSettings: {}, photos: {}, isSubmitted: false, isApproved: false, isFinalPublished: false };
+        mData = { info: { name: n, place: p, sadar: s, phone: ph }, uID, students: {}, subjects: {}, results: {}, attSettings: {}, photos: {}, isSubmitted: false, isApproved: false, isFinalPublished: false };
         await db.collection("madrasa_data").doc(ph).set(mData);
-        alert("രജിസ്ട്രേഷൻ വിജയിച്ചു!"); showAuth('L');
+        alert("വിജയകരമായി രജിസ്റ്റർ ചെയ്തു!"); showAuth('L');
     }
 
     async function login() {
@@ -194,41 +185,37 @@
         document.getElementById('adminPanel').classList.remove('hidden');
         document.getElementById('displayMName').innerText = mData.info.name;
         document.getElementById('displayDetails').innerText = mData.info.place;
+        document.getElementById('displaySadar').innerText = mData.info.sadar || "---";
 
-        // വർക്ക് ഫ്ലോ കൺട്രോൾ
         if(mData.isFinalPublished) {
-            // ഫൈനൽ പബ്ലിഷ് കഴിഞ്ഞാൽ എല്ലാം മറച്ച് ലിങ്ക് മാത്രം കാണിക്കുക
             document.getElementById('mainWorkArea').classList.add('hidden');
             document.getElementById('photoWorkArea').classList.add('hidden');
-            document.getElementById('topSaveBtn').classList.add('hidden');
             document.getElementById('finalResultArea').classList.remove('hidden');
             document.getElementById('viewLinkDisp').innerText = `https://mannanimuhsin-sys.github.io/my-website-1/misbahresultview.html?id=${mData.uID}`;
-        } 
-        else if(mData.isSubmitted) {
-            // സബ്മിറ്റ് ചെയ്താൽ മെയിൻ വർക്ക് മറച്ച് ഫോട്ടോ ഏരിയ കാണിക്കുക
+        } else if(mData.isSubmitted) {
             document.getElementById('mainWorkArea').classList.add('hidden');
-            document.getElementById('topSaveBtn').classList.add('hidden');
             document.getElementById('photoWorkArea').classList.remove('hidden');
-            
             if(mData.isApproved) {
                 document.getElementById('statusText').innerText = "അഡ്മിൻ അപ്രൂവൽ ലഭിച്ചു ✅";
                 document.getElementById('approvedSection').classList.remove('hidden');
                 document.getElementById('photoLinkDisp').innerText = `https://mannanimuhsin-sys.github.io/my-website-1/photoupload.html?id=${mData.uID}`;
-                showPhotoStatusList();
             } else {
                 document.getElementById('statusText').innerText = "സൂപ്പർ അഡ്മിൻ അപ്രൂവലിനായി കാത്തിരിക്കുക... ⏳";
             }
         }
-        refreshStList(); refreshSubList();
+        refreshStList();
+        refreshSubList();
     }
 
     function addStudent() {
         const c = document.getElementById('selClass').value;
-        const r = document.getElementById('inReg').value;
-        const n = document.getElementById('inName').value;
+        const r = document.getElementById('inReg').value.trim();
+        const n = document.getElementById('inName').value.trim();
         if(!c || !r || !n) return;
         if(!mData.students[c]) mData.students[c] = {};
         mData.students[c][r] = n;
+        document.getElementById('inReg').value = '';
+        document.getElementById('inName').value = '';
         refreshStList();
     }
 
@@ -237,19 +224,25 @@
         for(let c in mData.students) {
             h += `<h4>${c}</h4><table><tr><th>Reg</th><th>Name</th><th>Action</th></tr>`;
             for(let r in mData.students[c]) {
-                h += `<tr><td>${r}</td><td>${mData.students[c][r]}</td><td><button class="btn-red" onclick="delete mData.students['${c}']['${r}']; refreshStList()">Delete</button></td></tr>`;
+                h += `<tr><td>${r}</td><td>${mData.students[c][r]}</td><td><button class="btn-red" onclick="deleteStudent('${c}','${r}')">Delete</button></td></tr>`;
             }
             h += `</table>`;
         }
         document.getElementById('studentListArea').innerHTML = h;
     }
+    
+    function deleteStudent(c, r) {
+        delete mData.students[c][r];
+        refreshStList();
+    }
 
     function addSubject() {
         const c = document.getElementById('selSubClass').value;
-        const s = document.getElementById('inSubName').value;
+        const s = document.getElementById('inSubName').value.trim();
         if(!c || !s) return;
         if(!mData.subjects[c]) mData.subjects[c] = [];
         mData.subjects[c].push(s);
+        document.getElementById('inSubName').value = '';
         refreshSubList();
     }
 
@@ -258,9 +251,19 @@
         if(!c) { document.getElementById('subjectListArea').innerHTML = ""; return; }
         let h = `<table><tr><th>Subject</th><th>Action</th></tr>`;
         (mData.subjects[c] || []).forEach((s, i) => {
-            h += `<tr><td>${s}</td><td><button class="btn-red" onclick="mData.subjects['${c}'].splice(${i},1); refreshSubList()">Delete</button></td></tr>`;
+            h += `<tr><td>${s}</td><td><button class="btn-red" onclick="deleteSubject('${c}',${i})">Delete</button></td></tr>`;
         });
         document.getElementById('subjectListArea').innerHTML = h + `</table>`;
+    }
+
+    function deleteSubject(c, i) {
+        mData.subjects[c].splice(i, 1);
+        refreshSubList();
+    }
+
+    function updateTotalAttField() {
+        const c = document.getElementById('selMarkClass').value;
+        document.getElementById('totalAttDays').value = (mData.attSettings && mData.attSettings[c]) ? mData.attSettings[c] : "";
     }
 
     function loadMainTable() {
@@ -268,46 +271,39 @@
         if(!c) return alert("ക്ലാസ് തിരഞ്ഞെടുക്കുക");
         const studs = mData.students[c] || {};
         const subs = mData.subjects[c] || [];
-        document.getElementById('totalAttDays').value = (mData.attSettings && mData.attSettings[c]) ? mData.attSettings[c] : "";
         
-        let h = `<table><thead><tr><th>Reg</th><th>Name</th><th>Attendance</th>`;
-        subs.forEach(s => h += `<th>${s}</th>`);
+        let h = `<table><thead><tr><th>Reg</th><th>Name</th><th>Att.</th>`;
+        subs.forEach(s => h += `<th>${s.substring(0,6)}</th>`);
         h += `<th>Total</th><th>Status</th><th>Rank</th></tr></thead><tbody>`;
         
         for(let r in studs) {
             const res = (mData.results[c] && mData.results[c][r]) ? mData.results[c][r] : { marks: {}, att: '', total: 0, status: 'Passed', rank: '' };
-            h += `<tr data-reg="${r}"><td>${r}</td><td style="text-align:left">${studs[r]}</td><td><input type="number" class="m-input s-att" value="${res.att}"></td>`;
-            subs.forEach(s => h += `<td><input type="number" class="m-input s-mark" data-sub="${s}" value="${res.marks[s] || ''}" oninput="updateRow(this)"></td>`);
-            h += `<td class="r-tot">${res.total}</td><td><select class="r-sts"><option value="Passed" ${res.status=='Passed'?'selected':''}>Passed</option><option value="Failed" ${res.status=='Failed'?'selected':''}>Failed</option><option value="Promotion" ${res.status=='Promotion'?'selected':''}>Promotion</option></select></td><td><input type="text" class="m-input r-rank" value="${res.rank || ''}"></td></tr>`;
+            h += `<tr data-reg="${r}"><td>${r}</td><td style="text-align:left; font-size:13px;">${studs[r]}</td>
+            <td><input type="number" class="m-input s-att" value="${res.att}"></td>`;
+            subs.forEach(s => h += `<td><input type="number" class="m-input s-mark" data-sub="${s}" value="${res.marks[s] || ''}" oninput="updateRowLogic(this)"></td>`);
+            h += `<td class="r-tot" style="font-weight:bold">${res.total}</td>
+            <td><select class="r-sts">
+                <option value="Passed" ${res.status=='Passed'?'selected':''}>Passed</option>
+                <option value="Failed" ${res.status=='Failed'?'selected':''}>Failed</option>
+                <option value="Promotion" ${res.status=='Promotion'?'selected':''}>Promotion</option>
+            </select></td>
+            <td><input type="text" class="m-input r-rank" value="${res.rank || ''}"></td></tr>`;
         }
         document.getElementById('mainTableWrapper').innerHTML = h + `</tbody></table>`;
     }
 
-    function updateRow(el) {
+    function updateRowLogic(el) {
         const row = el.closest('tr');
         let tot = 0;
-        row.querySelectorAll('.s-mark').forEach(i => tot += (parseInt(i.value) || 0));
+        let isFailed = false;
+        row.querySelectorAll('.s-mark').forEach(i => {
+            let val = parseInt(i.value) || 0;
+            tot += val;
+            if(val < 18) isFailed = true; // പാസ് മാർക്ക് 18 ആയി സെറ്റ് ചെയ്തിരിക്കുന്നു
+        });
         row.querySelector('.r-tot').innerText = tot;
-    }
-
-    function showPhotoStatusList() {
-        const c = document.getElementById('selStatusClass').value;
-        if(!c) return;
-        const studs = mData.students[c] || {};
-        const photos = mData.photos || {};
-        let h = `<table><tr><th>Reg No</th><th>Name</th><th>Status</th><th>Action</th></tr>`;
-        for(let r in studs) {
-            const up = photos[r];
-            h += `<tr><td>${r}</td><td>${studs[r]}</td><td>${up ? '<span class="status-up">Uploaded ✅</span>' : '<span class="status-pen">Pending ❌</span>'}</td><td>${up ? `<button class="btn-red" style="padding:5px" onclick="deletePhoto('${r}')">Delete</button>` : '-'}</td></tr>`;
-        }
-        document.getElementById('photoStatusTableArea').innerHTML = h + `</table>`;
-    }
-
-    async function deletePhoto(r) {
-        if(!confirm("ഈ ഫോട്ടോ ഡിലീറ്റ് ചെയ്യണോ?")) return;
-        delete mData.photos[r];
-        await db.collection("madrasa_data").doc(currentDocId).update({ photos: mData.photos });
-        showPhotoStatusList();
+        if(isFailed) row.querySelector('.r-sts').value = "Failed";
+        else row.querySelector('.r-sts').value = "Passed";
     }
 
     async function saveAllData() {
@@ -321,30 +317,48 @@
                 const r = row.getAttribute('data-reg');
                 let marks = {};
                 row.querySelectorAll('.s-mark').forEach(i => marks[i.getAttribute('data-sub')] = i.value);
-                mData.results[c][r] = { att: row.querySelector('.s-att').value, marks, total: row.querySelector('.r-tot').innerText, status: row.querySelector('.r-sts').value, rank: row.querySelector('.r-rank').value };
+                mData.results[c][r] = { 
+                    att: row.querySelector('.s-att').value, 
+                    marks, 
+                    total: row.querySelector('.r-tot').innerText, 
+                    status: row.querySelector('.r-sts').value, 
+                    rank: row.querySelector('.r-rank').value 
+                };
             });
         }
-        await db.collection("madrasa_data").doc(currentDocId).update(mData);
-        alert("വിവരങ്ങൾ സേവ് ചെയ്തു!");
+        await db.collection("madrasa_data").doc(currentDocId).set(mData);
+        alert("ഡാറ്റ സുരക്ഷിതമായി സേവ് ചെയ്തു! ✅");
     }
 
     async function finalSubmit() {
-        if(!confirm("സൂപ്പർ അഡ്മിന് സമർപ്പിക്കണോ? പിന്നീട് മാറ്റാൻ അഡ്മിൻ വിചാരിക്കണം.")) return;
+        if(!confirm("സൂപ്പർ അഡ്മിന് സമർപ്പിക്കണോ? പിന്നീട് തിരുത്താൻ സാധിക്കില്ല.")) return;
         mData.isSubmitted = true;
         await saveAllData(); startPanel();
     }
 
     async function makeFinalPublish() {
-        if(!confirm("റിസൾട്ട് രക്ഷിതാക്കൾക്കായി പബ്ലിഷ് ചെയ്യണോ? ഇത് കഴിഞ്ഞാൽ ലിങ്കുകൾ മാത്രമേ കാണാൻ സാധിക്കൂ.")) return;
+        if(!confirm("റിസൾട്ട് പബ്ലിഷ് ചെയ്യണോ? രക്ഷിതാക്കൾക്ക് ഇപ്പോൾ റിസൾട്ട് കാണാം.")) return;
         mData.isFinalPublished = true;
         await db.collection("madrasa_data").doc(currentDocId).update({ isFinalPublished: true });
         startPanel();
     }
 
+    function showPhotoStatusList() {
+        const c = document.getElementById('selStatusClass').value;
+        if(!c) return;
+        const studs = mData.students[c] || {};
+        const photos = mData.photos || {};
+        let h = `<table><tr><th>Reg No</th><th>Name</th><th>Status</th></tr>`;
+        for(let r in studs) {
+            h += `<tr><td>${r}</td><td>${studs[r]}</td><td>${photos[r] ? '✅' : '❌'}</td></tr>`;
+        }
+        document.getElementById('photoStatusTableArea').innerHTML = h + `</table>`;
+    }
+
     function copyText(id) {
         const text = document.getElementById(id).innerText;
         navigator.clipboard.writeText(text);
-        alert("Copied!");
+        alert("Copied to clipboard!");
     }
 </script>
 </body>
