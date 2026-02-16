@@ -72,7 +72,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
 
 <script>
-    // Firebase Config
     const firebaseConfig = { 
         apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ", 
         authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.app", 
@@ -82,15 +81,17 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ഐഡി ലിങ്കിൽ ഇല്ലെങ്കിലും ഡാറ്റ കിട്ടാൻ ഈ ഭാഗം സഹായിക്കും
-    const fixedUID = "MID_1739506692805"; // നിങ്ങളുടെ മദ്രസ ഐഡി ഇവിടെ നൽകി
-    const mId = new URLSearchParams(window.location.search).get('id') || fixedUID;
+    const mId = new URLSearchParams(window.location.search).get('id');
     
     let fullData = null;
     let docId = null;
     let cropper = null;
 
     async function init() {
+        if(!mId) {
+            document.getElementById('loadStatus').innerText = "ID ലിങ്ക് തെറ്റാണ്!";
+            return;
+        }
         try {
             const snap = await db.collection("madrasa_data").where("uID", "==", mId).get();
             if(!snap.empty) {
@@ -111,6 +112,12 @@
         const reg = document.getElementById('regInput').value.trim();
         if(!reg) return alert("രജിസ്റ്റർ നമ്പർ നൽകുക");
         
+        // പുതിയ ഫീച്ചർ: മുൻപ് അപ്‌ലോഡ് ചെയ്തിട്ടുണ്ടോ എന്ന് പരിശോധിക്കുന്നു
+        if(fullData.photos && fullData.photos[reg]) {
+            alert("നിങ്ങൾ നേരത്തെ ഫോട്ടോ അപ്‌ലോഡ് ചെയ്തിട്ടുണ്ട്! മാറ്റം വരുത്തണമെങ്കിൽ അഡ്മിനുമായി ബന്ധപ്പെട്ട് പഴയത് ഡിലീറ്റ് ചെയ്യിക്കുക.");
+            return;
+        }
+
         let found = false;
         for(let cls in fullData.students) {
             if(fullData.students[cls][reg]) {
@@ -150,14 +157,26 @@
     async function saveFinalPhoto() {
         const reg = document.getElementById('regInput').value.trim();
         const btn = document.getElementById('finalBtn');
+        
+        // സുരക്ഷയ്ക്ക് വേണ്ടി ഒരിക്കൽ കൂടി പരിശോധിക്കുന്നു
+        const reCheck = await db.collection("madrasa_data").doc(docId).get();
+        const latestData = reCheck.data();
+        if(latestData.photos && latestData.photos[reg]) {
+            alert("ഈ രജിസ്റ്റർ നമ്പറിൽ ഇതിനകം ഫോട്ടോ വന്നിട്ടുണ്ട്!");
+            location.reload();
+            return;
+        }
+
         btn.disabled = true; btn.innerText = "അപ്‌ലോഡ് ചെയ്യുന്നു...";
 
         try {
             const base64 = await cropper.result({ type: 'base64', size: 'viewport', format: 'jpeg', quality: 0.8 });
-            if(!fullData.photos) fullData.photos = {};
-            fullData.photos[reg] = base64;
+            
+            // ഡാറ്റാബേസിലേക്ക് ഫോട്ടോ അപ്‌ഡേറ്റ് ചെയ്യുന്നു
+            await db.collection("madrasa_data").doc(docId).update({
+                [`photos.${reg}`]: base64
+            });
 
-            await db.collection("madrasa_data").doc(docId).update({ photos: fullData.photos });
             alert("ഫോട്ടോ വിജയകരമായി അപ്‌ലോഡ് ചെയ്തു! 🎉");
             location.reload();
         } catch (e) {
