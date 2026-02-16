@@ -3,137 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Madrasa Admin Panel</title>
+    <title>Super Admin Control - Misbahul Uloom</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #004d00; --gold: #ffd700; --blue: #2980b9; --red: #c0392b; --orange: #e67e22; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; }
-        .header { background: var(--primary); color: white; padding: 30px; text-align: center; border-bottom: 5px solid var(--gold); }
-        .container { max-width: 1100px; margin: 20px auto; padding: 10px; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        :root { --super-bg: #1a1a2e; --card-bg: #ffffff; --primary: #004d00; --accent: #e67e22; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .header { background: var(--primary); color: white; padding: 20px; text-align: center; border-radius: 10px; margin-bottom: 30px; }
+        .container { max-width: 1000px; margin: auto; }
         
-        /* Auth Design */
-        .auth-box { max-width: 450px; margin: -50px auto 30px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
-        .auth-tabs { display: flex; background: #eee; }
-        .auth-tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; }
-        .auth-tab.active { background: white; border-top: 4px solid var(--primary); color: var(--primary); }
-        
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        .btn { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-green { background: var(--primary); color: white; width: 100%; }
-        .btn-blue { background: var(--blue); color: white; }
-        .btn-red { background: var(--red); color: white; }
-        .btn-orange { background: var(--orange); color: white; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
-        th { background: var(--primary); color: white; padding: 12px; border: 1px solid #ddd; }
-        td { padding: 10px; border: 1px solid #ddd; text-align: center; }
-        
-        .m-input { width: 80px !important; padding: 8px; border: 2px solid #ddd; border-radius: 4px; text-align: center; font-size: 16px; font-weight: bold; }
-        .hidden { display: none; }
-        .status-up { color: green; font-weight: bold; }
-        .status-pen { color: red; font-weight: bold; }
-        .link-box { background: #f8f9fa; padding: 10px; border: 1px solid #ddd; border-radius: 5px; word-break: break-all; font-family: monospace; margin: 10px 0; display: block; }
+        .madrasa-card { 
+            background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-left: 8px solid #ccc;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+        }
+        .status-submitted { border-left-color: #3498db; } /* Blue */
+        .status-approved { border-left-color: #2ecc71; }  /* Green */
+        .status-published { border-left-color: #f1c40f; } /* Gold */
+
+        .info-sec h3 { margin: 0 0 5px 0; color: #333; }
+        .info-sec p { margin: 2px 0; font-size: 14px; color: #666; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .bg-blue { background: #ebf5ff; color: #007bff; }
+        .bg-green { background: #e6fffa; color: #065f46; }
+
+        .actions { display: flex; gap: 10px; margin-top: 10px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn-approve { background: #2ecc71; color: white; }
+        .btn-delete { background: #e74c3c; color: white; }
+        .btn-view { background: #3498db; color: white; }
+
+        .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-item { background: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
-<div id="authSection">
-    <div class="header"><h1>മദ്രസ അഡ്മിൻ പാനൽ</h1></div>
-    <div class="auth-box">
-        <div class="auth-tabs">
-            <div id="tabL" class="auth-tab active" onclick="showAuth('L')">LOGIN</div>
-            <div id="tabR" class="auth-tab" onclick="showAuth('R')">REGISTER</div>
-        </div>
-        <div style="padding: 30px;">
-            <div id="loginForm">
-                <input type="tel" id="lPhone" placeholder="മൊബൈൽ നമ്പർ">
-                <button class="btn btn-green" onclick="login()">പ്രവേശിക്കുക</button>
-            </div>
-            <div id="regForm" class="hidden">
-                <input type="text" id="rName" placeholder="മദ്രസയുടെ പേര്">
-                <input type="text" id="rPlace" placeholder="സ്ഥലം">
-                <input type="tel" id="rPhone" placeholder="മൊബൈൽ നമ്പർ">
-                <button class="btn btn-green" onclick="register()">രജിസ്റ്റർ ചെയ്യുക</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="adminPanel" class="container hidden">
-    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <h2 id="displayMName" style="margin:0; color:var(--primary);">---</h2>
-            <p id="displayDetails" style="margin:5px 0; color:#666;"></p>
-        </div>
-        <button id="topSaveBtn" class="btn btn-blue" onclick="saveAllData()">SAVE DATA ✅</button>
+<div class="container">
+    <div class="header">
+        <h1>SUPER ADMIN PANEL</h1>
+        <p>Manage all registered Madrasas</p>
     </div>
 
-    <div id="mainWorkArea">
-        <div class="card">
-            <h3>വിദ്യാർത്ഥികളെ ചേർക്കുക</h3>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <select id="selClass" style="width: 200px;"></select>
-                <input type="number" id="inReg" placeholder="Reg No" style="width: 100px;">
-                <input type="text" id="inName" placeholder="Student Name" style="width: 250px;">
-                <button class="btn btn-green" style="width:auto" onclick="addStudent()">ADD</button>
-            </div>
-            <div id="studentListArea"></div>
-        </div>
-
-        <div class="card">
-            <h3>വിഷയങ്ങൾ ചേർക്കുക</h3>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <select id="selSubClass" onchange="refreshSubList()" style="width: 200px;"></select>
-                <input type="text" id="inSubName" placeholder="Subject Name" style="width: 250px;">
-                <button class="btn btn-green" style="width:auto" onclick="addSubject()">ADD</button>
-            </div>
-            <div id="subjectListArea"></div>
-        </div>
-
-        <div class="card">
-            <h3>മാർക്ക് എൻട്രി & ഹാജർ</h3>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
-                <select id="selMarkClass" style="width: 200px;"></select>
-                <input type="number" id="totalAttDays" placeholder="Total Working Days" style="width: 200px;">
-                <button class="btn btn-blue" onclick="loadMainTable()">LOAD TABLE</button>
-            </div>
-            <div id="mainTableWrapper" style="overflow-x: auto;"></div>
-        </div>
-        <button id="finalSubmitBtn" class="btn btn-green" style="width:100%" onclick="finalSubmit()">PUBLISH TO SUPER ADMIN 🚀</button>
+    <div class="stats-bar" id="statsBar">
+        <div class="stat-item"><h2 id="totalM">0</h2><small>Total Madrasas</small></div>
+        <div class="stat-item"><h2 id="pendingM" style="color: #e67e22;">0</h2><small>Wait for Approval</small></div>
+        <div class="stat-item"><h2 id="approvedM" style="color: #2ecc71;">0</h2><small>Approved</small></div>
     </div>
 
-    <div id="afterSubmitArea" class="hidden">
-        <div class="card" style="text-align: center; background: #eef9f0; border: 2px solid #2ecc71;">
-            <h3 id="statusText">പ്രോസസ്സിംഗിലാണ്...</h3>
-            
-            <div id="approvedSection" class="hidden">
-                <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd;">
-                    <p><strong>1. ഫോട്ടോ അപ്‌ലോഡ് ലിങ്ക് (ഉസ്താദുമാർക്ക്):</strong></p>
-                    <span id="photoLinkDisp" class="link-box"></span>
-                    <button class="btn btn-blue" onclick="copyText('photoLinkDisp')">COPY LINK</button>
-                </div>
-
-                <div class="card" style="box-shadow: none; border: 1px solid #ddd;">
-                    <h3>2. ഫോട്ടോ സ്റ്റാറ്റസ് & ഡിലീറ്റ് ഓപ്ഷൻ</h3>
-                    <select id="selStatusClass" onchange="showPhotoStatusList()" style="width: 250px;"></select>
-                    <div id="photoStatusTableArea"></div>
-                </div>
-
-                <div id="finalPublishStep" class="card" style="background: #fff3cd; border: 1px solid #ffeeba;">
-                    <p>എല്ലാ കുട്ടികളുടെയും ഫോട്ടോകൾ അപ്‌ലോഡ് ചെയ്തോ? എങ്കിൽ റിസൾട്ട് പബ്ലിഷ് ചെയ്യാം.</p>
-                    <button id="btnFinalPub" class="btn btn-orange" onclick="makeFinalPublish()">FINAL PUBLISH (VIEW RESULT) 🚀</button>
-                    
-                    <div id="viewResultArea" class="hidden">
-                        <hr>
-                        <p style="color:green; font-weight:bold;">റിസൾട്ട് പബ്ലിഷ് ചെയ്തിരിക്കുന്നു! ✅</p>
-                        <p><strong>രക്ഷിതാക്കൾക്കുള്ള ലിങ്ക്:</strong></p>
-                        <span id="viewLinkDisp" class="link-box"></span>
-                        <button class="btn btn-red" onclick="copyText('viewLinkDisp')">COPY RESULT LINK</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div id="madrasaList">
+        <p style="text-align: center; color: #888;">Loading Madrasa list...</p>
     </div>
 </div>
 
@@ -141,6 +59,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
+    // Firebase Config
     const firebaseConfig = { 
         apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ", 
         authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.app", 
@@ -150,218 +69,84 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let mData = {};
-    let currentDocId = "";
-    const classes = ["Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"];
-
-    window.onload = () => {
-        const clsHtml = '<option value="">ക്ലാസ് തിരഞ്ഞെടുക്കുക</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join('');
-        document.querySelectorAll('#selClass, #selSubClass, #selMarkClass, #selStatusClass').forEach(s => s.innerHTML = clsHtml);
-    };
-
-    function showAuth(t) {
-        document.getElementById('loginForm').classList.toggle('hidden', t === 'R');
-        document.getElementById('regForm').classList.toggle('hidden', t === 'L');
-        document.getElementById('tabL').classList.toggle('active', t === 'L');
-        document.getElementById('tabR').classList.toggle('active', t === 'R');
-    }
-
-    async function register() {
-        const ph = document.getElementById('rPhone').value.trim();
-        const n = document.getElementById('rName').value.trim();
-        const p = document.getElementById('rPlace').value.trim();
-        if(!ph || !n || !p) return alert("എല്ലാ വിവരങ്ങളും നൽകുക!");
-        
-        const check = await db.collection("madrasa_data").doc(ph).get();
-        if(check.exists) return alert("ഈ നമ്പർ നിലവിലുണ്ട്!");
-
-        const uID = "MID" + Math.floor(1000 + Math.random() * 9000);
-        mData = { 
-            info: { name: n, place: p, phone: ph }, 
-            uID: uID, 
-            students: {}, 
-            subjects: {}, 
-            results: {}, 
-            attSettings: {}, 
-            photos: {}, 
-            isSubmitted: false, 
-            isApproved: false, 
-            isFinalPublished: false 
-        };
-        await db.collection("madrasa_data").doc(ph).set(mData);
-        alert("രജിസ്ട്രേഷൻ വിജയിച്ചു!"); showAuth('L');
-    }
-
-    async function login() {
-        const ph = document.getElementById('lPhone').value.trim();
-        const doc = await db.collection("madrasa_data").doc(ph).get();
-        if(doc.exists) { 
-            currentDocId = ph; 
-            mData = doc.data(); 
-            startPanel(); 
-        } else alert("നമ്പർ തെറ്റാണ്!");
-    }
-
-    function startPanel() {
-        document.getElementById('authSection').classList.add('hidden');
-        document.getElementById('adminPanel').classList.remove('hidden');
-        document.getElementById('displayMName').innerText = mData.info.name;
-        document.getElementById('displayDetails').innerText = mData.info.place;
-
-        if(mData.isSubmitted) {
-            document.getElementById('mainWorkArea').classList.add('hidden');
-            document.getElementById('topSaveBtn').classList.add('hidden');
-            document.getElementById('afterSubmitArea').classList.remove('hidden');
+    // ലോഡ് ചെയ്യുമ്പോൾ ഡാറ്റ റിയൽ-ടൈം ആയി എടുക്കുന്നു
+    function loadAllMadrasas() {
+        db.collection("madrasa_data").onSnapshot((snapshot) => {
+            const listDiv = document.getElementById('madrasaList');
+            listDiv.innerHTML = "";
             
-            if(mData.isApproved) {
-                document.getElementById('statusText').innerText = "അഡ്മിൻ അപ്രൂവൽ ലഭിച്ചു ✅";
-                document.getElementById('approvedSection').classList.remove('hidden');
-                document.getElementById('photoLinkDisp').innerText = `https://mannanimuhsin-sys.github.io/my-website-1/photoupload.html?id=${mData.uID}`;
-                
-                if(mData.isFinalPublished) {
-                    document.getElementById('btnFinalPub').classList.add('hidden');
-                    document.getElementById('viewResultArea').classList.remove('hidden');
-                    document.getElementById('viewLinkDisp').innerText = `https://mannanimuhsin-sys.github.io/my-website-1/misbahresultview.html?id=${mData.uID}`;
+            let mData = [];
+            snapshot.forEach(doc => mData.push({id: doc.id, ...doc.data()}));
+
+            // ഏറ്റവും അവസാനം അപ്ഡേറ്റ് ചെയ്തത് മുകളിൽ വരാൻ (Sort by latest)
+            // (കുറിപ്പ്: നിങ്ങളുടെ ഡാറ്റയിൽ timestamp ഇല്ലെങ്കിൽ ഇത് ഐഡി വെച്ച് കാണിക്കും)
+            mData.reverse(); 
+
+            let counts = { total: 0, pending: 0, approved: 0 };
+
+            mData.forEach(m => {
+                counts.total++;
+                let statusClass = "";
+                let statusLabel = "Registered";
+
+                if (m.isFinalPublished) {
+                    statusClass = "status-published";
+                    statusLabel = "Final Published";
+                } else if (m.isApproved) {
+                    statusClass = "status-approved";
+                    statusLabel = "Approved (Photo Uploading)";
+                    counts.approved++;
+                } else if (m.isSubmitted) {
+                    statusClass = "status-submitted";
+                    statusLabel = "Submitted (Waiting Approval)";
+                    counts.pending++;
                 }
-                showPhotoStatusList();
-            } else {
-                document.getElementById('statusText').innerText = "സൂപ്പർ അഡ്മിൻ അപ്രൂവലിനായി കാത്തിരിക്കുക... ⏳";
-            }
-        }
-        refreshStList(); refreshSubList();
-    }
 
-    // Student Logic
-    function addStudent() {
-        const c = document.getElementById('selClass').value;
-        const r = document.getElementById('inReg').value;
-        const n = document.getElementById('inName').value;
-        if(!c || !r || !n) return;
-        if(!mData.students[c]) mData.students[c] = {};
-        mData.students[c][r] = n;
-        refreshStList();
-    }
-
-    function refreshStList() {
-        let h = "";
-        for(let c in mData.students) {
-            h += `<h4>${c}</h4><table><tr><th>Reg</th><th>Name</th><th>Action</th></tr>`;
-            for(let r in mData.students[c]) {
-                h += `<tr><td>${r}</td><td>${mData.students[c][r]}</td><td><button class="btn-red" onclick="delete mData.students['${c}']['${r}']; refreshStList()">Delete</button></td></tr>`;
-            }
-            h += `</table>`;
-        }
-        document.getElementById('studentListArea').innerHTML = h;
-    }
-
-    // Subject Logic
-    function addSubject() {
-        const c = document.getElementById('selSubClass').value;
-        const s = document.getElementById('inSubName').value;
-        if(!c || !s) return;
-        if(!mData.subjects[c]) mData.subjects[c] = [];
-        mData.subjects[c].push(s);
-        refreshSubList();
-    }
-
-    function refreshSubList() {
-        const c = document.getElementById('selSubClass').value;
-        if(!c) { document.getElementById('subjectListArea').innerHTML = ""; return; }
-        let h = `<table><tr><th>Subject</th><th>Action</th></tr>`;
-        (mData.subjects[c] || []).forEach((s, i) => {
-            h += `<tr><td>${s}</td><td><button class="btn-red" onclick="mData.subjects['${c}'].splice(${i},1); refreshSubList()">Delete</button></td></tr>`;
-        });
-        document.getElementById('subjectListArea').innerHTML = h + `</table>`;
-    }
-
-    // Mark Table
-    function loadMainTable() {
-        const c = document.getElementById('selMarkClass').value;
-        if(!c) return alert("ക്ലാസ് തിരഞ്ഞെടുക്കുക");
-        const studs = mData.students[c] || {};
-        const subs = mData.subjects[c] || [];
-        document.getElementById('totalAttDays').value = (mData.attSettings && mData.attSettings[c]) ? mData.attSettings[c] : "";
-        
-        let h = `<table><thead><tr><th>Reg</th><th>Name</th><th>Attendance</th>`;
-        subs.forEach(s => h += `<th>${s}</th>`);
-        h += `<th>Total</th><th>Status</th></tr></thead><tbody>`;
-        
-        for(let r in studs) {
-            const res = (mData.results[c] && mData.results[c][r]) ? mData.results[c][r] : { marks: {}, att: '', total: 0, status: 'Passed' };
-            h += `<tr data-reg="${r}"><td>${r}</td><td style="text-align:left">${studs[r]}</td><td><input type="number" class="m-input s-att" value="${res.att}"></td>`;
-            subs.forEach(s => h += `<td><input type="number" class="m-input s-mark" data-sub="${s}" value="${res.marks[s] || ''}" oninput="updateRow(this)"></td>`);
-            h += `<td class="r-tot">${res.total}</td><td><select class="r-sts"><option value="Passed" ${res.status=='Passed'?'selected':''}>Passed</option><option value="Failed" ${res.status=='Failed'?'selected':''}>Failed</option><option value="Promotion" ${res.status=='Promotion'?'selected':''}>Promotion</option></select></td></tr>`;
-        }
-        document.getElementById('mainTableWrapper').innerHTML = h + `</tbody></table>`;
-    }
-
-    function updateRow(el) {
-        const row = el.closest('tr');
-        let tot = 0;
-        row.querySelectorAll('.s-mark').forEach(i => tot += (parseInt(i.value) || 0));
-        row.querySelector('.r-tot').innerText = tot;
-    }
-
-    // Photo Status & Delete
-    function showPhotoStatusList() {
-        const c = document.getElementById('selStatusClass').value;
-        if(!c) return;
-        const studs = mData.students[c] || {};
-        const photos = mData.photos || {};
-        let h = `<table><tr><th>Reg No</th><th>Name</th><th>Status</th><th>Action</th></tr>`;
-        for(let r in studs) {
-            const up = photos[r];
-            h += `<tr><td>${r}</td><td>${studs[r]}</td>
-            <td>${up ? '<span class="status-up">Uploaded ✅</span>' : '<span class="status-pen">Pending ❌</span>'}</td>
-            <td>${up ? `<button class="btn-red" style="padding:5px" onclick="deletePhoto('${r}')">Delete</button>` : '-'}</td></tr>`;
-        }
-        document.getElementById('photoStatusTableArea').innerHTML = h + `</table>`;
-    }
-
-    async function deletePhoto(r) {
-        if(!confirm("ഈ ഫോട്ടോ ഡിലീറ്റ് ചെയ്യണോ?")) return;
-        delete mData.photos[r];
-        await db.collection("madrasa_data").doc(currentDocId).update({ photos: mData.photos });
-        showPhotoStatusList();
-    }
-
-    // Save & Publish
-    async function saveAllData() {
-        const c = document.getElementById('selMarkClass').value;
-        if(c) {
-            if(!mData.attSettings) mData.attSettings = {};
-            mData.attSettings[c] = document.getElementById('totalAttDays').value;
-            if(!mData.results) mData.results = {};
-            if(!mData.results[c]) mData.results[c] = {};
-            document.querySelectorAll('#mainTableWrapper tbody tr').forEach(row => {
-                const r = row.getAttribute('data-reg');
-                let marks = {};
-                row.querySelectorAll('.s-mark').forEach(i => marks[i.getAttribute('data-sub')] = i.value);
-                mData.results[c][r] = { att: row.querySelector('.s-att').value, marks, total: row.querySelector('.r-tot').innerText, status: row.querySelector('.r-sts').value };
+                const card = document.createElement('div');
+                card.className = `madrasa-card ${statusClass}`;
+                card.innerHTML = `
+                    <div class="info-sec">
+                        <h3>${m.info.name}</h3>
+                        <p><i class="fa fa-map-marker-alt"></i> ${m.info.place}</p>
+                        <p><i class="fa fa-phone"></i> ${m.info.phone} | <strong>ID: ${m.uID}</strong></p>
+                        <span class="badge ${m.isApproved ? 'bg-green' : 'bg-blue'}">${statusLabel}</span>
+                    </div>
+                    <div class="actions">
+                        ${!m.isApproved && m.isSubmitted ? `<button class="btn btn-approve" onclick="approveMadrasa('${m.id}')">APPROVE</button>` : ''}
+                        <button class="btn btn-delete" onclick="deleteMadrasa('${m.id}')"><i class="fa fa-trash"></i></button>
+                    </div>
+                `;
+                listDiv.appendChild(card);
             });
+
+            document.getElementById('totalM').innerText = counts.total;
+            document.getElementById('pendingM').innerText = counts.pending;
+            document.getElementById('approvedM').innerText = counts.approved;
+
+            if (mData.length === 0) listDiv.innerHTML = "<p style='text-align:center;'>No madrasas found.</p>";
+        });
+    }
+
+    // Approve Madrasa
+    async function approveMadrasa(docId) {
+        if(confirm("ഈ മദ്രസ അപ്രൂവ് ചെയ്യണോ? ഇത് അവർക്ക് ഫോട്ടോ അപ്‌ലോഡ് ലിങ്ക് നൽകും.")) {
+            await db.collection("madrasa_data").doc(docId).update({
+                isApproved: true
+            });
+            alert("മദ്രസ അപ്രൂവ് ചെയ്തു!");
         }
-        await db.collection("madrasa_data").doc(currentDocId).update(mData);
-        alert("വിവരങ്ങൾ സേവ് ചെയ്തു!");
     }
 
-    async function finalSubmit() {
-        if(!confirm("സൂപ്പർ അഡ്മിന് സമർപ്പിക്കണോ? പിന്നീട് മാറ്റാൻ അഡ്മിൻ വിചാരിക്കണം.")) return;
-        mData.isSubmitted = true;
-        await saveAllData(); startPanel();
+    // Delete Madrasa
+    async function deleteMadrasa(docId) {
+        if(confirm("ശ്രദ്ധിക്കുക! ഈ മദ്രസയുടെ എല്ലാ ഡാറ്റയും എന്നെന്നേക്കുമായി ഡിലീറ്റ് ചെയ്യപ്പെടും. ഈ ഫോൺ നമ്പറിൽ അവർക്ക് വീണ്ടും രജിസ്റ്റർ ചെയ്യാൻ സാധിക്കും. തുടരണോ?")) {
+            await db.collection("madrasa_data").doc(docId).delete();
+            alert("മദ്രസ ഒഴിവാക്കി.");
+        }
     }
 
-    async function makeFinalPublish() {
-        if(!confirm("റിസൾട്ട് രക്ഷിതാക്കൾക്കായി പബ്ലിഷ് ചെയ്യണോ?")) return;
-        mData.isFinalPublished = true;
-        await db.collection("madrasa_data").doc(currentDocId).update({ isFinalPublished: true });
-        startPanel();
-    }
-
-    function copyText(id) {
-        const text = document.getElementById(id).innerText;
-        navigator.clipboard.writeText(text);
-        alert("Copied!");
-    }
+    loadAllMadrasas();
 </script>
+
 </body>
 </html>
