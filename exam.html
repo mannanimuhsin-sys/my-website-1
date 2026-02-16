@@ -3,103 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Madrasa Result Admin | Exam 2026</title>
+    <title>Madrasa Admin Panel | Final Verified</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        :root { --primary: #004d00; --accent: #ffcc00; --bg: #f5f5f5; }
-        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; }
-        .hero { background: var(--primary); padding: 50px 20px; text-align: center; color: white; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; }
-        .hero h1 { font-size: 26px; margin: 0; letter-spacing: 1px; }
-        .auth-card { max-width: 400px; margin: -30px auto 20px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
-        .tabs { display: flex; background: #eee; }
-        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; color: #777; }
-        .tab.active { background: white; color: var(--primary); border-top: 4px solid var(--primary); }
-        .tab-content { padding: 25px; }
-        .container { max-width: 1200px; margin: auto; padding: 20px; }
-        .section { background: white; padding: 20px; border-radius: 15px; margin-bottom: 25px; border-top: 5px solid var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
-        .btn-primary { background: var(--primary); width: 100%; }
-        .btn-add { background: #2c3e50; }
-        .st-list-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .st-list-table th { background: #f1f1f1; padding: 10px; text-align: left; border-bottom: 2px solid #ddd; }
-        .st-list-table td { padding: 10px; border-bottom: 1px solid #eee; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
+        .header { background: #004d00; color: white; padding: 30px; text-align: center; border-bottom: 5px solid #ffd700; }
+        .container { max-width: 1100px; margin: 20px auto; padding: 10px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        
+        /* Auth Styles */
+        .auth-box { max-width: 450px; margin: -50px auto 30px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+        .auth-tabs { display: flex; background: #eee; }
+        .auth-tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; }
+        .auth-tab.active { background: white; border-top: 4px solid #004d00; color: #004d00; }
+        
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .btn { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-green { background: #004d00; color: white; width: 100%; }
+        .btn-blue { background: #2980b9; color: white; }
+        .btn-red { background: #c0392b; color: white; }
+
+        /* Table Settings */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+        th { background: #004d00; color: white; padding: 12px; border: 1px solid #ddd; font-size: 14px; }
+        td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        
+        /* Attendance Box (Large) */
+        .m-input.s-att { width: 85px; padding: 8px; border: 2px solid #004d00; border-radius: 4px; text-align: center; font-weight: bold; }
+        .m-input.s-mark { width: 55px; text-align: center; border: 1px solid #bbb; border-radius: 4px; padding: 8px; }
+        
+        .sub-grade { font-size: 11px; color: #d35400; display: block; font-weight: bold; }
         .hidden { display: none; }
-        .link-card { background: #fff3cd; padding: 20px; border-radius: 12px; border: 2px dashed #856404; text-align: center; margin-top: 10px; }
-        .photo-status { font-size: 18px; }
+        
+        /* Status Colors */
+        .status-passed { color: green !important; font-weight: bold; }
+        .status-failed { color: red !important; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="authPanel">
-    <div class="hero"><h1>മദ്രസ പരീക്ഷാ ഫലം</h1><p>അഡ്മിൻ മാനേജ്‌മെന്റ് പോർട്ടൽ</p></div>
-    <div class="auth-card">
-        <div class="tabs">
-            <div id="loginTab" class="tab active" onclick="switchAuth('login')">LOGIN</div>
-            <div id="regTab" class="tab" onclick="switchAuth('register')">REGISTER</div>
+<div id="authSection">
+    <div class="header"><h1>മദ്രസ അഡ്മിൻ പാനൽ</h1></div>
+    <div class="auth-box">
+        <div class="auth-tabs">
+            <div id="tabL" class="auth-tab active" onclick="showAuth('L')">LOGIN</div>
+            <div id="tabR" class="auth-tab" onclick="showAuth('R')">REGISTER</div>
         </div>
-        <div class="tab-content" id="loginContent">
-            <input type="tel" id="loginPhone" placeholder="മൊബൈൽ നമ്പർ നൽകുക">
-            <button class="btn btn-primary" onclick="login()">പ്രവേശിക്കുക</button>
-        </div>
-        <div class="tab-content hidden" id="regContent">
-            <input type="text" id="regMName" placeholder="മദ്രസയുടെ പേര്">
-            <input type="text" id="regPlace" placeholder="സ്ഥലം">
-            <input type="text" id="regSadr" placeholder="സദർ മുഅല്ലിം"> 
-            <input type="tel" id="regPhone" placeholder="മൊബൈൽ നമ്പർ">
-            <button class="btn btn-primary" onclick="register()">രജിസ്റ്റർ ചെയ്യുക</button>
+        <div style="padding: 30px;">
+            <div id="loginForm">
+                <input type="tel" id="lPhone" placeholder="മൊബൈൽ നമ്പർ">
+                <button class="btn btn-green" onclick="login()">പ്രവേശിക്കുക</button>
+            </div>
+            <div id="regForm" class="hidden">
+                <input type="text" id="rName" placeholder="മദ്രസയുടെ പേര്">
+                <input type="text" id="rPlace" placeholder="സ്ഥലം">
+                <input type="text" id="rSadr" placeholder="സദർ മുഅല്ലിം">
+                <input type="tel" id="rPhone" placeholder="മൊബൈൽ നമ്പർ">
+                <button class="btn btn-green" onclick="register()">രജിസ്റ്റർ ചെയ്യുക</button>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="adminPanel" class="container hidden">
-    <div class="section">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div id="mInfoDisplay"></div>
-            <button class="btn btn-add" onclick="syncWithCloud()"><i class="fa fa-save"></i> SAVE ALL DATA</button>
+    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2 id="displayMName" style="margin:0; color:#004d00;">Madrasa Name</h2>
+            <p id="displayDetails" style="margin:5px 0; color:#666;"></p>
         </div>
+        <button class="btn btn-blue" onclick="saveAllData()">SAVE DATA ✅</button>
     </div>
 
-    <div class="section">
-        <h3><i class="fa fa-user-plus"></i> വിദ്യാർത്ഥികളെ ചേർക്കുക</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-            <select id="stClass"></select>
-            <input type="number" id="stRegNo" placeholder="രജി. നമ്പർ">
-            <input type="text" id="stName" placeholder="പേര്">
-            <button class="btn btn-add" onclick="addStudent()">ADD STUDENT</button>
+    <div class="card">
+        <h3>വിദ്യാർത്ഥികളെ ചേർക്കുക</h3>
+        <div style="display: flex; gap: 10px;">
+            <select id="selClass"></select>
+            <input type="number" id="inReg" placeholder="Reg No">
+            <input type="text" id="inName" placeholder="Student Name">
+            <button class="btn btn-green" style="width:auto" onclick="addStudent()">ADD</button>
         </div>
-        <div id="studentListArea" style="margin-top:20px;"></div>
+        <div id="studentListArea"></div>
     </div>
 
-    <div class="section">
-        <h3><i class="fa fa-book"></i> വിഷയങ്ങൾ</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-            <select id="subClass" onchange="loadSubjects()"></select>
-            <div style="display:flex; gap:5px;"><input type="text" id="newSub" placeholder="വിഷയം"><button class="btn btn-add" onclick="addSubject()">ADD</button></div>
+    <div class="card">
+        <h3>വിഷയങ്ങൾ</h3>
+        <div style="display: flex; gap: 10px;">
+            <select id="selSubClass" onchange="refreshSubList()"></select>
+            <input type="text" id="inSubName" placeholder="Subject Name">
+            <button class="btn btn-green" style="width:auto" onclick="addSubject()">ADD</button>
         </div>
-        <div id="subjectChips" style="margin-top:15px;"></div>
+        <div id="subjectListArea"></div>
     </div>
 
-    <div class="section">
-        <h3><i class="fa fa-table"></i> മാർക്ക് എൻട്രി</h3>
-        <div style="display:flex; gap:10px; max-width: 400px;"><select id="markClass"></select><button class="btn btn-primary" onclick="loadMarkTable()">LOAD TABLE</button></div>
-        <div id="tableWrapper" class="hidden">
-            <div style="overflow-x:auto;"><table id="mainTable"><thead id="tHead"></thead><tbody id="tBody"></tbody></table></div>
+    <div class="card">
+        <h3>മാർക്ക് എൻട്രി & ഹാജർ</h3>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+            <select id="selMarkClass" style="width: 200px;"></select>
+            <input type="number" id="totalAttDays" placeholder="Total Working Days" style="width: 200px;">
+            <button class="btn btn-blue" onclick="loadMainTable()">LOAD TABLE</button>
         </div>
+        <div id="mainTableWrapper" style="overflow-x: auto;"></div>
     </div>
 
-    <button id="preSubmitBtn" class="btn" style="background: #2980b9; width:100%; padding:20px; font-size:18px;" onclick="initPhotoPhase()">SUBMIT FOR PHOTO COLLECTION</button>
-
-    <div id="photoLinkSection" class="section hidden">
-        <h3><i class="fa fa-camera"></i> ഫോട്ടോ അപ്‌ലോഡ് ഘട്ടം</h3>
-        <div class="link-card">
-            <p>രക്ഷിതാക്കൾക്ക് ഫോട്ടോ അപ്‌ലോഡ് ചെയ്യാൻ ഈ ലിങ്ക് നൽകുക:</p>
-            <input type="text" readonly id="photoUploadURL" style="text-align:center; font-weight:bold;">
-            <button class="btn btn-primary" onclick="copyLink()">COPY LINK</button>
+    <div class="card">
+        <h3>ഫോട്ടോ അപ്‌ലോഡ് സ്റ്റാറ്റസ്</h3>
+        <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ff9800;">
+            <strong>Photo Upload Link:</strong> <br>
+            <code id="photoLinkDisp" style="color: #e65100; font-weight: bold;">---</code>
         </div>
-        <div id="photoStatusList" style="margin-top:20px;"></div>
-        <button class="btn" style="background: #c0392b; width:100%; padding:20px; margin-top:20px;" onclick="publishResult()">PUBLISH FINAL RESULTS</button>
+        <div id="photoStatusTable"></div>
+    </div>
+
+    <div class="card">
+        <button class="btn btn-red" style="width:100%" onclick="publishResults()">PUBLISH FINAL RESULTS 🚀</button>
+        <div id="linkSection" class="hidden" style="margin-top: 20px; padding: 20px; background: #e3f2fd; border-radius: 10px;">
+            <p><strong>Result Link:</strong> <br><span id="rLinkText" style="font-weight:bold; color:#1565c0;"></span></p>
+            <button class="btn btn-green" onclick="shareWhatsApp()">SHARE VIA WHATSAPP</button>
+        </div>
     </div>
 </div>
 
@@ -111,100 +131,193 @@
         apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ", 
         authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.app", 
         projectId: "misbahul-uloom-madrasa-4830c", 
-        storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app", 
         appId: "1:370558703441:web:dc68dbdbd685c9d07ea570" 
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let mData = {};
-    const classes = ["Class 1", "Class 2", "Class 3", "Class 4", "Class 6", "Class 8", "Class 9", "Class 10", "Class +1", "Class +2"];
+    let mData = { info: {}, students: {}, subjects: {}, results: {}, photos: {}, attSettings: {} };
+    const classes = ["Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"];
 
     window.onload = () => {
-        ["stClass", "subClass", "markClass"].forEach(id => {
-            let el = document.getElementById(id);
-            classes.forEach(c => el.innerHTML += `<option value="${c}">${c}</option>`);
-        });
-    };
+        const clsHtml = '<option value="">ക്ലാസ് തിരഞ്ഞെടുക്കുക</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join('');
+        document.querySelectorAll('#selClass, #selSubClass, #selMarkClass').forEach(s => s.innerHTML = clsHtml);
+    }
+
+    function showAuth(t) {
+        document.getElementById('loginForm').classList.toggle('hidden', t === 'R');
+        document.getElementById('regForm').classList.toggle('hidden', t === 'L');
+        document.getElementById('tabL').classList.toggle('active', t === 'L');
+        document.getElementById('tabR').classList.toggle('active', t === 'R');
+    }
 
     async function login() {
-        const phone = document.getElementById('loginPhone').value.trim();
-        const doc = await db.collection("madrasa_data").doc(phone).get();
-        if (doc.exists) {
+        const ph = document.getElementById('lPhone').value.trim();
+        const doc = await db.collection("madrasa_data").doc(ph).get();
+        if(doc.exists) {
             mData = doc.data();
-            document.getElementById('authPanel').classList.add('hidden');
+            document.getElementById('authSection').classList.add('hidden');
             document.getElementById('adminPanel').classList.remove('hidden');
-            document.getElementById('mInfoDisplay').innerHTML = `<h2>${mData.info.name}</h2>`;
-            refreshStudentDisplay();
-            if(mData.isPhotoPhase) initPhotoPhase(true);
-        } else { alert("Not Found"); }
+            document.getElementById('displayMName').innerText = mData.info.name;
+            document.getElementById('displayDetails').innerText = `${mData.info.place} | Sadr: ${mData.info.sadr}`;
+            document.getElementById('photoLinkDisp').innerText = "https://mannanimuhsin-sys.github.io/my-website-1/photoupload.html?id=" + mData.uID;
+            refreshStList();
+        } else { alert("നമ്പർ തെറ്റാണ്!"); }
     }
 
-    function initPhotoPhase(isAuto = false) {
-        if(!isAuto && !confirm("സബ്മിറ്റ് ചെയ്യട്ടെ? ഇതിന് ശേഷം ഫോട്ടോകൾ ശേഖരിക്കാം.")) return;
-        mData.isPhotoPhase = true;
-        document.getElementById('preSubmitBtn').classList.add('hidden');
-        document.getElementById('photoLinkSection').classList.remove('hidden');
-        
-        // ഫോട്ടോ അപ്‌ലോഡ് പേജിന്റെ ലിങ്ക് ജനറേറ്റ് ചെയ്യുന്നു
-        const baseURL = window.location.href.replace('exam.html', 'photo_upload.html');
-        document.getElementById('photoUploadURL').value = `${baseURL}?id=${mData.uID}`;
-        renderPhotoStatus();
-    }
-
-    function renderPhotoStatus() {
-        let html = "";
-        for(let cls in mData.students) {
-            html += `<div class="class-box"><h4>${cls}</h4><table class="st-list-table">`;
-            for(let reg in mData.students[cls]) {
-                const hasPhoto = (mData.photos && mData.photos[reg]) ? '<span style="color:green">✅ Uploaded</span>' : '<span style="color:red">❌ No Photo</span>';
-                html += `<tr><td>${reg}</td><td>${mData.students[cls][reg]}</td><td>${hasPhoto}</td><td><i class="fa fa-refresh" onclick="resetPhoto('${reg}')"></i></td></tr>`;
-            }
-            html += `</table></div>`;
-        }
-        document.getElementById('photoStatusList').innerHTML = html;
-    }
-
-    // --- പഴയ എല്ലാ ഫംഗ്ഷനുകളും (addStudent, addSubject, loadMarkTable etc.) താഴെ മാറ്റമില്ലാതെ തുടരും ---
-    // (സ്ഥലം പരിമിതമായതിനാൽ ചുരുക്കുന്നു, നിങ്ങളുടെ പഴയ ഫംഗ്ഷനുകൾ ഇവിടെ പേസ്റ്റ് ചെയ്യുക)
-    
+    // Original Logic
     function addStudent() {
-        const cls = document.getElementById('stClass').value;
-        const reg = document.getElementById('stRegNo').value;
-        const name = document.getElementById('stName').value;
-        if(!mData.students) mData.students = {};
-        if(!mData.students[cls]) mData.students[cls] = {};
-        mData.students[cls][reg] = name;
-        refreshStudentDisplay();
+        const c = document.getElementById('selClass').value;
+        const r = document.getElementById('inReg').value;
+        const n = document.getElementById('inName').value;
+        if(!c || !r || !n) return;
+        if(!mData.students[c]) mData.students[c] = {};
+        mData.students[c][r] = n;
+        refreshStList();
     }
-
-    function refreshStudentDisplay() {
-        const area = document.getElementById('studentListArea'); area.innerHTML = "";
-        for(let cls in mData.students) {
-            let h = `<h4>${cls}</h4><table class="st-list-table">`;
-            for(let reg in mData.students[cls]) {
-                h += `<tr><td>${reg}</td><td>${mData.students[cls][reg]}</td></tr>`;
+    function refreshStList() {
+        let h = "";
+        for(let c in mData.students) {
+            h += `<h4>${c}</h4><table><tr><th>Reg</th><th>Name</th><th>Action</th></tr>`;
+            for(let r in mData.students[c]) {
+                h += `<tr><td>${r}</td><td>${mData.students[c][r]}</td><td><button onclick="delete mData.students['${c}']['${r}']; refreshStList()">Delete</button></td></tr>`;
             }
-            area.innerHTML += h + `</table>`;
+            h += `</table>`;
         }
+        document.getElementById('studentListArea').innerHTML = h;
+    }
+    function addSubject() {
+        const c = document.getElementById('selSubClass').value;
+        const s = document.getElementById('inSubName').value;
+        if(!c || !s) return;
+        if(!mData.subjects[c]) mData.subjects[c] = [];
+        mData.subjects[c].push(s);
+        refreshSubList();
+    }
+    function refreshSubList() {
+        const c = document.getElementById('selSubClass').value;
+        if(!c) return;
+        let h = `<table><tr><th>Subject</th><th>Action</th></tr>`;
+        (mData.subjects[c] || []).forEach((s, i) => {
+            h += `<tr><td>${s}</td><td><button onclick="mData.subjects['${c}'].splice(${i},1); refreshSubList()">Delete</button></td></tr>`;
+        });
+        document.getElementById('subjectListArea').innerHTML = h + `</table>`;
     }
 
-    async function syncWithCloud() { 
-        await db.collection("madrasa_data").doc(mData.info.phone).set(mData); 
-        alert("Saved!"); 
+    function getGrade(m) {
+        let n = parseFloat(m); if (isNaN(n) || n === 0) return "-";
+        if (n >= 45) return "A+"; if (n >= 40) return "A";
+        if (n >= 35) return "B+"; if (n >= 30) return "B";
+        if (n >= 25) return "C+"; if (n >= 20) return "C";
+        if (n >= 18) return "D+"; return "D";
     }
 
-    async function publishResult() {
-        if(confirm("പബ്ലിഷ് ചെയ്യട്ടെ? രക്ഷിതാക്കൾക്ക് റിസൾട്ട് കാണാം.")) {
-            mData.isPublished = true;
-            await syncWithCloud();
-            alert("Published Successfully!");
+    // Updated Load Table Logic
+    function loadMainTable() {
+        const c = document.getElementById('selMarkClass').value;
+        if(!c) return alert("ക്ലാസ് തിരഞ്ഞെടുക്കുക!");
+        const studs = mData.students[c] || {};
+        const subs = mData.subjects[c] || [];
+        
+        document.getElementById('totalAttDays').value = (mData.attSettings && mData.attSettings[c]) ? mData.attSettings[c] : "";
+
+        let h = `<table><thead><tr><th>Reg</th><th>Name</th><th>Att.</th>`;
+        subs.forEach(s => h += `<th>${s}</th>`);
+        h += `<th>Total</th><th>Status</th></tr></thead><tbody>`;
+
+        for(let r in studs) {
+            const res = (mData.results[c] && mData.results[c][r]) ? mData.results[c][r] : { marks: {}, att: '', total: 0, status: 'Passed' };
+            h += `<tr data-reg="${r}">
+                <td>${r}</td>
+                <td style="text-align:left">${studs[r]}</td>
+                <td><input type="number" class="m-input s-att" value="${res.att || ''}"></td>`;
+            
+            subs.forEach(s => {
+                let m = (res.marks && res.marks[s]) ? res.marks[s] : '';
+                h += `<td>
+                    <input type="number" class="m-input s-mark" data-sub="${s}" value="${m}" oninput="updateRowLogic(this)">
+                    <span class="sub-grade" id="g-${r}-${s}">${getGrade(m)}</span>
+                </td>`;
+            });
+            h += `<td class="r-tot">${res.total || 0}</td>
+                <td><select class="r-sts">
+                    <option value="Passed" ${res.status=='Passed'?'selected':''}>Passed</option>
+                    <option value="Failed" ${res.status=='Failed'?'selected':''}>Failed</option>
+                    <option value="Promoted" ${res.status=='Promoted'?'selected':''}>Promoted</option>
+                </select></td></tr>`;
         }
+        document.getElementById('mainTableWrapper').innerHTML = h + `</tbody></table>`;
+        refreshPhotoStatusTable(c);
+    }
+
+    // Updated Auto Status (18+ Passed / 17- Failed)
+    function updateRowLogic(el) {
+        const row = el.closest('tr');
+        const reg = row.getAttribute('data-reg');
+        const sub = el.getAttribute('data-sub');
+        document.getElementById(`g-${reg}-${sub}`).innerText = getGrade(el.value);
+        
+        let tot = 0; let failed = false;
+        row.querySelectorAll('.s-mark').forEach(i => {
+            let val = parseFloat(i.value);
+            if(!isNaN(val)) {
+                tot += val;
+                if(val <= 17) failed = true; 
+            }
+        });
+        row.querySelector('.r-tot').innerText = tot;
+        const st = row.querySelector('.r-sts');
+        st.value = failed ? "Failed" : "Passed";
+        st.className = failed ? "r-sts status-failed" : "r-sts status-passed";
+    }
+
+    function refreshPhotoStatusTable(c) {
+        const studs = mData.students[c] || {};
+        let h = "<table><tr><th>Student Name</th><th>Photo Status</th></tr>";
+        for(let r in studs) {
+            const hasPhoto = mData.photos && mData.photos[r];
+            const status = hasPhoto ? "<span style='color:green; font-weight:bold;'>✅ Uploaded</span>" : "<span style='color:red; font-weight:bold;'>❌ No Photo</span>";
+            h += `<tr><td>${studs[r]}</td><td>${status}</td></tr>`;
+        }
+        document.getElementById('photoStatusTable').innerHTML = h + "</table>";
+    }
+
+    async function saveAllData() {
+        const c = document.getElementById('selMarkClass').value;
+        if(c) {
+            if(!mData.attSettings) mData.attSettings = {};
+            mData.attSettings[c] = document.getElementById('totalAttDays').value;
+            if(!mData.results[c]) mData.results[c] = {};
+            document.querySelectorAll('#mainTableWrapper tbody tr').forEach(row => {
+                const r = row.getAttribute('data-reg');
+                let marks = {}; let subGrades = {};
+                row.querySelectorAll('.s-mark').forEach(i => {
+                    let s = i.getAttribute('data-sub');
+                    marks[s] = i.value;
+                    subGrades[s] = document.getElementById(`g-${r}-${s}`).innerText;
+                });
+                mData.results[c][r] = { 
+                    att: row.querySelector('.s-att').value,
+                    marks, subGrades,
+                    total: row.querySelector('.r-tot').innerText,
+                    status: row.querySelector('.r-sts').value
+                };
+            });
+        }
+        await db.collection("madrasa_data").doc(mData.info.phone).set(mData);
+        alert("വിവരങ്ങൾ സേവ് ചെയ്തു! ✅");
+    }
+
+    async function publishResults() {
+        await saveAllData();
+        const link = "https://mannanimuhsin-sys.github.io/my-website-1/examview.html?id=" + mData.uID;
+        document.getElementById('rLinkText').innerText = link;
+        document.getElementById('linkSection').classList.remove('hidden');
     }
     
-    function copyLink() {
-        const copyText = document.getElementById("photoUploadURL"); copyText.select();
-        navigator.clipboard.writeText(copyText.value); alert("Link Copied!");
+    function shareWhatsApp() {
+        const link = document.getElementById('rLinkText').innerText;
+        window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent("മദ്രസ റിസൾട്ട് ലിങ്ക്: " + link));
     }
 </script>
 </body>
