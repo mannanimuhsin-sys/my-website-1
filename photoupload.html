@@ -3,53 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Photo Upload</title>
+    <title>Student Photo Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.css">
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f0f2f5; }
-        .card { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        input { width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; }
-        button { background: #004d00; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; }
+        :root { --primary: #004d00; --gold: #ffd700; --success: #28a745; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .upload-card { background: white; width: 95%; max-width: 450px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; text-align: center; border: 1px solid #ddd; position: relative; }
+        .card-header { background: var(--primary); color: white; padding: 25px; border-bottom: 5px solid var(--gold); }
+        .step-container { padding: 30px; box-sizing: border-box; }
+        input[type="number"] { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 12px; font-size: 18px; margin-bottom: 20px; outline: none; box-sizing: border-box; text-align: center; }
+        .btn { padding: 15px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; font-size: 16px; display: block; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: #fff; color: #d9534f; border: 1px solid #d9534f; margin-top: 15px; }
+        .student-preview { background: #e8f5e9; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 2px solid var(--primary); }
+        .hidden { display: none; }
+        #crop-area { width: 100%; height: 300px; margin-top: 10px; }
+        .upload-label { display: block; background: #fff; color: var(--primary); padding: 30px 20px; border-radius: 15px; border: 2px dashed var(--primary); cursor: pointer; margin-bottom: 20px; font-weight: bold; }
+        #loadingOverlay { position: absolute; top:0; left:0; width:100%; height:100%; background:white; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; }
+        .status-msg { padding: 15px; border-radius: 10px; font-size: 14px; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>ഫോട്ടോ അപ്‌ലോഡ്</h2>
-        <input type="number" id="stReg" placeholder="Register Number">
-        <input type="text" id="photoUrl" placeholder="Photo Direct URL (Link)">
-        <p style="font-size: 12px; color: gray;">ശ്രദ്ധിക്കുക: ഫോട്ടോയുടെ ലിങ്ക് ആണ് ഇവിടെ നൽകേണ്ടത്.</p>
-        <button onclick="uploadPhoto()">SUBMIT PHOTO</button>
+
+<div class="upload-card">
+    <div id="loadingOverlay">
+        <i class="fas fa-circle-notch fa-spin fa-3x" style="color:var(--primary)"></i>
+        <p id="loadStatus">Loading Data...</p>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script>
-        const firebaseConfig = { 
-            apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ", 
-            authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.app", 
-            projectId: "misbahul-uloom-madrasa-4830c", 
-            appId: "1:370558703441:web:dc68dbdbd685c9d07ea570" 
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+    <div class="card-header">
+        <h2 style="margin:0;">STUDENT PORTAL</h2>
+        <p style="margin:5px 0 0; font-size:14px; opacity:0.8;">Annual Exam Photo Upload</p>
+    </div>
 
-        const mId = new URLSearchParams(window.location.search).get('id');
+    <div id="step1" class="step-container">
+        <p style="font-weight: bold; color: #444;">നിങ്ങളുടെ രജിസ്റ്റർ നമ്പർ നൽകുക</p>
+        <input type="number" id="regInput" placeholder="Register Number" inputmode="numeric">
+        <button id="verifyBtn" class="btn btn-primary" onclick="checkStudent()">VERIFY STUDENT</button>
+    </div>
 
-        async function uploadPhoto() {
-            const reg = document.getElementById('stReg').value;
-            const url = document.getElementById('photoUrl').value;
-            if(!reg || !url || !mId) return alert("എല്ലാം പൂരിപ്പിക്കുക!");
+    <div id="step2" class="step-container hidden">
+        <div class="student-preview">
+            <h3 id="displayStName" style="margin:0; color:var(--primary);">---</h3>
+            <p id="displayStClass" style="color:#444; margin:8px 0; font-weight: bold;">CLASS: ---</p>
+        </div>
+        <p>ഈ വിവരങ്ങൾ ശരിയാണോ?</p>
+        <button class="btn btn-primary" style="background:var(--success)" onclick="proceedToUpload()">ശരിയാണ്, കൺഫോം ചെയ്യുക ✅</button>
+        <button class="btn btn-outline" onclick="location.reload()">എന്റേതല്ല ❌</button>
+    </div>
 
+    <div id="step3" class="step-container hidden">
+        <label class="upload-label" for="fileInput">
+            <i class="fas fa-camera fa-2x"></i><br><br>ഗ്യാലറിയിൽ നിന്നും ഫോട്ടോ തിരഞ്ഞെടുക്കുക
+        </label>
+        <input type="file" id="fileInput" class="hidden" accept="image/*">
+        
+        <div id="crop-wrapper" class="hidden">
+            <div id="crop-area"></div>
+            <p style="font-size:12px; color:#666;">ഫോട്ടോ വട്ടത്തിനുള്ളിൽ ക്രമീകരിക്കുക</p>
+            <button class="btn btn-primary" onclick="saveFinalPhoto()" id="finalBtn">UPLOAD & FINISH</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = { 
+        apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ", 
+        authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.app", 
+        projectId: "misbahul-uloom-madrasa-4830c", 
+        appId: "1:370558703441:web:dc68dbdbd685c9d07ea570" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // ഐഡി ലിങ്കിൽ ഇല്ലെങ്കിലും ഡാറ്റ കിട്ടാൻ ഈ ഭാഗം സഹായിക്കും
+    const fixedUID = "MID_1739506692805"; // നിങ്ങളുടെ മദ്രസ ഐഡി ഇവിടെ നൽകി
+    const mId = new URLSearchParams(window.location.search).get('id') || fixedUID;
+    
+    let fullData = null;
+    let docId = null;
+    let cropper = null;
+
+    async function init() {
+        try {
             const snap = await db.collection("madrasa_data").where("uID", "==", mId).get();
             if(!snap.empty) {
-                const docId = snap.docs[0].id;
-                let data = snap.docs[0].data();
-                if(!data.photos) data.photos = {};
-                data.photos[reg] = url;
-                await db.collection("madrasa_data").doc(docId).update({ photos: data.photos });
-                alert("Photo Linked Successfully!");
+                fullData = snap.docs[0].data();
+                docId = snap.docs[0].id;
+                document.getElementById('loadingOverlay').style.display = 'none';
+            } else {
+                document.getElementById('loadStatus').innerText = "മദ്രസ ഡാറ്റ കണ്ടെത്താനായില്ല!";
+            }
+        } catch (e) {
+            document.getElementById('loadStatus').innerText = "Error: Connection Issue";
+        }
+    }
+
+    init();
+
+    function checkStudent() {
+        const reg = document.getElementById('regInput').value.trim();
+        if(!reg) return alert("രജിസ്റ്റർ നമ്പർ നൽകുക");
+        
+        let found = false;
+        for(let cls in fullData.students) {
+            if(fullData.students[cls][reg]) {
+                document.getElementById('displayStName').innerText = fullData.students[cls][reg];
+                document.getElementById('displayStClass').innerText = "CLASS: " + cls;
+                document.getElementById('step1').classList.add('hidden');
+                document.getElementById('step2').classList.remove('hidden');
+                found = true;
+                break;
             }
         }
-    </script>
-    
+        if(!found) alert("വിദ്യാർത്ഥിയെ കണ്ടെത്താനായില്ല!");
+    }
+
+    function proceedToUpload() {
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step3').classList.remove('hidden');
+        
+        cropper = new Croppie(document.getElementById('crop-area'), {
+            viewport: { width: 200, height: 200, type: 'circle' },
+            boundary: { width: 280, height: 280 },
+            showZoomer: true
+        });
+    }
+
+    document.getElementById('fileInput').addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('crop-wrapper').classList.remove('hidden');
+                cropper.bind({ url: e.target.result });
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    async function saveFinalPhoto() {
+        const reg = document.getElementById('regInput').value.trim();
+        const btn = document.getElementById('finalBtn');
+        btn.disabled = true; btn.innerText = "അപ്‌ലോഡ് ചെയ്യുന്നു...";
+
+        try {
+            const base64 = await cropper.result({ type: 'base64', size: 'viewport', format: 'jpeg', quality: 0.8 });
+            if(!fullData.photos) fullData.photos = {};
+            fullData.photos[reg] = base64;
+
+            await db.collection("madrasa_data").doc(docId).update({ photos: fullData.photos });
+            alert("ഫോട്ടോ വിജയകരമായി അപ്‌ലോഡ് ചെയ്തു! 🎉");
+            location.reload();
+        } catch (e) {
+            alert("Error: " + e.message);
+            btn.disabled = false; btn.innerText = "UPLOAD & FINISH";
+        }
+    }
+</script>
 </body>
 </html>
