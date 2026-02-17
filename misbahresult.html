@@ -374,27 +374,72 @@ function exportToExcel() {
     const cls = document.getElementById('selMarkClass').value;
     const table = document.querySelector("#mainTableWrapper table");
     if (!table) return alert("ആദ്യം ടേബിൾ ലോഡ് ചെയ്യുക!");
-    
-    const wb = XLSX.utils.table_to_book(table, { sheet: "Result" });
-    XLSX.writeFile(wb, `${mData.info.name}_${cls}_Result.xlsx`);
+
+    let data = [];
+    const rows = table.querySelectorAll("tr");
+
+    rows.forEach((row) => {
+        let rowData = [];
+        const cols = row.querySelectorAll("th, td");
+        
+        cols.forEach((col) => {
+            const input = col.querySelector("input");
+            const select = col.querySelector("select");
+            
+            if (input) {
+                rowData.push(input.value);
+            } else if (select) {
+                rowData.push(select.value); // സെലക്ട് ചെയ്ത സ്റ്റാറ്റസ് മാത്രം
+            } else {
+                rowData.push(col.innerText); // സാധാരണ ടെക്സ്റ്റ് (Reg, Name, Total)
+            }
+        });
+        data.push(rowData);
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Result");
+    XLSX.writeFile(workbook, `${mData.info.name}_${cls}_Result.xlsx`);
 }
 
 
 function exportToPDF() {
     const { jsPDF } = window.jspdf;
-    const doc = jsPDF('l', 'pt'); // Landscape mode
+    const doc = jsPDF('l', 'pt'); // Landscape
     const cls = document.getElementById('selMarkClass').value;
-    
-    doc.setFontSize(18);
-    doc.text(`${mData.info.name} - ${cls} Mark List`, 40, 40);
-    
-    doc.autoTable({
-        html: '#mainTableWrapper table',
-        startY: 60,
-        theme: 'grid',
-        headStyles: { fill: [0, 77, 0], textColor: [255, 255, 255] }
+    const table = document.querySelector("#mainTableWrapper table");
+    if (!table) return alert("ആദ്യം ടേബിൾ ലോഡ് ചെയ്യുക!");
+
+    // ടേബിൾ ഹെഡർ തയ്യാറാക്കുന്നു
+    let headers = [];
+    table.querySelectorAll("thead th").forEach(th => headers.push(th.innerText));
+
+    // ടേബിൾ ബോഡി തയ്യാറാക്കുന്നു
+    let body = [];
+    table.querySelectorAll("tbody tr").forEach(row => {
+        let rowData = [];
+        row.querySelectorAll("td").forEach(td => {
+            const input = td.querySelector("input");
+            const select = td.querySelector("select");
+            if (input) rowData.push(input.value);
+            else if (select) rowData.push(select.value);
+            else rowData.push(td.innerText);
+        });
+        body.push(rowData);
     });
-    
+
+    doc.setFontSize(16);
+    doc.text(`${mData.info.name} - ${cls} Result`, 40, 40);
+
+    doc.autoTable({
+        head: [headers],
+        body: body,
+        startY: 60,
+        styles: { fontSize: 9 },
+        headStyles: { fillStyle: 'f', fillColor: [0, 77, 0] }
+    });
+
     doc.save(`${mData.info.name}_${cls}_Result.pdf`);
 }
 const originalLoadMainTable = loadMainTable;
