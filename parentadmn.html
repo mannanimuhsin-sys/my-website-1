@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Result Manager</title>
+    <style>
+        body { font-family: sans-serif; background: #f8f9fa; padding: 10px; }
+        .box { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1e3a8a; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #1e3a8a; color: white; }
+        .btn-wa { background: #25D366; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; text-decoration: none; display: block; text-align: center; font-weight: bold; }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 15px; background: #e0e7ff; padding: 10px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Admin Panel</h2>
+    <div class="stats">
+        <div>അപേക്ഷകൾ: <span id="count">0</span></div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>വിദ്യാർത്ഥി</th>
+                <th>ക്ലാസ്</th>
+                <th>നടപടി</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
+        authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
+        projectId: "misbahul-uloom-madrasa-4830c",
+        storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app",
+        messagingSenderId: "370558703441",
+        appId: "1:370558703441:web:dc68dbdbd685c9d07ea570"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    db.collection("infoRequests").orderBy("timestamp", "desc").onSnapshot(snap => {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+        document.getElementById('count').innerText = snap.size;
+        snap.forEach(doc => {
+            const d = doc.data();
+            tbody.innerHTML += `<tr>
+                <td>${d.name}<br><small>Reg: ${d.regNo}</small></td>
+                <td>${d.class}</td>
+                <td><button class="btn-wa" onclick="sendWA('${d.phone}', '${d.name}', '${d.regNo}', '${d.class}')">WhatsApp</button></td>
+            </tr>`;
+        });
+    });
+
+    function sendWA(ph, name, reg, cls) {
+        const msg = `അസ്സലാമു അലൈക്കും. %0Aമിസ്ബാഹുൽ ഉലൂം മദ്റസയിൽ നിന്നുള്ള വിവരങ്ങൾ:%0A%0A*വിദ്യാർത്ഥി:* ${name}%0A*ക്ലാസ്:* ${cls}%0A*രജിസ്റ്റർ നമ്പർ:* ${reg}%0A%0Aശുഭദിനം നേരുന്നു.`;
+        window.open(`https://wa.me/${ph}?text=${msg}`, '_blank');
+    }
+</script>
+</body>
+</html>

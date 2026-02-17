@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misbahul Uloom Madrasa</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 15px; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        h2 { color: #1e3a8a; margin-bottom: 20px; font-size: 22px; }
+        label { font-weight: bold; display: block; margin-top: 15px; text-align: left; color: #444; }
+        select, input { width: 100%; padding: 14px; margin-top: 8px; border: 1.5px solid #cbd5e0; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
+        .btn { background: #2563eb; color: white; border: none; padding: 16px; width: 100%; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 25px; transition: 0.3s; }
+        
+        /* Success Page Design */
+        #successPage { display: none; }
+        .success-icon { font-size: 60px; color: #10b981; margin-bottom: 20px; }
+        .success-msg { color: #065f46; font-size: 18px; line-height: 1.6; margin-bottom: 25px; }
+        .btn-back { background: #64748b; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: bold; }
+
+        .loading { display: none; color: #2563eb; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="requestPage" class="card">
+    <h2>മിസ്ബാഹുൽ ഉലൂം മദ്റസ</h2>
+    <p style="color: #666; font-size: 14px;">കുട്ടിയുടെ വിവരങ്ങൾ ലഭിക്കാൻ താഴെ പൂരിപ്പിക്കുക</p>
+    
+    <label>ക്ലാസ്</label>
+    <select id="selClass" onchange="updateStudentList()">
+        <option value="">തിരഞ്ഞെടുക്കുക</option>
+        <option value="1">Class 1</option>
+        <option value="2">Class 2</option>
+        <option value="3">Class 3</option>
+        <option value="4">Class 4</option>
+        <option value="6">Class 6</option>
+        <option value="8">Class 8</option>
+        <option value="9">Class 9</option>
+    </select>
+
+    <label>വിദ്യാർത്ഥിയുടെ പേര്</label>
+    <select id="selStudent">
+        <option value="">ആദ്യം ക്ലാസ് തിരഞ്ഞെടുക്കുക</option>
+    </select>
+
+    <label>വാട്സാപ്പ് നമ്പർ</label>
+    <input type="tel" id="parentPhone" placeholder="10 അക്ക നമ്പർ നൽകുക" maxlength="10">
+    
+    <div id="loader" class="loading">ദയവായി കാത്തിരിക്കൂ...</div>
+    <button id="submitBtn" class="btn" onclick="submitRequest()">REQUEST INFO ✅</button>
+</div>
+
+<div id="successPage" class="card">
+    <div class="success-icon">✅</div>
+    <h2>വിവരങ്ങൾ ലഭിച്ചു!</h2>
+    <div class="success-msg">
+        നിങ്ങളുടെ അപേക്ഷ വിജയകരമായി ലഭിച്ചിട്ടുണ്ട്. കുട്ടിയുടെ വിവരങ്ങൾ ഉടൻ തന്നെ നിങ്ങളുടെ വാട്സാപ്പ് നമ്പറിൽ ലഭിക്കുന്നതാണ്.
+    </div>
+    <a href="javascript:void(0)" class="btn-back" onclick="showForm()">മറ്റൊരു കുട്ടിക്ക് വേണ്ടി അപേക്ഷിക്കാൻ</a>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
+        authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
+        projectId: "misbahul-uloom-madrasa-4830c",
+        storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app",
+        messagingSenderId: "370558703441",
+        appId: "1:370558703441:web:dc68dbdbd685c9d07ea570"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const students = [
+        {reg: 602, name: "MUHAMMED SHADIL", class: "1"}, {reg: 609, name: "NASIH SUNEER K P C", class: "1"},
+        {reg: 611, name: "AYAN ASIF", class: "1"}, {reg: 606, name: "INAAYA FATHIMA T K", class: "1"},
+        {reg: 612, name: "HIZA FATHIMA", class: "1"}, {reg: 620, name: "ARWA AFSAL", class: "1"},
+        {reg: 548, name: "DULQUER AZAN", class: "2"}, {reg: 570, name: "MUHAMMED HANIH M", class: "2"},
+        {reg: 572, name: "MUHAMMED SWALIH K P", class: "2"}, {reg: 592, name: "MUHAMMED HANAN C P", class: "2"},
+        {reg: 594, name: "MUHAMMED HADHI K", class: "2"}, {reg: 597, name: "ZIFRAN P P", class: "2"},
+        {reg: 601, name: "MUHAMMED FAIZAN.", class: "2"}, {reg: 619, name: "IMAD T.K", class: "2"},
+        {reg: 569, name: "AJVA FATHIMA V V", class: "2"}, {reg: 593, name: "JUWAIRIYA MUHAMMED", class: "2"},
+        {reg: 595, name: "RINSHA FATHIMA C P", class: "2"}, {reg: 596, name: "AYISHA M V", class: "2"},
+        {reg: 599, name: "HANA FATHIMA K", class: "2"}, {reg: 600, name: "RINZA RASHEED", class: "2"},
+        {reg: 100, name: "ZAHRA FATHIMA", class: "2"}, {reg: 512, name: "MUHAMMED MAZLAN", class: "3"},
+        {reg: 547, name: "MUHAMMED T K", class: "3"}, {reg: 552, name: "FAIZAN K V", class: "3"},
+        {reg: 561, name: "MUHAMMED FAIZAN K C", class: "3"}, {reg: 565, name: "MUHAMMED SHAHAN K S", class: "3"},
+        {reg: 567, name: "FAHAD B NOOR", class: "3"}, {reg: 571, name: "MUHAMMED HAMDAN E K", class: "3"},
+        {reg: 575, name: "HANI ABDULLA M", class: "3"}, {reg: 578, name: "MUHAMMED C A", class: "3"},
+        {reg: 586, name: "JAZLAN MUHAMMAD M P", class: "3"}, {reg: 607, name: "MUHAMMED QASIM K M", class: "3"},
+        {reg: 618, name: "IMRAN", class: "3"}, {reg: 513, name: "LAIBA FATHIMA", class: "3"},
+        {reg: 549, name: "AYISHA JUMANA", class: "3"}, {reg: 555, name: "MARIYAMBI", class: "3"},
+        {reg: 573, name: "MIHRA MARIYAM M K", class: "3"}, {reg: 580, name: "KHADEEJATHUL KUBRA M", class: "3"},
+        {reg: 585, name: "FATHIMATH ZANHA SHAFEEK", class: "3"}, {reg: 615, name: "HUSNA ASHRAF O.V", class: "3"},
+        {reg: 621, name: "ZAINAB AFSAL", class: "3"}, {reg: 492, name: "MUHAMMAD C", class: "4"},
+        {reg: 517, name: "MUHAMMED RAZEEN C K", class: "4"}, {reg: 540, name: "BISHRUL HAFI O", class: "4"},
+        {reg: 541, name: "MUHAMMAD HASAN K K", class: "4"}, {reg: 551, name: "MUHAMMAD ASIF T P", class: "4"},
+        {reg: 581, name: "MUHAMMAD SHEZIN K S", class: "4"}, {reg: 518, name: "FATHIMA SAYEED", class: "4"},
+        {reg: 519, name: "FATHIMA HIBA A M", class: "4"}, {reg: 536, name: "NAJIYA YASMIN", class: "4"},
+        {reg: 546, name: "FATHIMA P C", class: "4"}, {reg: 550, name: "FATHIMA C P", class: "4"},
+        {reg: 554, name: "NADIYA O", class: "4"}, {reg: 588, name: "FATHIMATHU JUMANA KP", class: "4"},
+        {reg: 103, name: "ZAHRA JUNAID", class: "4"}, {reg: 532, name: "MUHAMMED ADIL T P", class: "6"},
+        {reg: 102, name: "SHEZIN", class: "6"}, {reg: 483, name: "SHAHANA FATHIMA P M", class: "6"},
+        {reg: 501, name: "FATHIMATH NAFLA P M", class: "6"}, {reg: 414, name: "FADIY SAYEED", class: "8"},
+        {reg: 427, name: "MUHAMMED NIHAL OK", class: "8"}, {reg: 428, name: "MUHAMMED NABHAN O", class: "8"},
+        {reg: 440, name: "KAMAL SHAHARUZE", class: "8"}, {reg: 450, name: "MUHAMMED JALAL K K", class: "8"},
+        {reg: 491, name: "UMMARUL FAROOQ", class: "8"}, {reg: 431, name: "AYISHABI C", class: "8"},
+        {reg: 433, name: "FATHIMA FIDA A M", class: "8"}, {reg: 446, name: "FATHIMA AFRA", class: "8"},
+        {reg: 452, name: "AYISHA T K", class: "8"}, {reg: 468, name: "FATHIMA RILA", class: "8"},
+        {reg: 537, name: "FAHMI O", class: "8"}, {reg: 562, name: "ZIYA FATHIMA P P", class: "8"},
+        {reg: 412, name: "MUHAMMED JALAL M", class: "9"}, {reg: 419, name: "SALMABI C P", class: "9"},
+        {reg: 420, name: "ASMABI C P", class: "9"}, {reg: 560, name: "NAJA FATHIMA O V", class: "9"},
+        {reg: 603, name: "AYISHABI T", class: "9"}
+    ];
+
+    function updateStudentList() {
+        const selClass = document.getElementById('selClass').value;
+        const selStudent = document.getElementById('selStudent');
+        selStudent.innerHTML = '<option value="">വിദ്യാർത്ഥിയെ തിരഞ്ഞെടുക്കുക</option>';
+        students.filter(s => s.class === selClass).forEach(s => {
+            let opt = document.createElement('option');
+            opt.value = JSON.stringify(s);
+            opt.text = s.name;
+            selStudent.add(opt);
+        });
+    }
+
+    async function submitRequest() {
+        const studentVal = document.getElementById('selStudent').value;
+        let phone = document.getElementById('parentPhone').value.trim();
+        const submitBtn = document.getElementById('submitBtn');
+        const loader = document.getElementById('loader');
+        
+        if (!studentVal || phone.length < 10) return alert("ദയവായി പേരും ഫോൺ നമ്പറും ശരിയായി നൽകുക");
+        
+        const s = JSON.parse(studentVal);
+        const fullPhone = "91" + phone;
+
+        // UI മാറ്റങ്ങൾ
+        submitBtn.disabled = true;
+        loader.style.display = "block";
+
+        try {
+            // മുമ്പ് അപേക്ഷിച്ചിട്ടുണ്ടോ എന്ന് പരിശോധിക്കുന്നു (Duplicate Check)
+            const querySnapshot = await db.collection("infoRequests")
+                                          .where("regNo", "==", s.reg)
+                                          .get();
+
+            if (!querySnapshot.empty) {
+                alert("ഈ വിദ്യാർത്ഥിക്ക് വേണ്ടി മുമ്പ് അപേക്ഷ സമർപ്പിച്ചിട്ടുണ്ട്!");
+                submitBtn.disabled = false;
+                loader.style.display = "none";
+                return;
+            }
+
+            // അപേക്ഷ സേവ് ചെയ്യുന്നു
+            await db.collection("infoRequests").add({
+                name: s.name, regNo: s.reg, class: s.class, phone: fullPhone,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // സക്സസ് പേജ് കാണിക്കുന്നു
+            document.getElementById('requestPage').style.display = "none";
+            document.getElementById('successPage').style.display = "block";
+            
+        } catch (e) { 
+            alert("Error: " + e.message); 
+        } finally {
+            submitBtn.disabled = false;
+            loader.style.display = "none";
+        }
+    }
+
+    function showForm() {
+        document.getElementById('requestPage').style.display = "block";
+        document.getElementById('successPage').style.display = "none";
+        document.getElementById('parentPhone').value = "";
+    }
+</script>
+</body>
+</html>
