@@ -309,7 +309,38 @@
         document.getElementById('rLinkText').innerText = link;
         document.getElementById('linkSection').classList.remove('hidden');
     }
-    
+    function exportToExcel() {
+    const cls = document.getElementById('selMarkClass').value;
+    const table = document.querySelector("#mainTableWrapper table");
+    if (!table) return alert("ആദ്യം ടേബിൾ ലോഡ് ചെയ്യുക!");
+
+    let data = [];
+    const rows = table.querySelectorAll("tr");
+
+    rows.forEach((row) => {
+        let rowData = [];
+        const cols = row.querySelectorAll("th, td");
+        
+        cols.forEach((col) => {
+            const input = col.querySelector("input");
+            const select = col.querySelector("select");
+            
+            if (input) {
+                rowData.push(input.value);
+            } else if (select) {
+                rowData.push(select.value); // സെലക്ട് ചെയ്ത സ്റ്റാറ്റസ് മാത്രം
+            } else {
+                rowData.push(col.innerText); // സാധാരണ ടെക്സ്റ്റ് (Reg, Name, Total)
+            }
+        });
+        data.push(rowData);
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Result");
+    XLSX.writeFile(workbook, `${mData.info.name}_${cls}_Result.xlsx`);
+}
     function copyLink() { navigator.clipboard.writeText(document.getElementById('photoLinkDisp').innerText); alert("Copied!"); }
     function shareWhatsApp() { window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent("റിസൾട്ട് ലിങ്ക്: " + document.getElementById('rLinkText').innerText)); }
 </script>

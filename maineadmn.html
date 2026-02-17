@@ -449,10 +449,116 @@ function manualStatusChange(select) {
             mData.isPublished = true; await syncWithCloud(); location.reload(); 
         } 
     }
+    function exportExcel() {
+    const cls = document.getElementById('markClass').value;
+    const table = document.getElementById("mainTable");
+    if (!table) return alert("ആദ്യം ടേബിൾ ലോഡ് ചെയ്യുക!");
+
+    let data = [];
     
-    function exportExcel() { 
-        XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("mainTable")), "Madrasa_Result.xlsx"); 
+    // 1. ഹെഡർ (തലക്കെട്ടുകൾ) എടുക്കുന്നു
+    let headers = [];
+    table.querySelectorAll("thead th").forEach(th => {
+        headers.push(th.innerText);
+    });
+    data.push(headers);
+
+    // 2. ഓരോ വരിയിലെയും മാർക്കുകൾ എടുക്കുന്നു
+    const rows = table.querySelectorAll("tbody tr");
+    rows.forEach(row => {
+        let rowData = [];
+        const cells = row.querySelectorAll("td");
+        
+        cells.forEach((cell) => {
+            const input = cell.querySelector("input");
+            const select = cell.querySelector("select");
+            
+            if (input) {
+                // മാർക്ക് അല്ലെങ്കിൽ റാങ്ക് വാല്യൂ എടുക്കുന്നു
+                rowData.push(input.value || "0");
+            } else if (select) {
+                // സ്റ്റാറ്റസ് (Passed/Failed) എടുക്കുന്നു
+                rowData.push(select.value);
+            } else {
+                // പേരും നമ്പറും എടുക്കുന്നു
+                rowData.push(cell.innerText);
+            }
+        });
+        data.push(rowData);
+    });
+
+    // 3. എക്സൽ ഫയൽ നിർമ്മിക്കുന്നു
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Result");
+
+    // 4. ഡൗൺലോഡ്
+    XLSX.writeFile(workbook, `Result_${cls}.xlsx`);
+}
+function exportToPDF() {
+    try {
+        const { jsPDF } = window.jspdf;
+        if (!jsPDF) {
+            alert("PDF ലൈബ്രറി ലോഡ് ആയിട്ടില്ല. ഇന്റർനെറ്റ് ഉണ്ടെന്ന് ഉറപ്പാക്കുക.");
+            return;
+        }
+
+        const doc = new jsPDF('l', 'pt', 'a4'); // Landscape മോഡ്
+        const cls = document.getElementById('markClass').value;
+        const table = document.getElementById("mainTable");
+
+        if (!table) return alert("ആദ്യം ടേബിൾ ലോഡ് ചെയ്യുക!");
+
+        // 1. തലക്കെട്ടുകൾ ശേഖരിക്കുന്നു (വിഷയങ്ങൾ ഉൾപ്പെടെ)
+        let headers = [];
+        table.querySelectorAll("thead th").forEach(th => headers.push(th.innerText));
+
+        // 2. മാർക്കുകളും മറ്റ് വിവരങ്ങളും ശേഖരിക്കുന്നു
+        let body = [];
+        table.querySelectorAll("tbody tr").forEach(row => {
+            let rowData = [];
+            row.querySelectorAll("td").forEach(td => {
+                const input = td.querySelector("input");
+                const select = td.querySelector("select");
+                
+                if (input) {
+                    rowData.push(input.value || "0"); // മാർക്ക്/റാങ്ക് എടുക്കുന്നു
+                } else if (select) {
+                    rowData.push(select.value); // സ്റ്റാറ്റസ് എടുക്കുന്നു
+                } else {
+                    rowData.push(td.innerText); // പേര്, റോൾ നമ്പർ
+                }
+            });
+            body.push(rowData);
+        });
+
+        // 3. PDF ഡിസൈൻ
+        doc.setFontSize(18);
+        doc.setTextColor(0, 77, 0);
+        doc.text(mData.info.name, 40, 40);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(100);
+        doc.text(`Class: ${cls} | Place: ${mData.info.place}`, 40, 60);
+
+        // 4. ഓട്ടോ ടേബിൾ നിർമ്മാണം
+        doc.autoTable({
+            head: [headers],
+            body: body,
+            startY: 80,
+            theme: 'grid',
+            styles: { fontSize: 8, halign: 'center' },
+            headStyles: { fillColor: [0, 77, 0], textColor: [255, 255, 255] }
+        });
+
+        // 5. ഡൗൺലോഡ്
+        doc.save(`Result_${mData.info.name}_${cls}.pdf`);
+
+    } catch (err) {
+        console.error("PDF Error: ", err);
+        alert("PDF നിർമ്മിക്കുന്നതിൽ തടസ്സം നേരിട്ടു.");
     }
+}
 </script>
 </body>
 </html>
