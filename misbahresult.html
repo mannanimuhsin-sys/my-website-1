@@ -406,41 +406,70 @@ function exportToExcel() {
 
 function exportToPDF() {
     const { jsPDF } = window.jspdf;
-    const doc = jsPDF('l', 'pt'); // Landscape
+    const doc = jsPDF('l', 'pt', 'a4'); // Landscape, Points, A4 Size
     const cls = document.getElementById('selMarkClass').value;
     const table = document.querySelector("#mainTableWrapper table");
+    
     if (!table) return alert("ആദ്യം ടേബിൾ ലോഡ് ചെയ്യുക!");
 
-    // ടേബിൾ ഹെഡർ തയ്യാറാക്കുന്നു
+    // 1. ഹെഡർ തയ്യാറാക്കുന്നു
     let headers = [];
-    table.querySelectorAll("thead th").forEach(th => headers.push(th.innerText));
+    table.querySelectorAll("thead th").forEach(th => {
+        headers.push(th.innerText);
+    });
 
-    // ടേബിൾ ബോഡി തയ്യാറാക്കുന്നു
+    // 2. ബോഡി ഡാറ്റ തയ്യാറാക്കുന്നു
     let body = [];
     table.querySelectorAll("tbody tr").forEach(row => {
         let rowData = [];
         row.querySelectorAll("td").forEach(td => {
             const input = td.querySelector("input");
             const select = td.querySelector("select");
-            if (input) rowData.push(input.value);
-            else if (select) rowData.push(select.value);
-            else rowData.push(td.innerText);
+            
+            if (input) {
+                rowData.push(input.value || "0");
+            } else if (select) {
+                rowData.push(select.value);
+            } else {
+                rowData.push(td.innerText);
+            }
         });
         body.push(rowData);
     });
 
-    doc.setFontSize(16);
-    doc.text(`${mData.info.name} - ${cls} Result`, 40, 40);
+    doc.setFontSize(20);
+    doc.setTextColor(0, 77, 0); // മദ്രസ പ്രൈമറി ഗ്രീൻ
+    doc.text(mData.info.name.toUpperCase(), doc.internal.pageSize.getWidth() / 2, 40, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setTextColor(100);
+    doc.text(`${mData.info.place} | Class: ${cls} | Mark List`, doc.internal.pageSize.getWidth() / 2, 60, { align: 'center' });
 
     doc.autoTable({
         head: [headers],
         body: body,
-        startY: 60,
-        styles: { fontSize: 9 },
-        headStyles: { fillStyle: 'f', fillColor: [0, 77, 0] }
+        startY: 80,
+        theme: 'grid', // ബോർഡറുകൾ വരാൻ
+        styles: {
+            fontSize: 10,
+            cellPadding: 5,
+            halign: 'center', // സെന്റർ അലൈൻമെന്റ്
+            valign: 'middle'
+        },
+        headStyles: {
+            fillColor: [0, 77, 0], // പച്ച നിറം
+            textColor: [255, 215, 0], // സ്വർണ്ണ നിറം (Gold)
+            fontStyle: 'bold',
+            lineWidth: 1,
+            lineColor: [255, 255, 255]
+        },
+        alternateRowStyles: {
+            fillColor: [245, 245, 245]
+        },
+        margin: { top: 80 }
     });
 
-    doc.save(`${mData.info.name}_${cls}_Result.pdf`);
+    doc.save(`${mData.info.name}_${cls}_MarkList.pdf`);
 }
 const originalLoadMainTable = loadMainTable;
 loadMainTable = function() {
