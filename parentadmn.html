@@ -93,46 +93,71 @@
         {reg: 603, name: "AYISHABI T", class: "9"}
     ];
 
-    function renderDashboard(requestedData) {
-        const container = document.getElementById('dashboardContent');
-        container.innerHTML = "";
+   function renderDashboard(requestedData) {
+    const container = document.getElementById('dashboardContent');
+    container.innerHTML = "";
 
-        const classes = [...new Set(students.map(s => s.class))].sort((a,b) => a-b);
+    const classes = [...new Set(students.map(s => s.class))].sort((a,b) => a-b);
 
-        classes.forEach(cls => {
-            let section = `<div class="class-section">
-                <h3 class="class-title">Class ${cls}</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Reg</th>
-                            <th>Name</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
+    classes.forEach(cls => {
+        let section = `<div class="class-section">
+            <h3 class="class-title">Class ${cls}</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reg</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>`;
 
-            students.filter(s => s.class === cls).forEach(s => {
-                const request = requestedData.find(r => r.regNo === s.reg);
-                
-                section += `<tr>
-                    <td>${s.reg}</td>
-                    <td>${s.name}</td>
-                    <td>${request ? '<span class="status-badge requested">അപേക്ഷിച്ചു</span>' : '<span class="status-badge not-requested">Pending</span>'}</td>
-                    <td>
-                        ${request ? 
-                            `<button class="btn-wa" onclick="sendWA('${request.phone}', '${s.name}', '${s.reg}', '${cls}')">SEND ✅</button>
-                             <button class="btn-del" onclick="deleteRequest('${request.id}')">DEL 🗑️</button>` 
-                            : '---'}
-                    </td>
-                </tr>`;
-            });
+        students.filter(s => s.class === cls).forEach(s => {
+            const request = requestedData.find(r => r.regNo === s.reg);
+            
+            // മെസ്സേജ് അയച്ചോ എന്ന് പരിശോധിക്കുന്നു
+            const isSent = request && request.isSent === true;
 
-            section += `</tbody></table></div>`;
-            container.innerHTML += section;
+            section += `<tr>
+                <td>${s.reg}</td>
+                <td>${s.name}</td>
+                <td>
+                    ${request ? 
+                        (isSent ? 
+                            '<span class="status-badge" style="background:#e2e8f0; color:#475569;">മെസ്സേജ് അയച്ചു 👍</span>' : 
+                            '<span class="status-badge requested">അപേക്ഷിച്ചു</span>') 
+                        : '<span class="status-badge not-requested">Pending</span>'}
+                </td>
+                <td>
+                    ${request ? 
+                        `${!isSent ? `<button class="btn-wa" onclick="sendWA('${request.id}', '${request.phone}', '${s.name}', '${s.reg}', '${cls}')">SEND ✅</button>` : ''}
+                         <button class="btn-del" onclick="deleteRequest('${request.id}')">DEL 🗑️</button>` 
+                        : '---'}
+                </td>
+            </tr>`;
         });
+
+        section += `</tbody></table></div>`;
+        container.innerHTML += section;
+    });
+}
+
+async function sendWA(docId, ph, name, reg, cls) {
+    const msg = `അസ്സലാമു അലൈക്കും. %0Aമിസ്ബാഹുൽ ഉലൂം മദ്റസയിൽ നിന്നുള്ള വിവരങ്ങൾ:%0A%0A*വിദ്യാർത്ഥി:* ${name}%0A*ക്ലാസ്:* ${cls}%0A*രജിസ്റ്റർ നമ്പർ:* ${reg}%0A%0Aരജിസ്റ്റർ നമ്പർ സുരക്ഷിതമാക്കുക.`;
+    
+    // വാട്സാപ്പ് ഓപ്പൺ ചെയ്യുന്നു
+    window.open(`https://wa.me/${ph}?text=${msg}`, '_blank');
+
+    // ഫയർബേസിൽ 'isSent: true' എന്ന് അപ്‌ഡേറ്റ് ചെയ്യുന്നു
+    try {
+        await db.collection("infoRequests").doc(docId).update({
+            isSent: true
+        });
+    } catch (e) {
+        console.error("Update Error:", e);
     }
+}
 
     // ഫയർബേസിൽ നിന്ന് ഡാറ്റ ലൈവ് ആയി എടുക്കുന്നു
     db.collection("infoRequests").onSnapshot(snapshot => {
