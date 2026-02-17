@@ -31,6 +31,7 @@
         .auth-tabs { display: flex; background: #eee; }
         .auth-tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; }
         .auth-tab.active { background: white; border-top: 4px solid var(--primary); color: var(--primary); }
+        .r-sts { width: 105px !important;  padding: 6px; font-size: 13px; font-weight: bold; border: 1px solid #aaa; border-radius: 4px; background-color: white; }
     </style>
 </head>
 <body>
@@ -284,8 +285,7 @@
         
         let h = `<table><thead><tr><th>Reg</th><th>Name</th><th>Att.</th>`;
         subs.forEach(s => h += `<th>${s.substring(0,6)}</th>`);
-        h += `<th>Total</th><th>Status</th><th>Rank</th></tr></thead><tbody>`;
-        
+        h += '<th>Total</th><th style="min-width:110px;">Status</th><th>Rank</th></tr></thead><tbody>';        
         for(let r in studs) {
             const res = (mData.results[c] && mData.results[c][r]) ? mData.results[c][r] : { marks: {}, att: '', total: 0, status: 'Passed', rank: '' };
             h += `<tr data-reg="${r}"><td>${r}</td><td style="text-align:left; font-size:13px;">${studs[r]}</td>
