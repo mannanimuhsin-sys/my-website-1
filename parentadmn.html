@@ -1,37 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="ml">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Result Manager</title>
+    <title>Admin Dashboard - Misbahul Uloom</title>
     <style>
-        body { font-family: sans-serif; background: #f8f9fa; padding: 10px; }
-        .box { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #1e3a8a; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: #1e3a8a; color: white; }
-        .btn-wa { background: #25D366; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; text-decoration: none; display: block; text-align: center; font-weight: bold; }
-        .stats { display: flex; justify-content: space-around; margin-bottom: 15px; background: #e0e7ff; padding: 10px; border-radius: 8px; }
+        body { font-family: sans-serif; background: #f0f2f5; padding: 10px; margin: 0; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1e3a8a; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        .class-section { margin-top: 30px; }
+        .class-title { background: #1e3a8a; color: white; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background: white; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #f8f9fa; }
+
+        .status-badge { padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        .not-requested { background: #fee2e2; color: #dc2626; }
+        .requested { background: #dcfce7; color: #166534; }
+
+        .btn-wa { background: #25D366; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; }
+        .btn-del { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; margin-left: 5px; }
+        
+        @media (max-width: 600px) {
+            td, th { padding: 8px; font-size: 12px; }
+            .btn-wa, .btn-del { padding: 6px 8px; font-size: 11px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>Admin Panel</h2>
-    <div class="stats">
-        <div>അപേക്ഷകൾ: <span id="count">0</span></div>
-    </div>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>വിദ്യാർത്ഥി</th>
-                <th>ക്ലാസ്</th>
-                <th>നടപടി</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
+<div class="container">
+    <h2>അഡ്മിൻ ഡാഷ്‌ബോർഡ്</h2>
+    <div id="dashboardContent">Loading students list...</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -49,23 +51,112 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    db.collection("infoRequests").orderBy("timestamp", "desc").onSnapshot(snap => {
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = "";
-        document.getElementById('count').innerText = snap.size;
-        snap.forEach(doc => {
-            const d = doc.data();
-            tbody.innerHTML += `<tr>
-                <td>${d.name}<br><small>Reg: ${d.regNo}</small></td>
-                <td>${d.class}</td>
-                <td><button class="btn-wa" onclick="sendWA('${d.phone}', '${d.name}', '${d.regNo}', '${d.class}')">WhatsApp</button></td>
-            </tr>`;
+    const students = [
+        {reg: 602, name: "MUHAMMED SHADIL", class: "1"}, {reg: 609, name: "NASIH SUNEER K P C", class: "1"},
+        {reg: 611, name: "AYAN ASIF", class: "1"}, {reg: 606, name: "INAAYA FATHIMA T K", class: "1"},
+        {reg: 612, name: "HIZA FATHIMA", class: "1"}, {reg: 620, name: "ARWA AFSAL", class: "1"},
+        {reg: 548, name: "DULQUER AZAN", class: "2"}, {reg: 570, name: "MUHAMMED HANIH M", class: "2"},
+        {reg: 572, name: "MUHAMMED SWALIH K P", class: "2"}, {reg: 592, name: "MUHAMMED HANAN C P", class: "2"},
+        {reg: 594, name: "MUHAMMED HADHI K", class: "2"}, {reg: 597, name: "ZIFRAN P P", class: "2"},
+        {reg: 601, name: "MUHAMMED FAIZAN.", class: "2"}, {reg: 619, name: "IMAD T.K", class: "2"},
+        {reg: 569, name: "AJVA FATHIMA V V", class: "2"}, {reg: 593, name: "JUWAIRIYA MUHAMMED", class: "2"},
+        {reg: 595, name: "RINSHA FATHIMA C P", class: "2"}, {reg: 596, name: "AYISHA M V", class: "2"},
+        {reg: 599, name: "HANA FATHIMA K", class: "2"}, {reg: 600, name: "RINZA RASHEED", class: "2"},
+        {reg: 100, name: "ZAHRA FATHIMA", class: "2"}, {reg: 512, name: "MUHAMMED MAZLAN", class: "3"},
+        {reg: 547, name: "MUHAMMED T K", class: "3"}, {reg: 552, name: "FAIZAN K V", class: "3"},
+        {reg: 561, name: "MUHAMMED FAIZAN K C", class: "3"}, {reg: 565, name: "MUHAMMED SHAHAN K S", class: "3"},
+        {reg: 567, name: "FAHAD B NOOR", class: "3"}, {reg: 571, name: "MUHAMMED HAMDAN E K", class: "3"},
+        {reg: 575, name: "HANI ABDULLA M", class: "3"}, {reg: 578, name: "MUHAMMED C A", class: "3"},
+        {reg: 586, name: "JAZLAN MUHAMMAD M P", class: "3"}, {reg: 607, name: "MUHAMMED QASIM K M", class: "3"},
+        {reg: 618, name: "IMRAN", class: "3"}, {reg: 513, name: "LAIBA FATHIMA", class: "3"},
+        {reg: 549, name: "AYISHA JUMANA", class: "3"}, {reg: 555, name: "MARIYAMBI", class: "3"},
+        {reg: 573, name: "MIHRA MARIYAM M K", class: "3"}, {reg: 580, name: "KHADEEJATHUL KUBRA M", class: "3"},
+        {reg: 585, name: "FATHIMATH ZANHA SHAFEEK", class: "3"}, {reg: 615, name: "HUSNA ASHRAF O.V", class: "3"},
+        {reg: 621, name: "ZAINAB AFSAL", class: "3"}, {reg: 492, name: "MUHAMMAD C", class: "4"},
+        {reg: 517, name: "MUHAMMED RAZEEN C K", class: "4"}, {reg: 540, name: "BISHRUL HAFI O", class: "4"},
+        {reg: 541, name: "MUHAMMAD HASAN K K", class: "4"}, {reg: 551, name: "MUHAMMAD ASIF T P", class: "4"},
+        {reg: 581, name: "MUHAMMAD SHEZIN K S", class: "4"}, {reg: 518, name: "FATHIMA SAYEED", class: "4"},
+        {reg: 519, name: "FATHIMA HIBA A AM", class: "4"}, {reg: 536, name: "NAJIYA YASMIN", class: "4"},
+        {reg: 546, name: "FATHIMA P C", class: "4"}, {reg: 550, name: "FATHIMA C P", class: "4"},
+        {reg: 554, name: "NADIYA O", class: "4"}, {reg: 588, name: "FATHIMATHU JUMANA KP", class: "4"},
+        {reg: 103, name: "ZAHRA JUNAID", class: "4"}, {reg: 532, name: "MUHAMMED ADIL T P", class: "6"},
+        {reg: 102, name: "SHEZIN", class: "6"}, {reg: 483, name: "SHAHANA FATHIMA P M", class: "6"},
+        {reg: 501, name: "FATHIMATH NAFLA P M", class: "6"}, {reg: 414, name: "FADIY SAYEED", class: "8"},
+        {reg: 427, name: "MUHAMMED NIHAL OK", class: "8"}, {reg: 428, name: "MUHAMMED NABHAN O", class: "8"},
+        {reg: 440, name: "KAMAL SHAHARUZE", class: "8"}, {reg: 450, name: "MUHAMMED JALAL K K", class: "8"},
+        {reg: 491, name: "UMMARUL FAROOQ", class: "8"}, {reg: 431, name: "AYISHABI C", class: "8"},
+        {reg: 433, name: "FATHIMA FIDA A M", class: "8"}, {reg: 446, name: "FATHIMA AFRA", class: "8"},
+        {reg: 452, name: "AYISHA T K", class: "8"}, {reg: 468, name: "FATHIMA RILA", class: "8"},
+        {reg: 537, name: "FAHMI O", class: "8"}, {reg: 562, name: "ZIYA FATHIMA P P", class: "8"},
+        {reg: 412, name: "MUHAMMED JALAL M", class: "9"}, {reg: 419, name: "SALMABI C P", class: "9"},
+        {reg: 420, name: "ASMABI C P", class: "9"}, {reg: 560, name: "NAJA FATHIMA O V", class: "9"},
+        {reg: 603, name: "AYISHABI T", class: "9"}
+    ];
+
+    function renderDashboard(requestedData) {
+        const container = document.getElementById('dashboardContent');
+        container.innerHTML = "";
+
+        const classes = [...new Set(students.map(s => s.class))].sort((a,b) => a-b);
+
+        classes.forEach(cls => {
+            let section = `<div class="class-section">
+                <h3 class="class-title">Class ${cls}</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reg</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            students.filter(s => s.class === cls).forEach(s => {
+                const request = requestedData.find(r => r.regNo === s.reg);
+                
+                section += `<tr>
+                    <td>${s.reg}</td>
+                    <td>${s.name}</td>
+                    <td>${request ? '<span class="status-badge requested">അപേക്ഷിച്ചു</span>' : '<span class="status-badge not-requested">Pending</span>'}</td>
+                    <td>
+                        ${request ? 
+                            `<button class="btn-wa" onclick="sendWA('${request.phone}', '${s.name}', '${s.reg}', '${cls}')">SEND ✅</button>
+                             <button class="btn-del" onclick="deleteRequest('${request.id}')">DEL 🗑️</button>` 
+                            : '---'}
+                    </td>
+                </tr>`;
+            });
+
+            section += `</tbody></table></div>`;
+            container.innerHTML += section;
         });
+    }
+
+    // ഫയർബേസിൽ നിന്ന് ഡാറ്റ ലൈവ് ആയി എടുക്കുന്നു
+    db.collection("infoRequests").onSnapshot(snapshot => {
+        const requestedData = [];
+        snapshot.forEach(doc => {
+            requestedData.push({ id: doc.id, ...doc.data() });
+        });
+        renderDashboard(requestedData);
     });
 
     function sendWA(ph, name, reg, cls) {
         const msg = `അസ്സലാമു അലൈക്കും. %0Aമിസ്ബാഹുൽ ഉലൂം മദ്റസയിൽ നിന്നുള്ള വിവരങ്ങൾ:%0A%0A*വിദ്യാർത്ഥി:* ${name}%0A*ക്ലാസ്:* ${cls}%0A*രജിസ്റ്റർ നമ്പർ:* ${reg}%0A%0Aശുഭദിനം നേരുന്നു.`;
         window.open(`https://wa.me/${ph}?text=${msg}`, '_blank');
+    }
+
+    async function deleteRequest(id) {
+        if(confirm("ഈ അപേക്ഷ ഡിലീറ്റ് ചെയ്യണോ? ഇത് ചെയ്താൽ രക്ഷിതാവിന് വീണ്ടും അപേക്ഷിക്കാൻ സാധിക്കും.")) {
+            try {
+                await db.collection("infoRequests").doc(id).delete();
+                alert("ഡിലീറ്റ് ചെയ്തു!");
+            } catch (e) {
+                alert("Error: " + e.message);
+            }
+        }
     }
 </script>
 </body>
