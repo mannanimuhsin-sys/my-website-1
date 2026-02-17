@@ -402,74 +402,75 @@ function exportToExcel() {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Result");
     XLSX.writeFile(workbook, `${mData.info.name}_${cls}_Result.xlsx`);
 }
-
-
 function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = jsPDF('l', 'pt', 'a4'); // Landscape, Points, A4 Size
-    const cls = document.getElementById('selMarkClass').value;
-    const table = document.querySelector("#mainTableWrapper table");
-    
-    if (!table) return alert("ആദ്യം ടേബിൾ ലോഡ് ചെയ്യുക!");
+    try {
+        // 1. ലൈബ്രറി ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു
+        const { jsPDF } = window.jspdf;
+        if (!jsPDF) {
+            alert("PDF ലൈബ്രറി ലോഡ് ആയിട്ടില്ല. ഇന്റർനെറ്റ് കണക്ഷൻ പരിശോധിക്കുക.");
+            return;
+        }
 
-    // 1. ഹെഡർ തയ്യാറാക്കുന്നു
-    let headers = [];
-    table.querySelectorAll("thead th").forEach(th => {
-        headers.push(th.innerText);
-    });
+        // 2. പുതിയ PDF ഡോക്യുമെന്റ് തയ്യാറാക്കുന്നു (Landscape, Points, A4)
+        const doc = new jsPDF('l', 'pt', 'a4');
+        const cls = document.getElementById('selMarkClass').value;
+        const table = document.querySelector("#mainTableWrapper table");
 
-    // 2. ബോഡി ഡാറ്റ തയ്യാറാക്കുന്നു
-    let body = [];
-    table.querySelectorAll("tbody tr").forEach(row => {
-        let rowData = [];
-        row.querySelectorAll("td").forEach(td => {
-            const input = td.querySelector("input");
-            const select = td.querySelector("select");
-            
-            if (input) {
-                rowData.push(input.value || "0");
-            } else if (select) {
-                rowData.push(select.value);
-            } else {
-                rowData.push(td.innerText);
-            }
+        if (!table) {
+            alert("ആദ്യം ടേബിൾ ലോഡ് ചെയ്യുക!");
+            return;
+        }
+
+        // 3. ടേബിൾ ഹെഡർ ശേഖരിക്കുന്നു
+        let headers = [];
+        table.querySelectorAll("thead th").forEach(th => headers.push(th.innerText));
+
+        // 4. ടേബിൾ ബോഡി (വിദ്യാർത്ഥികളുടെ വിവരങ്ങൾ) ശേഖരിക്കുന്നു
+        let body = [];
+        table.querySelectorAll("tbody tr").forEach(row => {
+            let rowData = [];
+            row.querySelectorAll("td").forEach(td => {
+                const input = td.querySelector("input");
+                const select = td.querySelector("select");
+                
+                if (input) {
+                    rowData.push(input.value || "0");
+                } else if (select) {
+                    rowData.push(select.value);
+                } else {
+                    rowData.push(td.innerText);
+                }
+            });
+            body.push(rowData);
         });
-        body.push(rowData);
-    });
 
-    doc.setFontSize(20);
-    doc.setTextColor(0, 77, 0); // മദ്രസ പ്രൈമറി ഗ്രീൻ
-    doc.text(mData.info.name.toUpperCase(), doc.internal.pageSize.getWidth() / 2, 40, { align: 'center' });
-    
-    doc.setFontSize(12);
-    doc.setTextColor(100);
-    doc.text(`${mData.info.place} | Class: ${cls} | Mark List`, doc.internal.pageSize.getWidth() / 2, 60, { align: 'center' });
+        // 5. PDF-ൽ മുകളിൽ മദ്രസയുടെ പേരും വിവരങ്ങളും നൽകുന്നു
+        doc.setFontSize(18);
+        doc.setTextColor(0, 77, 0); // പ്രൈമറി ഗ്രീൻ
+        doc.text(mData.info.name || "MADRASA RESULT", 40, 40);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(100);
+        doc.text(`Class: ${cls} | Place: ${mData.info.place || ""}`, 40, 60);
 
-    doc.autoTable({
-        head: [headers],
-        body: body,
-        startY: 80,
-        theme: 'grid', // ബോർഡറുകൾ വരാൻ
-        styles: {
-            fontSize: 10,
-            cellPadding: 5,
-            halign: 'center', // സെന്റർ അലൈൻമെന്റ്
-            valign: 'middle'
-        },
-        headStyles: {
-            fillColor: [0, 77, 0], // പച്ച നിറം
-            textColor: [255, 215, 0], // സ്വർണ്ണ നിറം (Gold)
-            fontStyle: 'bold',
-            lineWidth: 1,
-            lineColor: [255, 255, 255]
-        },
-        alternateRowStyles: {
-            fillColor: [245, 245, 245]
-        },
-        margin: { top: 80 }
-    });
+        // 6. ടേബിൾ ഡിസൈൻ ചെയ്യുന്നു
+        doc.autoTable({
+            head: [headers],
+            body: body,
+            startY: 80,
+            theme: 'grid',
+            styles: { fontSize: 9, halign: 'center' },
+            headStyles: { fillColor: [0, 77, 0], textColor: [255, 255, 255] },
+            margin: { left: 40, right: 40 }
+        });
 
-    doc.save(`${mData.info.name}_${cls}_MarkList.pdf`);
+        // 7. PDF സേവ് ചെയ്യുന്നു
+        doc.save(`${mData.info.name}_${cls}_Result.pdf`);
+
+    } catch (err) {
+        console.error("PDF Error: ", err);
+        alert("PDF നിർമ്മിക്കുന്നതിൽ പരാജയപ്പെട്ടു. പേജ് റിഫ്രഷ് ചെയ്ത് വീണ്ടും നോക്കുക.");
+    }
 }
 const originalLoadMainTable = loadMainTable;
 loadMainTable = function() {
