@@ -345,40 +345,56 @@ function deleteSubject(cls, index) {
         loadSubjects();
     }
 }
-    function loadMarkTable() {
-        const cls = document.getElementById('markClass').value;
-        if (!cls) return alert("ക്ലാസ് തിരഞ്ഞെടുക്കുക");
-        const subs = mData.subjects[cls] || [];
-        const studs = mData.students[cls] || {};
-        if(mData.classAtt && mData.classAtt[cls]) document.getElementById('classAtt').value = mData.classAtt[cls];
-        let h = `<tr><th>Reg</th><th>Name</th><th>ഹാജർ</th>`;
-subs.forEach(s => h += `<th>${s}</th>`);
-h += `<th>Total</th><th>Grade</th><th>Status</th><th>Rank</th></tr>`;
-        document.getElementById('tHead').innerHTML = h;
-        let b = "";
-        for(let reg in studs) {
-            const oldRes = (mData.results && mData.results[cls] && mData.results[cls][reg]) ? mData.results[cls][reg] : {};
-            b += `<tr data-reg="${reg}"><td>${reg}</td><td>${studs[reg]}</td><td><input type="number" class="m-input s-att" value="${oldRes.att || ""}" oninput="autoSave()"></td>`;
-            subs.forEach(s => {
-                const oldMark = (oldRes.marks && oldRes.marks[s]) ? oldRes.marks[s] : "";
-                b += `<td><input type="number" class="m-input s-mark" data-sub="${s}" value="${oldMark}" oninput="calcStatus(this)"></td>`;
-            });
-// പുതിയതായി ചേർക്കേണ്ടത്:
-b += `<td class="r-tot">${oldRes.total || "0"}</td>
-    <td style="width: 130px; min-width: 130px;"> 
-        <select class="r-sts-select" onchange="manualStatusChange(this)" style="padding:6px; border-radius:4px; font-weight:bold; border:1px solid #ccc; width:100%; cursor:pointer; color: ${oldRes.status === 'Passed' ? 'green' : (oldRes.status === 'Promoted' ? 'blue' : 'red')}">
-            <option value="Passed" ${oldRes.status === 'Passed' ? 'selected' : ''}>Passed</option>
-            <option value="Failed" ${oldRes.status === 'Failed' ? 'selected' : ''}>Failed</option>
-            <option value="Promoted" ${oldRes.status === 'Promoted' ? 'selected' : ''}>Promoted</option>
-        </select>
-    </td>
-    <td>
-        <input type="text" class="m-input r-rank" value="${oldRes.rank || ""}" oninput="autoSave()" style="width:50px; text-align:center;">
-    </td></tr>`;
-        }
-        document.getElementById('tBody').innerHTML = b;
-        document.getElementById('tableWrapper').classList.remove('hidden');
+   function loadMarkTable() {
+    const cls = document.getElementById('markClass').value;
+    if (!cls) return alert("ക്ലാസ് തിരഞ്ഞെടുക്കുക");
+    const subs = mData.subjects[cls] || [];
+    const studs = mData.students[cls] || {};
+    
+    if(mData.classAtt && mData.classAtt[cls]) {
+        document.getElementById('classAtt').value = mData.classAtt[cls];
     }
+
+    // ഘട്ടം A: ഹെഡർ (ഇത് നിങ്ങൾ ഇപ്പോൾ മാറ്റിയത് പോലെ തന്നെ)
+    let h = `<tr><th>Reg</th><th>Name</th><th>ഹാജർ</th>`;
+    subs.forEach(s => h += `<th>${s}</th>`);
+    h += `<th>Total</th><th>Status</th><th>Rank</th></tr>`;
+    document.getElementById('tHead').innerHTML = h;
+
+    let b = "";
+    for(let reg in studs) {
+        const oldRes = (mData.results && mData.results[cls] && mData.results[cls][reg]) ? mData.results[cls][reg] : {};
+        
+        // വരി തുടങ്ങുന്നു - രജിസ്റ്റർ നമ്പർ, പേര്, ഹാജർ
+        b += `<tr data-reg="${reg}">
+                <td>${reg}</td>
+                <td>${studs[reg]}</td>
+                <td><input type="number" class="m-input s-att" value="${oldRes.att || ""}" oninput="autoSave()"></td>`;
+
+        // ഓരോ വിഷയത്തിന്റെയും മാർക്ക് ബോക്സുകൾ
+        subs.forEach(s => {
+            const oldMark = (oldRes.marks && oldRes.marks[s]) ? oldRes.marks[s] : "";
+            b += `<td><input type="number" class="m-input s-mark" data-sub="${s}" value="${oldMark}" oninput="calcStatus(this)"></td>`;
+        });
+
+        // ഘട്ടം B: ടോട്ടൽ, സ്റ്റാറ്റസ്, റാങ്ക് (ഇവിടെയാണ് മാറ്റം വേണ്ടത്)
+        b += `<td class="r-tot">${oldRes.total || "0"}</td>
+            <td style="width: 130px;"> 
+                <select class="r-sts-select" onchange="manualStatusChange(this)" style="padding:6px; border-radius:4px; font-weight:bold; border:1px solid #ccc; width:100%; cursor:pointer; color: ${oldRes.status === 'Passed' ? 'green' : (oldRes.status === 'Promoted' ? 'blue' : 'red')}">
+                    <option value="Passed" ${oldRes.status === 'Passed' ? 'selected' : ''}>Passed</option>
+                    <option value="Failed" ${oldRes.status === 'Failed' ? 'selected' : ''}>Failed</option>
+                    <option value="Promoted" ${oldRes.status === 'Promoted' ? 'selected' : ''}>Promoted</option>
+                </select>
+            </td>
+            <td>
+                <input type="text" class="m-input r-rank" value="${oldRes.rank || ""}" oninput="autoSave()" placeholder="Rank" style="width:60px; text-align:center; border:1px solid #ccc; background:white;">
+            </td>
+        </tr>`;
+    }
+    
+    document.getElementById('tBody').innerHTML = b;
+    document.getElementById('tableWrapper').classList.remove('hidden');
+}
 
     function calcStatus(input) {
     const row = input.closest('tr');
