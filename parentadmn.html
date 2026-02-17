@@ -19,6 +19,7 @@
         .status-badge { padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; }
         .not-requested { background: #fee2e2; color: #dc2626; }
         .requested { background: #dcfce7; color: #166534; }
+        .sent-badge { background: #e2e8f0; color: #475569; border: 1px solid #cbd5e0; }
 
         .btn-wa { background: #25D366; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; }
         .btn-del { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; margin-left: 5px; }
@@ -51,6 +52,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // മുഴുവൻ വിദ്യാർത്ഥികളുടെയും ലിസ്റ്റ് (ഒരാളും ഒഴിഞ്ഞു പോകില്ല)
     const students = [
         {reg: 602, name: "MUHAMMED SHADIL", class: "1"}, {reg: 609, name: "NASIH SUNEER K P C", class: "1"},
         {reg: 611, name: "AYAN ASIF", class: "1"}, {reg: 606, name: "INAAYA FATHIMA T K", class: "1"},
@@ -93,73 +95,56 @@
         {reg: 603, name: "AYISHABI T", class: "9"}
     ];
 
-   function renderDashboard(requestedData) {
-    const container = document.getElementById('dashboardContent');
-    container.innerHTML = "";
+    function renderDashboard(requestedData) {
+        const container = document.getElementById('dashboardContent');
+        container.innerHTML = "";
 
-    const classes = [...new Set(students.map(s => s.class))].sort((a,b) => a-b);
+        const classes = [...new Set(students.map(s => s.class))].sort((a,b) => a-b);
 
-    classes.forEach(cls => {
-        let section = `<div class="class-section">
-            <h3 class="class-title">Class ${cls}</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Reg</th>
-                        <th>Name</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>`;
+        classes.forEach(cls => {
+            let section = `<div class="class-section">
+                <h3 class="class-title">Class ${cls}</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reg</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
 
-        students.filter(s => s.class === cls).forEach(s => {
-            const request = requestedData.find(r => r.regNo === s.reg);
-            
-            // മെസ്സേജ് അയച്ചോ എന്ന് പരിശോധിക്കുന്നു
-            const isSent = request && request.isSent === true;
+            students.filter(s => s.class === cls).forEach(s => {
+                const request = requestedData.find(r => r.regNo === s.reg);
+                
+                // മെസ്സേജ് അയച്ചതാണോ എന്ന് നോക്കുന്നു
+                const isSent = request && request.isSent === true;
 
-            section += `<tr>
-                <td>${s.reg}</td>
-                <td>${s.name}</td>
-                <td>
-                    ${request ? 
-                        (isSent ? 
-                            '<span class="status-badge" style="background:#e2e8f0; color:#475569;">മെസ്സേജ് അയച്ചു 👍</span>' : 
-                            '<span class="status-badge requested">അപേക്ഷിച്ചു</span>') 
-                        : '<span class="status-badge not-requested">Pending</span>'}
-                </td>
-                <td>
-                    ${request ? 
-                        `${!isSent ? `<button class="btn-wa" onclick="sendWA('${request.id}', '${request.phone}', '${s.name}', '${s.reg}', '${cls}')">SEND ✅</button>` : ''}
-                         <button class="btn-del" onclick="deleteRequest('${request.id}')">DEL 🗑️</button>` 
-                        : '---'}
-                </td>
-            </tr>`;
+                section += `<tr>
+                    <td>${s.reg}</td>
+                    <td>${s.name}</td>
+                    <td>
+                        ${request ? 
+                            (isSent ? 
+                                '<span class="status-badge sent-badge">അയച്ചു 👍</span>' : 
+                                '<span class="status-badge requested">അപേക്ഷിച്ചു</span>') 
+                            : '<span class="status-badge not-requested">Pending</span>'}
+                    </td>
+                    <td>
+                        ${request ? 
+                            `<button class="btn-wa" onclick="sendWA('${request.id}', '${request.phone}', '${s.name}', '${s.reg}', '${cls}')" ${isSent ? 'style="background:#ccc"' : ''}>${isSent ? 'RE-SEND' : 'SEND ✅'}</button>
+                             <button class="btn-del" onclick="deleteRequest('${request.id}')">DEL 🗑️</button>` 
+                            : '---'}
+                    </td>
+                </tr>`;
+            });
+
+            section += `</tbody></table></div>`;
+            container.innerHTML += section;
         });
-
-        section += `</tbody></table></div>`;
-        container.innerHTML += section;
-    });
-}
-
-async function sendWA(docId, ph, name, reg, cls) {
-    const msg = `അസ്സലാമു അലൈക്കും. %0Aമിസ്ബാഹുൽ ഉലൂം മദ്റസയിൽ നിന്നുള്ള വിവരങ്ങൾ:%0A%0A*വിദ്യാർത്ഥി:* ${name}%0A*ക്ലാസ്:* ${cls}%0A*രജിസ്റ്റർ നമ്പർ:* ${reg}%0A%0Aരജിസ്റ്റർ നമ്പർ സുരക്ഷിതമാക്കുക.`;
-    
-    // വാട്സാപ്പ് ഓപ്പൺ ചെയ്യുന്നു
-    window.open(`https://wa.me/${ph}?text=${msg}`, '_blank');
-
-    // ഫയർബേസിൽ 'isSent: true' എന്ന് അപ്‌ഡേറ്റ് ചെയ്യുന്നു
-    try {
-        await db.collection("infoRequests").doc(docId).update({
-            isSent: true
-        });
-    } catch (e) {
-        console.error("Update Error:", e);
     }
-}
 
-    // ഫയർബേസിൽ നിന്ന് ഡാറ്റ ലൈവ് ആയി എടുക്കുന്നു
     db.collection("infoRequests").onSnapshot(snapshot => {
         const requestedData = [];
         snapshot.forEach(doc => {
@@ -168,16 +153,26 @@ async function sendWA(docId, ph, name, reg, cls) {
         renderDashboard(requestedData);
     });
 
-    function sendWA(ph, name, reg, cls) {
-        const msg = `അസ്സലാമു അലൈക്കും. %0Aമിസ്ബാഹുൽ ഉലൂം മദ്റസയിൽ നിന്നുള്ള വിവരങ്ങൾ:%0A%0A*വിദ്യാർത്ഥി:* ${name}%0A*ക്ലാസ്:* ${cls}%0A*രജിസ്റ്റർ നമ്പർ:* ${reg}%0A%0Aരജിസ്റ്റർ നമ്പർ സുരക്ഷിതമാക്കുക.`;
-        window.open(`https://wa.me/${ph}?text=${msg}`, '_blank')
+    async function sendWA(docId, ph, name, reg, cls) {
+        const msg = `അസ്സലാമു അലൈക്കും. %0Aമിസ്ബാഹുൽ ഉലൂം മദ്റസയിൽ നിന്നുള്ള വിവരങ്ങൾ:%0A%0A*വിദ്യാർത്ഥി:* ${name}%0A*ക്ലാസ്:* ${cls}%0A*രജിസ്റ്റർ നമ്പർ:* ${reg}%0A%0Aശുഭദിനം നേരുന്നു.`;
+        
+        // വാട്സാപ്പ് തുറക്കുന്നു
+        window.open(`https://wa.me/${ph}?text=${msg}`, '_blank');
+
+        // അയച്ചു എന്ന് മാർക്ക് ചെയ്യുന്നു
+        try {
+            await db.collection("infoRequests").doc(docId).update({
+                isSent: true
+            });
+        } catch (e) {
+            console.error("Update failed", e);
+        }
     }
 
     async function deleteRequest(id) {
-        if(confirm("ഈ അപേക്ഷ ഡിലീറ്റ് ചെയ്യണോ? ഇത് ചെയ്താൽ രക്ഷിതാവിന് വീണ്ടും അപേക്ഷിക്കാൻ സാധിക്കും.")) {
+        if(confirm("ഈ അപേക്ഷ ഡിലീറ്റ് ചെയ്യണോ? ഇത് ചെയ്താൽ പച്ച ബട്ടൺ പഴയപോലെ വരും.")) {
             try {
                 await db.collection("infoRequests").doc(id).delete();
-                alert("ഡിലീറ്റ് ചെയ്തു!");
             } catch (e) {
                 alert("Error: " + e.message);
             }
