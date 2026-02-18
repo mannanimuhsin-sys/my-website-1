@@ -239,9 +239,58 @@ function shareWhatsapp() {
     window.open("https://wa.me/?text=" + encodeURIComponent(text));
 }
 
-// PDF & Excel (Same as before)
-function exportToPDF() { /* Logic */ }
-function exportToExcel() { /* Logic */ }
+
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    const cls = document.getElementById('selClass').value;
+    const divi = document.getElementById('selDivision').value;
+    if(!cls) return alert("ക്ലാസ്സ് തിരഞ്ഞെടുക്കുക!");
+
+    const title = `${user.madrasa} - Class: ${cls} (${divi})`;
+    doc.text(title, 14, 15);
+
+    let rows = [];
+    document.querySelectorAll('.st-row').forEach(r => {
+        const name = r.querySelector('input').value;
+        const status = r.querySelector('button').innerText;
+        if(name) rows.push([name, status]);
+    });
+
+    if(rows.length === 0) return alert("ഡാറ്റ ലഭ്യമല്ല!");
+
+    doc.autoTable({
+        head: [['Student Name', 'Result Status']],
+        body: rows,
+        startY: 25,
+        theme: 'grid',
+        headStyles: { fillColor: [25, 135, 84] } // Green Color
+    });
+
+    doc.save(`${user.madrasa}_Class_${cls}.pdf`);
+}
+
+function exportToExcel() {
+    const cls = document.getElementById('selClass').value;
+    const divi = document.getElementById('selDivision').value;
+    if(!cls) return alert("ക്ലാസ്സ് തിരഞ്ഞെടുക്കുക!");
+
+    let data = [];
+    document.querySelectorAll('.st-row').forEach(r => {
+        const name = r.querySelector('input').value;
+        const status = r.querySelector('button').innerText;
+        if(name) data.push({ "Student Name": name, "Result Status": status });
+    });
+
+    if(data.length === 0) return alert("ഡാറ്റ ലഭ്യമല്ല!");
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Results");
+
+    XLSX.writeFile(workbook, `${user.madrasa}_Class_${cls}.xlsx`);
+}
 </script>
 </body>
 </html>
