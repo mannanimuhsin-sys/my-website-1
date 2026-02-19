@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKSSF രിഹ്ല പര്യാടനം</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #198754; --gold: #D4AF37; --blue: #0d6efd; }
+        body { font-family: 'Poppins', sans-serif; background: #f4f7f6; margin: 0; padding: 15px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); font-size: 22px; margin-bottom: 5px; }
+        .total-box { background: var(--primary); color: white; text-align: center; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 24px; font-weight: bold; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #eee; font-weight: bold; }
+
+        .admin-section { display: none; background: #f9f9f9; padding: 20px; border-radius: 10px; margin-top: 20px; border: 1px solid #ddd; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .full-width { grid-column: span 2; }
+        
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn-add { background: var(--primary); color: white; }
+        .btn-update { background: var(--blue); color: white; display: none; }
+        .btn-edit { background: var(--blue); color: white; padding: 5px 10px; font-size: 11px; border-radius: 4px; margin-right: 5px; border:none; cursor:pointer;}
+        .btn-del { background: #dc3545; color: white; padding: 5px 10px; font-size: 11px; border-radius: 4px; border:none; cursor:pointer;}
+        .btn-admin-toggle { background: #6c757d; color: white; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>SKSSF രിഹ്ല പര്യാടനം</h1>
+    <div class="total-box">ആകെ സംഖ്യ: <span id="grandTotal">0</span></div>
+
+    <table id="userTable">
+        <thead>
+            <tr>
+                <th>ശാഖ</th>
+                <th>പള്ളി</th>
+                <th>തീയതി</th>
+                <th>വഖ്ത് </th>
+                <th>സംഖ്യ</th>
+            </tr>
+        </thead>
+        <tbody id="viewBody"></tbody>
+    </table>
+
+    <button class="btn btn-admin-toggle" onclick="toggleAdmin()">Admin Panel</button>
+
+    <div id="adminPanel" class="admin-section">
+        <h3 id="adminTitle">വിവരങ്ങൾ ചേർക്കുക</h3>
+        <input type="hidden" id="editId">
+        <div class="form-grid">
+            <input type="text" id="branch" placeholder="ശാഖയുടെ പേര്">
+            <input type="text" id="masjid" placeholder="പള്ളിയുടെ പേര്">
+            <input type="date" id="date">
+            <input type="text" id="prayer" placeholder="വക്ത് / നിസ്കാരം">
+            <input type="number" id="amount" placeholder="സംഖ്യ" class="full-width">
+        </div>
+        <button id="addBtn" class="btn btn-add" onclick="addData()">വിവരങ്ങൾ ചേർക്കുക</button>
+        <button id="updateBtn" class="btn btn-update" onclick="updateData()">മാറ്റങ്ങൾ വരുത്തുക (Update)</button>
+
+        <h3 style="margin-top:30px;">മാറ്റം വരുത്തുക / ഡിലീറ്റ് ചെയ്യുക</h3>
+        <table id="adminTable">
+            <thead>
+                <tr>
+                    <th>ശാഖ</th>
+                    <th>പള്ളി</th>
+                    <th>തീയതി</th>
+                    <th>വക്ത്</th>
+                    <th>സംഖ്യ</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="adminBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAUkOIp33p7sMviItKLEP6EGyPQvFBuQeY",
+  projectId: "result-aedec",
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let isAdmin = false;
+
+function toggleAdmin() {
+    const pass = prompt("Password നൽകുക:");
+    if(pass === "123") { 
+        isAdmin = !isAdmin;
+        document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
+        loadData();
+    } else { alert("തെറ്റായ പാസ്‌വേഡ്!"); }
+}
+
+// തീയതി DD-MM-YYYY രൂപത്തിലേക്ക് മാറ്റാൻ
+function formatDate(dateStr) {
+    if(!dateStr) return "";
+    const [y, m, d] = dateStr.split('-');
+    return `${d}-${m}-${y}`;
+}
+
+async function addData() {
+    const data = {
+        branch: document.getElementById('branch').value,
+        masjid: document.getElementById('masjid').value,
+        date: document.getElementById('date').value,
+        prayer: document.getElementById('prayer').value,
+        amount: Number(document.getElementById('amount').value),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    if(!data.branch || !data.amount) return alert("വിവരങ്ങൾ നൽകുക!");
+    await db.collection("rihla_data").add(data);
+    clearForm();
+}
+
+function loadData() {
+    // timestamp-ന് പകരം date അനുസരിച്ച് asc (ascending) ഓർഡറിൽ മാറ്റുന്നു
+    db.collection("rihla_data").orderBy("date", "asc").onSnapshot(snapshot => {
+        let viewHtml = "";
+        let adminHtml = "";
+        let total = 0;
+
+        snapshot.forEach(doc => {
+            const d = doc.data();
+            total += d.amount;
+            const displayDate = formatDate(d.date);
+
+            // User View Table
+            viewHtml += `<tr>
+                <td>${d.branch}</td><td>${d.masjid}</td><td>${displayDate}</td><td>${d.prayer}</td><td>${d.amount}</td>
+            </tr>`;
+
+            // Admin Panel Table
+            adminHtml += `<tr>
+                <td>${d.branch}</td><td>${d.masjid}</td><td>${displayDate}</td><td>${d.prayer}</td><td>${d.amount}</td>
+                <td>
+                    <button class="btn-edit" onclick="editRow('${doc.id}', '${d.branch}', '${d.masjid}', '${d.date}', '${d.prayer}', ${d.amount})">Edit</button>
+                    <button class="btn-del" onclick="deleteData('${doc.id}')">Delete</button>
+                </td>
+            </tr>`;
+        });
+        document.getElementById('viewBody').innerHTML = viewHtml;
+        document.getElementById('adminBody').innerHTML = adminHtml;
+        document.getElementById('grandTotal').innerText = total;
+    });
+}
+function editRow(id, branch, masjid, date, prayer, amount) {
+    document.getElementById('editId').value = id;
+    document.getElementById('branch').value = branch;
+    document.getElementById('masjid').value = masjid;
+    document.getElementById('date').value = date;
+    document.getElementById('prayer').value = prayer;
+    document.getElementById('amount').value = amount;
+
+    document.getElementById('addBtn').style.display = 'none';
+    document.getElementById('updateBtn').style.display = 'block';
+    document.getElementById('adminTitle').innerText = "വിവരങ്ങൾ എഡിറ്റ് ചെയ്യുന്നു...";
+    window.scrollTo(0, document.getElementById('adminPanel').offsetTop);
+}
+
+async function updateData() {
+    const id = document.getElementById('editId').value;
+    const data = {
+        branch: document.getElementById('branch').value,
+        masjid: document.getElementById('masjid').value,
+        date: document.getElementById('date').value,
+        prayer: document.getElementById('prayer').value,
+        amount: Number(document.getElementById('amount').value)
+    };
+    await db.collection("rihla_data").doc(id).update(data);
+    alert("മാറ്റങ്ങൾ സേവ് ചെയ്തു!");
+    clearForm();
+}
+
+async function deleteData(id) {
+    if(confirm("ഇത് ഡിലീറ്റ് ചെയ്യട്ടെ?")) {
+        await db.collection("rihla_data").doc(id).delete();
+    }
+}
+
+function clearForm() {
+    document.querySelectorAll('#adminPanel input').forEach(i => i.value = "");
+    document.getElementById('addBtn').style.display = 'block';
+    document.getElementById('updateBtn').style.display = 'none';
+    document.getElementById('adminTitle').innerText = "വിവരങ്ങൾ ചേർക്കുക";
+}
+
+loadData();
+</script>
+</body>
+</html>
