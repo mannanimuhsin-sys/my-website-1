@@ -218,28 +218,55 @@
         refreshSubList();
     }
 
-    function addStudent() {
+   function addStudent() {
         const c = document.getElementById('selClass').value;
         const r = document.getElementById('inReg').value.trim();
         const n = document.getElementById('inName').value.trim();
         if(!c || !r || !n) return;
         if(!mData.students[c]) mData.students[c] = {};
-        mData.students[c][r] = n;
+        
+        // സമയം (time) കൂടി ചേർക്കുന്നത് വഴി നിങ്ങൾ നൽകുന്ന അതേ ഓർഡറിൽ കുട്ടികൾ വരും.
+        mData.students[c][r] = { name: n, time: Date.now() };
+        
         document.getElementById('inReg').value = '';
         document.getElementById('inName').value = '';
         refreshStList();
     }
-
-    function refreshStList() {
+   function refreshStList() {
         let h = "";
         for(let c in mData.students) {
             h += `<h4>${c}</h4><table><tr><th>Reg</th><th>Name</th><th>Action</th></tr>`;
-            for(let r in mData.students[c]) {
-                h += `<tr><td>${r}</td><td>${mData.students[c][r]}</td><td><button class="btn-red" onclick="deleteStudent('${c}','${r}')">Delete</button></td></tr>`;
-            }
+            
+            // വിദ്യാർത്ഥികളെ ആഡ് ചെയ്ത ക്രമത്തിൽ (time) സോർട്ട് ചെയ്യുന്നു
+            let sortedStuds = Object.entries(mData.students[c]).sort((a, b) => {
+                let timeA = (a[1] && typeof a[1] === 'object') ? a[1].time : 0;
+                let timeB = (b[1] && typeof b[1] === 'object') ? b[1].time : 0;
+                return timeA - timeB;
+            });
+
+            sortedStuds.forEach(([r, data]) => {
+                const name = (data && typeof data === 'object') ? data.name : data;
+                h += `<tr><td>${r}</td><td>${name}</td><td>
+                    <button class="btn btn-blue" style="padding:5px 10px; font-size:12px; margin-right:5px;" onclick="editStudent('${c}','${r}','${name}')">Edit</button>
+                    <button class="btn-red" onclick="deleteStudent('${c}','${r}')">Delete</button>
+                </td></tr>`;
+            });
             h += `</table>`;
         }
         document.getElementById('studentListArea').innerHTML = h;
+    }
+
+    // പേര് തിരുത്താനുള്ള പുതിയ ഫംഗ്ഷൻ (refreshStList-ന് താഴെ പേസ്റ്റ് ചെയ്യുക)
+    function editStudent(c, r, oldName) {
+        const newName = prompt("വിദ്യാർത്ഥിയുടെ പേര് തിരുത്തുക:", oldName);
+        if (newName && newName.trim() !== "") {
+            if(mData.students[c][r] && typeof mData.students[c][r] === 'object') {
+                mData.students[c][r].name = newName;
+            } else {
+                mData.students[c][r] = { name: newName, time: Date.now() };
+            }
+            refreshStList();
+        }
     }
     
     function deleteStudent(c, r) {
@@ -283,37 +310,86 @@
         const studs = mData.students[c] || {};
         const subs = mData.subjects[c] || [];
         
+        // മാർക്ക് ലിസ്റ്റിലും വിദ്യാർത്ഥികളെ ഒരേ ക്രമത്തിൽ കാണിക്കുന്നു
+        let sortedStuds = Object.entries(studs).sort((a, b) => {
+            let timeA = (a[1] && typeof a[1] === 'object') ? a[1].time : 0;
+            let timeB = (b[1] && typeof b[1] === 'object') ? b[1].time : 0;
+            return timeA - timeB;
+        });
+
         let h = `<table><thead><tr><th>Reg</th><th>Name</th><th>Att.</th>`;
         subs.forEach(s => h += `<th>${s.substring(0,6)}</th>`);
         h += '<th>Total</th><th style="min-width:110px;">Status</th><th>Rank</th></tr></thead><tbody>';        
-        for(let r in studs) {
+        
+        sortedStuds.forEach(([r, data]) => {
+            const name = (data && typeof data === 'object') ? data.name : data;
             const res = (mData.results[c] && mData.results[c][r]) ? mData.results[c][r] : { marks: {}, att: '', total: 0, status: 'Passed', rank: '' };
-            h += `<tr data-reg="${r}"><td>${r}</td><td style="text-align:left; font-size:13px;">${studs[r]}</td>
+            
+            h += `<tr data-reg="${r}"><td>${r}</td><td style="text-align:left; font-size:13px;">${name}</td>
             <td><input type="number" class="m-input s-att" value="${res.att}"></td>`;
-            subs.forEach(s => h += `<td><input type="number" class="m-input s-mark" data-sub="${s}" value="${res.marks[s] || ''}" oninput="updateRowLogic(this)"></td>`);
+            subs.forEach(s => h += `<td><input type="number" class="m-input s-mark" data-sub="${s}" value="${res.marks[s] || ''}" oninput="calculateAutoRankAndTotal()"></td>`);
             h += `<td class="r-tot" style="font-weight:bold">${res.total}</td>
-            <td><select class="r-sts">
+            <td><select class="r-sts" onchange="calculateAutoRankAndTotal()">
                 <option value="Passed" ${res.status=='Passed'?'selected':''}>Passed</option>
                 <option value="Failed" ${res.status=='Failed'?'selected':''}>Failed</option>
                 <option value="Promotion" ${res.status=='Promotion'?'selected':''}>Promotion</option>
             </select></td>
-            <td><input type="text" class="m-input r-rank" value="${res.rank || ''}"></td></tr>`;
-        }
-        document.getElementById('mainTableWrapper').innerHTML = h + `</tbody></table>`;
-    }
-
-    function updateRowLogic(el) {
-        const row = el.closest('tr');
-        let tot = 0;
-        let isFailed = false;
-        row.querySelectorAll('.s-mark').forEach(i => {
-            let val = parseInt(i.value) || 0;
-            tot += val;
-            if(val < 18) isFailed = true; // പാസ് മാർക്ക് 18 ആയി സെറ്റ് ചെയ്തിരിക്കുന്നു
+            <td><input type="text" class="m-input r-rank" value="${res.rank || ''}" readonly></td></tr>`;
         });
-        row.querySelector('.r-tot').innerText = tot;
-        if(isFailed) row.querySelector('.r-sts').value = "Failed";
-        else row.querySelector('.r-sts').value = "Passed";
+        document.getElementById('mainTableWrapper').innerHTML = h + `</tbody></table>`;
+        
+        const btnBox = document.getElementById('downloadButtons');
+        if(btnBox) btnBox.style.display = 'flex'; 
+    }
+   // പുതിയ കാൽക്കുലേഷൻ ഫംഗ്ഷൻ - ഇത് ടോട്ടലും റാങ്കും തനിയെ കണക്കാക്കും
+     function calculateAutoRankAndTotal() {
+        const rows = Array.from(document.querySelectorAll('#mainTableWrapper tbody tr'));
+        
+        rows.forEach(row => {
+            let tot = 0;
+            let failedByMark = false;
+            let hasEntry = false;
+
+            row.querySelectorAll('.s-mark').forEach(i => {
+                let valStr = i.value.trim();
+                if (valStr !== "") {
+                    hasEntry = true;
+                    let val = parseInt(valStr) || 0;
+                    tot += val;
+                    if (val < 18) failedByMark = true;
+                }
+            });
+
+            row.querySelector('.r-tot').innerText = tot;
+            
+            let statusSelect = row.querySelector('.r-sts');
+            let currentStatus = statusSelect.value;
+
+            // പ്രമോഷൻ മാനുവൽ ആയി നൽകിയതാണെങ്കിൽ അത് മാറ്റരുത്
+            if (currentStatus !== "Promotion") {
+                if (failedByMark) {
+                    statusSelect.value = "Failed";
+                } else if (hasEntry) {
+                    statusSelect.value = "Passed";
+                }
+            }
+        });
+
+        // റാങ്ക് കണക്കാക്കുന്നു
+        rows.forEach(r => r.querySelector('.r-rank').value = "");
+
+        // 'Passed' ആയവർക്ക് മാത്രം റാങ്ക് നൽകുന്നു (Promotion/Failed ഉള്ളവർക്ക് റാങ്ക് നൽകില്ല)
+        let passedRows = rows.filter(r => r.querySelector('.r-sts').value === "Passed")
+                             .sort((a, b) => {
+                                 return parseInt(b.querySelector('.r-tot').innerText) - parseInt(a.querySelector('.r-tot').innerText);
+                             });
+
+        passedRows.forEach((row, index) => {
+            let total = parseInt(row.querySelector('.r-tot').innerText);
+            if (total > 0) {
+                row.querySelector('.r-rank').value = index + 1;
+            }
+        });
     }
 
     async function saveAllData() {
