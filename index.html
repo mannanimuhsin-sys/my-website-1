@@ -3,11 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Misbahul Uloom Madrasa Peruvana | മിസ്ബാഹുൽ ഉലൂം മദ്രസ പെരുവണ</title>
-    <meta name="description" content="Misbahul Uloom Madrasa Peruvana - ഔദ്യോഗിക വെബ്സൈറ്റ്. അറിയിപ്പുകൾ, രജിസ്‌ട്രേഷൻ, ബ്ലഡ് ബാങ്ക് സേവനങ്ങൾ ഇവിടെ ലഭ്യമാണ്.">
-    <meta name="keywords" content="Misbahul Uloom Madrasa, Peruvana, Madrasa, Misbahul Uloom, Muhsin Mannani">
-    <meta name="author" content="Muhsin Mannani">
-    <meta name="google-site-verification" content="HUwfSaKZjE0L1uUTrx7RSZDbEWY2C8c__vYxCW-YJyM"/>
+   <title>Misbahul Uloom Madrasa Peruvana | മിസ്ബാഹുൽ ഉലൂം മദ്രസ പെരുവണ</title>
+<meta name="description" content="Misbahul Uloom Madrasa Peruvana Official App. മിസ്ബാഹുൽ ഉലൂം മദ്രസ പെരുവണയുടെ ഔദ്യോഗിക ആപ്ലിക്കേഷൻ.">
+<meta name="keywords" content="Misbahul Uloom Madrasa, Peruvana, Madrasa, മിസ്ബാഹുൽ ഉലൂം മദ്രസ, പെരുവണ, മദ്രസ, Misbahul Uloom, Muhsin Mannani">
+<meta name="author" content="Muhsin Mannani">
+<meta name="google-site-verification" content="HUwfSaKZjE0L1uUTrx7RSZDbEWY2C8c__vYxCW-YJyM"/>
+<meta name="theme-color" content="#198754">
+<link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -85,6 +87,7 @@
     <h1>MISBAHUL ULOOM MADRASA</h1>
     <p>Peruvana | Under SKIMVB Reg.No: 4224</p>
 </div>
+
 
 <div class="container">
   <div class="portal-card" onclick="window.location.href='https://mannanimuhsin-sys.github.io/my-website-1/idcard.html'">
@@ -263,6 +266,24 @@
             document.getElementById('bloodBankForm').reset();
         });
     };
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Service Worker Registered'))
+        .catch(err => console.log('Service Worker Error', err));
+    });
+  }
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Service Worker Registered'))
+        .catch(err => console.log('Service Worker Error', err));
+    });
+  }
 </script>
 </body>
 </html>
