@@ -226,7 +226,7 @@
     }
 }
 
-    function displayResult(cls, reg, res) {
+   function displayResult(cls, reg, res) {
         document.getElementById('resultArea').style.display = 'block';
         const stName = (fullData.students && fullData.students[cls]) ? fullData.students[cls][reg] : "Student";
         
@@ -235,45 +235,57 @@
         document.getElementById('stClass').innerText = cls;
 
         function calculateGrade(mark) {
-    let m = parseFloat(mark);
-    if (m >= 45 && m <= 50) return "A+";
-    if (m >= 40 && m <= 44) return "A";
-    if (m >= 35 && m <= 39) return "B+";
-    if (m >= 30 && m <= 34) return "B";
-    if (m >= 25 && m <= 29) return "C+";
-    if (m >= 20 && m <= 24) return "C";
-    if (m >= 18 && m <= 19) return "D+";
-    if (m >= 1 && m <= 17) return "D";
-    return "---";
-}
+            let m = parseFloat(mark);
+            if (m >= 45 && m <= 50) return "A+";
+            if (m >= 40 && m <= 44) return "A";
+            if (m >= 35 && m <= 39) return "B+";
+            if (m >= 30 && m <= 34) return "B";
+            if (m >= 25 && m <= 29) return "C+";
+            if (m >= 20 && m <= 24) return "C";
+            if (m >= 18 && m <= 19) return "D+";
+            if (m >= 1 && m <= 17) return "D";
+            return "---";
+        }
 
-let mHtml = "";
-for(let sub in res.marks) {
-    let currentMark = res.marks[sub];
-    let currentGrade = calculateGrade(currentMark); // ഗ്രേഡ് കണ്ടെത്തുന്നു
-    
-    mHtml += `<tr>
-                <td>${sub}</td>
-                <td class="m-val">${currentMark}</td>
-                <td class="m-val" style="color:#d35400;">${currentGrade}</td>
-              </tr>`;
-}
+        let mHtml = "";
+        for(let sub in res.marks) {
+            let currentMark = res.marks[sub];
+            let currentGrade = calculateGrade(currentMark);
+            mHtml += `<tr><td>${sub}</td><td class="m-val">${currentMark}</td><td class="m-val" style="color:#d35400;">${currentGrade}</td></tr>`;
+        }
         document.getElementById('markList').innerHTML = mHtml;
         document.getElementById('totalMark').innerText = res.total || "0";
-        document.getElementById('rank').innerText = res.rank || "---"; // അഡ്മിൻ നൽകുന്ന റാങ്ക് നേരിട്ട് വരും
+        document.getElementById('rank').innerText = res.rank || "---"; 
         
         const totalDays = (fullData.classAtt && fullData.classAtt[cls]) ? fullData.classAtt[cls] : '0';
         document.getElementById('attendance').innerText = (res.att || '0') + "/" + totalDays;
 
-        // സ്റ്റാറ്റസ് ലേബൽ കളർ തിരുത്തിയത്
         const stLabel = document.getElementById('statusLabel');
-        const status = (res.status || "---").toLowerCase();
+        const status = (res.status || "---").toLowerCase(); // ഇവിടെ status ചെറിയ അക്ഷരമാക്കുന്നു
         stLabel.innerText = status.toUpperCase();
         
+        // --- മാറ്റം ഇവിടെയാണ് ---
         if (status === 'passed') {
             stLabel.style.background = "#d4edda";
             stLabel.style.color = "#155724";
             stLabel.style.borderColor = "#c3e6cb";
+
+            // പാസ്സായവർക്ക് മാത്രം പൂക്കൾ വിതറുന്നു
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                zIndex: 9999
+            });
+            
+            // കൂടുതൽ സമയം പൂക്കൾ വീഴാൻ താഴെ പറയുന്ന കോഡ് കൂടി നൽകുന്നു
+            var end = Date.now() + (3 * 1000);
+            (function frame() {
+                confetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, zIndex: 9999 });
+                confetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, zIndex: 9999 });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+
         } else if (status === 'promoted') {
             stLabel.style.background = "#e7f3ff"; 
             stLabel.style.color = "#004085";      
@@ -286,24 +298,7 @@ for(let sub in res.marks) {
 
         document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
     }
-    // displayResult ഫംഗ്ഷന്റെ അവസാനം ചേർക്കുക
-if(status === 'PASSED') {
-    var duration = 5 * 1000;
-    var animationEnd = Date.now() + duration;
-    var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
-    function randomInRange(min, max) {
-        return Math.random() * (max - min) + min;
-    }
-
-    var interval = setInterval(function() {
-        var timeLeft = animationEnd - Date.now();
-        if (timeLeft <= 0) return clearInterval(interval);
-        var particleCount = 50 * (timeLeft / duration);
-        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
-    }, 250);
-}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
