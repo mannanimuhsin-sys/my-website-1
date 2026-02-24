@@ -255,7 +255,7 @@
         }
         document.getElementById('markList').innerHTML = mHtml;
         document.getElementById('totalMark').innerText = res.total || "0";
-        document.getElementById('rank').innerText = res.rank || "---"; 
+      document.getElementById('rank').innerText = (res.rank && res.rank !== "") ? res.rank : "---";
         
         const totalDays = (fullData.classAtt && fullData.classAtt[cls]) ? fullData.classAtt[cls] : '0';
         document.getElementById('attendance').innerText = (res.att || '0') + "/" + totalDays;
