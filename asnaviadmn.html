@@ -2,59 +2,70 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ASNAVI Admin Panel | Edit & Crop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASNAVI Admin Control Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
-        .admin-container { max-width: 1200px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #004d00; border-bottom: 2px solid #ffd700; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background: #004d00; color: white; }
-        input { padding: 5px; border: 1px solid #ccc; border-radius: 4px; width: 95%; }
-        .btn { padding: 6px 12px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 15px; margin: 0; }
+        .admin-container { max-width: 1300px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #004d00; border-bottom: 3px solid #ffd700; padding-bottom: 10px; text-transform: uppercase; font-size: 20px; }
+        .table-wrapper { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 900px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #004d00; color: white; position: sticky; top: 0; }
+        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; font-size: 13px; }
+        input:focus { border-color: #004d00; outline: none; background: #fffdf0; }
+        .btn { padding: 10px 15px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; }
         .btn-crop { background: #c5a000; }
-        #cropperModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10000; }
-        .modal-content { background:white; width:90%; max-width:500px; margin:30px auto; padding:20px; border-radius:10px; text-align: center; }
-        .img-container { max-height: 400px; margin-bottom: 15px; }
+        .btn-save-all { background: #004d00; padding: 15px 40px; font-size: 16px; margin-top: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        #cropperModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; }
+        .modal-content { background:white; width:95%; max-width:500px; margin:20px auto; padding:20px; border-radius:10px; text-align: center; }
+        .img-container { max-height: 400px; margin-bottom: 15px; background: #000; }
+        .status-mark { color: green; font-weight: bold; margin-left: 5px; }
     </style>
 </head>
 <body>
 
 <div class="admin-container">
-    <h2>ASNAVI 8th BATCH - ADMIN CONTROL</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Certificate No</th>
-                <th>Student Name (Editable)</th>
-                <th>Place (Editable)</th>
-                <th>Rank</th>
-                <th>Photo Action</th>
-            </tr>
-        </thead>
-        <tbody id="studentTable"></tbody>
-    </table>
-    <div style="text-align:center; margin-top:20px;">
-        <button class="btn" style="padding:15px 30px; font-size:16px;" onclick="saveAll()">SAVE ALL CHANGES</button>
+    <h2>ASNAVI 8th BATCH - MASTER ADMIN CONTROL</h2>
+    <p style="text-align: center; color: #666; font-size: 12px;">എല്ലാ കോളങ്ങളും എഡിറ്റ് ചെയ്യാവുന്നതാണ്. മാറ്റങ്ങൾക്ക് ശേഷം താഴെയുള്ള SAVE ബട്ടൺ അമർത്തുക.</p>
+    
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 80px;">ID No</th>
+                    <th style="width: 180px;">Certificate No</th>
+                    <th>Student Name</th>
+                    <th>Place</th>
+                    <th style="width: 100px;">Rank</th>
+                    <th style="width: 120px;">Photo Action</th>
+                </tr>
+            </thead>
+            <tbody id="studentTable">
+                </tbody>
+        </table>
+    </div>
+
+    <div style="text-align:center;">
+        <button class="btn btn-save-all" onclick="saveAll()">SAVE ALL DATA PERMANENTLY</button>
     </div>
 </div>
 
 <div id="cropperModal">
     <div class="modal-content">
-        <h3>Crop Student Photo</h3>
+        <h3>Adjust Photo (Square Crop)</h3>
         <div class="img-container"><img id="imageToCrop" style="max-width: 100%;"></div>
-        <button class="btn" onclick="applyCrop()">CROP & SAVE</button>
-        <button class="btn" style="background:#666" onclick="closeModal()">CANCEL</button>
+        <button class="btn" onclick="applyCrop()">APPLY & SAVE PHOTO</button>
+        <button class="btn" style="background:#666; margin-left: 10px;" onclick="closeModal()">CANCEL</button>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script>
-    // PDF-ൽ നിന്നുള്ള 21 വിദ്യാർത്ഥികളുടെ വിവരങ്ങൾ
-    const students = [
-        { id: "144", cert: "ASNV2026/B8:144", name: "SAYYID SHUHAIB AL ASNAVI", place: "Kuttiady" },
+    // ആദ്യഘട്ടത്തിലുള്ള വിദ്യാർത്ഥികളുടെ വിവരങ്ങൾ (Default Data)
+    const initialStudents = [
+        { id: "144", cert: "ASNV2026/88:144", name: "SAYYID SHUHAIB AL ASNAVI", place: "Kuttiady" },
         { id: "145", cert: "ASNV2026/B8:145", name: "MUHAMMED ZIYAD AL ASNAVI", place: "Manjeshwara" },
         { id: "146", cert: "ASNV2026/88:146", name: "MUHAMMED HANEEF AL ASNAVI", place: "Ajjavara, Sullia" },
         { id: "147", cert: "ASNV2026/B8:147", name: "RASHID AL ASNAVI", place: "Bambrana" },
@@ -77,27 +88,41 @@
         { id: "164", cert: "ASNV2026/B8:164", name: "HAFIZ MUHAMMED MUSHTHAQUE AL ASNAVI", place: "Perumalabad, Chaparapadavu" }
     ];
 
-    let currentId = null;
+    let currentPhotoId = null;
     let cropper = null;
 
-    const table = document.getElementById('studentTable');
-    students.forEach(s => {
-        table.innerHTML += `
-            <tr>
-                <td><b>${s.id}</b></td>
-                <td>${s.cert}</td>
-                <td><input type="text" id="name-${s.id}" value="${s.name}"></td>
-                <td><input type="text" id="place-${s.id}" value="${s.place}"></td>
-                <td><input type="text" id="rank-${s.id}" placeholder="Rank" style="width:50px;"></td>
-                <td>
-                    <button class="btn btn-crop" onclick="startCrop('${s.id}')">PHOTO</button>
-                    <span id="stat-${s.id}"></span>
-                </td>
-            </tr>`;
-    });
+    // ലോക്കൽ സ്റ്റോറേജിൽ പഴയ ഡാറ്റ ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു, ഇല്ലെങ്കിൽ പുതിയത് ലോഡ് ചെയ്യുന്നു.
+    function loadTable() {
+        const table = document.getElementById('studentTable');
+        table.innerHTML = "";
+
+        initialStudents.forEach(s => {
+            // ഓരോരുത്തരുടെയും സേവ് ചെയ്ത ഡാറ്റ ഉണ്ടോ എന്ന് നോക്കുന്നു
+            const savedRaw = localStorage.getItem(`data-${s.id}`);
+            let displayData = s;
+            if(savedRaw) {
+                displayData = JSON.parse(savedRaw);
+            }
+
+            const hasPhoto = localStorage.getItem(`photo-${s.id}`) ? "✅" : "";
+
+            table.innerHTML += `
+                <tr>
+                    <td><input type="text" id="id-${s.id}" value="${displayData.id || s.id}"></td>
+                    <td><input type="text" id="cert-${s.id}" value="${displayData.cert || s.cert}"></td>
+                    <td><input type="text" id="name-${s.id}" value="${displayData.name || s.name}"></td>
+                    <td><input type="text" id="place-${s.id}" value="${displayData.place || s.place}"></td>
+                    <td><input type="text" id="rank-${s.id}" value="${displayData.rank || ''}" placeholder="Rank"></td>
+                    <td>
+                        <button class="btn btn-crop" onclick="startCrop('${s.id}')">PHOTO</button>
+                        <span id="stat-${s.id}" class="status-mark">${hasPhoto}</span>
+                    </td>
+                </tr>`;
+        });
+    }
 
     function startCrop(id) {
-        currentId = id;
+        currentPhotoId = id;
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -116,29 +141,31 @@
     }
 
     function applyCrop() {
-        const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
-        localStorage.setItem(`photo-${currentId}`, canvas.toDataURL());
-        document.getElementById(`stat-${currentId}`).innerText = "✅";
+        const canvas = cropper.getCroppedCanvas({ width: 500, height: 500 });
+        localStorage.setItem(`photo-${currentPhotoId}`, canvas.toDataURL('image/jpeg', 0.8));
+        document.getElementById(`stat-${currentPhotoId}`).innerText = "✅";
         closeModal();
     }
 
     function closeModal() { document.getElementById('cropperModal').style.display = 'none'; }
 
+    // എല്ലാ വിവരങ്ങളും ലോക്കൽ സ്റ്റോറേജിലേക്ക് സേവ് ചെയ്യുന്നു
     function saveAll() {
-        students.forEach(s => {
-            const newName = document.getElementById(`name-${s.id}`).value;
-            const newPlace = document.getElementById(`place-${s.id}`).value;
-            const newRank = document.getElementById(`rank-${s.id}`).value;
-            
-            localStorage.setItem(`data-${s.id}`, JSON.stringify({
-                name: newName,
-                place: newPlace,
-                rank: newRank,
-                cert: s.cert
-            }));
+        initialStudents.forEach(s => {
+            const rowId = s.id; // Original key
+            const newData = {
+                id: document.getElementById(`id-${rowId}`).value,
+                cert: document.getElementById(`cert-${rowId}`).value,
+                name: document.getElementById(`name-${rowId}`).value,
+                place: document.getElementById(`place-${rowId}`).value,
+                rank: document.getElementById(`rank-${rowId}`).value
+            };
+            localStorage.setItem(`data-${rowId}`, JSON.stringify(newData));
         });
-        alert("All student data updated and saved!");
+        alert("വിവരങ്ങൾ വിജയകരമായി സേവ് ചെയ്തു! ഇനി വ്യൂ പേജിൽ ഇവ ലഭ്യമാകും.");
     }
+
+    window.onload = loadTable;
 </script>
 </body>
 </html>
