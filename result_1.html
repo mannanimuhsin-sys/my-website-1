@@ -32,6 +32,8 @@
         .approved-box { background: #e7f3ef; padding: 25px; border-radius: 20px; text-align: center; border: 2px solid var(--primary); }
         .download-tools { display: flex; gap: 10px; margin: 20px 0; justify-content: center; }
         .btn-dl { flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; color: white; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .delete-btn { background: #ff4d4d; color: white; border: none;  padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .delete-btn:hover { background: #cc0000; }
     </style>
 </head>
 <body>
@@ -175,13 +177,21 @@ function addRow(n = '', s = 'PASSED') {
     const div = document.createElement('div');
     div.className = 'st-row';
     const statusClass = s === 'PASSED' ? 'bg-passed' : 'bg-failed';
+    
     div.innerHTML = `
         <input type="text" value="${n}" placeholder="വിദ്യാർത്ഥിയുടെ പേര്" style="flex:1; padding:10px; border-radius:8px; border:1px solid #ddd;">
         <button class="status-btn ${statusClass}" onclick="toggleStatus(this)">${s}</button>
+        <button class="delete-btn" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button>
     `;
     document.getElementById('listArea').appendChild(div);
 }
 
+// വരി നീക്കം ചെയ്യാനുള്ള ഫങ്ക്ഷൻ
+function deleteRow(btn) {
+    if(confirm("ഈ വിദ്യാർത്ഥിയുടെ പേര് ഒഴിവാക്കണമെന്നുറപ്പാണോ?")) {
+        btn.parentElement.remove();
+    }
+}
 function toggleStatus(btn) {
     if(btn.innerText === 'PASSED') {
         btn.innerText = 'FAILED';
