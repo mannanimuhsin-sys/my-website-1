@@ -394,33 +394,37 @@ function deleteSubject(cls, index) {
     // ടേബിൾ ലോഡ് ചെയ്ത ഉടൻ തന്നെ റാങ്ക് കാൽക്കുലേറ്റ് ചെയ്യാൻ ഇത് സഹായിക്കും
     calculateAutoRanks(); 
 }
-    function calcStatus(input) {
+  function calcStatus(input) {
     const row = input.closest('tr');
-    let total = 0, isFailed = false, hasValue = false;
-    
+    let total = 0;
+    let failedByMark = false;
+    let hasEntry = false;
+
     row.querySelectorAll('.s-mark').forEach(i => {
-        if(i.value !== "") {
-            hasValue = true;
-            let val = parseFloat(i.value) || 0;
+        let valStr = i.value.trim();
+        if (valStr !== "") {
+            hasEntry = true;
+            let val = parseInt(valStr) || 0;
             total += val;
-            if(val < 18) isFailed = true; 
+            if (val < 18) failedByMark = true; // 18-ൽ താഴെയാണെങ്കിൽ ഫെയിൽ
         }
     });
 
-    if(!hasValue) return;
     row.querySelector('.r-tot').innerText = total;
     
     const stsSelect = row.querySelector('.r-sts-select');
-    if(isFailed) { 
-        stsSelect.value = "Failed"; 
-        stsSelect.style.color = "red";
-    } else { 
-        stsSelect.value = "Passed"; 
-        stsSelect.style.color = "green";
+    // പ്രൊമോട്ടഡ് മാനുവലായി നൽകിയതാണെങ്കിൽ അത് മാറ്റില്ല
+    if (stsSelect.value !== "Promoted") {
+        if (failedByMark) {
+            stsSelect.value = "Failed";
+            stsSelect.style.color = "red";
+        } else if (hasEntry) {
+            stsSelect.value = "Passed";
+            stsSelect.style.color = "green";
+        }
     }
     
-    // റാങ്ക് ഓട്ടോമാറ്റിക് ആയി കണക്കാക്കാൻ ഈ ഫങ്ക്ഷൻ വിളിക്കുന്നു
-    calculateAutoRanks();
+    calculateAutoRanks(); // റാങ്ക് ഉടനെ കണക്കാക്കാൻ
     autoSave();
 }
 
@@ -439,30 +443,35 @@ function manualStatusChange(select) {
 function calculateAutoRanks() {
     const rows = Array.from(document.querySelectorAll('#tBody tr'));
     
-    // പാസ്സായ വിദ്യാർത്ഥികളെ മാത്രം മാർക്കിന്റെ അടിസ്ഥാനത്തിൽ ക്രമീകരിക്കുന്നു
-    const passedStudents = rows
-        .filter(row => row.querySelector('.r-sts-select').value === "Passed")
-        .map(row => ({
-            row: row,
-            total: parseFloat(row.querySelector('.r-tot').innerText) || 0
-        }))
-        .sort((a, b) => b.total - a.total);
+    // എല്ലാവരുടെയും റാങ്ക് ആദ്യം ക്ലിയർ ചെയ്യുന്നു
+    rows.forEach(r => r.querySelector('.r-rank').value = "");
 
-    // റാങ്ക് നൽകുന്നു
-    passedStudents.forEach((st, index) => {
-        const rankInput = st.row.querySelector('.r-rank');
-        // റാങ്ക് നിലവിൽ ഉണ്ടെങ്കിൽ അത് മാറ്റുന്നില്ല (മാനുവൽ മാറ്റത്തിന് മുൻഗണന)
-        // അല്ലെങ്കിൽ പുതിയ റാങ്ക് നൽകുന്നു
-        rankInput.value = index + 1;
-    });
+    // പാസ്സായവരെ മാത്രം ടോട്ടൽ മാർക്കിന്റെ അടിസ്ഥാനത്തിൽ ക്രമീകരിക്കുന്നു
+    let passedRows = rows.filter(r => r.querySelector('.r-sts-select').value === "Passed")
+                         .sort((a, b) => {
+                             return parseInt(b.querySelector('.r-tot').innerText) - parseInt(a.querySelector('.r-tot').innerText);
+                         });
 
-    // തോറ്റവർക്കോ പ്രൊമോട്ടഡ് ആയവർക്കോ റാങ്ക് ഉണ്ടെങ്കിൽ അത് ഒഴിവാക്കുന്നു
-    rows.forEach(row => {
-        const status = row.querySelector('.r-sts-select').value;
-        if(status !== "Passed") {
-            row.querySelector('.r-rank').value = "";
+    // റാങ്ക് നൽകുന്നു (ഒരേ മാർക്കുള്ളവർക്ക് ഒരേ റാങ്ക് വരാൻ സഹായിക്കുന്നു)
+    let currentRank = 1;
+    passedRows.forEach((row, index) => {
+        let total = parseInt(row.querySelector('.r-tot').innerText);
+        if (total > 0) {
+            if (index > 0 && total < parseInt(passedRows[index - 1].querySelector('.r-tot').innerText)) {
+                currentRank = index + 1;
+            }
+            row.querySelector('.r-rank').value = currentRank;
         }
     });
+}
+
+function manualStatusChange(select) {
+    if(select.value === "Passed") select.style.color = "green";
+    else if(select.value === "Promoted") select.style.color = "blue";
+    else select.style.color = "red";
+    
+    calculateAutoRanks(); 
+    autoSave();
 }
     function autoSave() {
     const cls = document.getElementById('markClass').value;
