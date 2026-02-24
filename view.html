@@ -132,6 +132,11 @@
         </div>
         <div class="status-badge-container"><div id="statusLabel" class="badge">---</div></div>
         <button class="btn-print" onclick="window.print()"><i class="fa fa-print"></i> DOWNLOAD / PRINT</button>
+        <div id="posterAction" style="display: none; padding: 10px 15px;">
+    <button class="btn-search" style="width: 100%; padding: 15px; background: #c5a000; border: none; border-radius: 10px;" onclick="openPosterMaker()">
+        <i class="fa fa-certificate"></i> GENERATE RANK POSTER
+    </button>
+</div>
     </div>
 </div>
 
@@ -144,7 +149,38 @@
     </div>
     <p style="font-size:10px; color:#ccc; margin-top:20px;">&copy; 2026 MANNANI DIGITAL SOLUTIONS</p>
 </footer>
+<div id="posterModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:20000; overflow-y:auto; padding:20px 10px;">
+    <div style="background:white; max-width:400px; margin:auto; border-radius:15px; overflow:hidden; position:relative;">
+        <div id="posterDesign" style="background: linear-gradient(135deg, #004d00 0%, #002200 100%); padding: 30px; text-align: center; color: white; border: 8px solid #ffd700; position: relative;">
+            <h2 id="pMadrasa" style="margin:0; font-size:20px; text-transform:uppercase;">MADRASA NAME</h2>
+            <p style="color:#ffd700; font-weight:bold; margin:5px 0; font-size:12px;">ANNUAL EXAMINATION 2025-26</p>
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.2); margin:15px 0;">
+            <p id="pClass" style="margin:0; font-size:14px; opacity:0.9;">CLASS</p>
+            
+            <div onclick="document.getElementById('photoUpload').click()" style="width:160px; height:180px; background:#fff; margin:20px auto; border:4px solid #ffd700; border-radius:10px; cursor:pointer; overflow:hidden; position:relative;">
+                <img id="previewImg" style="width:100%; height:100%; object-fit:cover; display:none;">
+                <div id="uploadPlaceholder" style="color:#444; padding-top:60px;">
+                    <i class="fa fa-camera fa-2x"></i><br><small>Add Photo</small>
+                </div>
+            </div>
 
+            <div id="medalIcon" style="position:absolute; top:210px; right:85px; background:#ffd700; color:#000; width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; border:3px solid #fff; box-shadow:0 4px 10px rgba(0,0,0,0.3); font-size:12px;">
+                1st
+            </div>
+
+            <h3 id="pName" style="margin:15px 0 5px; font-size:22px; color:#ffd700;">STUDENT NAME</h3>
+            <p id="pRankText" style="margin:0; font-weight:bold; letter-spacing:2px; font-size:16px;">RANK</p>
+        </div>
+
+        <div style="padding:15px; background:#f8f9fa; display:flex; gap:10px;">
+            <input type="file" id="photoUpload" hidden accept="image/*" onchange="handlePhoto(event)">
+            <button onclick="closePoster()" style="flex:1; padding:12px; border:none; border-radius:5px; background:#666; color:white;">CLOSE</button>
+            <button onclick="downloadPoster()" id="downBtn" style="flex:2; padding:12px; border:none; border-radius:5px; background:#28a745; color:white; font-weight:bold;">DOWNLOAD</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
@@ -302,10 +338,70 @@
             stLabel.style.color = "#721c24";
             stLabel.style.borderColor = "#f5c6cb";
         }
-
+const posterBtn = document.getElementById('posterAction');
+if (status === 'passed' && (res.rank == 1 || res.rank == 2)) {
+    posterBtn.style.display = 'block';
+    
+    // പോസ്റ്ററിലേക്ക് വിവരങ്ങൾ നൽകുന്നു
+    document.getElementById('pMadrasa').innerText = fullData.info.name;
+    document.getElementById('pName').innerText = stName;
+    document.getElementById('pClass').innerText = "CLASS: " + cls;
+    
+    if(res.rank == 1) {
+        document.getElementById('pRankText').innerText = "FIRST RANK";
+        document.getElementById('medalIcon').innerText = "1st";
+        document.getElementById('medalIcon').style.background = "#ffd700";
+    } else {
+        document.getElementById('pRankText').innerText = "SECOND RANK";
+        document.getElementById('medalIcon').innerText = "2nd";
+        document.getElementById('medalIcon').style.background = "#c0c0c0";
+    }
+} else {
+    posterBtn.style.display = 'none';
+}
         document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
     }
+function openPosterMaker() {
+    document.getElementById('posterModal').style.display = 'block';
+}
 
+function closePoster() {
+    document.getElementById('posterModal').style.display = 'none';
+}
+
+function handlePhoto(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.getElementById('previewImg');
+            img.src = e.target.result;
+            img.style.display = 'block';
+            document.getElementById('uploadPlaceholder').style.display = 'none';
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+function downloadPoster() {
+    const btn = document.getElementById('downBtn');
+    const poster = document.getElementById('posterDesign');
+    btn.innerText = "Generating...";
+    btn.disabled = true;
+
+    html2canvas(poster, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: null
+    }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'Madrasa_Rank_Poster.png';
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        btn.innerText = "DOWNLOAD";
+        btn.disabled = false;
+    });
+}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
