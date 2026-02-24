@@ -254,18 +254,21 @@
             mHtml += `<tr><td>${sub}</td><td class="m-val">${currentMark}</td><td class="m-val" style="color:#d35400;">${currentGrade}</td></tr>`;
         }
         document.getElementById('markList').innerHTML = mHtml;
-        document.getElementById('totalMark').innerText = res.total || "0";
-        if (status === 'passed' && res.rank) {
-    document.getElementById('rank').innerText = res.rank;
-} else {
-    document.getElementById('rank').innerText = "---";
-}
+       document.getElementById('totalMark').innerText = res.total || "0";
         
+        // ആദ്യം സ്റ്റാറ്റസ് വേരിയബിൾ നിർവചിക്കുക
+        const status = (res.status || "---").toLowerCase();
+        
+        // അതിനുശേഷം റാങ്ക് കാണിക്കുക
+        if (status === 'passed' && res.rank && res.rank !== "") {
+            document.getElementById('rank').innerText = res.rank;
+        } else {
+            document.getElementById('rank').innerText = "---";
+        } 
         const totalDays = (fullData.classAtt && fullData.classAtt[cls]) ? fullData.classAtt[cls] : '0';
         document.getElementById('attendance').innerText = (res.att || '0') + "/" + totalDays;
 
         const stLabel = document.getElementById('statusLabel');
-        const status = (res.status || "---").toLowerCase(); // ഇവിടെ status ചെറിയ അക്ഷരമാക്കുന്നു
         stLabel.innerText = status.toUpperCase();
         
         // --- മാറ്റം ഇവിടെയാണ് ---
