@@ -349,11 +349,8 @@ function deleteSubject(cls, index) {
     if (!cls) return alert("ക്ലാസ് തിരഞ്ഞെടുക്കുക");
     const subs = mData.subjects[cls] || [];
     const studs = mData.students[cls] || {};
-    
-    // ആ ക്ലാസ്സിന് നിലവിൽ സേവ് ചെയ്ത ഹാജർ ഉണ്ടോ എന്ന് നോക്കുന്നു
     const savedClassAtt = (mData.classAtt && mData.classAtt[cls]) ? mData.classAtt[cls] : "";
 
-    // ടേബിൾ ഹെഡർ നിർമ്മിക്കുന്നു - ഇതിലാണ് ഇനി ഹാജർ ബോക്സ് വരിക
     let h = `<tr>
                 <th>Reg</th>
                 <th>Name</th>
@@ -393,8 +390,10 @@ function deleteSubject(cls, index) {
     }
     document.getElementById('tBody').innerHTML = b;
     document.getElementById('tableWrapper').classList.remove('hidden');
-}
 
+    // ടേബിൾ ലോഡ് ചെയ്ത ഉടൻ തന്നെ റാങ്ക് കാൽക്കുലേറ്റ് ചെയ്യാൻ ഇത് സഹായിക്കും
+    calculateAutoRanks(); 
+}
     function calcStatus(input) {
     const row = input.closest('tr');
     let total = 0, isFailed = false, hasValue = false;
