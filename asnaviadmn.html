@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ASNAVI Admin Panel | Edit & Crop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
+        .admin-container { max-width: 1200px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #004d00; border-bottom: 2px solid #ffd700; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #004d00; color: white; }
+        input { padding: 5px; border: 1px solid #ccc; border-radius: 4px; width: 95%; }
+        .btn { padding: 6px 12px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .btn-crop { background: #c5a000; }
+        #cropperModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10000; }
+        .modal-content { background:white; width:90%; max-width:500px; margin:30px auto; padding:20px; border-radius:10px; text-align: center; }
+        .img-container { max-height: 400px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <h2>ASNAVI 8th BATCH - ADMIN CONTROL</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Certificate No</th>
+                <th>Student Name (Editable)</th>
+                <th>Place (Editable)</th>
+                <th>Rank</th>
+                <th>Photo Action</th>
+            </tr>
+        </thead>
+        <tbody id="studentTable"></tbody>
+    </table>
+    <div style="text-align:center; margin-top:20px;">
+        <button class="btn" style="padding:15px 30px; font-size:16px;" onclick="saveAll()">SAVE ALL CHANGES</button>
+    </div>
+</div>
+
+<div id="cropperModal">
+    <div class="modal-content">
+        <h3>Crop Student Photo</h3>
+        <div class="img-container"><img id="imageToCrop" style="max-width: 100%;"></div>
+        <button class="btn" onclick="applyCrop()">CROP & SAVE</button>
+        <button class="btn" style="background:#666" onclick="closeModal()">CANCEL</button>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+    // PDF-ൽ നിന്നുള്ള 21 വിദ്യാർത്ഥികളുടെ വിവരങ്ങൾ
+    const students = [
+        { id: "144", cert: "ASNV2026/88:144", name: "SAYYID SHUHAIB AL ASNAVI", place: "Kuttiady" },
+        { id: "145", cert: "ASNV2026/B8:145", name: "MUHAMMED ZIYAD AL ASNAVI", place: "Manjeshwara" },
+        { id: "146", cert: "ASNV2026/88:146", name: "MUHAMMED HANEEF AL ASNAVI", place: "Ajjavara, Sullia" },
+        { id: "147", cert: "ASNV2026/B8:147", name: "RASHID AL ASNAVI", place: "Bambrana" },
+        { id: "148", cert: "ASNV2026/B8:148", name: "MUHAMMED JASIR AL ASNAVI", place: "Cheroor, Kasaragod" },
+        { id: "149", cert: "ASNV2026/B8:149", name: "NAVAZ HUSAIN AL ASNAVI", place: "Adkathbail, Kasaragod" },
+        { id: "150", cert: "ASNV2026/B8:150", name: "BASHEER K AL ASNAVI", place: "Kakkamkoodal, Madhoor" },
+        { id: "151", cert: "ASNV2026/B8:151", name: "ABDU RAHMAN M AL ASNAVI", place: "Hidayath Nagar" },
+        { id: "152", cert: "ASNV2026/B8:152", name: "ASHRAF PA AL ASNAVI", place: "Padana, Cheruvathur" },
+        { id: "153", cert: "ASNV2026/B8:153", name: "MUHIYADHEEN ASLAM AL ASNAVI", place: "Shiriya, Batheri" },
+        { id: "154", cert: "ASNV2026/B8:154", name: "ABDU RASHEED AL ASNAVI", place: "Aaruval" },
+        { id: "155", cert: "ASNV2026/B8:155", name: "ABDUL AZIZ AL ASNAVI", place: "Kuniya" },
+        { id: "156", cert: "ASNV2026/B8:156", name: "ABDUL GAFOOR AL ASNAVI", place: "Padana" },
+        { id: "157", cert: "ASNV2026/B8:157", name: "SHAHUL HAMEED AL ASNAVI", place: "Taliparamba" },
+        { id: "158", cert: "ASNV2026/B8:158", name: "PM HUSAIN AL ASNAVI", place: "Kolari, Mattanur" },
+        { id: "159", cert: "ASNV2026/B8:159", name: "ABDULLAH MUHAMMED PV AL ASNAVI", place: "Cherukkunnu" },
+        { id: "160", cert: "ASNV2026/B8:160", name: "CH ABDUL AZIZ AL ASNAVI", place: "Punchakkad, Payyanur" },
+        { id: "161", cert: "ASNV2026/B8:161", name: "ABDUL RAHMAN AL ASNAVI", place: "Velimukku, Malappuram" },
+        { id: "162", cert: "ASNV2026/Β8:162", name: "KH ABDUL RAZAK AL ASNAVI", place: "Ajjavara, Sullia" },
+        { id: "163", cert: "ASNV2026/B8:163", name: "MOHAMMED SAQUAFATHULLA AL ASNAVI", place: "Chetileth Island, Lakshadweep" },
+        { id: "164", cert: "ASNV2026/B8:164", name: "HAFIZ MUHAMMED MUSHTHAQUE AL ASNAVI", place: "Perumalabad, Chaparapadavu" }
+    ];
+
+    let currentId = null;
+    let cropper = null;
+
+    const table = document.getElementById('studentTable');
+    students.forEach(s => {
+        table.innerHTML += `
+            <tr>
+                <td><b>${s.id}</b></td>
+                <td>${s.cert}</td>
+                <td><input type="text" id="name-${s.id}" value="${s.name}"></td>
+                <td><input type="text" id="place-${s.id}" value="${s.place}"></td>
+                <td><input type="text" id="rank-${s.id}" placeholder="Rank" style="width:50px;"></td>
+                <td>
+                    <button class="btn btn-crop" onclick="startCrop('${s.id}')">PHOTO</button>
+                    <span id="stat-${s.id}"></span>
+                </td>
+            </tr>`;
+    });
+
+    function startCrop(id) {
+        currentId = id;
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = e => {
+            const reader = new FileReader();
+            reader.onload = event => {
+                const img = document.getElementById('imageToCrop');
+                img.src = event.target.result;
+                document.getElementById('cropperModal').style.display = 'block';
+                if(cropper) cropper.destroy();
+                cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1 });
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        };
+        input.click();
+    }
+
+    function applyCrop() {
+        const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+        localStorage.setItem(`photo-${currentId}`, canvas.toDataURL());
+        document.getElementById(`stat-${currentId}`).innerText = "✅";
+        closeModal();
+    }
+
+    function closeModal() { document.getElementById('cropperModal').style.display = 'none'; }
+
+    function saveAll() {
+        students.forEach(s => {
+            const newName = document.getElementById(`name-${s.id}`).value;
+            const newPlace = document.getElementById(`place-${s.id}`).value;
+            const newRank = document.getElementById(`rank-${s.id}`).value;
+            
+            localStorage.setItem(`data-${s.id}`, JSON.stringify({
+                name: newName,
+                place: newPlace,
+                rank: newRank,
+                cert: s.cert
+            }));
+        });
+        alert("All student data updated and saved!");
+    }
+</script>
+</body>
+</html>

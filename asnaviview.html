@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ASNAVI Result View</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #e0e5ec; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .search-area { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        input { padding: 10px; border: 2px solid #004d00; border-radius: 5px; width: 150px; }
+        .btn-view { padding: 10px 20px; background: #004d00; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        #poster {
+            width: 450px; background: linear-gradient(135deg, #004d00 0%, #002200 100%);
+            color: white; border-radius: 25px; padding: 40px; text-align: center; border: 8px solid #ffd700; display: none;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .p-header { font-size: 24px; font-weight: bold; color: #ffd700; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+        .p-photo { width: 170px; height: 170px; margin: auto; border: 5px solid white; border-radius: 10px; overflow: hidden; background: #fff; }
+        .p-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .p-name { font-size: 22px; margin-top: 20px; font-weight: bold; text-transform: uppercase; }
+        .p-place { font-size: 18px; color: #ffd700; margin-bottom: 10px; }
+        .p-cert { font-size: 13px; opacity: 0.8; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 4px; }
+        .p-rank { margin-top: 20px; background: gold; color: black; padding: 8px 25px; border-radius: 50px; font-weight: bold; font-size: 18px; display: inline-block; }
+    </style>
+</head>
+<body>
+
+<div class="search-area">
+    <input type="number" id="sid" placeholder="ID (e.g. 144)">
+    <button class="btn-view" onclick="showResult()">VIEW RESULT</button>
+</div>
+
+<div id="poster">
+    <div class="p-header">AL ASNAVI COLLEGE</div>
+    <div class="p-photo"><img id="viewImg" src=""></div>
+    <div class="p-name" id="viewName">---</div>
+    <div class="p-place" id="viewPlace">---</div>
+    <div class="p-cert" id="viewCert">---</div>
+    <div id="rankBox" class="p-rank" style="display:none;">RANK: <span id="viewRank"></span></div>
+    <div style="margin-top:20px; font-size:10px; opacity:0.5;">8th BATCH | 2025-26</div>
+</div>
+<br>
+<button id="dl" class="btn-view" style="background:#28a745; display:none;" onclick="download()">DOWNLOAD IMAGE</button>
+
+<script>
+    function showResult() {
+        const id = document.getElementById('sid').value;
+        const storedData = localStorage.getItem(`data-${id}`);
+        
+        if(storedData) {
+            const data = JSON.parse(storedData);
+            document.getElementById('viewName').innerText = data.name;
+            document.getElementById('viewPlace').innerText = data.place;
+            document.getElementById('viewCert').innerText = "Certificate No: " + data.cert;
+            document.getElementById('viewImg').src = localStorage.getItem(`photo-${id}`) || 'default.jpg';
+            
+            if(data.rank) {
+                document.getElementById('viewRank').innerText = data.rank;
+                document.getElementById('rankBox').style.display = 'inline-block';
+            } else {
+                document.getElementById('rankBox').style.display = 'none';
+            }
+            
+            document.getElementById('poster').style.display = 'block';
+            document.getElementById('dl').style.display = 'inline-block';
+        } else {
+            alert("Please update data in Admin Panel first for ID: " + id);
+        }
+    }
+
+    function download() {
+        html2canvas(document.getElementById('poster'), { scale: 3 }).then(canvas => {
+            let link = document.createElement('a');
+            link.download = 'Asnavi_Poster.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    }
+</script>
+</body>
+</html>
