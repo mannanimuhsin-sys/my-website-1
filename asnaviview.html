@@ -18,7 +18,7 @@
         #poster { width: 100%; max-width: 400px; background: linear-gradient(145deg, #004d00, #002200); color: white; border-radius: 25px; padding: 30px 20px; text-align: center; border: 6px solid var(--gold); display: none; box-sizing: border-box; }
         .p-header { font-size: 22px; font-weight: 800; color: var(--gold); }
         .p-contact { font-size: 11px; background: rgba(255,255,255,0.1); padding: 5px; border-radius: 8px; margin: 10px 0; }
-        .p-photo { width: 180px; height: 180px; margin: 15px auto; border: 5px solid white; border-radius: 15px; overflow: hidden; }
+        .p-photo { width: 180px; height: 180px; margin: 15px auto; border: 5px solid white; border-radius: 15px; overflow: hidden; background: #333; }
         .p-photo img { width: 100%; height: 100%; object-fit: cover; }
         .p-name { font-size: 22px; font-weight: 800; text-transform: uppercase; }
         .p-rank { background: var(--gold); color: #000; padding: 12px 30px; border-radius: 50px; font-weight: 900; font-size: 24px; display: inline-block; margin-top: 10px; }
@@ -30,15 +30,15 @@
     <div id="countdownOverlay"></div>
 
     <div class="search-box" id="searchArea">
-        <h2>AL ASNAVI COLLEGE</h2>
-        <input type="number" id="sid" placeholder="Register No.">
+        <h2 style="color: var(--primary-green);">AL ASNAVI COLLEGE</h2>
+        <input type="number" id="sid" placeholder="Enter Register No.">
         <button class="btn-view" onclick="fetchResult()">VIEW RESULT</button>
     </div>
 
     <div id="poster">
         <div class="p-header">AL ASNAVI COLLEGE</div>
         <div class="p-contact">Contact: MUHAMMED SHIBILI AL ASNAVI | Ph: 8590728228</div>
-        <div class="p-photo"><img id="viewImg"></div>
+        <div class="p-photo"><img id="viewImg" crossorigin="anonymous"></div>
         <div class="p-name" id="viewName">---</div>
         <div id="viewPlace" style="color:var(--gold)">---</div>
         <div id="rankBox" style="display:none; margin-top:15px;"><div class="p-rank" id="viewRank"></div></div>
@@ -54,7 +54,6 @@
         databaseURL: "https://asnavi-default-rtdb.firebaseio.com",
         projectId: "asnavi",
         storageBucket: "asnavi.firebasestorage.app",
-        messagingSenderId: "464939709877",
         appId: "1:464939709877:web:8ff2c772e0c5a209c255fc"
     };
     firebase.initializeApp(firebaseConfig);
@@ -65,7 +64,7 @@
         db.ref('students/' + id).once('value').then(snap => {
             const data = snap.val();
             if(!data || !data.photo) {
-                alert("Result not uploaded yet!");
+                alert("Result not uploaded yet for this number.");
                 return;
             }
             startCountdown(data);
@@ -91,26 +90,38 @@
     function showPoster(data) {
         document.getElementById('viewName').innerText = data.name;
         document.getElementById('viewPlace').innerText = data.place;
-        document.getElementById('viewCert').innerText = "Certificate No: " + data.cert;
-        document.getElementById('viewImg').src = data.photo;
-        if(data.rank) {
+        document.getElementById('viewCert').innerText = "Certificate No: " + (data.cert || "");
+        
+        // Proxy to avoid CORS issues if needed, but ImgBB usually works fine
+        const img = document.getElementById('viewImg');
+        img.src = data.photo;
+
+        if(data.rank && data.rank.trim() !== "") {
             document.getElementById('viewRank').innerText = "RANK: " + data.rank;
             document.getElementById('rankBox').style.display = 'block';
+        } else {
+            document.getElementById('rankBox').style.display = 'none';
         }
+
         document.getElementById('searchArea').style.display = 'none';
         document.getElementById('poster').style.display = 'block';
         document.getElementById('dlBtn').style.display = 'block';
     }
 
     function download() {
-        html2canvas(document.getElementById('poster'), { scale: 3, useCORS: true }).then(canvas => {
+        const poster = document.getElementById('poster');
+        html2canvas(poster, { 
+            scale: 3, 
+            useCORS: true,
+            allowTaint: false,
+            logging: true
+        }).then(canvas => {
             let a = document.createElement('a');
-            a.download = 'Result.png';
-            a.href = canvas.toDataURL();
+            a.download = 'ASNAVI_Result.png';
+            a.href = canvas.toDataURL('image/png');
             a.click();
         });
     }
 </script>
-
 </body>
 </html>

@@ -3,27 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASNAVI Master Admin | Online</title>
+    <title>ASNAVI Admin | Certificate & ImgBB</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 15px; margin: 0; }
-        .admin-container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+        .admin-container { max-width: 1300px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #004d00; border-bottom: 3px solid #ffd700; padding-bottom: 10px; }
         .table-wrapper { overflow-x: auto; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 900px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1000px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background: #004d00; color: white; }
         input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
-        .btn { padding: 8px 12px; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; color: white; }
+        .btn { padding: 8px 12px; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; color: white; margin-right: 5px; }
         .btn-upload { background: #c5a000; }
         .btn-save { background: #28a745; }
-        .status-mark { font-weight: bold; margin-left: 5px; }
         #cropperModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10000; }
         .modal-content { background:white; width:90%; max-width:400px; margin:50px auto; padding:20px; border-radius:10px; text-align: center; }
         .img-container { max-height: 300px; margin-bottom: 15px; background: #000; }
+        .loading { display:none; color: #004d00; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -34,11 +33,12 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th style="width: 50px;">ID</th>
+                    <th style="width: 180px;">Certificate No</th>
                     <th>Student Name</th>
                     <th>Place</th>
-                    <th>Rank</th>
-                    <th>Actions</th>
+                    <th style="width: 80px;">Rank</th>
+                    <th style="width: 200px;">Actions</th>
                 </tr>
             </thead>
             <tbody id="studentTable"></tbody>
@@ -50,66 +50,66 @@
     <div class="modal-content">
         <h3>Crop & Upload</h3>
         <div class="img-container"><img id="imageToCrop"></div>
-        <button class="btn" style="background:#28a745;" onclick="applyCrop()">UPLOAD TO SERVER</button>
-        <button class="btn" style="background:#666;" onclick="closeModal()">CANCEL</button>
+        <div id="uploadStatus" class="loading">Uploading to ImgBB...</div>
+        <button id="upBtn" class="btn" style="background:#28a745;" onclick="applyCrop()">UPLOAD</button>
+        <button id="canBtn" class="btn" style="background:#666;" onclick="closeModal()">CANCEL</button>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script>
-    // Firebase Config
+    const IMGBB_API_KEY = "B478c91653451cdbaa6754c56e43c324";
     const firebaseConfig = {
         apiKey: "AIzaSyAxvBeno8O_5cqj6O-G2xnaNlWgSkUyJ2E",
         authDomain: "asnavi.firebaseapp.com",
         databaseURL: "https://asnavi-default-rtdb.firebaseio.com",
         projectId: "asnavi",
         storageBucket: "asnavi.firebasestorage.app",
-        messagingSenderId: "464939709877",
         appId: "1:464939709877:web:8ff2c772e0c5a209c255fc"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const storage = firebase.storage();
 
-    const students = [
-        { id: "144", name: "SAYYID SHUHAIB AL ASNAVI", place: "Kuttiady", cert: "ASNV2026/B8:144" },
-        { id: "145", name: "MUHAMMED ZIYAD AL ASNAVI", place: "Manjeshwara", cert: "ASNV2026/B8:145" },
-        { id: "146", name: "MUHAMMED HANEEF AL ASNAVI", place: "Ajjavara, Sullia", cert: "ASNV2026/B8:146" },
-        { id: "147", name: "RASHID AL ASNAVI", place: "Bambrana", cert: "ASNV2026/B8:147" },
-        { id: "148", name: "MUHAMMED JASIR AL ASNAVI", place: "Cheroor, Kasaragod", cert: "ASNV2026/B8:148" },
-        { id: "149", name: "NAVAZ HUSAIN AL ASNAVI", place: "Adkathbail, Kasaragod", cert: "ASNV2026/B8:149" },
-        { id: "150", name: "BASHEER K AL ASNAVI", place: "Kakkamkoodal, Madhoor", cert: "ASNV2026/B8:150" },
-        { id: "151", name: "ABDU RAHMAN M AL ASNAVI", place: "Hidayath Nagar", cert: "ASNV2026/B8:151" },
-        { id: "152", name: "ASHRAF PA AL ASNAVI", place: "Padana, Cheruvathur", cert: "ASNV2026/B8:152" },
-        { id: "153", name: "MUHIYADHEEN ASLAM AL ASNAVI", place: "Shiriya, Batheri", cert: "ASNV2026/B8:153" },
-        { id: "154", name: "ABDU RASHEED AL ASNAVI", place: "Aaruval", cert: "ASNV2026/B8:154" },
-        { id: "155", name: "ABDUL AZIZ AL ASNAVI", place: "Kuniya", cert: "ASNV2026/B8:155" },
-        { id: "156", name: "ABDUL GAFOOR AL ASNAVI", place: "Padana", cert: "ASNV2026/B8:156" },
-        { id: "157", name: "SHAHUL HAMEED AL ASNAVI", place: "Taliparamba", cert: "ASNV2026/B8:157" },
-        { id: "158", name: "PM HUSAIN AL ASNAVI", place: "Kolari, Mattanur", cert: "ASNV2026/B8:158" },
-        { id: "159", name: "ABDULLAH MUHAMMED PV AL ASNAVI", place: "Cherukkunnu", cert: "ASNV2026/B8:159" },
-        { id: "160", name: "CH ABDUL AZIZ AL ASNAVI", place: "Punchakkad, Payyanur", cert: "ASNV2026/B8:160" },
-        { id: "161", name: "ABDUL RAHMAN AL ASNAVI", place: "Velimukku, Malappuram", cert: "ASNV2026/B8:161" },
-        { id: "162", name: "KH ABDUL RAZAK AL ASNAVI", place: "Ajjavara, Sullia", cert: "ASNV2026/B8:162" },
-        { id: "163", name: "MOHAMMED SAQUAFATHULLA AL ASNAVI", place: "Chetileth Island, Lakshadweep", cert: "ASNV2026/B8:163" },
-        { id: "164", name: "HAFIZ MUHAMMED MUSHTHAQUE AL ASNAVI", place: "Perumalabad, Chaparapadavu", cert: "ASNV2026/B8:164" }
+    const initialStudents = [
+        { id: "144", cert: "ASNV2026/B8:144", name: "SAYYID SHUHAIB AL ASNAVI", place: "Kuttiady" },
+        { id: "145", cert: "ASNV2026/B8:145", name: "MUHAMMED ZIYAD AL ASNAVI", place: "Manjeshwara" },
+        { id: "146", cert: "ASNV2026/B8:146", name: "MUHAMMED HANEEF AL ASNAVI", place: "Ajjavara, Sullia" },
+        { id: "147", cert: "ASNV2026/B8:147", name: "RASHID AL ASNAVI", place: "Bambrana" },
+        { id: "148", cert: "ASNV2026/B8:148", name: "MUHAMMED JASIR AL ASNAVI", place: "Cheroor, Kasaragod" },
+        { id: "149", cert: "ASNV2026/B8:149", name: "NAVAZ HUSAIN AL ASNAVI", place: "Adkathbail, Kasaragod" },
+        { id: "150", cert: "ASNV2026/B8:150", name: "BASHEER K AL ASNAVI", place: "Kakkamkoodal, Madhoor" },
+        { id: "151", cert: "ASNV2026/B8:151", name: "ABDU RAHMAN M AL ASNAVI", place: "Hidayath Nagar" },
+        { id: "152", cert: "ASNV2026/B8:152", name: "ASHRAF PA AL ASNAVI", place: "Padana, Cheruvathur" },
+        { id: "153", cert: "ASNV2026/B8:153", name: "MUHIYADHEEN ASLAM AL ASNAVI", place: "Shiriya, Batheri" },
+        { id: "154", cert: "ASNV2026/B8:154", name: "ABDU RASHEED AL ASNAVI", place: "Aaruval" },
+        { id: "155", cert: "ASNV2026/B8:155", name: "ABDUL AZIZ AL ASNAVI", place: "Kuniya" },
+        { id: "156", cert: "ASNV2026/B8:156", name: "ABDUL GAFOOR AL ASNAVI", place: "Padana" },
+        { id: "157", cert: "ASNV2026/B8:157", name: "SHAHUL HAMEED AL ASNAVI", place: "Taliparamba" },
+        { id: "158", cert: "ASNV2026/B8:158", name: "PM HUSAIN AL ASNAVI", place: "Kolari, Mattanur" },
+        { id: "159", cert: "ASNV2026/B8:159", name: "ABDULLAH MUHAMMED PV AL ASNAVI", place: "Cherukkunnu" },
+        { id: "160", cert: "ASNV2026/B8:160", name: "CH ABDUL AZIZ AL ASNAVI", place: "Punchakkad, Payyanur" },
+        { id: "161", cert: "ASNV2026/B8:161", name: "ABDUL RAHMAN AL ASNAVI", place: "Velimukku, Malappuram" },
+        { id: "162", cert: "ASNV2026/B8:162", name: "KH ABDUL RAZAK AL ASNAVI", place: "Ajjavara, Sullia" },
+        { id: "163", cert: "ASNV2026/B8:163", name: "MOHAMMED SAQUAFATHULLA AL ASNAVI", place: "Chetileth Island, Lakshadweep" },
+        { id: "164", cert: "ASNV2026/B8:164", name: "HAFIZ MUHAMMED MUSHTHAQUE AL ASNAVI", place: "Perumalabad, Chaparapadavu" }
     ];
 
     let currentId = null;
     let cropper = null;
 
-    function render() {
+    function renderTable() {
         const tbody = document.getElementById('studentTable');
         tbody.innerHTML = "";
-        students.forEach(s => {
+        initialStudents.forEach(s => {
             db.ref('students/' + s.id).once('value').then(snap => {
                 const data = snap.val() || {};
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${s.id}</td>
-                    <td><input id="n-${s.id}" value="${data.name || s.name}"></td>
-                    <td><input id="p-${s.id}" value="${data.place || s.place}"></td>
-                    <td><input id="r-${s.id}" value="${data.rank || ''}" placeholder="Rank"></td>
+                    <td><input type="text" id="c-${s.id}" value="${data.cert || s.cert}"></td>
+                    <td><input type="text" id="n-${s.id}" value="${data.name || s.name}"></td>
+                    <td><input type="text" id="p-${s.id}" value="${data.place || s.place}"></td>
+                    <td><input type="text" id="r-${s.id}" value="${data.rank || ''}"></td>
                     <td>
                         <button class="btn btn-save" onclick="saveData('${s.id}')">SAVE</button>
                         <button class="btn btn-upload" onclick="pickPhoto('${s.id}')">PHOTO</button>
@@ -122,11 +122,14 @@
     }
 
     function saveData(id) {
+        const cert = document.getElementById(`c-${id}`).value;
         const name = document.getElementById(`n-${id}`).value;
         const place = document.getElementById(`p-${id}`).value;
         const rank = document.getElementById(`r-${id}`).value;
-        const cert = students.find(x => x.id === id).cert;
-        db.ref('students/' + id).update({ name, place, rank, cert }).then(() => alert("Saved!"));
+        
+        db.ref('students/' + id).update({ cert, name, place, rank }).then(() => {
+            alert("Student details updated successfully!");
+        });
     }
 
     function pickPhoto(id) {
@@ -150,19 +153,40 @@
 
     function applyCrop() {
         const canvas = cropper.getCroppedCanvas({ width: 500, height: 500 });
+        document.getElementById('uploadStatus').style.display = 'block';
+        document.getElementById('upBtn').disabled = true;
+
         canvas.toBlob(blob => {
-            const ref = storage.ref('photos/' + currentId + '.jpg');
-            ref.put(blob).then(snap => snap.ref.getDownloadURL()).then(url => {
-                db.ref('students/' + currentId).update({ photo: url });
-                document.getElementById(`st-${currentId}`).innerText = "✅";
-                closeModal();
-                alert("Photo Uploaded!");
+            const formData = new FormData();
+            formData.append("image", blob);
+            
+            fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(resData => {
+                if(resData.success) {
+                    const url = resData.data.url;
+                    db.ref('students/' + currentId).update({ photo: url });
+                    document.getElementById(`st-${currentId}`).innerText = "✅";
+                    alert("Photo uploaded successfully!");
+                    closeModal();
+                }
+            })
+            .catch(err => alert("Upload error: " + err))
+            .finally(() => {
+                document.getElementById('uploadStatus').style.display = 'none';
+                document.getElementById('upBtn').disabled = false;
             });
         }, 'image/jpeg', 0.8);
     }
 
-    function closeModal() { document.getElementById('cropperModal').style.display = 'none'; }
-    window.onload = render;
+    function closeModal() { 
+        document.getElementById('cropperModal').style.display = 'none'; 
+    }
+    
+    window.onload = renderTable;
 </script>
 </body>
 </html>
