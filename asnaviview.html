@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASNAVI Result View | Executive</title>
+    <title>ASNAVI Result View | Official</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
@@ -18,71 +17,70 @@
 
         body { 
             font-family: 'Poppins', sans-serif; 
-            background: #f0f2f5; 
+            background: #f4f6f9; 
             margin: 0; 
-            padding: 15px; 
+            padding: 10px; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             min-height: 100vh;
         }
 
-        /* College Header Section */
+        /* Header Styling */
         .college-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             width: 100%;
             background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             max-width: 400px;
+            box-sizing: border-box;
         }
         .college-header h1 {
             color: var(--primary-green);
             margin: 0;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
-            text-transform: uppercase;
         }
-        .college-header .batch-text {
-            color: #444;
+        .batch-text {
+            color: #555;
+            font-size: 12px;
             margin: 5px 0;
             font-weight: 600;
-            font-size: 13px;
         }
         .contact-info {
+            font-size: 11px;
+            border-top: 1px solid #eee;
             margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px dashed #ccc;
-            font-size: 12px;
-            color: #555;
+            padding-top: 8px;
+            color: #666;
         }
-        .contact-info b { color: var(--primary-green); }
 
-        /* Search Section */
+        /* Search Box */
         .search-area { 
             background: white; 
-            padding: 15px; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            margin-bottom: 25px; 
+            padding: 12px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+            margin-bottom: 20px; 
             width: 100%;
             max-width: 400px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             box-sizing: border-box;
         }
         input { 
             flex: 1;
-            padding: 12px; 
-            border: 2px solid #ddd; 
+            padding: 10px; 
+            border: 2px solid #eee; 
             border-radius: 8px; 
             font-size: 16px;
             outline: none;
         }
         .btn-view { 
-            padding: 12px 25px; 
+            padding: 10px 20px; 
             background: var(--primary-green); 
             color: white; 
             border: none; 
@@ -91,14 +89,13 @@
             font-weight: bold; 
         }
 
-        /* Countdown Overlay */
+        /* Countdown */
         #countdownOverlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.9);
             z-index: 9999;
-            display: none;
             justify-content: center;
             align-items: center;
             font-size: 80px;
@@ -106,46 +103,53 @@
             color: var(--primary-green);
         }
 
-        /* Poster Card Design */
+        /* Poster Design */
         #poster {
             width: 100%;
-            max-width: 400px; 
+            max-width: 380px; 
             background: linear-gradient(135deg, #004d00 0%, #002200 100%);
             color: white; 
-            border-radius: 25px; 
-            padding: 35px 20px; 
+            border-radius: 20px; 
+            padding: 30px 15px; 
             text-align: center; 
-            border: 6px solid var(--gold); 
+            border: 5px solid var(--gold); 
             display: none; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
             box-sizing: border-box;
-            position: relative;
         }
 
-        .p-header { font-size: 20px; font-weight: 800; color: var(--gold); text-transform: uppercase; }
-        .p-batch { font-size: 10px; opacity: 0.8; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+        .p-header { font-size: 18px; font-weight: 800; color: var(--gold); }
+        .p-batch { font-size: 9px; opacity: 0.8; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px; }
 
         .p-photo { 
-            width: 170px; height: 170px; margin: auto; 
-            border: 5px solid var(--white); border-radius: 15px; 
+            width: 160px; height: 160px; margin: auto; 
+            border: 4px solid var(--white); border-radius: 12px; 
             overflow: hidden; background: #fff;
         }
         .p-photo img { width: 100%; height: 100%; object-fit: cover; }
 
-        .p-name { font-size: 22px; margin-top: 20px; font-weight: bold; text-transform: uppercase; line-height: 1.2; }
-        .p-place { font-size: 17px; color: var(--gold); margin: 5px 0 15px 0; font-weight: 500; }
-        .p-cert { font-size: 12px; opacity: 0.9; background: rgba(255, 255, 255, 0.1); padding: 6px 12px; border-radius: 5px; display: inline-block; }
+        .p-name { font-size: 20px; margin-top: 15px; font-weight: bold; text-transform: uppercase; }
+        .p-place { font-size: 16px; color: var(--gold); margin: 5px 0 12px 0; }
+        .p-cert { font-size: 11px; background: rgba(255, 255, 255, 0.1); padding: 5px 10px; border-radius: 4px; display: inline-block; }
         
-        .p-rank { 
-            margin-top: 20px; background: var(--gold); color: #000; 
-            padding: 8px 30px; border-radius: 50px; 
-            font-weight: 800; font-size: 20px; display: inline-block;
+        /* Rank Highlighted Style (മൊബൈലിലും ലാപ്ടോപ്പിലും ഒരുപോലെ) */
+        .p-rank-box { 
+            margin-top: 20px; 
+            background: var(--gold); 
+            color: #000; 
+            padding: 10px 30px; 
+            border-radius: 50px; 
+            font-weight: 900; 
+            font-size: 22px; 
+            display: none; /* റാങ്ക് ഉണ്ടെങ്കിൽ മാത്രം കാണിക്കും */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            text-transform: uppercase;
         }
 
         #dlBtn {
-            width: 100%; max-width: 400px; margin-top: 15px; padding: 15px;
-            background: #28a745; color: white; border: none; border-radius: 12px;
-            font-weight: bold; font-size: 16px; cursor: pointer; display: none;
+            width: 100%; max-width: 380px; margin-top: 15px; padding: 14px;
+            background: #28a745; color: white; border: none; border-radius: 10px;
+            font-weight: bold; font-size: 15px; cursor: pointer; display: none;
         }
     </style>
 </head>
@@ -155,54 +159,74 @@
 
     <div class="college-header">
         <h1>AL ASNAVI COLLEGE</h1>
-        <p class="batch-text">8th BATCH RESULT @2025-26 | DAURATHUL HADEESI VATHAFSEER</p>
+        <p class="batch-text">8th BATCH | DAURATHUL HADEESI VATHAFSEER</p>
         <div class="contact-info">
-            Contact: <b>MUHAMMED SHIBILI AL ASNAVI</b><br>
-            Ph: 8590728228
+            Contact: <b>MUHAMMED SHIBILI AL ASNAVI</b> | Ph: 8590728228
         </div>
     </div>
 
     <div class="search-area">
-        <div class="search-area">
-    <input type="number" id="sid" placeholder="Student ID (123)" pattern="\d*">
-    <button class="btn-view" onclick="startProcess()">VIEW</button>
-</div>
-    <button class="btn-view" onclick="startProcess()">VIEW</button>
-</div>
+        <input type="number" id="sid" placeholder="Register No. (144-164)" pattern="\d*">
+        <button class="btn-view" onclick="startProcess()">VIEW</button>
+    </div>
 
     <div id="poster">
         <div class="p-header">AL ASNAVI COLLEGE</div>
         <div class="p-batch">DAURATHUL HADEESI VATHAFSEER | 2025-26</div>
         
         <div class="p-photo">
-            <img id="viewImg" src="" alt="Student Photo">
+            <img id="viewImg" src="" alt="Photo">
         </div>
         
         <div class="p-name" id="viewName">---</div>
         <div class="p-place" id="viewPlace">---</div>
-        <div class="p-cert" id="viewCert">Certificate No: ---</div>
-        
+        <div class="p-cert" id="viewCert">---</div>
+
         <br>
-        <div id="rankBox" class="p-rank" style="display:none;">
+        <div id="rankBox" class="p-rank-box">
             RANK: <span id="viewRank"></span>
         </div>
     </div>
 
-    <button id="dlBtn" onclick="download()">
-        DOWNLOAD POSTER
-    </button>
+    <button id="dlBtn" onclick="download()">DOWNLOAD POSTER</button>
 
 <script>
+    // വിദ്യാർത്ഥികളുടെ വിവരങ്ങൾ (PDF പ്രകാരം)
+    const studentData = {
+        "144": { name: "SAYYID SHUHAIB AL ASNAVI", place: "Kuttiady", cert: "ASNV2026/B8:144" },
+        "145": { name: "MUHAMMED ZIYAD AL ASNAVI", place: "Manjeshwara", cert: "ASNV2026/B8:145" },
+        "146": { name: "MUHAMMED HANEEF AL ASNAVI", place: "Ajjavara, Sullia", cert: "ASNV2026/88:146" },
+        "147": { name: "RASHID AL ASNAVI", place: "Bambrana", cert: "ASNV2026/B8:147" },
+        "148": { name: "MUHAMMED JASIR AL ASNAVI", place: "Cheroor, Kasaragod", cert: "ASNV2026/B8:148" },
+        "149": { name: "NAVAZ HUSAIN AL ASNAVI", place: "Adkathbail, Kasaragod", cert: "ASNV2026/B8:149" },
+        "150": { name: "BASHEER K AL ASNAVI", place: "Kakkamkoodal, Madhoor", cert: "ASNV2026/B8:150" },
+        "151": { name: "ABDU RAHMAN M AL ASNAVI", place: "Hidayath Nagar", cert: "ASNV2026/B8:151" },
+        "152": { name: "ASHRAF PA AL ASNAVI", place: "Padana, Cheruvathur", cert: "ASNV2026/B8:152" },
+        "153": { name: "MUHIYADHEEN ASLAM AL ASNAVI", place: "Shiriya, Batheri", cert: "ASNV2026/B8:153" },
+        "154": { name: "ABDU RASHEED AL ASNAVI", place: "Aaruval", cert: "ASNV2026/B8:154" },
+        "155": { name: "ABDUL AZIZ AL ASNAVI", place: "Kuniya", cert: "ASNV2026/B8:155" },
+        "156": { name: "ABDUL GAFOOR AL ASNAVI", place: "Padana", cert: "ASNV2026/B8:156" },
+        "157": { name: "SHAHUL HAMEED AL ASNAVI", place: "Taliparamba", cert: "ASNV2026/B8:157" },
+        "158": { name: "PM HUSAIN AL ASNAVI", place: "Kolari, Mattanur", cert: "ASNV2026/B8:158" },
+        "159": { name: "ABDULLAH MUHAMMED PV AL ASNAVI", place: "Cherukkunnu", cert: "ASNV2026/B8:159" },
+        "160": { name: "CH ABDUL AZIZ AL ASNAVI", place: "Punchakkad, Payyanur", cert: "ASNV2026/B8:160" },
+        "161": { name: "ABDUL RAHMAN AL ASNAVI", place: "Velimukku, Malappuram", cert: "ASNV2026/B8:161" },
+        "162": { name: "KH ABDUL RAZAK AL ASNAVI", place: "Ajjavara, Sullia", cert: "ASNV2026/B8:162" },
+        "163": { name: "MOHAMMED SAQUAFATHULLA AL ASNAVI", place: "Chetileth Island, Lakshadweep", cert: "ASNV2026/B8:163" },
+        "164": { name: "HAFIZ MUHAMMED MUSHTHAQUE AL ASNAVI", place: "Perumalabad, Chaparapadavu", cert: "ASNV2026/B8:164" }
+    };
+
     function startProcess() {
         const id = document.getElementById('sid').value;
+        // അഡ്മിൻ പാനലിൽ സേവ് ചെയ്ത റാങ്ക് ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു
         const storedData = localStorage.getItem(`data-${id}`);
-        
-        if(!storedData) {
-            alert("Results not found! Please check your ID.");
+        const staticData = studentData[id];
+
+        if(!staticData) {
+            alert("Results not found! Use ID 123.");
             return;
         }
 
-        // കൗണ്ട്ഡൗൺ തുടങ്ങുന്നു
         const overlay = document.getElementById('countdownOverlay');
         overlay.style.display = 'flex';
         let count = 3;
@@ -215,60 +239,46 @@
             } else {
                 clearInterval(timer);
                 overlay.style.display = 'none';
-                showResult(JSON.parse(storedData), id);
+                
+                // ഫോട്ടോയും റാങ്കും ലോക്കൽ സ്റ്റോറേജിൽ നിന്ന് എടുക്കുന്നു
+                let finalData = staticData;
+                if(storedData) {
+                    const parsed = JSON.parse(storedData);
+                    finalData.rank = parsed.rank; // റാങ്ക് അഡ്മിൻ പാനലിൽ നിന്ന് എടുക്കുന്നു
+                }
+                showResult(finalData, id);
             }
         }, 800);
     }
-function showResult(data, id) {
-        // ഡാറ്റ പോസ്റ്ററിലേക്ക് മാറ്റുന്നു
+
+    function showResult(data, id) {
         document.getElementById('viewName').innerText = data.name;
         document.getElementById('viewPlace').innerText = data.place;
         document.getElementById('viewCert').innerText = "Certificate No: " + data.cert;
         
+        // ഫോട്ടോ ലോഡുചെയ്യുന്നു
         const photo = localStorage.getItem(`photo-${id}`);
-        document.getElementById('viewImg').src = photo || "https://via.placeholder.com/150?text=No+Photo";
+        document.getElementById('viewImg').src = photo || "https://via.placeholder.com/150?text=Upload+Photo";
         
+        // റാങ്ക് ഉണ്ടെങ്കിൽ അത് ഹൈലൈറ്റ് ചെയ്തു കാണിക്കുന്നു
+        const rankBox = document.getElementById('rankBox');
         if(data.rank && data.rank.trim() !== "") {
             document.getElementById('viewRank').innerText = data.rank;
-            document.getElementById('rankBox').style.display = 'inline-block';
+            rankBox.style.display = 'inline-block';
         } else {
-            document.getElementById('rankBox').style.display = 'none';
+            rankBox.style.display = 'none';
         }
         
-        // പോസ്റ്റർ കാണിക്കുന്നു
         document.getElementById('poster').style.display = 'block';
         document.getElementById('dlBtn').style.display = 'block';
         document.getElementById('poster').scrollIntoView({ behavior: 'smooth' });
-
-        // --- വർണ്ണക്കടലാസ് (Confetti) ഭാഗം ഇവിടെ നിന്ന് ഒഴിവാക്കി ---
-
-        (function frame() {
-            confetti({
-                particleCount: 5,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: ['#004d00', '#ffd700', '#ffffff']
-            });
-            confetti({
-                particleCount: 5,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: ['#004d00', '#ffd700', '#ffffff']
-            });
-
-            if (Date.now() < end) {
-                requestAnimationFrame(frame);
-            }
-        }());
     }
 
     function download() {
         const poster = document.getElementById('poster');
         html2canvas(poster, { scale: 3 }).then(canvas => {
             let link = document.createElement('a');
-            link.download = 'Asnavi_Result.png';
+            link.download = 'Result_' + document.getElementById('sid').value + '.png';
             link.href = canvas.toDataURL();
             link.click();
         });
