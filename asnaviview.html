@@ -163,7 +163,6 @@
     </div>
 
     <div class="search-area">
-    <input type="number" id="sid" placeholder="Student ID (144-164)" pattern="\d*">
     <button class="btn-view" onclick="startProcess()">VIEW</button>
 </div>
 
@@ -216,8 +215,7 @@
             }
         }, 800);
     }
-
-    function showResult(data, id) {
+function showResult(data, id) {
         // ഡാറ്റ പോസ്റ്ററിലേക്ക് മാറ്റുന്നു
         document.getElementById('viewName').innerText = data.name;
         document.getElementById('viewPlace').innerText = data.place;
@@ -238,9 +236,7 @@
         document.getElementById('dlBtn').style.display = 'block';
         document.getElementById('poster').scrollIntoView({ behavior: 'smooth' });
 
-        // കോൺഫെറ്റി (വർണ്ണക്കടലാസ്) ഇഫക്റ്റ്
-        var duration = 3 * 1000;
-        var end = Date.now() + duration;
+        // --- വർണ്ണക്കടലാസ് (Confetti) ഭാഗം ഇവിടെ നിന്ന് ഒഴിവാക്കി ---
 
         (function frame() {
             confetti({
