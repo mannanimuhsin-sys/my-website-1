@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin | Direct Access</title>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f7; margin: 0; padding: 10px; }
+        .header { background: #004d00; color: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 15px; }
+        .search-box { width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #004d00; margin-bottom: 15px; box-sizing: border-box; font-size: 16px; }
+        .card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 10px solid #ccc; }
+        .card.approved { border-left-color: #2e7d32; }
+        .card.blocked { border-left-color: #d32f2f; }
+        .card h3 { margin: 0; color: #004d00; }
+        .status-label { font-weight: bold; text-transform: uppercase; font-size: 12px; }
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; text-align: center; }
+        .btn-app { background: #2e7d32; }
+        .btn-blk { background: #f57c00; }
+        .btn-del { background: #d32f2f; grid-column: span 2; margin-top: 5px; }
+        #loading { text-align: center; padding: 20px; font-weight: bold; color: #666; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1 style="margin:0; font-size: 22px;">മദ്രസ കൺട്രോൾ പാനൽ</h1>
+    </div>
+
+    <input type="text" id="search" class="search-box" placeholder="പേര് അല്ലെങ്കിൽ Reg No. നൽകുക..." onkeyup="filterData()">
+
+    <div id="loading">ഡാറ്റാബേസുമായി ബന്ധിപ്പിക്കുന്നു...</div>
+    <div id="displayList"></div>
+
+<script>
+    // നിങ്ങളുടെ ഫയർബേസ് വിവരങ്ങൾ ഇവിടെ കൃത്യമായി നൽകുക
+    const firebaseConfig = {
+        apiKey: "AIzaSyAxvBeno8O_5cqj6O-G2xnaNlWgSkUyJ2E",
+        authDomain: "asnavi.firebaseapp.com",
+        databaseURL: "https://asnavi-default-rtdb.firebaseio.com",
+        projectId: "asnavi",
+        storageBucket: "asnavi.firebasestorage.app",
+        appId: "1:464939709877:web:8ff2c772e0c5a209c255fc"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ഡാറ്റ ലോഡ് ചെയ്യുന്ന ഫംഗ്ഷൻ
+    function loadMadrasas() {
+        db.ref('madrasa_requests').on('value', (snap) => {
+            document.getElementById('loading').style.display = 'none';
+            const listArea = document.getElementById('displayList');
+            listArea.innerHTML = "";
+
+            if (!snap.exists()) {
+                listArea.innerHTML = "<p style='text-align:center;'>അപേക്ഷകളൊന്നും കണ്ടെത്തിയില്ല. ഡാറ്റാബേസ് പരിശോധിക്കുക.</p>";
+                return;
+            }
+
+            snap.forEach((child) => {
+                const m = child.val();
+                const card = document.createElement('div');
+                card.className = `card ${m.status}`;
+                card.innerHTML = `
+                    <h3>${m.name}</h3>
+                    <p><b>Reg No:</b> ${m.reg} | <b>Place:</b> ${m.place}</p>
+                    <p class="status-label">നിലവിലെ അവസ്ഥ: <span style="color:${m.status === 'approved' ? 'green' : 'red'}">${m.status}</span></p>
+                    <div class="actions">
+                        <button class="btn btn-app" onclick="updateStatus('${child.key}', 'approved')">Approve / Unblock</button>
+                        <button class="btn btn-blk" onclick="updateStatus('${child.key}', 'blocked')">Block</button>
+                        <button class="btn btn-del" onclick="removeMadrasa('${child.key}')">ഡിലീറ്റ് ചെയ്യുക</button>
+                    </div>
+                `;
+                listArea.appendChild(card);
+            });
+        }, (error) => {
+            alert("ഡാറ്റ ലോഡ് ചെയ്യുന്നതിൽ പിശക്: " + error.message);
+        });
+    }
+
+    function updateStatus(id, newStatus) {
+        db.ref('madrasa_requests/' + id).update({ status: newStatus });
+    }
+
+    function removeMadrasa(id) {
+        if (confirm("ഈ മദ്രസയെ ഡിലീറ്റ് ചെയ്യണോ? പഴയ ഡാറ്റ പൂർണ്ണമായും നഷ്ടപ്പെടും.")) {
+            db.ref('madrasa_requests/' + id).remove();
+        }
+    }
+
+    function filterData() {
+        let val = document.getElementById('search').value.toUpperCase();
+        let cards = document.getElementsByClassName('card');
+        for (let i = 0; i < cards.length; i++) {
+            cards[i].style.display = cards[i].innerText.toUpperCase().includes(val) ? "" : "none";
+        }
+    }
+
+    // പേജ് തുടങ്ങുമ്പോൾ തന്നെ ഡാറ്റ കാണിക്കുക
+    loadMadrasas();
+</script>
+</body>
+</html>
