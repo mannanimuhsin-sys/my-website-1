@@ -140,12 +140,22 @@
         input.click();
     }
 
-    function applyCrop() {
-        const canvas = cropper.getCroppedCanvas({ width: 500, height: 500 });
-        localStorage.setItem(`photo-${currentPhotoId}`, canvas.toDataURL('image/jpeg', 0.8));
-        document.getElementById(`stat-${currentPhotoId}`).innerText = "✅";
-        closeModal();
-    }
+   function applyCrop() {
+    // 500x500 എന്നത് ഫോട്ടോയുടെ വലിപ്പം അല്പം കുറച്ച് 400x400 ആക്കുന്നത് സ്റ്റോറേജ് ലാഭിക്കാൻ സഹായിക്കും
+    const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+    
+    // പഴയ ഫോട്ടോ ഉണ്ടെങ്കിൽ അത് നീക്കം ചെയ്യേണ്ടതില്ല, 
+    // ഒരേ കീ (photo-ID) ഉപയോഗിക്കുന്നത് കൊണ്ട് പുതിയത് വരുമ്പോൾ പഴയത് തനിയെ മാറും.
+    localStorage.setItem(`photo-${currentPhotoId}`, canvas.toDataURL('image/jpeg', 0.7)); // Quality 0.7 ആക്കി
+    
+    // വിഷ്വൽ കൺഫർമേഷൻ
+    const statusSpan = document.getElementById(`stat-${currentPhotoId}`);
+    statusSpan.innerText = "✅ Updated"; 
+    statusSpan.style.color = "blue";
+    
+    alert("ഫോട്ടോ വിജയകരമായി മാറ്റിയിട്ടുണ്ട്.");
+    closeModal();
+}
 
     function closeModal() { document.getElementById('cropperModal').style.display = 'none'; }
 
