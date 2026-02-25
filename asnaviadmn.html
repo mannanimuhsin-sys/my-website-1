@@ -3,71 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASNAVI Admin Control Panel</title>
+    <title>ASNAVI Master Admin Control</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 15px; margin: 0; }
         .admin-container { max-width: 1300px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #004d00; border-bottom: 3px solid #ffd700; padding-bottom: 10px; text-transform: uppercase; font-size: 20px; }
+        h2 { text-align: center; color: #004d00; border-bottom: 3px solid #ffd700; padding-bottom: 10px; text-transform: uppercase; }
         .table-wrapper { overflow-x: auto; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 900px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1000px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background: #004d00; color: white; position: sticky; top: 0; }
-        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; font-size: 13px; }
-        input:focus { border-color: #004d00; outline: none; background: #fffdf0; }
-        .btn { padding: 10px 15px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; }
-        .btn-crop { background: #c5a000; }
-        .btn-save-all { background: #004d00; padding: 15px 40px; font-size: 16px; margin-top: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        #cropperModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; }
-        .modal-content { background:white; width:95%; max-width:500px; margin:20px auto; padding:20px; border-radius:10px; text-align: center; }
-        .img-container { max-height: 400px; margin-bottom: 15px; background: #000; }
-        .status-mark { color: green; font-weight: bold; margin-left: 5px; }
+        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        .btn { padding: 8px 12px; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; color: white; margin-right: 5px; }
+        .btn-upload { background: #c5a000; }
+        .btn-delete { background: #dc3545; }
+        .btn-save-all { background: #004d00; padding: 15px 40px; font-size: 16px; margin-top: 20px; display: block; margin-left: auto; margin-right: auto; }
+        .btn-clear-all { background: #666; margin-top: 10px; font-size: 11px; }
+        #cropperModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10000; }
+        .modal-content { background:white; width:90%; max-width:450px; margin:50px auto; padding:20px; border-radius:10px; text-align: center; }
+        .img-container { max-height: 350px; margin-bottom: 15px; background: #000; }
+        .status-mark { color: #28a745; font-weight: bold; font-size: 16px; }
     </style>
 </head>
 <body>
 
 <div class="admin-container">
-    <h2>ASNAVI 8th BATCH - MASTER ADMIN CONTROL</h2>
-    <p style="text-align: center; color: #666; font-size: 12px;">എല്ലാ കോളങ്ങളും എഡിറ്റ് ചെയ്യാവുന്നതാണ്. മാറ്റങ്ങൾക്ക് ശേഷം താഴെയുള്ള SAVE ബട്ടൺ അമർത്തുക.</p>
+    <h2>ASNAVI 8th BATCH - ADMIN PANEL</h2>
     
+    <div style="text-align: right;">
+        <button class="btn btn-clear-all" onclick="clearAllPhotos()">RESET ALL PHOTOS</button>
+    </div>
+
     <div class="table-wrapper">
         <table>
             <thead>
                 <tr>
-                    <th style="width: 80px;">ID No</th>
-                    <th style="width: 180px;">Certificate No</th>
+                    <th style="width: 60px;">ID</th>
+                    <th style="width: 150px;">Certificate No</th>
                     <th>Student Name</th>
                     <th>Place</th>
                     <th style="width: 100px;">Rank</th>
-                    <th style="width: 120px;">Photo Action</th>
+                    <th style="width: 200px;">Photo Action</th>
                 </tr>
             </thead>
-            <tbody id="studentTable">
-                </tbody>
+            <tbody id="studentTable"></tbody>
         </table>
     </div>
 
-    <div style="text-align:center;">
-        <button class="btn btn-save-all" onclick="saveAll()">SAVE ALL DATA PERMANENTLY</button>
-    </div>
+    <button class="btn btn-save-all" onclick="saveAll()">SAVE ALL DATA PERMANENTLY</button>
 </div>
 
 <div id="cropperModal">
     <div class="modal-content">
-        <h3>Adjust Photo (Square Crop)</h3>
-        <div class="img-container"><img id="imageToCrop" style="max-width: 100%;"></div>
-        <button class="btn" onclick="applyCrop()">APPLY & SAVE PHOTO</button>
-        <button class="btn" style="background:#666; margin-left: 10px;" onclick="closeModal()">CANCEL</button>
+        <h3>Crop Student Photo</h3>
+        <div class="img-container"><img id="imageToCrop"></div>
+        <button class="btn" style="background:#28a745;" onclick="applyCrop()">CROP & SAVE</button>
+        <button class="btn" style="background:#666;" onclick="closeModal()">CANCEL</button>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script>
-    // ആദ്യഘട്ടത്തിലുള്ള വിദ്യാർത്ഥികളുടെ വിവരങ്ങൾ (Default Data)
     const initialStudents = [
-        { id: "144", cert: "ASNV2026/88:144", name: "SAYYID SHUHAIB AL ASNAVI", place: "Kuttiady" },
+        { id: "144", cert: "ASNV2026/B8:144", name: "SAYYID SHUHAIB AL ASNAVI", place: "Kuttiady" },
         { id: "145", cert: "ASNV2026/B8:145", name: "MUHAMMED ZIYAD AL ASNAVI", place: "Manjeshwara" },
-        { id: "146", cert: "ASNV2026/88:146", name: "MUHAMMED HANEEF AL ASNAVI", place: "Ajjavara, Sullia" },
+        { id: "146", cert: "ASNV2026/B8:146", name: "MUHAMMED HANEEF AL ASNAVI", place: "Ajjavara, Sullia" },
         { id: "147", cert: "ASNV2026/B8:147", name: "RASHID AL ASNAVI", place: "Bambrana" },
         { id: "148", cert: "ASNV2026/B8:148", name: "MUHAMMED JASIR AL ASNAVI", place: "Cheroor, Kasaragod" },
         { id: "149", cert: "ASNV2026/B8:149", name: "NAVAZ HUSAIN AL ASNAVI", place: "Adkathbail, Kasaragod" },
@@ -83,46 +83,39 @@
         { id: "159", cert: "ASNV2026/B8:159", name: "ABDULLAH MUHAMMED PV AL ASNAVI", place: "Cherukkunnu" },
         { id: "160", cert: "ASNV2026/B8:160", name: "CH ABDUL AZIZ AL ASNAVI", place: "Punchakkad, Payyanur" },
         { id: "161", cert: "ASNV2026/B8:161", name: "ABDUL RAHMAN AL ASNAVI", place: "Velimukku, Malappuram" },
-        { id: "162", cert: "ASNV2026/Β8:162", name: "KH ABDUL RAZAK AL ASNAVI", place: "Ajjavara, Sullia" },
+        { id: "162", cert: "ASNV2026/B8:162", name: "KH ABDUL RAZAK AL ASNAVI", place: "Ajjavara, Sullia" },
         { id: "163", cert: "ASNV2026/B8:163", name: "MOHAMMED SAQUAFATHULLA AL ASNAVI", place: "Chetileth Island, Lakshadweep" },
         { id: "164", cert: "ASNV2026/B8:164", name: "HAFIZ MUHAMMED MUSHTHAQUE AL ASNAVI", place: "Perumalabad, Chaparapadavu" }
     ];
 
-    let currentPhotoId = null;
+    let currentId = null;
     let cropper = null;
 
-    // ലോക്കൽ സ്റ്റോറേജിൽ പഴയ ഡാറ്റ ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു, ഇല്ലെങ്കിൽ പുതിയത് ലോഡ് ചെയ്യുന്നു.
-    function loadTable() {
-        const table = document.getElementById('studentTable');
-        table.innerHTML = "";
-
+    function renderTable() {
+        const tbody = document.getElementById('studentTable');
+        tbody.innerHTML = "";
         initialStudents.forEach(s => {
-            // ഓരോരുത്തരുടെയും സേവ് ചെയ്ത ഡാറ്റ ഉണ്ടോ എന്ന് നോക്കുന്നു
-            const savedRaw = localStorage.getItem(`data-${s.id}`);
-            let displayData = s;
-            if(savedRaw) {
-                displayData = JSON.parse(savedRaw);
-            }
-
+            const saved = JSON.parse(localStorage.getItem(`data-${s.id}`) || "{}");
             const hasPhoto = localStorage.getItem(`photo-${s.id}`) ? "✅" : "";
-
-            table.innerHTML += `
+            
+            tbody.innerHTML += `
                 <tr>
-                    <td><input type="text" id="id-${s.id}" value="${displayData.id || s.id}"></td>
-                    <td><input type="text" id="cert-${s.id}" value="${displayData.cert || s.cert}"></td>
-                    <td><input type="text" id="name-${s.id}" value="${displayData.name || s.name}"></td>
-                    <td><input type="text" id="place-${s.id}" value="${displayData.place || s.place}"></td>
-                    <td><input type="text" id="rank-${s.id}" value="${displayData.rank || ''}" placeholder="Rank"></td>
+                    <td>${s.id}</td>
+                    <td><input type="text" id="cert-${s.id}" value="${saved.cert || s.cert}"></td>
+                    <td><input type="text" id="name-${s.id}" value="${saved.name || s.name}"></td>
+                    <td><input type="text" id="place-${s.id}" value="${saved.place || s.place}"></td>
+                    <td><input type="text" id="rank-${s.id}" value="${saved.rank || ''}" placeholder="Rank"></td>
                     <td>
-                        <button class="btn btn-crop" onclick="startCrop('${s.id}')">PHOTO</button>
+                        <button class="btn btn-upload" onclick="startPhoto('${s.id}')">PHOTO</button>
+                        <button class="btn btn-delete" onclick="deletePhoto('${s.id}')">DEL</button>
                         <span id="stat-${s.id}" class="status-mark">${hasPhoto}</span>
                     </td>
                 </tr>`;
         });
     }
 
-    function startCrop(id) {
-        currentPhotoId = id;
+    function startPhoto(id) {
+        currentId = id;
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -140,42 +133,43 @@
         input.click();
     }
 
-   function applyCrop() {
-    // 500x500 എന്നത് ഫോട്ടോയുടെ വലിപ്പം അല്പം കുറച്ച് 400x400 ആക്കുന്നത് സ്റ്റോറേജ് ലാഭിക്കാൻ സഹായിക്കും
-    const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
-    
-    // പഴയ ഫോട്ടോ ഉണ്ടെങ്കിൽ അത് നീക്കം ചെയ്യേണ്ടതില്ല, 
-    // ഒരേ കീ (photo-ID) ഉപയോഗിക്കുന്നത് കൊണ്ട് പുതിയത് വരുമ്പോൾ പഴയത് തനിയെ മാറും.
-    localStorage.setItem(`photo-${currentPhotoId}`, canvas.toDataURL('image/jpeg', 0.7)); // Quality 0.7 ആക്കി
-    
-    // വിഷ്വൽ കൺഫർമേഷൻ
-    const statusSpan = document.getElementById(`stat-${currentPhotoId}`);
-    statusSpan.innerText = "✅ Updated"; 
-    statusSpan.style.color = "blue";
-    
-    alert("ഫോട്ടോ വിജയകരമായി മാറ്റിയിട്ടുണ്ട്.");
-    closeModal();
-}
-
-    function closeModal() { document.getElementById('cropperModal').style.display = 'none'; }
-
-    // എല്ലാ വിവരങ്ങളും ലോക്കൽ സ്റ്റോറേജിലേക്ക് സേവ് ചെയ്യുന്നു
-    function saveAll() {
-        initialStudents.forEach(s => {
-            const rowId = s.id; // Original key
-            const newData = {
-                id: document.getElementById(`id-${rowId}`).value,
-                cert: document.getElementById(`cert-${rowId}`).value,
-                name: document.getElementById(`name-${rowId}`).value,
-                place: document.getElementById(`place-${rowId}`).value,
-                rank: document.getElementById(`rank-${rowId}`).value
-            };
-            localStorage.setItem(`data-${rowId}`, JSON.stringify(newData));
-        });
-        alert("വിവരങ്ങൾ വിജയകരമായി സേവ് ചെയ്തു! ഇനി വ്യൂ പേജിൽ ഇവ ലഭ്യമാകും.");
+    function applyCrop() {
+        const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+        localStorage.setItem(`photo-${currentId}`, canvas.toDataURL('image/jpeg', 0.7));
+        document.getElementById(`stat-${currentId}`).innerText = "✅";
+        closeModal();
     }
 
-    window.onload = loadTable;
+    function deletePhoto(id) {
+        if(confirm("ഈ വിദ്യാർത്ഥിയുടെ ഫോട്ടോ ഒഴിവാക്കണോ?")) {
+            localStorage.removeItem(`photo-${id}`);
+            document.getElementById(`stat-${id}`).innerText = "";
+        }
+    }
+
+    function clearAllPhotos() {
+        if(confirm("മുഴുവൻ ഫോട്ടോകളും ഡിലീറ്റ് ചെയ്യണോ? ഇത് തിരിച്ചു കിട്ടില്ല!")) {
+            initialStudents.forEach(s => localStorage.removeItem(`photo-${s.id}`));
+            renderTable();
+        }
+    }
+
+    function saveAll() {
+        initialStudents.forEach(s => {
+            const data = {
+                id: s.id,
+                cert: document.getElementById(`cert-${s.id}`).value,
+                name: document.getElementById(`name-${s.id}`).value,
+                place: document.getElementById(`place-${s.id}`).value,
+                rank: document.getElementById(`rank-${s.id}`).value
+            };
+            localStorage.setItem(`data-${s.id}`, JSON.stringify(data));
+        });
+        alert("വിവരങ്ങൾ സുരക്ഷിതമായി സേവ് ചെയ്തു!");
+    }
+
+    function closeModal() { document.getElementById('cropperModal').style.display = 'none'; }
+    window.onload = renderTable;
 </script>
 </body>
 </html>
