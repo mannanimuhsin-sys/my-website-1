@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>എന്റെ മദ്രസ</title>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <style>
+        :root { --primary: #004d00; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        .main-card { width: 90%; max-width: 400px; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
+        
+        /* രഹസ്യ രജിസ്ട്രേഷൻ ബട്ടൺ */
+        .secret-trigger { position: absolute; top: 15px; right: 15px; width: 20px; height: 20px; color: #eee; cursor: pointer; font-size: 10px; border: 1px solid #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+        h1 { color: var(--primary); text-align: center; margin-bottom: 25px; font-size: 28px; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 14px; }
+        input { width: 100%; padding: 14px; border: 1.5px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 16px; background: #fafafa; transition: 0.3s; }
+        input:focus { border-color: var(--primary); outline: none; background: #fff; }
+        
+        .btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(0,77,0,0.2); }
+        
+        /* മോഡൽ (രജിസ്ട്രേഷൻ) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
+        .close-btn { float: right; font-size: 20px; cursor: pointer; color: #888; }
+    </style>
+</head>
+<body>
+
+    <div class="secret-trigger" onclick="toggleModal(true)">+</div>
+
+    <div class="main-card" id="loginPage">
+        <h1>എന്റെ മദ്രസ</h1>
+        <p style="text-align:center; color:#888; margin-bottom:30px;">പ്രവേശിക്കാൻ വിവരങ്ങൾ നൽകുക</p>
+        
+        <div class="input-group">
+            <label>മദ്രസ രജിസ്റ്റർ നമ്പർ</label>
+            <input type="text" id="logReg" placeholder="ഉദാ: 4567">
+        </div>
+
+        <div class="input-group">
+            <label>പാസ്‌വേഡ്</label>
+            <input type="password" id="logPass" placeholder="Password">
+        </div>
+
+        <button class="btn" onclick="handleLogin()">തുറക്കുക</button>
+    </div>
+
+    <div id="regModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="toggleModal(false)">&times;</span>
+            <h2 style="color:var(--primary); margin-top:0;">രജിസ്ട്രേഷൻ</h2>
+            
+            <div class="input-group">
+                <label>മദ്രസയുടെ പേര്</label>
+                <input type="text" id="mName" placeholder="Madrasa Name">
+            </div>
+            <div class="input-group">
+                <label>രജിസ്റ്റർ നമ്പർ</label>
+                <input type="text" id="mReg" placeholder="Reg No">
+            </div>
+            <div class="input-group">
+                <label>യൂസർ ഐഡി (ലോഗിൻ ചെയ്യാൻ)</label>
+                <input type="text" id="mUser" placeholder="Unique User ID">
+            </div>
+            <div class="input-group">
+                <label>ഉസ്താദ് പാസ്‌വേഡ്</label>
+                <input type="password" id="mUsthadPass" placeholder="Usthad Password">
+            </div>
+            <div class="input-group">
+                <label>രക്ഷിതാവ് പാസ്‌വേഡ്</label>
+                <input type="password" id="mParentPass" placeholder="Parent Password">
+            </div>
+            <button class="btn" onclick="register()">അപേക്ഷ സമർപ്പിക്കുക</button>
+        </div>
+    </div>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyAxvBeno8O_5cqj6O-G2xnaNlWgSkUyJ2E",
+        authDomain: "asnavi.firebaseapp.com",
+        databaseURL: "https://asnavi-default-rtdb.firebaseio.com",
+        projectId: "asnavi",
+        storageBucket: "asnavi.firebasestorage.app",
+        appId: "1:464939709877:web:8ff2c772e0c5a209c255fc"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function toggleModal(show) {
+        document.getElementById('regModal').style.display = show ? 'flex' : 'none';
+    }
+
+    // രജിസ്ട്രേഷൻ
+    function register() {
+        const userId = document.getElementById('mUser').value;
+        const data = {
+            name: document.getElementById('mName').value,
+            reg: document.getElementById('mReg').value,
+            user: userId,
+            usthadPass: document.getElementById('mUsthadPass').value,
+            parentPass: document.getElementById('mParentPass').value,
+            status: "pending"
+        };
+
+        if(!userId || !data.usthadPass || !data.parentPass) { alert("എല്ലാ വിവരങ്ങളും നൽകുക!"); return; }
+
+        db.ref('madrasa_requests/' + userId).set(data).then(() => {
+            alert("അപേക്ഷ സമർപ്പിച്ചു! അപ്രൂവലിനായി കാത്തിരിക്കുക.");
+            toggleModal(false);
+        });
+    }
+
+    // ലോഗിൻ
+    function handleLogin() {
+        const reg = document.getElementById('logReg').value;
+        const pass = document.getElementById('logPass').value;
+
+        db.ref('madrasa_requests').once('value', snap => {
+            let found = false;
+            snap.forEach(child => {
+                const m = child.val();
+                if(m.reg === reg) {
+                    found = true;
+                    if(m.status !== 'approved') { alert("ഈ മദ്രസ അപ്രൂവ് ചെയ്തിട്ടില്ല!"); return; }
+                    
+                    if(pass === m.usthadPass) {
+                        alert("ഉസ്താദ് ലോഗിൻ വിജയിച്ചു!");
+                        // ഇവിടെ ഉസ്താദിന്റെ എഡിറ്റ് പേജിലേക്ക് പോകും
+                    } else if(pass === m.parentPass) {
+                        alert("രക്ഷിതാവ് ലോഗിൻ വിജയിച്ചു!");
+                        // ഇവിടെ വിവരങ്ങൾ കാണാനുള്ള പേജിലേക്ക് പോകും
+                    } else {
+                        alert("തെറ്റായ പാസ്‌വേഡ്!");
+                    }
+                }
+            });
+            if(!found) alert("ഈ രജിസ്റ്റർ നമ്പറിൽ മദ്രസ കണ്ടെത്തിയില്ല.");
+        });
+    }
+</script>
+</body>
+</html>
