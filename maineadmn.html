@@ -446,21 +446,25 @@ function calculateAutoRanks() {
     // എല്ലാവരുടെയും റാങ്ക് ആദ്യം ക്ലിയർ ചെയ്യുന്നു
     rows.forEach(r => r.querySelector('.r-rank').value = "");
 
-    // പാസ്സായവരെ മാത്രം ടോട്ടൽ മാർക്കിന്റെ അടിസ്ഥാനത്തിൽ ക്രമീകരിക്കുന്നു
+    // പാസ്സായവരെ മാത്രം ടോട്ടൽ മാർക്കിന്റെ അടിസ്ഥാനത്തിൽ ക്രമീകരിക്കുന്നു (Descending Order)
     let passedRows = rows.filter(r => r.querySelector('.r-sts-select').value === "Passed")
                          .sort((a, b) => {
                              return parseInt(b.querySelector('.r-tot').innerText) - parseInt(a.querySelector('.r-tot').innerText);
                          });
 
-    // റാങ്ക് നൽകുന്നു (ഒരേ മാർക്കുള്ളവർക്ക് ഒരേ റാങ്ക് വരാൻ സഹായിക്കുന്നു)
-    let currentRank = 1;
-    passedRows.forEach((row, index) => {
+    let currentRank = 0;
+    let lastTotal = -1;
+
+    passedRows.forEach((row) => {
         let total = parseInt(row.querySelector('.r-tot').innerText);
+        
         if (total > 0) {
-            if (index > 0 && total < parseInt(passedRows[index - 1].querySelector('.r-tot').innerText)) {
-                currentRank = index + 1;
+            // മാർക്ക് മുൻപത്തെ കുട്ടിയുടേതിനേക്കാൾ കുറവാണെങ്കിൽ മാത്രം റാങ്ക് നമ്പർ കൂട്ടുക
+            if (total !== lastTotal) {
+                currentRank++;
             }
             row.querySelector('.r-rank').value = currentRank;
+            lastTotal = total;
         }
     });
 }
