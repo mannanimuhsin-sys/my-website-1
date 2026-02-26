@@ -6,36 +6,49 @@
     <title>Super Admin | Direct Access</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f4f7; margin: 0; padding: 10px; }
         .header { background: #004d00; color: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 15px; }
         .search-box { width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #004d00; margin-bottom: 15px; box-sizing: border-box; font-size: 16px; }
+        
         .card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 10px solid #ccc; }
         .card.approved { border-left-color: #2e7d32; }
         .card.blocked { border-left-color: #d32f2f; }
-        .card h3 { margin: 0; color: #004d00; }
-        .status-label { font-weight: bold; text-transform: uppercase; font-size: 12px; }
+        .card.pending { border-left-color: #f57c00; }
+        
+        .card h3 { margin: 0; color: #004d00; font-size: 20px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; font-size: 14px; }
+        
+        .pass-section { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd; }
+        .pass-input-group { display: flex; gap: 5px; margin-bottom: 8px; align-items: center; }
+        .pass-input-group label { width: 120px; font-size: 12px; font-weight: bold; color: #555; }
+        .pass-input-group input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+        
         .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; text-align: center; }
+        .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; text-align: center; font-size: 13px; transition: 0.3s; }
         .btn-app { background: #2e7d32; }
         .btn-blk { background: #f57c00; }
+        .btn-upd { background: #2c3e50; font-size: 11px; padding: 8px; }
         .btn-del { background: #d32f2f; grid-column: span 2; margin-top: 5px; }
+        .btn:hover { opacity: 0.8; }
+        
         #loading { text-align: center; padding: 20px; font-weight: bold; color: #666; }
+        .status-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; color: white; margin-left: 5px; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1 style="margin:0; font-size: 22px;">മദ്രസ കൺട്രോൾ പാനൽ</h1>
+        <h1 style="margin:0; font-size: 22px;">മദ്രസ കൺട്രോൾ പാനൽ (Super Admin)</h1>
     </div>
 
-    <input type="text" id="search" class="search-box" placeholder="പേര് അല്ലെങ്കിൽ Reg No. നൽകുക..." onkeyup="filterData()">
+    <input type="text" id="search" class="search-box" placeholder="മദ്രസയുടെ പേര് അല്ലെങ്കിൽ Reg No. നൽകുക..." onkeyup="filterData()">
 
     <div id="loading">ഡാറ്റാബേസുമായി ബന്ധിപ്പിക്കുന്നു...</div>
     <div id="displayList"></div>
 
 <script>
-    // നിങ്ങളുടെ ഫയർബേസ് വിവരങ്ങൾ ഇവിടെ കൃത്യമായി നൽകുക
     const firebaseConfig = {
         apiKey: "AIzaSyAxvBeno8O_5cqj6O-G2xnaNlWgSkUyJ2E",
         authDomain: "asnavi.firebaseapp.com",
@@ -47,7 +60,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // ഡാറ്റ ലോഡ് ചെയ്യുന്ന ഫംഗ്ഷൻ
     function loadMadrasas() {
         db.ref('madrasa_requests').on('value', (snap) => {
             document.getElementById('loading').style.display = 'none';
@@ -55,29 +67,68 @@
             listArea.innerHTML = "";
 
             if (!snap.exists()) {
-                listArea.innerHTML = "<p style='text-align:center;'>അപേക്ഷകളൊന്നും കണ്ടെത്തിയില്ല. ഡാറ്റാബേസ് പരിശോധിക്കുക.</p>";
+                listArea.innerHTML = "<p style='text-align:center;'>ഡാറ്റയൊന്നും കണ്ടെത്തിയില്ല.</p>";
                 return;
             }
 
             snap.forEach((child) => {
                 const m = child.val();
+                const mid = child.key;
+                const statusColor = m.status === 'approved' ? '#2e7d32' : (m.status === 'blocked' ? '#d32f2f' : '#f57c00');
+                
                 const card = document.createElement('div');
                 card.className = `card ${m.status}`;
                 card.innerHTML = `
-                    <h3>${m.name}</h3>
-                    <p><b>Reg No:</b> ${m.reg} | <b>Place:</b> ${m.place}</p>
-                    <p class="status-label">നിലവിലെ അവസ്ഥ: <span style="color:${m.status === 'approved' ? 'green' : 'red'}">${m.status}</span></p>
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <h3>${m.name} <span class="status-tag" style="background:${statusColor}">${m.status}</span></h3>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div><b>Reg No:</b> ${m.reg}</div>
+                        <div><b>Place:</b> ${m.place}</div>
+                        <div><b>User ID:</b> ${mid}</div>
+                    </div>
+
+                    <div class="pass-section">
+                        <div class="pass-input-group">
+                            <label>Usthad Pass:</label>
+                            <input type="text" id="upass_${mid}" value="${m.usthadPass || ''}">
+                        </div>
+                        <div class="pass-input-group">
+                            <label>Parent Pass:</label>
+                            <input type="text" id="ppass_${mid}" value="${m.parentPass || ''}">
+                        </div>
+                        <button class="btn btn-upd" style="width:100%" onclick="updatePasswords('${mid}')">
+                            <i class="fa fa-save"></i> പാസ്‌വേഡുകൾ അപ്‌ഡേറ്റ് ചെയ്യുക
+                        </button>
+                    </div>
+
                     <div class="actions">
-                        <button class="btn btn-app" onclick="updateStatus('${child.key}', 'approved')">Approve / Unblock</button>
-                        <button class="btn btn-blk" onclick="updateStatus('${child.key}', 'blocked')">Block</button>
-                        <button class="btn btn-del" onclick="removeMadrasa('${child.key}')">ഡിലീറ്റ് ചെയ്യുക</button>
+                        <button class="btn btn-app" onclick="updateStatus('${mid}', 'approved')">Approve / Unblock</button>
+                        <button class="btn btn-blk" onclick="updateStatus('${mid}', 'blocked')">Block</button>
+                        <button class="btn btn-del" onclick="removeMadrasa('${mid}')">മദ്രസ ഡിലീറ്റ് ചെയ്യുക</button>
                     </div>
                 `;
                 listArea.appendChild(card);
             });
-        }, (error) => {
-            alert("ഡാറ്റ ലോഡ് ചെയ്യുന്നതിൽ പിശക്: " + error.message);
         });
+    }
+
+    // പാസ്‌വേഡുകൾ മാത്രം അപ്‌ഡേറ്റ് ചെയ്യാൻ
+    function updatePasswords(mid) {
+        const newUPass = document.getElementById(`upass_${mid}`).value;
+        const newPPass = document.getElementById(`ppass_${mid}`).value;
+
+        if (confirm("പാസ്‌വേഡുകൾ മാറ്റാൻ ഉറപ്പാണോ?")) {
+            db.ref('madrasa_requests/' + mid).update({
+                usthadPass: newUPass,
+                parentPass: newPPass
+            }).then(() => {
+                alert("പാസ്‌വേഡുകൾ വിജയകരമായി അപ്‌ഡേറ്റ് ചെയ്തു!");
+            }).catch(err => {
+                alert("പിശക്: " + err.message);
+            });
+        }
     }
 
     function updateStatus(id, newStatus) {
@@ -85,7 +136,7 @@
     }
 
     function removeMadrasa(id) {
-        if (confirm("ഈ മദ്രസയെ ഡിലീറ്റ് ചെയ്യണോ? പഴയ ഡാറ്റ പൂർണ്ണമായും നഷ്ടപ്പെടും.")) {
+        if (confirm("ശ്രദ്ധിക്കുക! ഈ മദ്രസയെ ഡിലീറ്റ് ചെയ്താൽ എല്ലാ വിവരങ്ങളും ഫോട്ടോകളും എന്നെന്നേക്കുമായി നഷ്ടപ്പെടും. തുടരണോ?")) {
             db.ref('madrasa_requests/' + id).remove();
         }
     }
@@ -98,7 +149,6 @@
         }
     }
 
-    // പേജ് തുടങ്ങുമ്പോൾ തന്നെ ഡാറ്റ കാണിക്കുക
     loadMadrasas();
 </script>
 </body>
