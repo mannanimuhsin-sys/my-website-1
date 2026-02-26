@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ml">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>എന്റെ മദ്രസ</title>
+    <title>My Madrasa Admin</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -27,9 +27,8 @@
         
         .btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         
-        /* ഉസ്താദ് പാനലിലെ ക്ലാസ് ലിസ്റ്റ് */
         .preview-list { background: #f0f0f0; padding: 10px; border-radius: 10px; margin-top: 10px; font-size: 13px; }
-        .preview-item { background: white; padding: 8px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; border-left: 4px solid var(--primary); }
+        .preview-item { background: white; padding: 8px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--primary); }
 
         .img-preview { width: 100%; height: 200px; border-radius: 15px; object-fit: cover; background: #eee; margin-bottom: 15px; border: 2px dashed #ccc; cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         #crop-area { display: none; margin-bottom: 15px; }
@@ -42,6 +41,8 @@
         
         .class-form { background: #fafafa; padding: 15px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 20px; }
         .row-flex { display: flex; gap: 10px; }
+        .action-btns { display: flex; gap: 10px; }
+        .action-btns i { cursor: pointer; padding: 5px; }
     </style>
 </head>
 <body>
@@ -50,68 +51,71 @@
         <div id="main-plus-btn" class="secret-trigger" onclick="showPage('regPage')">+</div>
 
         <div id="loginPage" class="page active">
-            <h1>എന്റെ മദ്രസ</h1>
+            <h1>എന്‍റെ മദ്റസ </h1>
             <div class="input-group">
-                <input type="text" id="logReg" placeholder="മദ്രസ രജിസ്റ്റർ നമ്പർ">
+                <input type="text" id="logReg" placeholder="Madrasa Register Number">
             </div>
             <div class="input-group">
-                <input type="password" id="logPass" placeholder="പാസ്‌വേഡ്">
+                <input type="password" id="logPass" placeholder="Password">
             </div>
-            <button class="btn" onclick="handleLogin()">പ്രവേശിക്കുക</button>
+            <button class="btn" onclick="handleLogin()">Login</button>
         </div>
 
         <div id="regPage" class="page">
-            <h2>പുതിയ രജിസ്ട്രേഷൻ</h2>
-            <input type="text" id="mName" placeholder="മദ്രസ പേര്" class="input-group">
-            <input type="text" id="mPlace" placeholder="സ്ഥലം" class="input-group">
-            <input type="text" id="mReg" placeholder="രജിസ്റ്റർ നമ്പർ" class="input-group">
-            <input type="text" id="mUser" placeholder="User ID" class="input-group">
-            <input type="password" id="mUsthadPass" placeholder="ഉസ്താദ് പാസ്‌വേഡ്" class="input-group">
-            <input type="password" id="mParentPass" placeholder="രക്ഷിതാവ് പാസ്‌വേഡ്" class="input-group">
-            <button class="btn" onclick="register()">സമർപ്പിക്കുക</button>
-            <button class="btn" style="background:#888;" onclick="showPage('loginPage')">മടങ്ങുക</button>
+            <h2>New Registration</h2>
+            <input type="text" id="mName" placeholder="Madrasa Name" class="input-group">
+            <input type="text" id="mPlace" placeholder="Place" class="input-group">
+            <input type="text" id="mReg" placeholder="Register Number" class="input-group">
+            <input type="text" id="mUser" placeholder="Desired User ID" class="input-group">
+            <input type="password" id="mUsthadPass" placeholder="Usthad Password" class="input-group">
+            <input type="password" id="mParentPass" placeholder="Parent Password" class="input-group">
+            <button class="btn" onclick="register()">Register Now</button>
+            <button class="btn" style="background:#888;" onclick="showPage('loginPage')">Back to Login</button>
         </div>
 
         <div id="usthadPage" class="page">
-            <h2>മദ്രസ അഡ്മിൻ പാനൽ</h2>
+            <h2>Admin Panel</h2>
             
             <div id="crop-area"></div>
             <button id="crop-btn" class="btn" style="display:none; background:#f39c12;" onclick="cropImage()">Crop Photo</button>
 
             <div class="img-preview" id="preview-box" onclick="document.getElementById('fileInput').click()">
                 <img id="profileImg" src="" style="display:none; width:100%; height:100%;">
-                <span id="imgPlaceholder">ഫോട്ടോ സെറ്റ് ചെയ്യാൻ ടാപ്പ് ചെയ്യുക</span>
+                <span id="imgPlaceholder">Tap to Set Madrasa Photo</span>
             </div>
             <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="initCroppie(this)">
 
             <div class="class-form">
-                <h4 style="margin:0 0 10px 0;">ക്ലാസ് ആഡ് ചെയ്യുക</h4>
+                <h4 id="formTitle" style="margin:0 0 10px 0;">Add New Class</h4>
+                <input type="hidden" id="editIndex" value="-1">
                 <div class="row-flex">
-                    <input type="text" id="clsName" placeholder="ക്ലാസ്" style="flex:2">
-                    <input type="text" id="clsDiv" placeholder="ഡിവിഷൻ" style="flex:1">
+                    <input type="text" id="clsName" placeholder="Class (e.g. 1)" style="flex:2">
+                    <input type="text" id="clsDiv" placeholder="Div" style="flex:1">
                 </div>
                 <div class="row-flex" style="margin-top:10px;">
-                    <input type="number" id="clsBoys" placeholder="Boys">
-                    <input type="number" id="clsGirls" placeholder="Girls">
+                    <input type="number" id="clsBoys" placeholder="Boys Count">
+                    <input type="number" id="clsGirls" placeholder="Girls Count">
                 </div>
-                <input type="text" id="clsUsthad" placeholder="ഉസ്താദിന്റെ പേര്" class="input-group" style="margin-top:10px;">
-                <input type="number" id="clsPhone" placeholder="ഫോൺ നമ്പർ" class="input-group">
-                <button class="btn" style="background:#2c3e50;" onclick="addClass()">ലിസ്റ്റിലേക്ക് ചേർക്കുക</button>
+                <input type="text" id="clsUsthad" placeholder="Usthad Name" class="input-group" style="margin-top:10px;">
+                <input type="number" id="clsPhone" placeholder="Contact Number" class="input-group">
+                <button id="addBtn" class="btn" style="background:#2c3e50;" onclick="addClass()">Add to List</button>
+                <button id="cancelEditBtn" class="btn" style="display:none; background:#888;" onclick="resetClassForm()">Cancel Edit</button>
             </div>
 
             <div id="adminClassList" class="preview-list">
-                <strong>ചേർത്ത ക്ലാസുകൾ:</strong>
-                <div id="previewContainer" style="margin-top:10px;">ലിസ്റ്റ് ശൂന്യമാണ്..</div>
+                <strong>Saved Classes:</strong>
+                <div id="previewContainer" style="margin-top:10px;">No classes added..</div>
             </div>
 
-            <button class="btn" onclick="saveAllData()">എല്ലാം സേവ് ചെയ്യുക</button>
+            <button class="btn" onclick="saveAllData()">Save All Changes</button>
             <button class="btn" style="background:#dc3545; margin-top:20px;" onclick="location.reload()">Logout</button>
         </div>
 
         <div id="parentPage" class="page">
             <img id="vImg" class="img-preview" src="" style="display:block; border:none; pointer-events:none;">
             <h2 id="vName" style="margin-bottom:0;"></h2>
-            <p id="vPlace" style="text-align:center; color:#666; font-size:14px; margin-top:5px;"></p>
+            <p id="vRegNo" style="text-align:center; color:var(--primary); font-weight:bold; margin:2px 0;"></p>
+            <p id="vPlace" style="text-align:center; color:#666; font-size:14px; margin-top:0;"></p>
 
             <div class="table-responsive">
                 <table>
@@ -129,12 +133,12 @@
                     <tbody id="vTableBody"></tbody>
                 </table>
             </div>
-            <button class="btn" style="background:#888; margin-top:30px;" onclick="location.reload()">തിരികെ</button>
+            <button class="btn" style="background:#888; margin-top:30px;" onclick="location.reload()">Back</button>
         </div>
     </div>
 
 <script>
-    // Firebase Config (Replace with yours)
+    // Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyAxvBeno8O_5cqj6O-G2xnaNlWgSkUyJ2E",
         authDomain: "asnavi.firebaseapp.com",
@@ -188,14 +192,33 @@
         });
     }
 
-    function register() {
-        const u = document.getElementById('mUser').value;
+    // CHECK IF REGISTER NUMBER EXISTS BEFORE SAVING
+    async function register() {
+        const regInput = document.getElementById('mReg').value;
+        const uInput = document.getElementById('mUser').value;
+
+        if(!regInput || !uInput) return alert("Please fill all fields");
+
+        const snap = await db.ref('madrasa_requests').once('value');
+        let exists = false;
+        snap.forEach(child => {
+            if(child.val().reg === regInput) exists = true;
+        });
+
+        if(exists) {
+            alert("This Register Number is already registered!");
+            return;
+        }
+
         const d = {
             name: document.getElementById('mName').value, place: document.getElementById('mPlace').value,
-            reg: document.getElementById('mReg').value, usthadPass: document.getElementById('mUsthadPass').value,
+            reg: regInput, usthadPass: document.getElementById('mUsthadPass').value,
             parentPass: document.getElementById('mParentPass').value, status: "pending", photo: "", classes: []
         };
-        db.ref('madrasa_requests/' + u).set(d).then(() => { alert("രജിസ്റ്റർ ചെയ്തു!"); location.reload(); });
+        db.ref('madrasa_requests/' + uInput).set(d).then(() => { 
+            alert("Registered Successfully! Wait for approval."); 
+            location.reload(); 
+        });
     }
 
     function handleLogin() {
@@ -222,17 +245,19 @@
                         success = true;
                         document.getElementById('vImg').src = m.photo || '';
                         document.getElementById('vName').innerText = m.name;
+                        document.getElementById('vRegNo').innerText = "Reg No: " + m.reg;
                         document.getElementById('vPlace').innerText = m.place;
                         renderParentTable(m.classes || []);
                         showPage('parentPage');
                     }
                 }
             });
-            if(!success) alert("വിവരങ്ങൾ തെറ്റാണ്!");
+            if(!success) alert("Invalid Credentials or Account Not Approved!");
         });
     }
 
     function addClass() {
+        const editIdx = parseInt(document.getElementById('editIndex').value);
         const cls = {
             name: document.getElementById('clsName').value,
             div: document.getElementById('clsDiv').value || "",
@@ -241,36 +266,72 @@
             u: document.getElementById('clsUsthad').value,
             p: document.getElementById('clsPhone').value
         };
-        if(!cls.name) return alert("ക്ലാസ് നൽകുക");
-        classes.push(cls);
+        if(!cls.name) return alert("Please enter class name");
+
+        if(editIdx === -1) {
+            classes.push(cls);
+        } else {
+            classes[editIdx] = cls;
+        }
+        
+        resetClassForm();
         updateAdminPreview();
-        // Clear inputs
+    }
+
+    function resetClassForm() {
+        document.getElementById('editIndex').value = "-1";
+        document.getElementById('formTitle').innerText = "Add New Class";
+        document.getElementById('addBtn').innerText = "Add to List";
+        document.getElementById('cancelEditBtn').style.display = "none";
+        
         document.getElementById('clsName').value = ""; document.getElementById('clsDiv').value = "";
         document.getElementById('clsBoys').value = ""; document.getElementById('clsGirls').value = "";
         document.getElementById('clsUsthad').value = ""; document.getElementById('clsPhone').value = "";
     }
 
+    function editClass(index) {
+        const item = classes[index];
+        document.getElementById('editIndex').value = index;
+        document.getElementById('formTitle').innerText = "Edit Class Info";
+        document.getElementById('addBtn').innerText = "Update Class";
+        document.getElementById('cancelEditBtn').style.display = "block";
+
+        document.getElementById('clsName').value = item.name;
+        document.getElementById('clsDiv').value = item.div;
+        document.getElementById('clsBoys').value = item.b;
+        document.getElementById('clsGirls').value = item.g;
+        document.getElementById('clsUsthad').value = item.u;
+        document.getElementById('clsPhone').value = item.p;
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     function updateAdminPreview() {
         const container = document.getElementById('previewContainer');
-        if(classes.length === 0) { container.innerHTML = "ലിസ്റ്റ് ശൂന്യമാണ്.."; return; }
+        if(classes.length === 0) { container.innerHTML = "No classes added.."; return; }
         let html = "";
         classes.forEach((item, index) => {
             html += `<div class="preview-item">
-                        <span><strong>${item.name} ${item.div ? '- '+item.div : ''}</strong> (${item.b + item.g} കുട്ടികൾ)</span>
-                        <i class="fa fa-trash" style="color:red;" onclick="removeClass(${index})"></i>
+                        <span><strong>${item.name} ${item.div ? '- '+item.div : ''}</strong> (${item.b + item.g} Students)</span>
+                        <div class="action-btns">
+                            <i class="fa fa-edit" style="color:blue;" onclick="editClass(${index})"></i>
+                            <i class="fa fa-trash" style="color:red;" onclick="removeClass(${index})"></i>
+                        </div>
                     </div>`;
         });
         container.innerHTML = html;
     }
 
     function removeClass(index) {
-        classes.splice(index, 1);
-        updateAdminPreview();
+        if(confirm("Delete this class?")) {
+            classes.splice(index, 1);
+            updateAdminPreview();
+        }
     }
 
     function saveAllData() {
         db.ref('madrasa_requests/' + currentMid).update({ photo: base64Img, classes: classes })
-        .then(() => alert("വിവരങ്ങൾ സേവ് ചെയ്തു!"));
+        .then(() => alert("Data Saved Successfully!"));
     }
 
     function renderParentTable(data) {
