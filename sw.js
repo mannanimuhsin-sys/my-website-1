@@ -1,22 +1,24 @@
-const CACHE_NAME = 'madrasa-site-v2'; // ഇവിടെ v1 മാറ്റി v2 ആക്കി
+const CACHE_NAME = 'madrasa-site-v3'; // Version upgrade
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/madrasa.jpg'
+  './',
+  './index.html',
+  './icon-192.png',
+  './icon-512.png',
+  './manifest.json'
 ];
 
-// ഇൻസ്റ്റാൾ ചെയ്യുമ്പോൾ ഫയലുകൾ സേവ് ചെയ്യുന്നു
+// Install Event
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
+      console.log('Caching assets');
+      return cache.addAll(ASSETS).catch(err => console.error('Cache addAll error:', err));
     })
   );
+  self.skipWaiting();
 });
 
-// പഴയ കാഷെ ഡിലീറ്റ് ചെയ്യുന്നു (ഇതാണ് പുതിയ അപ്ഡേഷൻ വരാൻ സഹായിക്കുന്നത്)
+// Activate Event
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -25,11 +27,14 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+  return self.clients.claim();
 });
 
-// പുതിയ ഡാറ്റ ഉണ്ടെങ്കിൽ അത് എടുക്കുന്നു
+// Fetch Event (Network First Strategy)
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    fetch(event.request).catch(() => {
+      return caches.match(event.request);
+    })
   );
 });
