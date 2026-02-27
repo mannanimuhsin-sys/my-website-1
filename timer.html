@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Timer | MUHSIN MANNANI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: #eef2f3; display: flex; flex-direction: column; min-height: 100vh; }
+        .content { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .card { background: #fff; width: 100%; max-width: 400px; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        h2 { color: #198754; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+        .btn { width: 100%; padding: 12px; background: #198754; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .btn-wa { background: #25d366; margin-top: 10px; display: none; text-decoration: none; color: white; display: inline-block; width: 100%; border-radius: 8px; padding: 12px; }
+        
+        /* Timer Grid */
+        .timer-display { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+        .t-box { background: #198754; color: white; padding: 10px 5px; border-radius: 8px; }
+        .t-box span { display: block; font-size: 20px; font-weight: bold; }
+        .t-box small { font-size: 10px; }
+
+        footer { background: #fff; text-align: center; padding: 15px; font-weight: bold; border-top: 1px solid #ddd; font-size: 14px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="content">
+    <div class="card">
+        <div id="setup">
+            <h2>Create Link Timer</h2>
+            <input type="url" id="targetUrl" placeholder="ലിങ്ക് ഇവിടെ പേസ്റ്റ് ചെയ്യുക" required>
+            <input type="datetime-local" id="targetTime" required>
+            <button class="btn" onclick="generate()">Generate & Copy Link</button>
+            <a id="waBtn" href="#" class="btn-wa hidden"><i class="fab fa-whatsapp"></i> Share on WhatsApp</a>
+        </div>
+
+        <div id="timerView" class="hidden">
+            <h3 id="msg">ലിങ്ക് തുറക്കാൻ ഇനി...</h3>
+            <div class="timer-display">
+                <div class="t-box"><span id="days">00</span><small>Days</small></div>
+                <div class="t-box"><span id="hours">00</span><small>Hours</small></div>
+                <div class="t-box"><span id="mins">00</span><small>Mins</small></div>
+                <div class="t-box"><span id="secs">00</span><small>Secs</small></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    MUHSIN MANNANI | 7559950633
+</footer>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const go = params.get('go');
+    const at = params.get('at');
+
+    if (go && at) {
+        document.getElementById('setup').classList.add('hidden');
+        document.getElementById('timerView').classList.remove('hidden');
+        runTimer(decodeURIComponent(go), new Date(at).getTime());
+    }
+
+    function generate() {
+        const url = document.getElementById('targetUrl').value;
+        const time = document.getElementById('targetTime').value;
+        if(!url || !time) return alert("Fill all details");
+
+        const finalUrl = window.location.origin + window.location.pathname + "?go=" + encodeURIComponent(url) + "&at=" + time;
+        
+        navigator.clipboard.writeText(finalUrl);
+        alert("ലിങ്ക് കോപ്പി ചെയ്തു!");
+
+        const waBtn = document.getElementById('waBtn');
+        waBtn.href = "https://api.whatsapp.com/send?text=" + encodeURIComponent("ഈ ലിങ്ക് കൃത്യസമയത്ത് മാത്രമേ തുറക്കൂ: " + finalUrl);
+        waBtn.classList.remove('hidden');
+    }
+
+    function runTimer(target, end) {
+        const x = setInterval(() => {
+            const diff = end - new Date().getTime();
+            if (diff <= 0) {
+                clearInterval(x);
+                window.location.replace(target);
+                return;
+            }
+            document.getElementById('days').innerText = Math.floor(diff / 86400000).toString().padStart(2,'0');
+            document.getElementById('hours').innerText = Math.floor((diff % 86400000) / 3600000).toString().padStart(2,'0');
+            document.getElementById('mins').innerText = Math.floor((diff % 3600000) / 60000).toString().padStart(2,'0');
+            document.getElementById('secs').innerText = Math.floor((diff % 60000) / 1000).toString().padStart(2,'0');
+        }, 1000);
+    }
+</script>
+</body>
+</html>
