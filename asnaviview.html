@@ -9,45 +9,105 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary-green: #004d00; --gold: #ffd700; }
-        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .search-box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        :root { --primary-green: #004d00; --gold: #ffd700; --pass-green: #28a745; }
+        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        
+        /* Waiting / Countdown Section */
+        .timer-container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
+        .timer-display { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
+        .time-box { background: var(--primary-green); color: white; padding: 10px; border-radius: 10px; min-width: 70px; }
+        .time-num { font-size: 24px; font-weight: 800; display: block; }
+        .time-label { font-size: 10px; text-transform: uppercase; }
+
+        /* Search Section (Hidden initially) */
+        .search-box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; display: none; }
         input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 12px; font-size: 18px; text-align: center; margin-bottom: 15px; box-sizing: border-box; }
         .btn-view { width: 100%; padding: 15px; background: var(--primary-green); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 18px; }
+        
+        /* Countdown Overlay (After clicking view result) */
         #countdownOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; justify-content: center; align-items: center; font-size: 100px; font-weight: 800; color: var(--primary-green); }
+        
+        /* Poster Design */
         #poster { width: 100%; max-width: 400px; background: linear-gradient(145deg, #004d00, #002200); color: white; border-radius: 25px; padding: 30px 20px; text-align: center; border: 6px solid var(--gold); display: none; box-sizing: border-box; }
         .p-header { font-size: 22px; font-weight: 800; color: var(--gold); }
         .p-contact { font-size: 11px; background: rgba(255,255,255,0.1); padding: 5px; border-radius: 8px; margin: 10px 0; }
         .p-photo { width: 180px; height: 180px; margin: 15px auto; border: 5px solid white; border-radius: 15px; overflow: hidden; background: #333; }
         .p-photo img { width: 100%; height: 100%; object-fit: cover; }
-        .p-name { font-size: 22px; font-weight: 800; text-transform: uppercase; }
-        .p-rank { background: var(--gold); color: #000; padding: 12px 30px; border-radius: 50px; font-weight: 900; font-size: 24px; display: inline-block; margin-top: 10px; }
-        #dlBtn { width: 100%; max-width: 400px; margin-top: 20px; padding: 16px; background: #28a745; color: white; border: none; border-radius: 12px; font-weight: bold; display: none; }
+        .p-name { font-size: 22px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
+        
+        .status-container { margin-top: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .p-status { background: var(--pass-green); color: white; padding: 8px 35px; border-radius: 50px; font-weight: 800; font-size: 22px; display: inline-block; border: 2px solid white; }
+        .p-rank { background: var(--gold); color: #000; padding: 6px 25px; border-radius: 50px; font-weight: 900; font-size: 18px; display: inline-block; border: 2px solid #000; }
+        
+        #dlBtn { width: 100%; max-width: 400px; margin-top: 20px; padding: 16px; background: #28a745; color: white; border: none; border-radius: 12px; font-weight: bold; display: none; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="countdownOverlay"></div>
+    <div id="waitArea" class="timer-container">
+        <h2 style="color: var(--primary-green); margin:0;">AL ASNAVIYYA COLLEGE</h2>
+        <p style="font-size: 14px; color: #666;">Result Publishing In:</p>
+        <div class="timer-display">
+            <div class="time-box"><span id="days" class="time-num">00</span><span class="time-label">Days</span></div>
+            <div class="time-box"><span id="hours" class="time-num">00</span><span class="time-label">Hrs</span></div>
+            <div class="time-box"><span id="mins" class="time-num">00</span><span class="time-label">Mins</span></div>
+            <div class="time-box"><span id="secs" class="time-num">00</span><span class="time-label">Secs</span></div>
+        </div>
+        <p style="margin-top: 20px; font-weight: bold; color: var(--primary-green);">Feb 28, 2026 - 10:00 AM</p>
+    </div>
 
     <div class="search-box" id="searchArea">
         <h2 style="color: var(--primary-green);">AL ASNAVIYYA COLLEGE</h2>
+        <p>Result Published</p>
         <input type="number" id="sid" placeholder="Enter Register No.">
         <button class="btn-view" onclick="fetchResult()">VIEW RESULT</button>
     </div>
 
+    <div id="countdownOverlay"></div>
     <div id="poster">
         <div class="p-header">AL ASNAVIYYA COLLEGE</div>
         <div class="p-contact">Contact: MUHAMMED SHIBILI AL ASNAVI | Ph: 8590728228</div>
         <div class="p-photo"><img id="viewImg" crossorigin="anonymous"></div>
         <div class="p-name" id="viewName">---</div>
         <div id="viewPlace" style="color:var(--gold)">---</div>
-        <div id="rankBox" style="display:none; margin-top:15px;"><div class="p-rank" id="viewRank"></div></div>
+        <div class="status-container">
+            <div class="p-status">PASSED</div>
+            <div id="rankWrapper" style="display:none;"><div class="p-rank" id="viewRank"></div></div>
+        </div>
         <div id="viewCert" style="font-size:10px; opacity:0.7; margin-top:15px;">---</div>
     </div>
-
     <button id="dlBtn" onclick="download()">DOWNLOAD POSTER</button>
 
 <script>
+    // TARGET TIME: Feb 28, 2026, 10:00:00 AM
+    const targetDate = new Date("February 28, 2026 10:00:00").getTime();
+
+    // LIVE COUNTDOWN FUNCTION
+    const countdownInterval = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        // Calculations
+        const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Update UI
+        document.getElementById("days").innerText = d < 10 ? "0"+d : d;
+        document.getElementById("hours").innerText = h < 10 ? "0"+h : h;
+        document.getElementById("mins").innerText = m < 10 ? "0"+m : m;
+        document.getElementById("secs").innerText = s < 10 ? "0"+s : s;
+
+        // If countdown finished
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            document.getElementById("waitArea").style.display = "none";
+            document.getElementById("searchArea").style.display = "block";
+        }
+    }, 1000);
+
+    // Firebase Setup
     const firebaseConfig = {
         apiKey: "AIzaSyAxvBeno8O_5cqj6O-G2xnaNlWgSkUyJ2E",
         authDomain: "asnavi.firebaseapp.com",
@@ -60,18 +120,26 @@
     const db = firebase.database();
 
     function fetchResult() {
+        const now = new Date().getTime();
+        if (now < targetDate) {
+            alert("Results will be available only after 10:00 AM on Feb 28!");
+            return;
+        }
+
         const id = document.getElementById('sid').value;
+        if(!id) return alert("Please enter register number");
+
         db.ref('students/' + id).once('value').then(snap => {
             const data = snap.val();
             if(!data || !data.photo) {
-                alert("Result not uploaded yet for this number.");
+                alert("Result not found!");
                 return;
             }
-            startCountdown(data);
+            startAnimation(data);
         });
     }
 
-    function startCountdown(data) {
+    function startAnimation(data) {
         const overlay = document.getElementById('countdownOverlay');
         overlay.style.display = 'flex';
         let count = 3;
@@ -91,16 +159,14 @@
         document.getElementById('viewName').innerText = data.name;
         document.getElementById('viewPlace').innerText = data.place;
         document.getElementById('viewCert').innerText = "Certificate No: " + (data.cert || "");
-        
-        // Proxy to avoid CORS issues if needed, but ImgBB usually works fine
-        const img = document.getElementById('viewImg');
-        img.src = data.photo;
+        document.getElementById('viewImg').src = data.photo;
 
+        const rankWrapper = document.getElementById('rankWrapper');
         if(data.rank && data.rank.trim() !== "") {
             document.getElementById('viewRank').innerText = "RANK: " + data.rank;
-            document.getElementById('rankBox').style.display = 'block';
+            rankWrapper.style.display = 'block';
         } else {
-            document.getElementById('rankBox').style.display = 'none';
+            rankWrapper.style.display = 'none';
         }
 
         document.getElementById('searchArea').style.display = 'none';
@@ -110,14 +176,9 @@
 
     function download() {
         const poster = document.getElementById('poster');
-        html2canvas(poster, { 
-            scale: 3, 
-            useCORS: true,
-            allowTaint: false,
-            logging: true
-        }).then(canvas => {
+        html2canvas(poster, { scale: 3, useCORS: true }).then(canvas => {
             let a = document.createElement('a');
-            a.download = 'ASNAVI_Result.png';
+            a.download = 'Result_ASNAVI.png';
             a.href = canvas.toDataURL('image/png');
             a.click();
         });
