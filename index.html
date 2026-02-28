@@ -92,6 +92,35 @@
     transition: 0.3s; z-index: 5;
 }
 .add-btn:hover { background: #ffd700; color: #000; transform: rotate(90deg); }
+.admin-box { 
+            background: #e9ecef; padding: 20px; border-radius: 15px; 
+            margin-bottom: 20px; text-align: center; border: 1px dashed #6c757d;
+        }
+        .admin-content { display: none; margin-top: 15px; }
+        .admin-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
+        .admin-item { 
+            background: #28a745; color: white; padding: 15px; 
+            border-radius: 10px; cursor: pointer; font-weight: bold; text-decoration: none;
+        }
+        .admin-item:hover { background: #218838; color: white; }
+        .admin-grid { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    margin-top: 15px; 
+}
+
+.admin-item { 
+    padding: 18px; 
+    border-radius: 12px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    text-decoration: none; 
+    display: block;
+    font-size: 16px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.admin-item:hover { color: white; opacity: 0.9; transform: translateY(-2px); transition: 0.2s; }
     </style>
 </head>
 <body>
@@ -193,7 +222,27 @@
         <div class="col-sm-4"><div class="contact-card" style="border-left-color: #f1c40f;"><small>മദ്രസ ഇൻ ചാർജ്</small><h4>ജംഷീർ ദാരിമി</h4><div class="contact-btn-group"><a href="tel:9746969716" class="contact-btn btn-call"><i class="fas fa-phone"></i></a><a href="https://wa.me/919746969716" class="contact-btn btn-wa"><i class="fab fa-whatsapp"></i></a></div></div></div>
     </div>
 </div>
+<div class="admin-box">
+        <h4><i class="fas fa-user-shield"></i> ADMIN PANEL</h4>
+        
+        <div id="passArea">
+            <input type="password" id="adminPass" class="form-control" placeholder="Password" style="width: 200px; display: inline-block; margin-bottom: 10px;">
+            <br>
+            <button class="btn btn-dark" onclick="checkAdminPass()">Open</button>
+        </div>
 
+      <div id="adminMenu" class="admin-content">
+    <div class="admin-grid">
+        <a href="https://mannanimuhsin-sys.github.io/my-website-1/idcardadmn.html" class="admin-item bg-success">
+            <i class="fas fa-id-card"></i> ID CARD
+        </a>
+
+        <a href="https://mannanimuhsin-sys.github.io/my-website-1/gyalaryadmn.html" class="admin-item bg-primary" style="background-color: #007bff !important; border-color: #007bff;">
+            <i class="fas fa-images"></i> GALLERY
+        </a>
+    </div>
+    <button class="btn btn-sm btn-danger" style="margin-top: 15px;" onclick="location.reload()">Logout</button>
+</div>
 <footer>© 2026 | Designed by Muhsin Mannani</footer>
 
 <script>
@@ -236,7 +285,15 @@
     function showResultNotice() {
         alert("നിലവിൽ പരീക്ഷാ ഫലം പ്രസിദ്ധീകരിച്ചിട്ടില്ല. ദയവായി പിന്നീട് പരിശോധിക്കുക.");
     }
-
+function checkAdminPass() {
+        const pass = document.getElementById('adminPass').value;
+        if (pass === "0633") {
+            document.getElementById('passArea').style.display = "none";
+            document.getElementById('adminMenu').style.display = "block";
+        } else {
+            alert("തെറ്റായ പാസ്‌വേഡ്! വീണ്ടും ശ്രമിക്കുക.");
+        }
+    }
     function fetchDonors(group) {
         const display = document.getElementById('donorDisplay');
         const list = document.getElementById('donorList');
