@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Strength & Usthad Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f7f6; padding: 15px; margin: 0; }
+        .container { max-width: 1100px; margin: 20px auto; background: #fff; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 25px; border-top: 5px solid #2c3e50; }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; font-size: 26px; font-weight: 800; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; letter-spacing: 1px; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th, td { border: 1px solid #eee; padding: 15px 10px; text-align: center; }
+        th { background: #2c3e50; color: #fff; font-size: 13px; text-transform: uppercase; }
+        .boys { color: #0b5ed7; font-weight: bold; }
+        .girls { color: #d63384; font-weight: bold; }
+        .total-cell { color: #198754; font-weight: bold; background: #f9f9f9; }
+        .usthad-name { text-align: left; font-weight: 600; color: #333; padding-left: 15px; }
+        .contact-btns { display: flex; justify-content: center; gap: 15px; }
+        .contact-btns a { font-size: 20px; transition: 0.3s; }
+        .contact-btns a:hover { transform: translateY(-3px); }
+        .call { color: #0d6efd; }
+        .whatsapp { color: #25D366; }
+        tfoot tr { background: #2c3e50; color: white; font-weight: bold; }
+        tfoot td { border: none; padding: 15px; }
+        @media(max-width: 768px) { h1 { font-size: 20px; } .container { padding: 15px; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>വിദ്യാർത്ഥി വിവര പട്ടിക</h1>
+    <div class="subtitle">MISBAHUL ULOOM MADRASA PERUVANA</div>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th rowspan="2">CLASS</th>
+                    <th colspan="3">വിദ്യാർത്ഥികളുടെ എണ്ണം</th>
+                    <th rowspan="2">CLASS USTHAD</th>
+                    <th rowspan="2">CONTACT</th>
+                </tr>
+                <tr>
+                    <th>BOYS</th>
+                    <th>GIRLS</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tbody id="viewTableBody">
+                </tbody>
+            <tfoot id="viewTableFoot">
+                </tfoot>
+        </table>
+    </div>
+</div>
+
+<script>
+    // അഡ്മിൻ പേജിൽ സേവ് ചെയ്ത ഡാറ്റ ലോഡ് ചെയ്യുന്നു
+    function loadMadrasaData() {
+        // ഡീഫോൾട്ട് ഡാറ്റ (ആദ്യ തവണ പേജ് തുറക്കുമ്പോൾ കാണാൻ)
+        let defaultData = [
+            { class: "I", boys: 3, girls: 3, usthad: "SAITHALAVI FAIZY IRFANI", phone: "9447483109" },
+            { class: "II", boys: 8, girls: 6, usthad: "ABDU RAHMAN BADRI", phone: "7695020736" },
+            { class: "III", boys: 12, girls: 8, usthad: "ABDUL JALEEL FAIZY IRFANI", phone: "9961292787" },
+            { class: "IV", boys: 6, girls: 7, usthad: "MUHSIN MANNANI", phone: "7559950633" },
+            { class: "V", boys: 7, girls: 9, usthad: "ABDUL JALEEL FAIZY IRFANI", phone: "9961292787" },
+            { class: "VI", boys: 1, girls: 2, usthad: "ABDU RAHMAN BADRI", phone: "7695020736" },
+            { class: "VII", boys: 6, girls: 5, usthad: "MUHSIN MANNANI", phone: "7559950633" },
+            { class: "VIII", boys: 7, girls: 7, usthad: "SAITHALAVI FAIZY IRFANI", phone: "9447483109" },
+            { class: "IX", boys: 1, girls: 4, usthad: "ABDUL JALEEL FAIZY IRFANI", phone: "9961292787" },
+            { class: "X", boys: 2, girls: 2, usthad: "MUHSIN MANNANI", phone: "7559950633" }
+        ];
+
+        let storedData = localStorage.getItem('madrasaData');
+        let data = storedData ? JSON.parse(storedData) : defaultData;
+
+        let rows = "";
+        let tb = 0, tg = 0, tt = 0;
+
+        data.forEach(item => {
+            let b = parseInt(item.boys) || 0;
+            let g = parseInt(item.girls) || 0;
+            let rowTotal = b + g;
+            
+            tb += b; tg += g; tt += rowTotal;
+
+            rows += `
+            <tr>
+                <td><b>${item.class}</b></td>
+                <td class="boys">${b}</td>
+                <td class="girls">${g}</td>
+                <td class="total-cell">${rowTotal}</td>
+                <td class="usthad-name">${item.usthad}</td>
+                <td>
+                    <div class="contact-btns">
+                        <a href="tel:${item.phone}" class="call"><i class="fa fa-phone-alt"></i></a>
+                        <a href="https://wa.me/91${item.phone}" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </td>
+            </tr>`;
+        });
+
+        document.getElementById('viewTableBody').innerHTML = rows;
+        document.getElementById('viewTableFoot').innerHTML = `
+            <tr>
+                <td>ആകെ</td>
+                <td>${tb}</td>
+                <td>${tg}</td>
+                <td>${tt}</td>
+                <td colspan="2">TOTAL STRENGTH</td>
+            </tr>`;
+    }
+
+    // പേജ് തുറക്കുമ്പോൾ ഡാറ്റ ലോഡ് ചെയ്യുക
+    window.onload = loadMadrasaData;
+</script>
+
+</body>
+</html>
