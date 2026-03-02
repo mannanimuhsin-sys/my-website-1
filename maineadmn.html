@@ -383,16 +383,29 @@ function deleteSubject(cls, index) {
                     <option value="Promoted" ${oldRes.status === 'Promoted' ? 'selected' : ''}>Promoted</option>
                 </select>
             </td>
-            <td>
-                <input type="text" class="m-input r-rank" value="${oldRes.rank || ""}" oninput="autoSave()" placeholder="Rank" style="width:60px; text-align:center; border:1px solid #ccc; background:white;">
-            </td>
+           <td>
+    <input type="text" class="m-input r-rank" value="${oldRes.rank || ""}" onchange="manualRankEdit(this)" placeholder="Rank" style="width:60px; text-align:center; border:1px solid #ccc; background:white;">
+</td>
         </tr>`;
     }
     document.getElementById('tBody').innerHTML = b;
     document.getElementById('tableWrapper').classList.remove('hidden');
 
-    // ടേബിൾ ലോഡ് ചെയ്ത ഉടൻ തന്നെ റാങ്ക് കാൽക്കുലേറ്റ് ചെയ്യാൻ ഇത് സഹായിക്കും
-    calculateAutoRanks(); 
+}
+function manualRankEdit(input) {
+    const row = input.closest('tr');
+    const reg = row.getAttribute('data-reg');
+    const cls = document.getElementById('markClass').value;
+    
+    if (!mData.results[cls]) mData.results[cls] = {};
+    if (!mData.results[cls][reg]) mData.results[cls][reg] = {};
+    
+    // ടൈപ്പ് ചെയ്ത റാങ്ക് ഡാറ്റയിലേക്ക് മാറ്റുന്നു
+    mData.results[cls][reg].rank = input.value;
+    
+    // ലോക്കൽ ഡാറ്റ അപ്ഡേറ്റ് ചെയ്യുന്നു
+    autoSave();
+    console.log("Rank manually updated for Reg:", reg);
 }
   function calcStatus(input) {
     const row = input.closest('tr');
