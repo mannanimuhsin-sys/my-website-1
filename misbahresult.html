@@ -334,7 +334,8 @@
                 <option value="Failed" ${res.status=='Failed'?'selected':''}>Failed</option>
                 <option value="Promotion" ${res.status=='Promotion'?'selected':''}>Promotion</option>
             </select></td>
-            <td><input type="text" class="m-input r-rank" value="${res.rank || ''}" readonly></td></tr>`;
+           <td><input type="text" class="m-input r-rank" value="${res.rank || ''}" onchange="manualRankEdit(this)"></td>
+            </tr>`;
         });
         document.getElementById('mainTableWrapper').innerHTML = h + `</tbody></table>`;
         
@@ -375,10 +376,9 @@
             }
         });
 
-        // റാങ്ക് കണക്കാക്കുന്നു
-        rows.forEach(r => r.querySelector('.r-rank').value = "");
+       // റാങ്ക് കണക്കാക്കുന്നു
+        // rows.forEach(r => r.querySelector('.r-rank').value = ""); // ഇത് ഒഴിവാക്കുക അല്ലെങ്കിൽ കമന്റ് ചെയ്യുക
 
-        // 'Passed' ആയവർക്ക് മാത്രം റാങ്ക് നൽകുന്നു (Promotion/Failed ഉള്ളവർക്ക് റാങ്ക് നൽകില്ല)
         let passedRows = rows.filter(r => r.querySelector('.r-sts').value === "Passed")
                              .sort((a, b) => {
                                  return parseInt(b.querySelector('.r-tot').innerText) - parseInt(a.querySelector('.r-tot').innerText);
@@ -386,12 +386,29 @@
 
         passedRows.forEach((row, index) => {
             let total = parseInt(row.querySelector('.r-tot').innerText);
-            if (total > 0) {
-                row.querySelector('.r-rank').value = index + 1;
+            let rankInput = row.querySelector('.r-rank');
+            
+            // ബോക്സിൽ നേരത്തെ റാങ്ക് ഇല്ലെങ്കിൽ മാത്രം ഓട്ടോമാറ്റിക് റാങ്ക് നൽകുന്നു
+            if (total > 0 && (rankInput.value === "" || rankInput.getAttribute('data-auto') === 'true')) {
+                rankInput.value = index + 1;
+                rankInput.setAttribute('data-auto', 'true'); // ഇത് സിസ്റ്റം നൽകിയ റാങ്കാണെന്ന് അടയാളപ്പെടുത്തുന്നു
             }
         });
     }
+function manualRankEdit(input) {
+    const row = input.closest('tr');
+    const r = row.getAttribute('data-reg');
+    const c = document.getElementById('selMarkClass').value;
 
+    if (!mData.results[c]) mData.results[c] = {};
+    if (!mData.results[c][r]) mData.results[c][r] = { marks: {}, att: '', total: 0, status: 'Passed', rank: '' };
+
+    // നിങ്ങൾ ടൈപ്പ് ചെയ്ത റാങ്ക് mData-യിലേക്ക് മാറ്റുന്നു
+    mData.results[c][r].rank = input.value;
+    
+    // മാറ്റങ്ങൾ ഉറപ്പിക്കാൻ autoSave വിളിക്കുന്നു
+    saveAllData(); 
+}
     async function saveAllData() {
         const c = document.getElementById('selMarkClass').value;
         if(c) {
