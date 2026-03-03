@@ -211,44 +211,66 @@
         navigator.clipboard.writeText(copyText.value); alert("Link Copied!");
     }
 
-    function addStudent() {
-        const cls = document.getElementById('stClass').value;
-        const reg = document.getElementById('stRegNo').value;
-        const name = document.getElementById('stName').value;
-        if(!cls || !reg || !name) return alert("എല്ലാം പൂരിപ്പിക്കുക");
-        if(!mData.students) mData.students = {};
-        if(!mData.students[cls]) mData.students[cls] = {};
-        mData.students[cls][reg] = name;
+   async function addStudent() {
+    const cls = document.getElementById('stClass').value;
+    const reg = document.getElementById('stRegNo').value;
+    const name = document.getElementById('stName').value;
+    if(!cls || !reg || !name) return alert("എല്ലാം പൂരിപ്പിക്കുക");
+    
+    if(!mData.students) mData.students = {};
+    if(!mData.students[cls]) mData.students[cls] = {};
+    
+    mData.students[cls][reg] = name;
+    
+    // ഡാറ്റ നഷ്ടപ്പെടാതിരിക്കാൻ ഉടൻ തന്നെ ക്ലൗഡിലേക്ക് സേവ് ചെയ്യുന്നു
+    try {
+        await db.collection("madrasa_data").doc(mData.info.phone).set(mData);
         document.getElementById('stRegNo').value = "";
         document.getElementById('stName').value = "";
         refreshStudentDisplay();
+    } catch (e) {
+        alert("ഡാറ്റ സേവ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു!");
+    }
+}
+
+  function refreshStudentDisplay() {
+    const area = document.getElementById('studentListArea'); 
+    if (!area) return;
+    area.innerHTML = "";
+    
+    if (!mData.students || Object.keys(mData.students).length === 0) {
+        area.innerHTML = "<p style='text-align:center; color:#888;'>വിദ്യാർത്ഥികളെ ചേർത്തിട്ടില്ല.</p>";
+        return;
     }
 
-   function refreshStudentDisplay() {
-    const area = document.getElementById('studentListArea'); 
-    area.innerHTML = "";
     for(let cls in mData.students) {
-        let html = `<div class="class-box"><strong>${cls}</strong>
+        let html = `<div class="class-box" style="margin-bottom:20px;">
+            <strong style="font-size:18px; color:var(--primary);">${cls}</strong>
             <table class="st-list-table">
                 <thead><tr><th>Reg No</th><th>Name</th><th>Action</th></tr></thead>
                 <tbody>`;
         
+        let hasStudents = false;
         for(let reg in mData.students[cls]) { 
+            hasStudents = true;
             html += `<tr>
-                <td><input type="number" value="${reg}" onchange="editStudentReg('${cls}', '${reg}', this.value)" style="width:70px; border:1px solid #ddd; padding:4px;"></td>
-                <td><input type="text" value="${mData.students[cls][reg]}" onchange="editStudentName('${cls}', '${reg}', this.value)" style="width:90%; border:1px solid #ddd; padding:4px;"></td>
+                <td><input type="number" value="${reg}" onchange="editStudentReg('${cls}', '${reg}', this.value)" style="width:70px;"></td>
+                <td><input type="text" value="${mData.students[cls][reg]}" onchange="editStudentName('${cls}', '${reg}', this.value)" style="width:90%;"></td>
                 <td><i class="fa fa-trash" style="color:#c0392b; cursor:pointer;" onclick="deleteStudent('${cls}', '${reg}')"></i></td>
             </tr>`; 
         }
-        area.innerHTML += html + `</tbody></table></div>`;
+        
+        if(hasStudents) {
+            area.innerHTML += html + `</tbody></table></div>`;
+        }
     }
 }
-
-    function deleteStudent(cls, reg) { if(confirm("Delete Student?")) { delete mData.students[cls][reg]; refreshStudentDisplay(); } }
-    // പേര് മാറ്റം വരുത്താൻ
-function editStudentName(cls, reg, newName) {
-    if(newName.trim() === "") return alert("പേര് ഒഴിച്ചിടരുത്!");
-    mData.students[cls][reg] = newName.trim();
+   async function deleteStudent(cls, reg) { 
+    if(confirm("ഈ വിദ്യാർത്ഥിയെ നീക്കം ചെയ്യട്ടെ?")) { 
+        delete mData.students[cls][reg]; 
+        await syncWithCloud(); // ക്ലൗഡിൽ നിന്ന് നീക്കം ചെയ്യുന്നു
+        refreshStudentDisplay(); 
+    } 
 }
 
 // രജിസ്റ്റർ നമ്പർ മാറ്റം വരുത്താൻ
