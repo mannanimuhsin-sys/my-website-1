@@ -83,6 +83,23 @@
     50% { transform: scale(1.2); opacity: 1; }
     100% { transform: scale(1); opacity: 0; }
 }
+/* ഷെയർ ചെയ്യുമ്പോൾ കാണേണ്ട മനോഹരമായ ബോക്സ് */
+.share-container {
+    padding: 20px;
+    background: linear-gradient(135deg, #004d00 0%, #002200 100%);
+    border: 5px solid #ffd700;
+    border-radius: 15px;
+    color: white;
+    text-align: center;
+    margin-bottom: -20px; /* റിസൾട്ട് കാർഡുമായി ചേർന്നു നിൽക്കാൻ */
+}
+.share-madrasa-name {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0;
+    color: #ffd700;
+    text-transform: uppercase;
+}
     </style>
 </head>
 <body>
@@ -110,11 +127,17 @@
         </div>
     </div>
 
-    <div id="resultArea" class="result-card">
-        <div class="res-header">
-            <small style="color:#aaa; letter-spacing:1px; font-weight:bold;">STUDENT RESULT SHEET</small>
-            <h2 id="stName">---</h2>
-        </div>
+   <div id="resultArea" class="result-card">
+    <div id="shareHeader" style="display:none;" class="share-container">
+        <h1 class="share-madrasa-name" id="shareMadName">MADRASA NAME</h1>
+        <p style="margin:5px 0; font-size:12px; opacity:0.8;">ANNUAL EXAMINATION RESULT 2025-26</p>
+    </div>
+    
+    <div class="res-header">
+        <small style="color:#aaa; letter-spacing:1px; font-weight:bold;">STUDENT RESULT SHEET</small>
+        <h2 id="stName">---</h2>
+    </div>
+    </div>
         <div class="info-grid">
             <div class="info-item"><span>Register No</span><b id="stReg">---</b></div>
             <div class="info-item"><span>Class</span><b id="stClass">---</b></div>
@@ -441,6 +464,47 @@ document.getElementById('whatsappShareBtn').addEventListener('click', function()
                 // ഷെയറിംഗ് സപ്പോർട്ട് ചെയ്യാത്ത ബ്രൗസറുകൾക്കായി ലിങ്ക് മാത്രം
                 const text = encodeURIComponent(`Result of ${document.getElementById('stName').innerText} is out!`);
                 window.open(`https://wa.me/?text=${text}`, '_blank');
+            }
+        });
+    });
+});
+document.getElementById('whatsappShareBtn').addEventListener('click', function() {
+    const resultCard = document.getElementById('resultArea');
+    const shareHeader = document.getElementById('shareHeader');
+    const madName = document.getElementById('madHeader').innerText;
+    
+    // ഷെയർ ഹെഡറിൽ മദ്രസ പേര് നൽകുന്നു
+    document.getElementById('shareMadName').innerText = madName;
+    
+    // ബട്ടണുകൾ മറക്കുന്നു, ഷെയർ ഹെഡർ കാണിക്കുന്നു
+    const printBtn = document.querySelector('.btn-print');
+    const posterBtn = document.getElementById('posterAction');
+    const shareBtn = this;
+
+    shareHeader.style.display = 'block'; // മദ്രസ പേര് കാണിക്കുന്നു
+    printBtn.style.display = 'none';
+    shareBtn.style.display = 'none';
+    if(posterBtn) posterBtn.style.display = 'none';
+
+    html2canvas(resultCard, { scale: 3, useCORS: true }).then(canvas => {
+        // എല്ലാം പഴയപടിയാക്കുന്നു
+        shareHeader.style.display = 'none';
+        printBtn.style.display = 'block';
+        shareBtn.style.display = 'block';
+        if(posterBtn) posterBtn.style.display = 'block';
+
+        canvas.toBlob(function(blob) {
+            const file = new File([blob], "Madrasa_Result.png", { type: "image/png" });
+            const shareData = {
+                title: 'Exam Result',
+                text: `${madName} - Exam Result 2026`,
+                files: [file]
+            };
+
+            if (navigator.canShare && navigator.canShare(shareData)) {
+                navigator.share(shareData);
+            } else {
+                alert("നിങ്ങളുടെ ബ്രൗസർ നേരിട്ടുള്ള ഷെയറിംഗ് സപ്പോർട്ട് ചെയ്യുന്നില്ല. ചിത്രം ഡൗൺലോഡ് ചെയ്ത് അയക്കുക.");
             }
         });
     });
