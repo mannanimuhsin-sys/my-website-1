@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madrasa Result Poster Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #004d00;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align: center; color: #004d00;">Poster Generator</h2>
+    <input type="text" id="madrasaName" placeholder="മദ്രസയുടെ പേര് നൽകുക (English)">
+    <input type="text" id="placeName" placeholder="സ്ഥലം നൽകുക (English)">
+    <button onclick="generatePoster()">Generate & Download</button>
+</div>
+
+<canvas id="posterCanvas" width="1000" height="1000" style="display:none;"></canvas>
+
+<script>
+    function generatePoster() {
+        const canvas = document.getElementById('posterCanvas');
+        const ctx = canvas.getContext('2d');
+        const mName = document.getElementById('madrasaName').value.toUpperCase();
+        const pName = document.getElementById('placeName').value.toUpperCase();
+
+        if (!mName || !pName) {
+            alert("ദയവായി പേരും സ്ഥലവും നൽകുക");
+            return;
+        }
+
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        // നിങ്ങളുടെ പോസ്റ്റർ ഇമേജ് ലിങ്ക് ഇവിടെ നൽകുക
+        img.src = "https://i.ibb.co/pJGmD7X/1000220460.png"; 
+
+        img.onload = function() {
+            // ബാക്ക്ഗ്രൗണ്ട് ഇമേജ് വരയ്ക്കുന്നു
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // "Available on MUM PERUVANA App" ഭാഗം മറയ്ക്കാൻ (പച്ച നിറം)
+            ctx.fillStyle = "#1b4332"; 
+            ctx.fillRect(300, 130, 400, 30);
+
+            // ഫോണ്ട് സെറ്റിംഗ്സ്
+            ctx.textAlign = "center";
+            ctx.fillStyle = "white";
+
+            // 1. ഏറ്റവും മുകളിലെ പേര് (Main Heading)
+            ctx.font = "bold 28px Arial";
+            ctx.fillText(mName + " - " + pName, 500, 55);
+
+            // 2. മൊബൈലിനുള്ളിലെ പേര്
+            ctx.fillStyle = "#004d00"; // ഇമേജിലെ ടെക്സ്റ്റ് കളർ
+            ctx.font = "bold 32px Times New Roman";
+            ctx.fillText(mName, 715, 275);
+            ctx.fillText(pName, 715, 310);
+
+            // ഡൗൺലോഡ് ലിങ്ക് നിർമ്മിക്കുന്നു
+            const link = document.createElement('a');
+            link.download = mName + '_Poster.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        };
+    }
+</script>
+
+</body>
+</html>

@@ -344,7 +344,7 @@ function deleteSubject(cls, index) {
         loadSubjects();
     }
 }
-   function loadMarkTable() {
+  function loadMarkTable() {
     const cls = document.getElementById('markClass').value;
     if (!cls) return alert("ക്ലാസ് തിരഞ്ഞെടുക്കുക");
     const subs = mData.subjects[cls] || [];
@@ -352,9 +352,9 @@ function deleteSubject(cls, index) {
     const savedClassAtt = (mData.classAtt && mData.classAtt[cls]) ? mData.classAtt[cls] : "";
 
     let h = `<tr>
-                <th>Reg</th>
-                <th>Name</th>
-                <th style="background:#2c3e50; color:white;">ആകെ ഹാജർ:<br>
+                <th style="min-width:80px;">Reg No</th>
+                <th style="min-width:200px;">Student Name</th>
+                <th style="background:#2c3e50; color:white; min-width:90px;">ആകെ ഹാജർ:<br>
                     <input type="number" id="classAtt" value="${savedClassAtt}" 
                     oninput="autoSave()" style="width:70px; color:black; text-align:center; border-radius:4px; border:none; margin-top:5px;">
                 </th>`;
@@ -366,8 +366,10 @@ function deleteSubject(cls, index) {
     for(let reg in studs) {
         const oldRes = (mData.results && mData.results[cls] && mData.results[cls][reg]) ? mData.results[cls][reg] : {};
         b += `<tr data-reg="${reg}">
-                <td>${reg}</td>
-                <td>${studs[reg]}</td>
+                <td><input type="number" class="m-input" value="${reg}" onchange="editStudentReg('${cls}', '${reg}', this.value)" style="width:70px;"></td>
+                
+                <td><input type="text" class="m-input" value="${studs[reg]}" onchange="editStudentName('${cls}', '${reg}', this.value)" style="width:100%; text-align:left; padding-left:10px; min-width:180px;"></td>
+                
                 <td><input type="number" class="m-input s-att" value="${oldRes.att || ""}" oninput="autoSave()"></td>`;
 
         subs.forEach(s => {
@@ -384,13 +386,12 @@ function deleteSubject(cls, index) {
                 </select>
             </td>
            <td>
-    <input type="text" class="m-input r-rank" value="${oldRes.rank || ""}" onchange="manualRankEdit(this)" placeholder="Rank" style="width:60px; text-align:center; border:1px solid #ccc; background:white;">
-</td>
+                <input type="text" class="m-input r-rank" value="${oldRes.rank || ""}" onchange="manualRankEdit(this)" placeholder="Rank" style="width:60px;">
+           </td>
         </tr>`;
     }
     document.getElementById('tBody').innerHTML = b;
     document.getElementById('tableWrapper').classList.remove('hidden');
-
 }
 function manualRankEdit(input) {
     const row = input.closest('tr');
