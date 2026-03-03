@@ -213,27 +213,32 @@
 
    async function addStudent() {
     const cls = document.getElementById('stClass').value;
-    const reg = document.getElementById('stRegNo').value;
-    const name = document.getElementById('stName').value;
+    const reg = document.getElementById('stRegNo').value.trim();
+    const name = document.getElementById('stName').value.trim();
+    
     if(!cls || !reg || !name) return alert("എല്ലാം പൂരിപ്പിക്കുക");
     
     if(!mData.students) mData.students = {};
     if(!mData.students[cls]) mData.students[cls] = {};
     
+    // പേര് നേരിട്ട് സ്ട്രിംഗ് ആയി സേവ് ചെയ്യുന്നു (Object ഒഴിവാക്കി)
     mData.students[cls][reg] = name;
     
-    // ഡാറ്റ നഷ്ടപ്പെടാതിരിക്കാൻ ഉടൻ തന്നെ ക്ലൗഡിലേക്ക് സേവ് ചെയ്യുന്നു
     try {
-        await db.collection("madrasa_data").doc(mData.info.phone).set(mData);
+        // ഡാറ്റ ക്ലൗഡിലേക്ക് സേവ് ചെയ്യുന്നത് വരെ കാത്തിരിക്കുന്നു
+        await db.collection("madrasa_data").doc(mData.info.phone).update({
+            [`students.${cls}.${reg}`]: name
+        });
+        
         document.getElementById('stRegNo').value = "";
         document.getElementById('stName').value = "";
         refreshStudentDisplay();
     } catch (e) {
-        alert("ഡാറ്റ സേവ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു!");
+        console.error("Save Error:", e);
+        alert("ഡാറ്റ സേവ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു! ഇന്റർനെറ്റ് പരിശോധിക്കുക.");
     }
 }
-
-  function refreshStudentDisplay() {
+function refreshStudentDisplay() {
     const area = document.getElementById('studentListArea'); 
     if (!area) return;
     area.innerHTML = "";
@@ -250,21 +255,21 @@
                 <thead><tr><th>Reg No</th><th>Name</th><th>Action</th></tr></thead>
                 <tbody>`;
         
-        let hasStudents = false;
         for(let reg in mData.students[cls]) { 
-            hasStudents = true;
+            let studentData = mData.students[cls][reg];
+            // ഒബ്ജക്റ്റ് ആണെങ്കിൽ അതിലെ പേര് മാത്രം എടുക്കുന്നു, അല്ലെങ്കിൽ നേരിട്ട് പേര് എടുക്കുന്നു
+            let displayName = (typeof studentData === 'object') ? studentData.name : studentData;
+
             html += `<tr>
-                <td><input type="number" value="${reg}" onchange="editStudentReg('${cls}', '${reg}', this.value)" style="width:70px;"></td>
-                <td><input type="text" value="${mData.students[cls][reg]}" onchange="editStudentName('${cls}', '${reg}', this.value)" style="width:90%;"></td>
+                <td>${reg}</td>
+                <td>${displayName}</td>
                 <td><i class="fa fa-trash" style="color:#c0392b; cursor:pointer;" onclick="deleteStudent('${cls}', '${reg}')"></i></td>
             </tr>`; 
         }
-        
-        if(hasStudents) {
-            area.innerHTML += html + `</tbody></table></div>`;
-        }
+        area.innerHTML += html + `</tbody></table></div>`;
     }
 }
+
    async function deleteStudent(cls, reg) { 
     if(confirm("ഈ വിദ്യാർത്ഥിയെ നീക്കം ചെയ്യട്ടെ?")) { 
         delete mData.students[cls][reg]; 
@@ -539,12 +544,25 @@ function manualStatusChange(select) {
     })
 }
 
-    async function syncWithCloud() { 
-        if(!mData.info || !mData.info.phone) return alert("ലോഗിൻ വിവരങ്ങൾ ലഭ്യമല്ല");
-        autoSave(); // ഉറപ്പാക്കാൻ ഒരിക്കൽ കൂടി സേവ് ചെയ്യുന്നു
+  async function syncWithCloud() { 
+    if(!mData.info || !mData.info.phone) return alert("ലോഗിൻ വിവരങ്ങൾ ലഭ്യമല്ല");
+    
+    autoSave(); // നിലവിലുള്ള മാറ്റങ്ങൾ ശേഖരിക്കുന്നു
+    
+    try {
+        const btn = document.querySelector(".btn-add[onclick='syncWithCloud()']");
+        btn.innerHTML = "<i class='fa fa-spinner fa-spin'></i> SAVING...";
+        btn.disabled = true;
+
         await db.collection("madrasa_data").doc(mData.info.phone).set(mData); 
-        alert("Data Saved Successfully!"); 
+        
+        btn.innerHTML = "<i class='fa fa-cloud-upload'></i> SAVE ALL DATA";
+        btn.disabled = false;
+        alert("ഡാറ്റ വിജയകരമായി സേവ് ചെയ്തു! ✅"); 
+    } catch (e) {
+        alert("Error: " + e.message);
     }
+}
     
     async function publishResult() { 
         if(confirm("എല്ലാ റിസൾട്ടുകളും പബ്ലിഷ് ചെയ്യട്ടെ?")) { 
