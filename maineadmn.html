@@ -519,53 +519,54 @@ function manualRankEdit(input) {
     calculateAutoRanks();
     autoSave();
 }
-
 function calculateAutoRanks() {
     const cls = document.getElementById('markClass').value;
     if (!cls) return;
 
     const rows = Array.from(document.querySelectorAll('#tBody tr'));
 
-    // ✅ Passed ആയവരെ മാത്രം എടുക്കുന്നു
-    let passed = rows
-        .map(row => ({
-            row: row,
-            total: parseInt(row.querySelector('.r-tot').innerText) || 0,
-            status: row.querySelector('.r-sts-select').value
-        }))
-        .filter(item => item.status === "Passed" && item.total > 0)
-        .sort((a, b) => b.total - a.total);
-
-    // 🔄 എല്ലാം clear ചെയ്യുന്നു
+    // 1. എല്ലാവരുടെയും റാങ്ക് താൽക്കാലികമായി മാറ്റുന്നു (മാനുവൽ റാങ്ക് അല്ലാത്തവ)
     rows.forEach(row => {
-        row.querySelector('.r-rank').value = "";
+        const rInput = row.querySelector('.r-rank');
+        if (rInput.getAttribute('data-auto') !== 'false') rInput.value = "";
     });
 
-    let rankNumber = 0;
-    let lastTotal = null;
+    // 2. പാസായ കുട്ടികളെ മാർക്കിന്റെ അടിസ്ഥാനത്തിൽ അടുക്കുന്നു (Sorting)
+    let passedData = rows.map(row => {
+        const total = parseInt(row.querySelector('.r-tot').innerText) || 0;
+        const status = row.querySelector('.r-sts-select').value;
+        return { row, total, status };
+    })
+    .filter(item => item.status === "Passed" && item.total > 0)
+    .sort((a, b) => b.total - a.total); // ഇതാണ് ഏറ്റവും പ്രധാനപ്പെട്ട മാറ്റം!
 
-    passed.forEach(item => {
-        const row = item.row;
-        const total = item.total;
-        const reg = row.getAttribute('data-reg');
-        const rankInput = row.querySelector('.r-rank');
+    // 3. റാങ്ക് നമ്പർ നൽകുന്നു
+    let rank = 0;
+    let lastTotal = -1;
 
-        // 🔥 Dense Ranking Logic (No Skip)
-        if (total !== lastTotal) {
-            rankNumber++;
-        }
-
-        rankInput.value = rankNumber;
-        lastTotal = total;
-
-        if (!mData.results[cls]) mData.results[cls] = {};
-        if (!mData.results[cls][reg]) mData.results[cls][reg] = {};
-        mData.results[cls][reg].rank = rankNumber.toString();
+    passedData.forEach((item) => {
+        if (item.total !== lastTotal) rank++;
+        
+        const rankInput = item.row.querySelector('.r-rank');
+        rankInput.value = rank;
+        rankInput.setAttribute('data-auto', 'true');
+        lastTotal = item.total;
     });
 
     autoSave();
 }
 
+function manualStatusChange(selectEl) {
+    const val = selectEl.value;
+    
+    // സ്റ്റാറ്റസിന് അനുസരിച്ച് നിറം മാറ്റുന്നു
+    if(val === 'Passed') selectEl.style.color = "green";
+    else if(val === 'Promoted') selectEl.style.color = "blue";
+    else selectEl.style.color = "red";
+    
+    // റാങ്ക് ഉടൻ തന്നെ പുനർനിർണ്ണയിക്കുന്നു
+    calculateAutoRanks();
+}
   async function syncWithCloud() { 
     if(!mData.info || !mData.info.phone) return alert("ലോഗിൻ വിവരങ്ങൾ ലഭ്യമല്ല");
     
