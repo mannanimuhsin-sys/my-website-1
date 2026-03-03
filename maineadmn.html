@@ -421,6 +421,42 @@ function deleteSubject(cls, index) {
     document.getElementById('tBody').innerHTML = b;
     document.getElementById('tableWrapper').classList.remove('hidden');
 }
+function autoSave() {
+    const cls = document.getElementById('markClass').value;
+    if (!cls) return;
+
+    if (!mData.results) mData.results = {};
+    if (!mData.results[cls]) mData.results[cls] = {};
+    if (!mData.classAtt) mData.classAtt = {};
+
+    // ക്ലാസ് അറ്റൻഡൻസ് സേവ് ചെയ്യുന്നു
+    const classAttInput = document.getElementById('classAtt');
+    if (classAttInput) {
+        mData.classAtt[cls] = classAttInput.value;
+    }
+
+    const rows = document.querySelectorAll('#tBody tr');
+    rows.forEach(row => {
+        const reg = row.getAttribute('data-reg');
+        if (!mData.results[cls][reg]) mData.results[cls][reg] = {};
+        
+        const res = mData.results[cls][reg];
+        res.att = row.querySelector('.s-att').value;
+        res.total = parseInt(row.querySelector('.r-tot').innerText) || 0;
+        res.status = row.querySelector('.r-sts-select').value;
+        res.rank = row.querySelector('.r-rank').value;
+
+        // മാർക്കുകൾ സേവ് ചെയ്യുന്നു
+        if (!res.marks) res.marks = {};
+        row.querySelectorAll('.s-mark').forEach(input => {
+            const sub = input.getAttribute('data-sub');
+            res.marks[sub] = input.value;
+        });
+    });
+    
+    console.log("Data Auto-Saved to local memory", mData);
+}
+
 function manualRankEdit(input) {
     const row = input.closest('tr');
     const reg = row.getAttribute('data-reg');
