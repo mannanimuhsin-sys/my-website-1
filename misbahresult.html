@@ -456,18 +456,67 @@ function manualRankEdit(input) {
         startPanel();
     }
 
-    function showPhotoStatusList() {
-        const c = document.getElementById('selStatusClass').value;
-        if(!c) return;
-        const studs = mData.students[c] || {};
-        const photos = mData.photos || {};
-        let h = `<table><tr><th>Reg No</th><th>Name</th><th>Status</th></tr>`;
-        for(let r in studs) {
-            h += `<tr><td>${r}</td><td>${studs[r]}</td><td>${photos[r] ? '✅' : '❌'}</td></tr>`;
-        }
-        document.getElementById('photoStatusTableArea').innerHTML = h + `</table>`;
-    }
+   async function showPhotoStatusList() {
+    const c = document.getElementById('selStatusClass').value;
+    if(!c) return;
+    
+    const studs = mData.students[c] || {};
+    const photos = mData.photos || {};
+    
+    let h = `<table class="st-list-table">
+        <thead>
+            <tr>
+                <th>Reg No</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>`;
+    
+    // രജിസ്റ്റർ നമ്പർ ക്രമത്തിൽ സോർട്ട് ചെയ്യുന്നു
+    let sortedRegs = Object.keys(studs).sort((a, b) => a - b);
 
+    for(let r of sortedRegs) {
+        let studentData = studs[r];
+        // പേര് ഒബ്ജക്റ്റ് ആണോ എന്ന് നോക്കി പേര് മാത്രം എടുക്കുന്നു
+        let displayName = (typeof studentData === 'object' && studentData !== null) ? studentData.name : studentData;
+        
+        let hasPhoto = photos[r] ? '<span style="color:green; font-weight:bold;">✅ അപ്‌ലോഡ് ചെയ്തു</span>' : '<span style="color:red;">❌ ചെയ്തിട്ടില്ല</span>';
+        
+        // ഫോട്ടോ ഉണ്ടെങ്കിൽ മാത്രം ഡിലീറ്റ് ബട്ടൺ കാണിക്കുന്നു
+        let deleteBtn = photos[r] ? `<button class="btn-red" style="padding:4px 8px; font-size:11px;" onclick="deleteStudentPhoto('${r}')">Delete Photo</button>` : '---';
+
+        h += `<tr>
+            <td>${r}</td>
+            <td style="text-align:left;">${displayName}</td>
+            <td>${hasPhoto}</td>
+            <td>${deleteBtn}</td>
+        </tr>`;
+    }
+    
+    document.getElementById('photoStatusTableArea').innerHTML = h + `</tbody></table>`;
+}
+
+// ഫോട്ടോ മാത്രം ഡിലീറ്റ് ചെയ്യാനുള്ള പുതിയ ഫംഗ്ഷൻ
+async function deleteStudentPhoto(reg) {
+    if(!confirm("ഈ വിദ്യാർത്ഥിയുടെ ഫോട്ടോ ഡിലീറ്റ് ചെയ്യട്ടെ? ഇതിന് ശേഷം വിദ്യാർത്ഥിക്ക് വീണ്ടും ഫോട്ടോ അപ്‌ലോഡ് ചെയ്യാം.")) return;
+    
+    try {
+        // ഡാറ്റാബേസിലെ ഫോട്ടോ ലിസ്റ്റിൽ നിന്ന് ആ രജിസ്റ്റർ നമ്പർ ഒഴിവാക്കുന്നു
+        delete mData.photos[reg];
+        
+        // ക്ലൗഡിലേക്ക് അപ്‌ഡേറ്റ് ചെയ്യുന്നു
+        await db.collection("madrasa_data").doc(currentDocId).update({
+            [`photos.${reg}`]: firebase.firestore.FieldValue.delete()
+        });
+        
+        alert("ഫോട്ടോ നീക്കം ചെയ്തു!");
+        showPhotoStatusList(); // ലിസ്റ്റ് പുതുക്കുന്നു
+    } catch (e) {
+        alert("പിശക്: " + e.message);
+    }
+}
     function copyText(id) {
         const text = document.getElementById(id).innerText;
         navigator.clipboard.writeText(text);
