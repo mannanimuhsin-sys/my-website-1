@@ -83,6 +83,25 @@
     50% { transform: scale(1.2); opacity: 1; }
     100% { transform: scale(1); opacity: 0; }
 }
+/* റിസൾട്ട് കാർഡിനുള്ളിലെ മദ്രസ ഹെഡർ സ്റ്റൈൽ */
+.result-madrasa-header {
+    background-color: #004d00; /* പച്ച നിറം */
+    color: white;
+    padding: 15px 10px;
+    text-align: center;
+    border-radius: 12px 12px 0 0; /* മുകൾ ഭാഗം മാത്രം വളഞ്ഞത് */
+    margin-bottom: 0;
+}
+.result-madrasa-header h4 {
+    margin: 0;
+    font-size: 18px;
+    text-transform: uppercase;
+}
+.result-madrasa-header p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    opacity: 0.9;
+}
     </style>
 </head>
 <body>
@@ -111,6 +130,10 @@
     </div>
 
    <div id="resultArea" class="result-card">
+        <div class="result-madrasa-header" style="background-color: #004d00; color: white; padding: 15px 10px; text-align: center; border-bottom: 2px solid #ffd700;">
+            <h4 id="resMadName" style="margin: 0; font-size: 18px; text-transform: uppercase;">MADRASA NAME</h4>
+            <p id="resMadPlace" style="margin: 5px 0 0; font-size: 13px; opacity: 0.9;">PLACE</p>
+        </div>
         <div class="res-header">
             <small style="color:#aaa; letter-spacing:1px; font-weight:bold;">STUDENT RESULT SHEET</small>
             <h2 id="stName">---</h2>
@@ -267,6 +290,8 @@
 
    function displayResult(cls, reg, res) {
         document.getElementById('resultArea').style.display = 'block';
+        document.getElementById('resMadName').innerText = fullData.info.name;
+document.getElementById('resMadPlace').innerText = fullData.info.place || "";
         const stName = (fullData.students && fullData.students[cls]) ? fullData.students[cls][reg] : "Student";
         
         document.getElementById('stName').innerText = stName || "Student";
