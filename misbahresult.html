@@ -274,26 +274,36 @@
         refreshStList();
     }
 
-    function addSubject() {
-        const c = document.getElementById('selSubClass').value;
-        const s = document.getElementById('inSubName').value.trim();
-        if(!c || !s) return;
-        if(!mData.subjects[c]) mData.subjects[c] = [];
-        mData.subjects[c].push(s);
-        document.getElementById('inSubName').value = '';
-        refreshSubList();
-    }
+    function addStudent() {
+    const c = document.getElementById('selClass').value;
+    const r = document.getElementById('inReg').value.trim();
+    const n = document.getElementById('inName').value.trim();
+    if(!c || !r || !n) return;
+    if(!mData.students[c]) mData.students[c] = {};
+    
+    // Object-ന് പകരം പേര് നേരിട്ട് സേവ് ചെയ്യുന്നു
+    mData.students[c][r] = n; 
+    
+    document.getElementById('inReg').value = '';
+    document.getElementById('inName').value = '';
+    refreshStList();
+}
 
-    function refreshSubList() {
-        const c = document.getElementById('selSubClass').value;
-        if(!c) { document.getElementById('subjectListArea').innerHTML = ""; return; }
-        let h = `<table><tr><th>Subject</th><th>Action</th></tr>`;
-        (mData.subjects[c] || []).forEach((s, i) => {
-            h += `<tr><td>${s}</td><td><button class="btn-red" onclick="deleteSubject('${c}',${i})">Delete</button></td></tr>`;
+   function refreshStList() {
+    let h = "";
+    for(let c in mData.students) {
+        h += `<h4>${c}</h4><table><tr><th>Reg</th><th>Name</th><th>Action</th></tr>`;
+        
+        Object.entries(mData.students[c]).forEach(([r, name]) => {
+            h += `<tr><td>${r}</td><td>${name}</td><td>
+                <button class="btn btn-blue" style="padding:5px 10px; font-size:12px; margin-right:5px;" onclick="editStudent('${c}','${r}','${name}')">Edit</button>
+                <button class="btn-red" onclick="deleteStudent('${c}','${r}')">Delete</button>
+            </td></tr>`;
         });
-        document.getElementById('subjectListArea').innerHTML = h + `</table>`;
+        h += `</table>`;
     }
-
+    document.getElementById('studentListArea').innerHTML = h;
+}
     function deleteSubject(c, i) {
         mData.subjects[c].splice(i, 1);
         refreshSubList();
