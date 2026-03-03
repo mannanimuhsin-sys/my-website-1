@@ -426,18 +426,19 @@ function manualRankEdit(input) {
     const reg = row.getAttribute('data-reg');
     const cls = document.getElementById('markClass').value;
     
+    // ഇത് കൈകൊണ്ട് മാറ്റിയതാണെന്ന് അടയാളപ്പെടുത്തുന്നു (അതുകൊണ്ട് ഓട്ടോ റാങ്ക് ഇതിനെ മാറ്റില്ല)
+    input.setAttribute('data-auto', 'false');
+    
     if (!mData.results[cls]) mData.results[cls] = {};
     if (!mData.results[cls][reg]) mData.results[cls][reg] = {};
     
-    // നിങ്ങൾ ടൈപ്പ് ചെയ്ത വാല്യൂ മദ്രസ ഡാറ്റയിലേക്ക് മാറ്റുന്നു
     mData.results[cls][reg].rank = input.value;
     
-    // ഓട്ടോ സേവ് ഫംഗ്ഷൻ വഴി ലോക്കൽ സ്റ്റോറേജ് അപ്ഡേറ്റ് ചെയ്യുന്നു
     autoSave();
     
-    // നിങ്ങൾ റാങ്ക് മുഴുവനായി മായ്ച്ചു കളഞ്ഞാൽ (Empty ആക്കിയാൽ) 
-    // വീണ്ടും ഓട്ടോമാറ്റിക് റാങ്ക് വരാൻ ഇത് സഹായിക്കും
-    if(input.value === "") {
+    // വാല്യൂ ഡിലീറ്റ് ചെയ്താൽ വീണ്ടും ഓട്ടോ റാങ്ക് വരാൻ അനുവദിക്കുന്നു
+    if(input.value.trim() === "") {
+        input.setAttribute('data-auto', 'true');
         calculateAutoRanks();
     }
 }
@@ -483,9 +484,44 @@ function manualStatusChange(select) {
     calculateAutoRanks(); // സ്റ്റാറ്റസ് മാറ്റുമ്പോഴും റാങ്ക് റീ-കാൽക്കുലേറ്റ് ചെയ്യും
     autoSave();
 }
-   function calculateRanks() {
-    // ഓട്ടോമാറ്റിക് റാങ്ക് വേണ്ടെന്ന് വെച്ചു. 
-    // ഇനി മുതൽ ഉസ്താദുമാർ നേരിട്ട് ടൈപ്പ് ചെയ്യുന്നത് റാങ്ക് ആയി സേവ് ആകും.
+   function calculateAutoRanks() {
+    const rows = Array.from(document.querySelectorAll('#tBody tr'));
+    
+    // എല്ലാവരുടെയും റാങ്ക് ആദ്യം ക്ലിയർ ചെയ്യുന്നു (മാനുവൽ റാങ്ക് ഉണ്ടെങ്കിൽ അത് നിലനിർത്തും)
+    // rows.forEach(r => r.querySelector('.r-rank').value = ""); 
+
+    // 'Passed' ആയവരെ മാത്രം ടോട്ടൽ മാർക്കിന്റെ അടിസ്ഥാനത്തിൽ സോർട്ട് ചെയ്യുന്നു (Descending Order)
+    let passedRows = rows.filter(r => r.querySelector('.r-sts-select').value === "Passed")
+                         .sort((a, b) => {
+                             let totA = parseInt(a.querySelector('.r-tot').innerText) || 0;
+                             let totB = parseInt(b.querySelector('.r-tot').innerText) || 0;
+                             return totB - totA;
+                         });
+
+    let currentRank = 0;
+    let lastTotal = -1;
+
+    passedRows.forEach((row) => {
+        let total = parseInt(row.querySelector('.r-tot').innerText) || 0;
+        let rankInput = row.querySelector('.r-rank');
+
+        if (total > 0) {
+            // മാർക്ക് മുൻപത്തെ കുട്ടിയുടേതിനേക്കാൾ കുറവാണെങ്കിൽ മാത്രം റാങ്ക് നമ്പർ കൂട്ടുക
+            // ഒരേ മാർക്ക് ആണെങ്കിൽ currentRank മാറില്ല (അതായത് ഒരേ റാങ്ക് ലഭിക്കും)
+            if (total !== lastTotal) {
+                currentRank++;
+            }
+            
+            // നിങ്ങൾ കൈകൊണ്ട് റാങ്ക് ടൈപ്പ് ചെയ്തിട്ടില്ലെങ്കിൽ മാത്രം ഓട്ടോ റാങ്ക് നൽകുക
+            // (അല്ലെങ്കിൽ സിസ്റ്റം തനിയെ നൽകിയ റാങ്ക് ആണെങ്കിൽ അത് അപ്ഡേറ്റ് ചെയ്യുക)
+            if (rankInput.value === "" || rankInput.getAttribute('data-auto') === 'true') {
+                rankInput.value = currentRank;
+                rankInput.setAttribute('data-auto', 'true'); // ഇത് സിസ്റ്റം നൽകിയതാണെന്ന് അടയാളപ്പെടുത്തുന്നു
+            }
+            
+            lastTotal = total;
+        }
+    });
 }
 function calculateAutoRanks() {
     const rows = Array.from(document.querySelectorAll('#tBody tr'));
