@@ -426,24 +426,24 @@ function manualRankEdit(input) {
     const reg = row.getAttribute('data-reg');
     const cls = document.getElementById('markClass').value;
     
-    // ഇത് കൈകൊണ്ട് മാറ്റിയതാണെന്ന് അടയാളപ്പെടുത്തുന്നു (അതുകൊണ്ട് ഓട്ടോ റാങ്ക് ഇതിനെ മാറ്റില്ല)
-    input.setAttribute('data-auto', 'false');
+    input.setAttribute('data-auto', 'false'); // മാനുവൽ എഡിറ്റ് എന്ന് അടയാളപ്പെടുത്തുന്നു
     
     if (!mData.results[cls]) mData.results[cls] = {};
     if (!mData.results[cls][reg]) mData.results[cls][reg] = {};
     
     mData.results[cls][reg].rank = input.value;
-    
     autoSave();
     
-    // വാല്യൂ ഡിലീറ്റ് ചെയ്താൽ വീണ്ടും ഓട്ടോ റാങ്ക് വരാൻ അനുവദിക്കുന്നു
     if(input.value.trim() === "") {
         input.setAttribute('data-auto', 'true');
         calculateAutoRanks();
     }
 }
-  function calcStatus(input) {
+ function calcStatus(input) {
     const row = input.closest('tr');
+    const cls = document.getElementById('markClass').value;
+    const reg = row.getAttribute('data-reg');
+
     let total = 0;
     let failedByMark = false;
     let hasEntry = false;
@@ -454,14 +454,22 @@ function manualRankEdit(input) {
             hasEntry = true;
             let val = parseInt(valStr) || 0;
             total += val;
-            if (val < 18) failedByMark = true; // 18-ൽ താഴെയാണെങ്കിൽ ഫെയിൽ
+            if (val < 18) failedByMark = true;
         }
     });
 
+    // ✅ UI Total update
     row.querySelector('.r-tot').innerText = total;
-    
+
+    // ✅ mData Total update (VERY IMPORTANT)
+    if (!mData.results[cls]) mData.results[cls] = {};
+    if (!mData.results[cls][reg]) mData.results[cls][reg] = {};
+    if (!mData.results[cls][reg].marks) mData.results[cls][reg].marks = {};
+
+    mData.results[cls][reg].total = total;
+
     const stsSelect = row.querySelector('.r-sts-select');
-    // പ്രൊമോട്ടഡ് മാനുവലായി നൽകിയതാണെങ്കിൽ അത് മാറ്റില്ല
+
     if (stsSelect.value !== "Promoted") {
         if (failedByMark) {
             stsSelect.value = "Failed";
@@ -471,120 +479,55 @@ function manualRankEdit(input) {
             stsSelect.style.color = "green";
         }
     }
-    
-    calculateAutoRanks(); // റാങ്ക് ഉടനെ കണക്കാക്കാൻ
+
+    calculateAutoRanks();
     autoSave();
 }
 
-function manualStatusChange(select) {
-    if(select.value === "Passed") select.style.color = "green";
-    else if(select.value === "Promoted") select.style.color = "blue";
-    else select.style.color = "red";
-    
-    calculateAutoRanks(); // സ്റ്റാറ്റസ് മാറ്റുമ്പോഴും റാങ്ക് റീ-കാൽക്കുലേറ്റ് ചെയ്യും
-    autoSave();
-}
-   function calculateAutoRanks() {
-    const rows = Array.from(document.querySelectorAll('#tBody tr'));
-    
-    // എല്ലാവരുടെയും റാങ്ക് ആദ്യം ക്ലിയർ ചെയ്യുന്നു (മാനുവൽ റാങ്ക് ഉണ്ടെങ്കിൽ അത് നിലനിർത്തും)
-    // rows.forEach(r => r.querySelector('.r-rank').value = ""); 
-
-    // 'Passed' ആയവരെ മാത്രം ടോട്ടൽ മാർക്കിന്റെ അടിസ്ഥാനത്തിൽ സോർട്ട് ചെയ്യുന്നു (Descending Order)
-    let passedRows = rows.filter(r => r.querySelector('.r-sts-select').value === "Passed")
-                         .sort((a, b) => {
-                             let totA = parseInt(a.querySelector('.r-tot').innerText) || 0;
-                             let totB = parseInt(b.querySelector('.r-tot').innerText) || 0;
-                             return totB - totA;
-                         });
-
-    let currentRank = 0;
-    let lastTotal = -1;
-
-    passedRows.forEach((row) => {
-        let total = parseInt(row.querySelector('.r-tot').innerText) || 0;
-        let rankInput = row.querySelector('.r-rank');
-
-        if (total > 0) {
-            // മാർക്ക് മുൻപത്തെ കുട്ടിയുടേതിനേക്കാൾ കുറവാണെങ്കിൽ മാത്രം റാങ്ക് നമ്പർ കൂട്ടുക
-            // ഒരേ മാർക്ക് ആണെങ്കിൽ currentRank മാറില്ല (അതായത് ഒരേ റാങ്ക് ലഭിക്കും)
-            if (total !== lastTotal) {
-                currentRank++;
-            }
-            
-            // നിങ്ങൾ കൈകൊണ്ട് റാങ്ക് ടൈപ്പ് ചെയ്തിട്ടില്ലെങ്കിൽ മാത്രം ഓട്ടോ റാങ്ക് നൽകുക
-            // (അല്ലെങ്കിൽ സിസ്റ്റം തനിയെ നൽകിയ റാങ്ക് ആണെങ്കിൽ അത് അപ്ഡേറ്റ് ചെയ്യുക)
-            if (rankInput.value === "" || rankInput.getAttribute('data-auto') === 'true') {
-                rankInput.value = currentRank;
-                rankInput.setAttribute('data-auto', 'true'); // ഇത് സിസ്റ്റം നൽകിയതാണെന്ന് അടയാളപ്പെടുത്തുന്നു
-            }
-            
-            lastTotal = total;
-        }
-    });
-}
 function calculateAutoRanks() {
-    const rows = Array.from(document.querySelectorAll('#tBody tr'));
-    
-    // പാസ്സായവരെ മാത്രം മാർക്കിന്റെ അടിസ്ഥാനത്തിൽ സോർട്ട് ചെയ്യുന്നു
-    let passedRows = rows.filter(r => r.querySelector('.r-sts-select').value === "Passed")
-                         .sort((a, b) => {
-                             return parseInt(b.querySelector('.r-tot').innerText) - parseInt(a.querySelector('.r-tot').innerText);
-                         });
-
-    let currentRank = 0;
-    let lastTotal = -1;
-
-    passedRows.forEach((row) => {
-        let total = parseInt(row.querySelector('.r-tot').innerText);
-        let rankInput = row.querySelector('.r-rank');
-        
-        // പ്രധാന മാറ്റം: 
-        // ഇൻപുട്ട് ബോക്സ് കാലിയാണെങ്കിൽ മാത്രം സിസ്റ്റം ഓട്ടോമാറ്റിക് റാങ്ക് നൽകും.
-        // നിങ്ങൾ അവിടെ ഒരു റാങ്ക് ടൈപ്പ് ചെയ്തിട്ടുണ്ടെങ്കിൽ സിസ്റ്റം അത് മാറ്റില്ല.
-        if (total > 0) {
-            if (total !== lastTotal) {
-                currentRank++;
-            }
-            if (rankInput.value === "") { 
-                rankInput.value = currentRank;
-            }
-            lastTotal = total;
-        }
-    });
-}
-
-function manualStatusChange(select) {
-    if(select.value === "Passed") select.style.color = "green";
-    else if(select.value === "Promoted") select.style.color = "blue";
-    else select.style.color = "red";
-    
-    calculateAutoRanks(); 
-    autoSave();
-}
-    function autoSave() {
     const cls = document.getElementById('markClass').value;
     if (!cls) return;
-    if (!mData.results) mData.results = {};
-    if (!mData.results[cls]) mData.results[cls] = {};
-    if (!mData.classAtt) mData.classAtt = {};
 
-    // ടേബിളിന് മുകളിലെ പുതിയ ഹാജർ ബോക്സിൽ നിന്ന് വാല്യൂ എടുക്കുന്നു
-    const attInput = document.getElementById('classAtt');
-    if(attInput) mData.classAtt[cls] = attInput.value;
+    const rows = Array.from(document.querySelectorAll('#tBody tr'));
 
-    document.querySelectorAll('#tBody tr').forEach(row => {
+    // ✅ Passed ആയവരെ മാത്രം എടുക്കുന്നു
+    let passed = rows
+        .map(row => ({
+            row: row,
+            total: parseInt(row.querySelector('.r-tot').innerText) || 0,
+            status: row.querySelector('.r-sts-select').value
+        }))
+        .filter(item => item.status === "Passed" && item.total > 0)
+        .sort((a, b) => b.total - a.total);
+
+    // 🔄 എല്ലാം clear ചെയ്യുന്നു
+    rows.forEach(row => {
+        row.querySelector('.r-rank').value = "";
+    });
+
+    let rankNumber = 0;
+    let lastTotal = null;
+
+    passed.forEach(item => {
+        const row = item.row;
+        const total = item.total;
         const reg = row.getAttribute('data-reg');
-        let marks = {};
-        row.querySelectorAll('.s-mark').forEach(input => { marks[input.getAttribute('data-sub')] = input.value; });
-        mData.results[cls][reg] = {
-            att: row.querySelector('.s-att').value,
-            marks: marks,
-            total: row.querySelector('.r-tot').innerText,
-            status: row.querySelector('.r-sts-select').value,
-            rank: row.querySelector('.r-rank').value
-        };
-    })
+        const rankInput = row.querySelector('.r-rank');
+
+        // 🔥 Dense Ranking Logic (No Skip)
+        if (total !== lastTotal) {
+            rankNumber++;
+        }
+
+        rankInput.value = rankNumber;
+        lastTotal = total;
+
+        if (!mData.results[cls]) mData.results[cls] = {};
+        if (!mData.results[cls][reg]) mData.results[cls][reg] = {};
+        mData.results[cls][reg].rank = rankNumber.toString();
+    });
+
+    autoSave();
 }
 
   async function syncWithCloud() { 
