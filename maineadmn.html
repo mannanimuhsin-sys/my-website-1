@@ -429,12 +429,17 @@ function manualRankEdit(input) {
     if (!mData.results[cls]) mData.results[cls] = {};
     if (!mData.results[cls][reg]) mData.results[cls][reg] = {};
     
-    // ടൈപ്പ് ചെയ്ത റാങ്ക് ഡാറ്റയിലേക്ക് മാറ്റുന്നു
+    // നിങ്ങൾ ടൈപ്പ് ചെയ്ത വാല്യൂ മദ്രസ ഡാറ്റയിലേക്ക് മാറ്റുന്നു
     mData.results[cls][reg].rank = input.value;
     
-    // ലോക്കൽ ഡാറ്റ അപ്ഡേറ്റ് ചെയ്യുന്നു
+    // ഓട്ടോ സേവ് ഫംഗ്ഷൻ വഴി ലോക്കൽ സ്റ്റോറേജ് അപ്ഡേറ്റ് ചെയ്യുന്നു
     autoSave();
-    console.log("Rank manually updated for Reg:", reg);
+    
+    // നിങ്ങൾ റാങ്ക് മുഴുവനായി മായ്ച്ചു കളഞ്ഞാൽ (Empty ആക്കിയാൽ) 
+    // വീണ്ടും ഓട്ടോമാറ്റിക് റാങ്ക് വരാൻ ഇത് സഹായിക്കും
+    if(input.value === "") {
+        calculateAutoRanks();
+    }
 }
   function calcStatus(input) {
     const row = input.closest('tr');
@@ -485,10 +490,7 @@ function manualStatusChange(select) {
 function calculateAutoRanks() {
     const rows = Array.from(document.querySelectorAll('#tBody tr'));
     
-    // എല്ലാവരുടെയും റാങ്ക് ആദ്യം ക്ലിയർ ചെയ്യുന്നു
-    rows.forEach(r => r.querySelector('.r-rank').value = "");
-
-    // പാസ്സായവരെ മാത്രം ടോട്ടൽ മാർക്കിന്റെ അടിസ്ഥാനത്തിൽ ക്രമീകരിക്കുന്നു (Descending Order)
+    // പാസ്സായവരെ മാത്രം മാർക്കിന്റെ അടിസ്ഥാനത്തിൽ സോർട്ട് ചെയ്യുന്നു
     let passedRows = rows.filter(r => r.querySelector('.r-sts-select').value === "Passed")
                          .sort((a, b) => {
                              return parseInt(b.querySelector('.r-tot').innerText) - parseInt(a.querySelector('.r-tot').innerText);
@@ -499,13 +501,18 @@ function calculateAutoRanks() {
 
     passedRows.forEach((row) => {
         let total = parseInt(row.querySelector('.r-tot').innerText);
+        let rankInput = row.querySelector('.r-rank');
         
+        // പ്രധാന മാറ്റം: 
+        // ഇൻപുട്ട് ബോക്സ് കാലിയാണെങ്കിൽ മാത്രം സിസ്റ്റം ഓട്ടോമാറ്റിക് റാങ്ക് നൽകും.
+        // നിങ്ങൾ അവിടെ ഒരു റാങ്ക് ടൈപ്പ് ചെയ്തിട്ടുണ്ടെങ്കിൽ സിസ്റ്റം അത് മാറ്റില്ല.
         if (total > 0) {
-            // മാർക്ക് മുൻപത്തെ കുട്ടിയുടേതിനേക്കാൾ കുറവാണെങ്കിൽ മാത്രം റാങ്ക് നമ്പർ കൂട്ടുക
             if (total !== lastTotal) {
                 currentRank++;
             }
-            row.querySelector('.r-rank').value = currentRank;
+            if (rankInput.value === "") { 
+                rankInput.value = currentRank;
+            }
             lastTotal = total;
         }
     });
