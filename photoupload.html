@@ -112,7 +112,6 @@
         const reg = document.getElementById('regInput').value.trim();
         if(!reg) return alert("രജിസ്റ്റർ നമ്പർ നൽകുക");
         
-        // പുതിയ ഫീച്ചർ: മുൻപ് അപ്‌ലോഡ് ചെയ്തിട്ടുണ്ടോ എന്ന് പരിശോധിക്കുന്നു
         if(fullData.photos && fullData.photos[reg]) {
             alert("നിങ്ങൾ നേരത്തെ ഫോട്ടോ അപ്‌ലോഡ് ചെയ്തിട്ടുണ്ട്! മാറ്റം വരുത്തണമെങ്കിൽ അഡ്മിനുമായി ബന്ധപ്പെട്ട് പഴയത് ഡിലീറ്റ് ചെയ്യിക്കുക.");
             return;
@@ -121,7 +120,18 @@
         let found = false;
         for(let cls in fullData.students) {
             if(fullData.students[cls][reg]) {
-                document.getElementById('displayStName').innerText = fullData.students[cls][reg];
+                // വിദ്യാർത്ഥിയുടെ ഡാറ്റ എടുക്കുന്നു
+                const studentInfo = fullData.students[cls][reg];
+                
+                // പേര് സെറ്റ് ചെയ്യുന്നു (Object ആണെങ്കിൽ അതിലെ name എടുക്കുന്നു)
+                let nameToDisplay = "";
+                if (typeof studentInfo === 'object' && studentInfo !== null) {
+                    nameToDisplay = studentInfo.name;
+                } else {
+                    nameToDisplay = studentInfo; // പഴയ രീതിയിലുള്ള ഡാറ്റയാണെങ്കിൽ
+                }
+
+                document.getElementById('displayStName').innerText = nameToDisplay;
                 document.getElementById('displayStClass').innerText = "CLASS: " + cls;
                 document.getElementById('step1').classList.add('hidden');
                 document.getElementById('step2').classList.remove('hidden');
@@ -131,7 +141,7 @@
         }
         if(!found) alert("വിദ്യാർത്ഥിയെ കണ്ടെത്താനായില്ല!");
     }
-
+    
     function proceedToUpload() {
         document.getElementById('step2').classList.add('hidden');
         document.getElementById('step3').classList.remove('hidden');
