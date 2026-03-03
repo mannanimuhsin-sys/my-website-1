@@ -132,6 +132,9 @@
         </div>
         <div class="status-badge-container"><div id="statusLabel" class="badge">---</div></div>
         <button class="btn-print" onclick="window.print()"><i class="fa fa-print"></i> DOWNLOAD / PRINT</button>
+        <button id="whatsappShareBtn" style="width: 100%; padding: 18px; border: none; background: #25D366; color: white; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 10px;">
+    <i class="fab fa-whatsapp"></i> SHARE ON WHATSAPP
+</button>
         <div id="posterAction" style="display: none; padding: 10px 15px;">
     <button class="btn-search" style="width: 100%; padding: 15px; background: #c5a000; border: none; border-radius: 10px;" onclick="openPosterMaker()">
         <i class="fa fa-certificate"></i> GENERATE RANK POSTER
@@ -402,6 +405,46 @@ function downloadPoster() {
         btn.disabled = false;
     });
 }
+document.getElementById('whatsappShareBtn').addEventListener('click', function() {
+    const resultCard = document.getElementById('resultArea');
+    const btnContainer = this;
+    
+    // ഷെയർ ചെയ്യുമ്പോൾ ബട്ടണുകൾ ചിത്രത്തിൽ വരാതിരിക്കാൻ താൽക്കാലികമായി മറക്കുന്നു
+    const printBtn = document.querySelector('.btn-print');
+    const posterBtn = document.getElementById('posterAction');
+    const shareBtn = document.getElementById('whatsappShareBtn');
+    
+    printBtn.style.display = 'none';
+    shareBtn.style.display = 'none';
+    if(posterBtn) posterBtn.style.display = 'none';
+
+    html2canvas(resultCard, { scale: 2 }).then(canvas => {
+        // ബട്ടണുകൾ തിരികെ കാണിക്കുന്നു
+        printBtn.style.display = 'block';
+        shareBtn.style.display = 'block';
+        if(posterBtn && (fullData.results[document.getElementById('stClass').innerText][document.getElementById('stReg').innerText].rank <= 2)) {
+            posterBtn.style.display = 'block';
+        }
+
+        canvas.toBlob(function(blob) {
+            const file = new File([blob], "Result.png", { type: "image/png" });
+            const shareData = {
+                title: 'Exam Result',
+                text: `Check out the result of ${document.getElementById('stName').innerText}`,
+                files: [file]
+            };
+
+            // മൊബൈൽ ഷെയറിംഗ് ഓപ്ഷൻ ലഭ്യമാണോ എന്ന് നോക്കുന്നു
+            if (navigator.canShare && navigator.canShare(shareData)) {
+                navigator.share(shareData).catch(err => console.log("Error sharing:", err));
+            } else {
+                // ഷെയറിംഗ് സപ്പോർട്ട് ചെയ്യാത്ത ബ്രൗസറുകൾക്കായി ലിങ്ക് മാത്രം
+                const text = encodeURIComponent(`Result of ${document.getElementById('stName').innerText} is out!`);
+                window.open(`https://wa.me/?text=${text}`, '_blank');
+            }
+        });
+    });
+});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
