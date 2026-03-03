@@ -378,13 +378,14 @@ function deleteSubject(cls, index) {
         });
 
         b += `<td class="r-tot">${oldRes.total || "0"}</td>
-            <td style="width: 130px;"> 
-                <select class="r-sts-select" onchange="manualStatusChange(this)" style="padding:6px; border-radius:4px; font-weight:bold; border:1px solid #ccc; width:100%; cursor:pointer; color: ${oldRes.status === 'Passed' ? 'green' : (oldRes.status === 'Promoted' ? 'blue' : 'red')}">
-                    <option value="Passed" ${oldRes.status === 'Passed' ? 'selected' : ''}>Passed</option>
-                    <option value="Failed" ${oldRes.status === 'Failed' ? 'selected' : ''}>Failed</option>
-                    <option value="Promoted" ${oldRes.status === 'Promoted' ? 'selected' : ''}>Promoted</option>
-                </select>
-            </td>
+           <td style="min-width: 160px;"> 
+    <select class="r-sts-select" onchange="manualStatusChange(this)" 
+        style="padding:8px 5px; border-radius:4px; font-weight:bold; border:1px solid #ccc; width:100%; cursor:pointer; font-size:14px; color: ${oldRes.status === 'Passed' ? 'green' : (oldRes.status === 'Promoted' ? 'blue' : 'red')}">
+        <option value="Passed" ${oldRes.status === 'Passed' ? 'selected' : ''}>Passed</option>
+        <option value="Failed" ${oldRes.status === 'Failed' ? 'selected' : ''}>Failed</option>
+        <option value="Promoted" ${oldRes.status === 'Promoted' ? 'selected' : ''}>Promoted</option>
+    </select>
+</td>
            <td>
                 <input type="text" class="m-input r-rank" value="${oldRes.rank || ""}" onchange="manualRankEdit(this)" placeholder="Rank" style="width:60px;">
            </td>
