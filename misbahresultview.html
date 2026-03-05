@@ -72,17 +72,21 @@
 
 <div class="container">
     <div id="searchSection" class="search-section">
-        <h3 style="margin:0;">EXAM RESULT 2025-26</h3>
+        <h2 id="mainMadName" style="color: var(--primary); margin: 0; text-transform: uppercase; font-size: 20px;"></h2>
+        <p id="mainMadPlace" style="color: #666; margin: 5px 0 15px 0; font-size: 14px;"></p>
+        <hr style="border: 0; border-top: 1px dashed #ccc; margin-bottom: 20px;">
+        
+        <h3 style="margin:0; font-size: 16px; color: #444;">ANNUAL EXAM RESULT 2025-26</h3>
         <div class="search-box">
             <input type="number" id="regNoInput" placeholder="Register Number" inputmode="numeric">
             <button class="btn-search" onclick="fetchResult()">VIEW RESULT</button>
         </div>
     </div>
 
-  <div id="captureArea">
+    <div id="captureArea">
         <div class="card-header">
-            <h1 id="cardMadName" style="margin:0; font-size:20px; text-transform:uppercase;">MADRASA NAME</h1>
-            <p id="cardMadPlace" style="margin:0; font-size:12px; opacity:0.9; margin-bottom:10px;">PLACE</p>
+            <h1 id="cardMadName" style="margin:0; font-size:20px; text-transform:uppercase;"></h1>
+            <p id="cardMadPlace" style="margin:0; font-size:12px; opacity:0.9; margin-bottom:10px;"></p>
             <hr style="border:0; border-top:1px solid rgba(255,255,255,0.2); margin-bottom:10px;">
             <h2 style="margin:0; font-size:14px; letter-spacing:1px; color: var(--secondary);">ANNUAL EXAM RESULT 2025-26</h2>
         </div>
@@ -146,10 +150,20 @@
         db.collection("madrasa_data").where("uID", "==", mId).get().then((snapshot) => {
             if (!snapshot.empty) {
                 fullData = snapshot.docs[0].data();
-                document.getElementById('madHeader').innerText = fullData.info.name;
-                document.getElementById('madPlace').innerText = fullData.info.place || "";
-                document.getElementById('cardMadName').innerText = fullData.info.name;
-                document.getElementById('cardMadPlace').innerText = fullData.info.place || "";
+                const name = fullData.info.name;
+                const place = fullData.info.place || "";
+
+                // 1. മുകളിൽ പച്ച ബാറിലുള്ള പ്രധാന ഹെഡർ
+                document.getElementById('madHeader').innerText = name;
+                document.getElementById('madPlace').innerText = place;
+                
+                // 2. സെർച്ച് ബോക്സിന് ഉള്ളിലെ മദ്രസ പേര്
+                document.getElementById('mainMadName').innerText = name;
+                document.getElementById('mainMadPlace').innerText = place;
+
+                // 3. റിസൾട്ട് കാർഡിനുള്ളിലെ (Download Area) മദ്രസ പേര്
+                document.getElementById('cardMadName').innerText = name;
+                document.getElementById('cardMadPlace').innerText = place;
             }
         });
     }
