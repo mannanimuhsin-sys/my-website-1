@@ -61,6 +61,8 @@
         .btn-download { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
         
         .hidden { display: none; }
+        .btn-whatsapp { 
+    background: #25d366;  color: white;  border: none;  padding: 15px;  border-radius: 12px;   width: 100%;  font-weight: bold;  cursor: pointer;   display: flex;  align-items: center;  justify-content: center;  gap: 10px; margin-bottom: 10px; /* ഡൗൺലോഡ് ബട്ടണിന് മുകളിൽ ഗ്യാപ്പ് വരാൻ */ }
     </style>
 </head>
 <body>
@@ -122,11 +124,15 @@
         </div>
     </div>
 
-    <div id="actionArea" class="action-area">
-        <button class="btn-download" onclick="downloadImage()">
-            <i class="fa fa-file-image"></i> DOWNLOAD RESULT (PNG)
-        </button>
-    </div>
+   <div id="actionArea" class="action-area">
+    <button class="btn-whatsapp" onclick="shareToWhatsApp()">
+        <i class="fab fa-whatsapp"></i> SHARE VIA WHATSAPP
+    </button>
+    
+    <button class="btn-download" onclick="downloadImage()">
+        <i class="fa fa-file-image"></i> DOWNLOAD RESULT (PNG)
+    </button>
+</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -267,6 +273,36 @@
             btn.innerHTML = '<i class="fa fa-file-image"></i> DOWNLOAD RESULT (PNG)';
         });
     }
+    async function shareToWhatsApp() {
+    const btn = document.querySelector('.btn-whatsapp');
+    const originalText = btn.innerHTML;
+    btn.innerText = "Preparing...";
+
+    try {
+        const canvas = await html2canvas(document.querySelector("#captureArea"), {
+            useCORS: true,
+            scale: 2
+        });
+        
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        const file = new File([blob], 'Result.png', { type: 'image/png' });
+
+        // ഫോണിൽ ഷെയർ ഓപ്ഷൻ ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: 'Annual Exam Result',
+                text: 'Check out the Annual Exam Result 2025-26'
+            });
+        } else {
+            alert("നിങ്ങളുടെ ബ്രൗസർ നേരിട്ടുള്ള ഷെയറിംഗിനെ പിന്തുണയ്ക്കുന്നില്ല. ദയവായി ഡൗൺലോഡ് ചെയ്ത് ഷെയർ ചെയ്യുക.");
+        }
+    } catch (err) {
+        console.error('Share failed:', err);
+    } finally {
+        btn.innerHTML = originalText;
+    }
+}
 </script>
 </body>
 </html>
