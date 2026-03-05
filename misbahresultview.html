@@ -163,44 +163,55 @@
         if(!found) alert("Result not found!");
     }
 
-    function displayResult(cls, reg, res) {
-        document.getElementById('searchSection').style.display = 'none';
-        document.getElementById('captureArea').style.display = 'block';
-        document.getElementById('actionArea').style.display = 'block';
+   function displayResult(cls, reg, res) {
+    document.getElementById('searchSection').style.display = 'none';
+    document.getElementById('captureArea').style.display = 'block';
+    document.getElementById('actionArea').style.display = 'block';
+    
+    const photoURL = (fullData.photos && fullData.photos[reg]) ? fullData.photos[reg] : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+    document.getElementById('photoWrap').innerHTML = `<img src="${photoURL}" class="student-photo">`;
+    
+    // പേര് കൃത്യമായി ലഭിക്കാനുള്ള പുതിയ മാറ്റം ഇവിടെയാണ്
+    let stName = "Student";
+    if (fullData.students && fullData.students[cls]) {
+        const studentInfo = fullData.students[cls][reg];
         
-        const photoURL = (fullData.photos && fullData.photos[reg]) ? fullData.photos[reg] : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-        document.getElementById('photoWrap').innerHTML = `<img src="${photoURL}" class="student-photo">`;
-        
-        const stName = (fullData.students && fullData.students[cls]) ? fullData.students[cls][reg] : "Student";
-        document.getElementById('stName').innerText = stName;
-        document.getElementById('stReg').innerText = reg;
-        document.getElementById('stClass').innerText = cls;
-        document.getElementById('stRank').innerText = res.rank || "---";
-
-        // Status Logic
-        const pill = document.getElementById('statusPill');
-        const sts = res.status.toLowerCase();
-        pill.innerText = res.status.toUpperCase();
-        pill.className = "status-pill " + (sts === 'passed' ? 'bg-passed' : sts === 'failed' ? 'bg-failed' : 'bg-promoted');
-
-        // Marks Logic
-        let mHtml = "";
-        let subCount = 0;
-        for(let sub in res.marks) {
-            let m = res.marks[sub];
-            mHtml += `<tr><td>${sub}</td><td style="text-align:center;">${m}</td><td style="text-align:center;">${calculateGrade(m)}</td></tr>`;
-            subCount++;
+        // പേര് ഒരു Object ആണെങ്കിൽ അതിനുള്ളിലെ 'name' എന്ന കീ തിരയുന്നു
+        if (typeof studentInfo === 'object' && studentInfo !== null) {
+            stName = studentInfo.name || studentInfo.stName || "Student";
+        } else if (typeof studentInfo === 'string') {
+            stName = studentInfo; // നേരിട്ട് പേരാണെങ്കിൽ അത് എടുക്കുന്നു
         }
-        document.getElementById('markList').innerHTML = mHtml;
-        
-        // Total Mark Logic (e.g., 48/150)
-        const maxMarks = subCount * 50;
-        document.getElementById('totalMark').innerText = res.total + "/" + maxMarks;
-        
-        // Attendance
-        document.getElementById('attendance').innerText = res.att + "/" + (fullData.attSettings[cls] || 0);
     }
 
+    document.getElementById('stName').innerText = stName;
+    document.getElementById('stReg').innerText = reg;
+    document.getElementById('stClass').innerText = cls;
+    document.getElementById('stRank').innerText = res.rank || "---";
+
+    // Status Logic
+    const pill = document.getElementById('statusPill');
+    const sts = res.status.toLowerCase();
+    pill.innerText = res.status.toUpperCase();
+    pill.className = "status-pill " + (sts === 'passed' ? 'bg-passed' : sts === 'failed' ? 'bg-failed' : 'bg-promoted');
+
+    // Marks Logic
+    let mHtml = "";
+    let subCount = 0;
+    for(let sub in res.marks) {
+        let m = res.marks[sub];
+        mHtml += `<tr><td>${sub}</td><td style="text-align:center;">${m}</td><td style="text-align:center;">${calculateGrade(m)}</td></tr>`;
+        subCount++;
+    }
+    document.getElementById('markList').innerHTML = mHtml;
+    
+    // Total Mark Logic
+    const maxMarks = subCount * 50;
+    document.getElementById('totalMark').innerText = res.total + "/" + maxMarks;
+    
+    // Attendance
+    document.getElementById('attendance').innerText = res.att + "/" + (fullData.attSettings[cls] || 0);
+}
     function calculateGrade(m) {
         let mark = parseFloat(m);
         if (mark >= 45) return "A+";
