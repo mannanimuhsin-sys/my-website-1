@@ -63,10 +63,32 @@
         .hidden { display: none; }
         .btn-whatsapp { 
     background: #25d366;  color: white;  border: none;  padding: 15px;  border-radius: 12px;   width: 100%;  font-weight: bold;  cursor: pointer;   display: flex;  align-items: center;  justify-content: center;  gap: 10px; margin-bottom: 10px; /* ഡൗൺലോഡ് ബട്ടണിന് മുകളിൽ ഗ്യാപ്പ് വരാൻ */ }
+    /* Countdown Overlay */
+#countdownOverlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: black; display: none; align-items: center; justify-content: center;
+    z-index: 9999; flex-direction: column;
+}
+#countdownNumber {
+    font-size: 120px; font-weight: 900;
+    color: #ffd700; /* Golden Color */
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    animation: zoomIn 1s infinite;
+}
+@keyframes zoomIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: scale(1.2); opacity: 0; }
+}
     </style>
 </head>
 <body>
+<div id="countdownOverlay">
+    <div id="countdownNumber">9</div>
+    <p style="color: white; letter-spacing: 2px; margin-top: 20px;">PREPARING RESULT...</p>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <div class="executive-header">
     <h1 class="madrasa-name" id="madHeader">Loading...</h1>
     <div class="madrasa-place" id="madPlace">Please wait</div>
@@ -172,20 +194,73 @@
     });
 }
 
-    function fetchResult() {
-        const regInput = document.getElementById('regNoInput').value.trim();
-        if(!regInput || !fullData) return alert("Enter Register Number");
-        
-        let found = false;
-        for(let cls in fullData.results) {
-            if(fullData.results[cls][regInput]) {
-                displayResult(cls, regInput, fullData.results[cls][regInput]);
-                found = true;
-                break;
-            }
+  function fetchResult() {
+    const regInput = document.getElementById('regNoInput').value.trim();
+    if(!regInput || !fullData) return alert("Enter Register Number");
+    
+    let foundCls = null, foundRes = null;
+    
+    // റിസൾട്ട് ഉണ്ടോ എന്ന് ആദ്യം പരിശോധിക്കുന്നു
+    for(let cls in fullData.results) {
+        if(fullData.results[cls][regInput]) {
+            foundCls = cls;
+            foundRes = fullData.results[cls][regInput];
+            break;
         }
-        if(!found) alert("Result not found!");
     }
+
+    if(!foundCls) return alert("Result not found!");
+
+    // കൗണ്ട്ഡൗൺ തുടങ്ങുന്നു
+    startCountdown(9, () => {
+        displayResult(foundCls, regInput, foundRes);
+        
+        // പാസ്സായ കുട്ടിയാണെങ്കിൽ മാത്രം വർണ്ണക്കടലാസ് പൊട്ടിക്കുന്നു
+        if (foundRes.status.toLowerCase() === 'passed') {
+            celebrate();
+        }
+    });
+}
+
+function startCountdown(seconds, callback) {
+    const overlay = document.getElementById('countdownOverlay');
+    const display = document.getElementById('countdownNumber');
+    overlay.style.display = 'flex';
+    
+    let current = seconds;
+    display.innerText = current;
+
+    const timer = setInterval(() => {
+        current--;
+        if (current >= 1) {
+            display.innerText = current;
+        } else {
+            clearInterval(timer);
+            overlay.style.display = 'none';
+            callback();
+        }
+    }, 1000);
+}
+
+function celebrate() {
+    var duration = 5 * 1000;
+    var animationEnd = Date.now() + duration;
+    var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    var interval = setInterval(function() {
+        var timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) return clearInterval(interval);
+
+        var particleCount = 50 * (timeLeft / duration);
+        // ഇടത് വശത്ത് നിന്നും വലത് വശത്ത് നിന്നും വർണ്ണക്കടലാസുകൾ വരുന്നു
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+    }, 250);
+}
 
    function displayResult(cls, reg, res) {
     document.getElementById('searchSection').style.display = 'none';
