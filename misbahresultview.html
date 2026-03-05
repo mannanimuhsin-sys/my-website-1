@@ -79,14 +79,18 @@
         </div>
     </div>
 
-    <div id="captureArea">
+  <div id="captureArea">
         <div class="card-header">
-            <h2 style="margin:0; font-size:16px; letter-spacing:1px;">ANNUAL EXAM RESULT 2025-26</h2>
+            <h1 id="cardMadName" style="margin:0; font-size:20px; text-transform:uppercase;">MADRASA NAME</h1>
+            <p id="cardMadPlace" style="margin:0; font-size:12px; opacity:0.9; margin-bottom:10px;">PLACE</p>
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.2); margin-bottom:10px;">
+            <h2 style="margin:0; font-size:14px; letter-spacing:1px; color: var(--secondary);">ANNUAL EXAM RESULT 2025-26</h2>
         </div>
         
         <div class="profile-wrap" id="photoWrap">
             <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="student-photo">
         </div>
+        
 
         <div class="student-info">
             <h3 id="stName">STUDENT NAME</h3>
@@ -144,6 +148,8 @@
                 fullData = snapshot.docs[0].data();
                 document.getElementById('madHeader').innerText = fullData.info.name;
                 document.getElementById('madPlace').innerText = fullData.info.place || "";
+                document.getElementById('cardMadName').innerText = fullData.info.name;
+                document.getElementById('cardMadPlace').innerText = fullData.info.place || "";
             }
         });
     }
