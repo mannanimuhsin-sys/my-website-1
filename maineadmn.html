@@ -421,6 +421,52 @@ function deleteSubject(cls, index) {
     document.getElementById('tBody').innerHTML = b;
     document.getElementById('tableWrapper').classList.remove('hidden');
 }
+// 1. പേര് മാറ്റാനുള്ള ഫംഗ്ഷൻ (Mark Table-ൽ നിന്ന് നേരിട്ട്)
+function editStudentName(cls, reg, newName) {
+    if(newName.trim() === "") return alert("പേര് ഒഴിച്ചിടാൻ പാടില്ല!");
+    
+    // Students ലിസ്റ്റിൽ പേര് മാറ്റുന്നു
+    if(mData.students && mData.students[cls]) {
+        mData.students[cls][reg] = newName.trim();
+    }
+    
+    // Results ലിസ്റ്റിലും പേര് മാറ്റുന്നു (എങ്കിലേ റിസൾട്ട് നോക്കുമ്പോൾ പുതിയ പേര് വരൂ)
+    if(mData.results && mData.results[cls] && mData.results[cls][reg]) {
+        mData.results[cls][reg].name = newName.trim();
+    }
+    
+    console.log("Name updated locally:", newName);
+    autoSave(); // താൽക്കാലികമായി മെമ്മറിയിൽ സേവ് ചെയ്യുന്നു
+}
+
+// 2. രജിസ്റ്റർ നമ്പർ മാറ്റാനുള്ള ഫംഗ്ഷൻ (Mark Table-ൽ നിന്ന് നേരിട്ട്)
+function editStudentReg(cls, oldReg, newReg) {
+    if(newReg.trim() === "" || oldReg === newReg) return;
+    
+    // പുതിയ നമ്പർ നിലവിൽ വേറെ കുട്ടിക്കിട്ടുണ്ടോ എന്ന് നോക്കുന്നു
+    if(mData.students[cls][newReg]) {
+        alert("ഈ രജിസ്റ്റർ നമ്പർ നിലവിൽ വേറെ ഒരു വിദ്യാർത്ഥിക്കുണ്ട്!");
+        loadMarkTable(); // പഴയ നമ്പറിലേക്ക് തിരിച്ചുപോകാൻ ടേബിൾ റിഫ്രഷ് ചെയ്യുന്നു
+        return;
+    }
+
+    // Students ലിസ്റ്റിലെ ഡാറ്റ പുതിയ നമ്പറിലേക്ക് മാറ്റുന്നു
+    mData.students[cls][newReg] = mData.students[cls][oldReg];
+    delete mData.students[cls][oldReg];
+
+    // Results ലിസ്റ്റിലെ ഡാറ്റയും പുതിയ നമ്പറിലേക്ക് മാറ്റുന്നു
+    if(mData.results && mData.results[cls] && mData.results[cls][oldReg]) {
+        mData.results[cls][newReg] = mData.results[cls][oldReg];
+        delete mData.results[cls][oldReg];
+    }
+    
+    console.log(`Reg No changed: ${oldReg} -> ${newReg}`);
+    
+    // മാറ്റം ടേബിളിൽ കാണാൻ ടേബിൾ റീലോഡ് ചെയ്യുന്നു
+    loadMarkTable();
+    autoSave();
+}
+
 function autoSave() {
     const cls = document.getElementById('markClass').value;
     if (!cls) return;
@@ -567,26 +613,38 @@ function manualStatusChange(selectEl) {
     // റാങ്ക് ഉടൻ തന്നെ പുനർനിർണ്ണയിക്കുന്നു
     calculateAutoRanks();
 }
-  async function syncWithCloud() { 
-    if(!mData.info || !mData.info.phone) return alert("ലോഗിൻ വിവരങ്ങൾ ലഭ്യമല്ല");
+ async function syncWithCloud() { 
+    if(!mData.info || !mData.info.phone) return alert("ലോഗിൻ വിവരങ്ങൾ ലഭ്യമല്ല. ദയവായി വീണ്ടും ലോഗിൻ ചെയ്യുക.");
     
-    autoSave(); // നിലവിലുള്ള മാറ്റങ്ങൾ ശേഖരിക്കുന്നു
+    // ടേബിളിലെ ഏറ്റവും പുതിയ മാറ്റങ്ങൾ (മാർക്ക്, അറ്റൻഡൻസ്, പേര് മാറ്റം) ശേഖരിക്കുന്നു
+    autoSave(); 
     
     try {
         const btn = document.querySelector(".btn-add[onclick='syncWithCloud()']");
-        btn.innerHTML = "<i class='fa fa-spinner fa-spin'></i> SAVING...";
+        const originalText = btn.innerHTML;
+        btn.innerHTML = "<i class='fa fa-spinner fa-spin'></i> ക്ലൗഡിലേക്ക് സേവ് ചെയ്യുന്നു...";
         btn.disabled = true;
 
+        // Firebase-ലേക്ക് മുഴുവൻ വിവരങ്ങളും (mData) അപ്‌ഡേറ്റ് ചെയ്യുന്നു
         await db.collection("madrasa_data").doc(mData.info.phone).set(mData); 
         
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        alert("വിവരങ്ങൾ വിജയകരമായി സേവ് ചെയ്തു! ✅"); 
+        
+        // പേര് മാറ്റിയിട്ടുണ്ടെങ്കിൽ മുകളിലെ ലിസ്റ്റിലും അത് മാറാൻ ഇത് സഹായിക്കും
+        if(typeof refreshStudentDisplay === "function") {
+            refreshStudentDisplay();
+        }
+    } catch (e) {
+        console.error("Sync Error:", e);
+        alert("ഡാറ്റ സേവ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു: " + e.message);
+        
+        const btn = document.querySelector(".btn-add[onclick='syncWithCloud()']");
         btn.innerHTML = "<i class='fa fa-cloud-upload'></i> SAVE ALL DATA";
         btn.disabled = false;
-        alert("ഡാറ്റ വിജയകരമായി സേവ് ചെയ്തു! ✅"); 
-    } catch (e) {
-        alert("Error: " + e.message);
     }
 }
-    
     async function publishResult() { 
         if(confirm("എല്ലാ റിസൾട്ടുകളും പബ്ലിഷ് ചെയ്യട്ടെ?")) { 
             mData.isPublished = true; await syncWithCloud(); location.reload(); 
