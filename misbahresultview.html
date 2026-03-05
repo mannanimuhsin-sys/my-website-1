@@ -171,17 +171,28 @@
     const photoURL = (fullData.photos && fullData.photos[reg]) ? fullData.photos[reg] : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
     document.getElementById('photoWrap').innerHTML = `<img src="${photoURL}" class="student-photo">`;
     
-    // പേര് കൃത്യമായി ലഭിക്കാനുള്ള പുതിയ മാറ്റം ഇവിടെയാണ്
+   // പേര് കണ്ടെത്താനുള്ള കൂടുതൽ കൃത്യമായ ലോജിക്
     let stName = "Student";
-    if (fullData.students && fullData.students[cls]) {
-        const studentInfo = fullData.students[cls][reg];
+    
+    // 1. ആദ്യം results ഒബ്ജക്റ്റിൽ പേരുണ്ടോ എന്ന് നോക്കുന്നു
+    if (res.name) {
+        stName = res.name;
+    } 
+    // 2. ഇല്ലെങ്കിൽ students ലിസ്റ്റിൽ തിരയുന്നു
+    else if (fullData.students && fullData.students[cls] && fullData.students[cls][reg]) {
+        const studentData = fullData.students[cls][reg];
         
-        // പേര് ഒരു Object ആണെങ്കിൽ അതിനുള്ളിലെ 'name' എന്ന കീ തിരയുന്നു
-        if (typeof studentInfo === 'object' && studentInfo !== null) {
-            stName = studentInfo.name || studentInfo.stName || "Student";
-        } else if (typeof studentInfo === 'string') {
-            stName = studentInfo; // നേരിട്ട് പേരാണെങ്കിൽ അത് എടുക്കുന്നു
+        if (typeof studentData === 'object') {
+            // ഒബ്ജക്റ്റ് ആണെങ്കിൽ അതിലെ സാധ്യമായ കീ കൾ പരിശോധിക്കുന്നു
+            stName = studentData.name || studentData.stName || studentData.studentName || "Student";
+        } else {
+            stName = studentData;
         }
+    }
+    
+    // ഒരുപക്ഷേ ഇപ്പോഴും [object Object] എന്ന് വരുന്നുണ്ടെങ്കിൽ അത് ഫോഴ്സ് ആയി ഒഴിവാക്കാൻ:
+    if (stName.toString().includes("[object Object]")) {
+        stName = "Student Name Error";
     }
 
     document.getElementById('stName').innerText = stName;
