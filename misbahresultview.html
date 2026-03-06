@@ -355,20 +355,7 @@ function celebrate() {
     
     // Attendance
     document.getElementById('attendance').innerText = res.att + "/" + (fullData.attSettings[cls] || 0);
-    announceResult(stName, res.total, maxMarks, (res.rank || "സ്ഥാനമില്ലാതെ"), res.status);
-}
-    function calculateGrade(m) {
-        let mark = parseFloat(m);
-        if (mark >= 45) return "A+";
-        if (mark >= 40) return "A";
-        if (mark >= 35) return "B+";
-        if (mark >= 30) return "B";
-        if (mark >= 25) return "C+";
-        if (mark >= 20) return "C";
-        if (mark >= 18) return "D+";
-        return "D";
-    }
-// റാങ്ക് ബാഡ്ജ് ലോജിക്
+    // റാങ്ക് ബാഡ്ജ് ലോജിക്
     const badgeDiv = document.getElementById('rankBadgePlaceholder');
     badgeDiv.innerHTML = ""; // പഴയ ബാഡ്ജ് ഒഴിവാക്കാൻ
     
@@ -385,6 +372,20 @@ function celebrate() {
 
     badgeDiv.innerHTML = medalHtml;
     
+    announceResult(stName, res.total, maxMarks, (res.rank || "സ്ഥാനമില്ലാതെ"), res.status);
+}
+    function calculateGrade(m) {
+        let mark = parseFloat(m);
+        if (mark >= 45) return "A+";
+        if (mark >= 40) return "A";
+        if (mark >= 35) return "B+";
+        if (mark >= 30) return "B";
+        if (mark >= 25) return "C+";
+        if (mark >= 20) return "C";
+        if (mark >= 18) return "D+";
+        return "D";
+    }
+
 function announceResult(name, total, maxMark, rank, status) {
     window.speechSynthesis.cancel(); // പഴയ വോയിസ് ഉണ്ടെങ്കിൽ നിർത്താൻ
 
