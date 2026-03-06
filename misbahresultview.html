@@ -80,6 +80,39 @@
     50% { opacity: 1; }
     100% { transform: scale(1.2); opacity: 0; }
 }
+/* റാങ്ക് ബാഡ്ജ് സ്റ്റൈൽ */
+.rank-badge-overlay {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    z-index: 10;
+    text-align: center;
+    animation: badgeBounce 1.5s ease-in-out infinite;
+}
+
+.medal-icon {
+    font-size: 50px;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+}
+
+.rank-text-badge {
+    display: block;
+    font-size: 12px;
+    font-weight: 900;
+    color: white;
+    margin-top: -5px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+@keyframes badgeBounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.1); }
+}
+
+/* റാങ്ക് അനുസരിച്ചുള്ള നിറങ്ങൾ */
+.gold { color: #ffd700; }   /* First Rank */
+.silver { color: #c0c0c0; } /* Second Rank */
+.bronze { color: #cd7f32; } /* Third Rank */
     </style>
 </head>
 <body>
@@ -109,6 +142,7 @@
 
     <div id="captureArea">
         <div class="card-header">
+        <div id="rankBadgePlaceholder"></div>
             <h1 id="cardMadName" style="margin:0; font-size:20px; text-transform:uppercase;"></h1>
             <p id="cardMadPlace" style="margin:0; font-size:12px; opacity:0.9; margin-bottom:10px;"></p>
             <hr style="border:0; border-top:1px solid rgba(255,255,255,0.2); margin-bottom:10px;">
@@ -334,7 +368,23 @@ function celebrate() {
         if (mark >= 18) return "D+";
         return "D";
     }
+// റാങ്ക് ബാഡ്ജ് ലോജിക്
+    const badgeDiv = document.getElementById('rankBadgePlaceholder');
+    badgeDiv.innerHTML = ""; // പഴയ ബാഡ്ജ് ഒഴിവാക്കാൻ
+    
+    let r = res.rank ? res.rank.toString() : "";
+    let medalHtml = "";
 
+    if (r === "1") {
+        medalHtml = `<div class="rank-badge-overlay"><i class="fa fa-medal gold medal-icon"></i><span class="rank-text-badge">1st RANK</span></div>`;
+    } else if (r === "2") {
+        medalHtml = `<div class="rank-badge-overlay"><i class="fa fa-medal silver medal-icon"></i><span class="rank-text-badge">2nd RANK</span></div>`;
+    } else if (r === "3") {
+        medalHtml = `<div class="rank-badge-overlay"><i class="fa fa-medal bronze medal-icon"></i><span class="rank-text-badge">3rd RANK</span></div>`;
+    }
+
+    badgeDiv.innerHTML = medalHtml;
+    
 function announceResult(name, total, maxMark, rank, status) {
     window.speechSynthesis.cancel(); // പഴയ വോയിസ് ഉണ്ടെങ്കിൽ നിർത്താൻ
 
