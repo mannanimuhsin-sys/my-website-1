@@ -335,33 +335,43 @@ function celebrate() {
         return "D";
     }
 
-// വോയിസ് അനൗൺസ്‌മെന്റ് ഫംഗ്ഷൻ
 function announceResult(name, total, maxMark, rank, status) {
-    window.speechSynthesis.cancel(); 
-    let message = "";
+    window.speechSynthesis.cancel(); // പഴയ വോയിസ് ഉണ്ടെങ്കിൽ നിർത്താൻ
 
-    // റിസൾട്ട് അനുസരിച്ച് സന്ദേശം തയ്യാറാക്കുന്നു
-    if (status.toLowerCase() === "passed") {
-        message = `അഭിനന്ദനങ്ങൾ. ${name} എന്ന വിദ്യാർത്ഥി, ${maxMark}-ൽ ${total} മാർക്കോടെ, ${rank}-ാം സ്ഥാനം നേടി വിജയിച്ചിരിക്കുന്നു.`;
+    // പേര് കൃത്യമായി വായിക്കാൻ ചെറിയ തിരുത്തൽ
+    let cleanName = name.replace(/[0-9]/g, '').trim(); 
+    let message = "";
+    const sts = status.toLowerCase();
+
+    if (sts === "passed") {
+        message = `അഭിനന്ദനങ്ങൾ... ${cleanName}, എന്ന വിദ്യാർത്ഥി... ${maxMark}-ൽ ${total} മാർക്കോടെ... ${rank} സ്ഥാനം നേടി വിജയിച്ചിരിക്കുന്നു.`;
     } 
-    else if (status.toLowerCase() === "promoted") {
-        message = `${name} എന്ന വിദ്യാർത്ഥിയെ അടുത്ത ക്ലാസിലേക്ക് പ്രമോട്ട് ചെയ്തിരിക്കുന്നു. അഭിനന്ദനങ്ങൾ.`;
+    else if (sts === "promoted") {
+        message = `${cleanName}, എന്ന വിദ്യാർത്ഥിയെ അടുത്ത ക്ലാസിലേക്ക് പ്രമോട്ട് ചെയ്തിരിക്കുന്നു. അഭിനന്ദനങ്ങൾ.`;
     } 
     else {
-        message = `ക്ഷമിക്കണം. ${name} എന്ന വ്യക്തിയായ താങ്കൾ ഈ പരീക്ഷയിൽ പരാജയപ്പെട്ടിരിക്കുന്നു. കൂടുതൽ പരിശ്രമിക്കുക.`;
+        message = `ക്ഷമിക്കണം... ${cleanName}, എന്ന വ്യക്തിയായ താങ്കൾ ഈ പരീക്ഷയിൽ പരാജയപ്പെട്ടിരിക്കുന്നു. കൂടുതൽ പരിശ്രമിക്കുക.`;
     }
 
-    // ബ്രൗസർ വോയിസ് സിസ്റ്റം ഉപയോഗിക്കുന്നു
     const speech = new SpeechSynthesisUtterance();
     speech.text = message;
-    speech.lang = 'ml-IN'; // മലയാളം ഭാഷ
-    speech.rate = 0.85;    // ശബ്ദത്തിന്റെ വേഗത (സാവധാനം)
-    speech.pitch = 1;
+    speech.lang = 'ml-IN'; 
+    speech.rate = 0.8; // വേഗത കുറച്ചുകൂടി കുറച്ചു (വ്യക്തതയ്ക്ക് വേണ്ടി)
+    speech.pitch = 0.9; // ശബ്ദത്തിന്റെ ഘനം കൂട്ടാൻ (ആണിന്റെ ശബ്ദത്തിന് വേണ്ടി)
 
-    // അനൗൺസ്‌മെന്റ് തുടങ്ങുന്നു
+    // ആണിന്റെ വോയിസ് ഉണ്ടെങ്കിൽ അത് സെറ്റ് ചെയ്യാൻ
+    let voices = window.speechSynthesis.getVoices();
+    // സാധാരണയായി ഇൻഡക്സ് 0 പെണ്ണും, 1 അല്ലെങ്കിൽ 2 മിക്ക ഫോണുകളിലും ആണുമാണ്
+    if (voices.length > 0) {
+        // മലയാളം വോയിസുകളിൽ ആണിന്റെ ശബ്ദം തിരയുന്നു
+        let maleVoice = voices.find(voice => voice.lang.includes('ml') && (voice.name.toLowerCase().includes('male') || voice.name.toLowerCase().includes('david') || voice.name.toLowerCase().includes('valluvar')));
+        if (maleVoice) {
+            speech.voice = maleVoice;
+        }
+    }
+
     window.speechSynthesis.speak(speech);
 }
-
     function downloadImage() {
         const btn = document.querySelector('.btn-download');
         btn.innerText = "Generating...";
