@@ -208,22 +208,33 @@
     const mId = urlParams.get('id');
     let fullData = null;
 
-   if(mId) {
-    db.collection("madrasa_data").where("uID", "==", mId).get().then((snapshot) => {
+  if(mId) {
+    // മദ്രസ പേര് വരുന്നത് വരെ സെർച്ച് ബട്ടൺ ഓഫ് ചെയ്യുന്നു
+    const sBtn = document.querySelector('.btn-search');
+    if(sBtn) {
+        sBtn.disabled = true;
+        sBtn.innerText = "LOADING DATA...";
+    }
+
+    db.collection("madrasa_data").where("uID", "==", mId).onSnapshot((snapshot) => {
         if (!snapshot.empty) {
             fullData = snapshot.docs[0].data();
+            
+            // പേര് സെറ്റ് ചെയ്യുന്നു
             const name = fullData.info.name;
             const place = fullData.info.place || "";
-
-            // ലോഡിങ് ടെക്സ്റ്റ് മാറ്റി പേര് ഉടൻ കാണിക്കാൻ
             document.getElementById('madHeader').innerText = name;
             document.getElementById('madPlace').innerText = place;
-            
-            // മറ്റ് സ്ഥലങ്ങളിലും പേര് നൽകുന്നു
-            if(document.getElementById('mainMadName')) document.getElementById('mainMadName').innerText = name;
-            if(document.getElementById('mainMadPlace')) document.getElementById('mainMadPlace').innerText = place;
-            if(document.getElementById('cardMadName')) document.getElementById('cardMadName').innerText = name;
-            if(document.getElementById('cardMadPlace')) document.getElementById('cardMadPlace').innerText = place;
+            document.getElementById('mainMadName').innerText = name;
+            document.getElementById('mainMadPlace').innerText = place;
+            document.getElementById('cardMadName').innerText = name;
+            document.getElementById('cardMadPlace').innerText = place;
+
+            // ഡാറ്റ ലോഡ് ആയിക്കഴിഞ്ഞാൽ ബട്ടൺ ഓൺ ആക്കുന്നു
+            if(sBtn) {
+                sBtn.disabled = false;
+                sBtn.innerText = "VIEW RESULT";
+            }
         }
     });
 }
@@ -296,7 +307,7 @@ function celebrate() {
     }, 250);
 }
 
-   function displayResult(cls, reg, res) {
+  function displayResult(cls, reg, res) {
     document.getElementById('searchSection').style.display = 'none';
     document.getElementById('captureArea').style.display = 'block';
     document.getElementById('actionArea').style.display = 'block';
@@ -304,31 +315,22 @@ function celebrate() {
     const photoURL = (fullData.photos && fullData.photos[reg]) ? fullData.photos[reg] : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
     document.getElementById('photoWrap').innerHTML = `<img src="${photoURL}" class="student-photo">`;
     
-   // പേര് കണ്ടെത്താനുള്ള കൂടുതൽ കൃത്യമായ ലോജിക്
-    let stName = "Student";
-    
-    // 1. ആദ്യം results ഒബ്ജക്റ്റിൽ പേരുണ്ടോ എന്ന് നോക്കുന്നു
-    if (res.name) {
-        stName = res.name;
-    } 
-    // 2. ഇല്ലെങ്കിൽ students ലിസ്റ്റിൽ തിരയുന്നു
-    else if (fullData.students && fullData.students[cls] && fullData.students[cls][reg]) {
-        const studentData = fullData.students[cls][reg];
-        
-        if (typeof studentData === 'object') {
-            // ഒബ്ജക്റ്റ് ആണെങ്കിൽ അതിലെ സാധ്യമായ കീ കൾ പരിശോധിക്കുന്നു
-            stName = studentData.name || studentData.stName || studentData.studentName || "Student";
-        } else {
-            stName = studentData;
-        }
-    }
-    
-    // ഒരുപക്ഷേ ഇപ്പോഴും [object Object] എന്ന് വരുന്നുണ്ടെങ്കിൽ അത് ഫോഴ്സ് ആയി ഒഴിവാക്കാൻ:
-    if (stName.toString().includes("[object Object]")) {
-        stName = "Student Name Error";
+    // പേര് കണ്ടെത്താനുള്ള ഏറ്റവും ശക്തമായ ലോജിക്
+    let stName = "";
+
+    if (res.name && res.name.trim() !== "") {
+        stName = res.name; // റിസൾട്ട് ലിസ്റ്റിലുള്ള പേര്
+    } else if (fullData.students && fullData.students[cls] && fullData.students[cls][reg]) {
+        let sData = fullData.students[cls][reg];
+        stName = (typeof sData === 'object') ? (sData.name || sData.stName) : sData;
     }
 
-    document.getElementById('stName').innerText = stName;
+    // പേര് ഒട്ടും കിട്ടിയില്ലെങ്കിൽ മാത്രം രജിസ്റ്റർ നമ്പർ കാണിക്കുക (STUDENT എന്ന് കാണിക്കുന്നതിലും നല്ലത് അതാണ്)
+    if (!stName || stName.toString().includes("[object Object]")) {
+        stName = "REG NO: " + reg;
+    }
+
+    document.getElementById('stName').innerText = stName.toUpperCase();
     document.getElementById('stReg').innerText = reg;
     document.getElementById('stClass').innerText = cls;
     document.getElementById('stRank').innerText = res.rank || "---";
