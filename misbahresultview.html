@@ -417,7 +417,7 @@ function announceResult(name, total, maxMark, rank, status) {
 
     // ഭാഗം 1: ഇൻട്രോ
     let introText = (sts === "passed") ? `അഭിനന്ദനങ്ങൾ...` : 
-                    (sts === "promoted") ? `അടുത്ത ക്ലാസിലേക്ക് കയറ്റം നൽകിയിരിക്കുന്നു...` : `ക്ഷമിക്കണം...`;
+                    (sts === "promoted") ? `പ്രമോട്ടഡ്...` : `ക്ഷമിക്കണം...`;
     
     let utterIntro = new SpeechSynthesisUtterance(introText);
     utterIntro.lang = 'ml-IN';
@@ -425,20 +425,19 @@ function announceResult(name, total, maxMark, rank, status) {
     if (maleVoiceML) utterIntro.voice = maleVoiceML;
     window.speechSynthesis.speak(utterIntro);
 
-    // ഭാഗം 2: പേര്
+    // ഭാഗം 2: പേര് (ഇംഗ്ലീഷ് വോയിസിൽ പേര് കൂടുതൽ വ്യക്തമാകും)
     let utterName = new SpeechSynthesisUtterance(name.toLowerCase().trim());
     utterName.lang = 'en-IN'; 
     utterName.rate = 0.8;
-    window.speechSynthesis.speak(utterName)
+    window.speechSynthesis.speak(utterName);
 
-
-    // ഭാഗം 3: ഔട്ട്‌ട്രോ (പ്രധാന മാറ്റങ്ങൾ ഇവിടെയാണ്)
+    // ഭാഗം 3: ഔട്ട്‌ട്രോ (മാറ്റങ്ങൾ ഇവിടെയാണ്)
     let outroText = "";
     if (sts === "passed") {
         outroText = `എന്ന വിദ്യാർത്ഥി... ${maxMark}-ൽ ${total} മാർക്കോടെ... ${malayalamRank} വിജയിച്ചിരിക്കുന്നു.`;
     } else if (sts === "promoted") {
-        // പ്രമോട്ടഡ് കുട്ടികൾക്കുള്ള സന്ദേശം
-        outroText = `എന്ന വിദ്യാർത്ഥിക്ക്, ഈ പരീക്ഷയിൽ മാർക്ക്  കുറവാണെങ്കിലും അടുത്ത ക്ലാസിലേക്ക് കയറ്റം നൽകിയിരിക്കുന്നു. ഇനിയുള്ള പരീക്ഷകളിൽ കൂടുതൽ നന്നായി പരിശ്രമിക്കുക.`;
+        // പ്രമോട്ടഡ് കുട്ടികൾക്കുള്ള പ്രത്യേക സന്ദേശം
+        outroText = `എന്ന വിദ്യാർത്ഥിക്ക്, ഈ പരീക്ഷയിൽ മാർക്ക് കുറവാണെങ്കിലും അടുത്ത ക്ലാസിലേക്ക് കയറ്റം നൽകിയിരിക്കുന്നു. ഇനിയുള്ള പരീക്ഷകളിൽ കൂടുതൽ നന്നായി പരിശ്രമിക്കുക.`;
     } else {
         // പരാജയപ്പെട്ട കുട്ടികൾക്കുള്ള സന്ദേശം
         outroText = `എന്ന വിദ്യാർത്ഥി ഈ പരീക്ഷയിൽ പരാജയപ്പെട്ടിരിക്കുന്നു. വിഷമിക്കാതെ അടുത്ത തവണ കൂടുതൽ കരുത്തോടെ പരിശ്രമിക്കുക.`;
@@ -450,7 +449,6 @@ function announceResult(name, total, maxMark, rank, status) {
     if (maleVoiceML) utterOutro.voice = maleVoiceML;
     window.speechSynthesis.speak(utterOutro);
 }
-
     function downloadImage() {
         const btn = document.querySelector('.btn-download');
         btn.innerText = "Generating...";
