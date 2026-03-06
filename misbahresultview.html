@@ -209,22 +209,37 @@
     let fullData = null;
 
    if(mId) {
+    // മദ്രസ പേര് വരുന്നത് വരെ സെർച്ച് ബട്ടൺ താൽക്കാലികമായി ഓഫ് ചെയ്യുന്നു
+    const searchBtn = document.querySelector('.btn-search');
+    if(searchBtn) {
+        searchBtn.disabled = true;
+        searchBtn.innerText = "LOADING DATA...";
+    }
+
     db.collection("madrasa_data").where("uID", "==", mId).get().then((snapshot) => {
         if (!snapshot.empty) {
             fullData = snapshot.docs[0].data();
             const name = fullData.info.name;
             const place = fullData.info.place || "";
 
-            // ലോഡിങ് ടെക്സ്റ്റ് മാറ്റി പേര് ഉടൻ കാണിക്കാൻ
+            // ഹെഡറിലും കാർഡിലും പേര് ഉടൻ അപ്‌ഡേറ്റ് ചെയ്യുന്നു
             document.getElementById('madHeader').innerText = name;
             document.getElementById('madPlace').innerText = place;
             
-            // മറ്റ് സ്ഥലങ്ങളിലും പേര് നൽകുന്നു
             if(document.getElementById('mainMadName')) document.getElementById('mainMadName').innerText = name;
             if(document.getElementById('mainMadPlace')) document.getElementById('mainMadPlace').innerText = place;
             if(document.getElementById('cardMadName')) document.getElementById('cardMadName').innerText = name;
             if(document.getElementById('cardMadPlace')) document.getElementById('cardMadPlace').innerText = place;
+
+            // ഡാറ്റ പൂർണ്ണമായും വന്നു കഴിഞ്ഞാൽ ബട്ടൺ റെഡിയാക്കുന്നു
+            if(searchBtn) {
+                searchBtn.disabled = false;
+                searchBtn.innerText = "VIEW RESULT";
+            }
         }
+    }).catch(err => {
+        console.error("Error:", err);
+        if(searchBtn) searchBtn.innerText = "RETRY AGAIN";
     });
 }
 
@@ -304,34 +319,25 @@ function celebrate() {
     const photoURL = (fullData.photos && fullData.photos[reg]) ? fullData.photos[reg] : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
     document.getElementById('photoWrap').innerHTML = `<img src="${photoURL}" class="student-photo">`;
     
-   // പേര് കണ്ടെത്താനുള്ള കൂടുതൽ കൃത്യമായ ലോജിക്
-    let stName = "Student";
-    
-    // 1. ആദ്യം results ഒബ്ജക്റ്റിൽ പേരുണ്ടോ എന്ന് നോക്കുന്നു
-    if (res.name) {
+   // പേര് കണ്ടെത്താനുള്ള അപ്‌ഡേറ്റഡ് ലോജിക്
+    let stName = "";
+
+    // 1. റിസൾട്ട് ഒബ്ജക്റ്റിൽ പേരുണ്ടോ എന്ന് നോക്കുന്നു
+    if (res.name && res.name.trim() !== "") {
         stName = res.name;
     } 
-    // 2. ഇല്ലെങ്കിൽ students ലിസ്റ്റിൽ തിരയുന്നു
+    // 2. ഇല്ലെങ്കിൽ ഫുൾ ഡാറ്റയിലെ സ്റ്റുഡന്റ് ലിസ്റ്റിൽ തിരയുന്നു
     else if (fullData.students && fullData.students[cls] && fullData.students[cls][reg]) {
-        const studentData = fullData.students[cls][reg];
-        
-        if (typeof studentData === 'object') {
-            // ഒബ്ജക്റ്റ് ആണെങ്കിൽ അതിലെ സാധ്യമായ കീ കൾ പരിശോധിക്കുന്നു
-            stName = studentData.name || studentData.stName || studentData.studentName || "Student";
-        } else {
-            stName = studentData;
-        }
-    }
-    
-    // ഒരുപക്ഷേ ഇപ്പോഴും [object Object] എന്ന് വരുന്നുണ്ടെങ്കിൽ അത് ഫോഴ്സ് ആയി ഒഴിവാക്കാൻ:
-    if (stName.toString().includes("[object Object]")) {
-        stName = "Student Name Error";
+        const sData = fullData.students[cls][reg];
+        stName = (typeof sData === 'object') ? (sData.name || sData.stName || "Student") : sData;
     }
 
-    document.getElementById('stName').innerText = stName;
-    document.getElementById('stReg').innerText = reg;
-    document.getElementById('stClass').innerText = cls;
-    document.getElementById('stRank').innerText = res.rank || "---";
+    // 3. പേര് ലഭിച്ചില്ലെങ്കിൽ മാത്രം ഡിഫോൾട്ട് പേര് നൽകുന്നു
+    if (!stName || stName.toString().includes("[object Object]")) {
+        stName = "STUDENT NAME";
+    }
+
+    document.getElementById('stName').innerText = stName.toUpperCase();
 
     // Status Logic
     const pill = document.getElementById('statusPill');
