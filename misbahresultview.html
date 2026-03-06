@@ -418,7 +418,7 @@ function announceResult(name, total, maxMark, rank, status) {
     // ഭാഗം 1: ഇൻട്രോ
     let introText = (sts === "passed") ? `അഭിനന്ദനങ്ങൾ...` : 
                      (sts === "promoted") ? `പ്രമോട്ടഡ്...` : 
-                    (sts === "faild") ? `ക്ഷമിക്കണം...` :
+                    (sts === "faild") ? `ക്ഷമിക്കണം...` : `ക്ഷമിക്കണം...`;
     
     let utterIntro = new SpeechSynthesisUtterance(introText);
     utterIntro.lang = 'ml-IN';
