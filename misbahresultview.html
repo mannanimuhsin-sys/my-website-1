@@ -429,7 +429,8 @@ function announceResult(name, total, maxMark, rank, status) {
     let utterName = new SpeechSynthesisUtterance(name.toLowerCase().trim());
     utterName.lang = 'en-IN'; 
     utterName.rate = 0.8;
-    window.speechSynthesis.speak(utterName);
+    window.speechSynthesis.speak(utterName)
+
 
     // ഭാഗം 3: ഔട്ട്‌ട്രോ (പ്രധാന മാറ്റങ്ങൾ ഇവിടെയാണ്)
     let outroText = "";
@@ -449,57 +450,7 @@ function announceResult(name, total, maxMark, rank, status) {
     if (maleVoiceML) utterOutro.voice = maleVoiceML;
     window.speechSynthesis.speak(utterOutro);
 }
-function announceResult(name, total, maxMark, rank, status) {
-    // പഴയ വോയിസ് ഉണ്ടെങ്കിൽ നിർത്തുന്നു
-    window.speechSynthesis.cancel(); 
 
-    const sts = status ? status.toLowerCase() : "";
-    let rString = rank ? rank.toString().trim() : "";
-    let malayalamRank = "";
-
-    // 1. റാങ്ക് ലോജിക്
-    if (rString && rString !== "---" && !isNaN(rString)) {
-        const rankMap = {
-            "1": "ഒന്നാം", "2": "രണ്ടാം", "3": "മൂന്നാം", "4": "നാലാം", "5": "അഞ്ചാം",
-            "6": "ആറാം", "7": "ഏഴാം", "8": "എട്ടാം", "9": "ഒൻപതാം", "10": "പത്താം"
-        };
-        let rankText = rankMap[rString] || rString + "-ാം";
-        malayalamRank = rankText + " സ്ഥാനം നേടി";
-    } else {
-        malayalamRank = "വിജയകരമായി"; 
-    }
-
-    // 2. വോയിസ് സെറ്റിംഗ്സ്
-    let voices = window.speechSynthesis.getVoices();
-    let maleVoiceML = voices.find(v => v.lang.includes('ml') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david')));
-
-    // ഭാഗം 1: ഇൻട്രോ
-    let introText = (sts === "passed") ? `അഭിനന്ദനങ്ങൾ...` : 
-                    (sts === "promoted") ? `പ്രമോട്ടഡ്...` : `ക്ഷമിക്കണം...`;
-    
-    let utterIntro = new SpeechSynthesisUtterance(introText);
-    utterIntro.lang = 'ml-IN';
-    utterIntro.rate = 0.8;
-    if (maleVoiceML) utterIntro.voice = maleVoiceML;
-    window.speechSynthesis.speak(utterIntro);
-
-    // ഭാഗം 2: പേര് (ക്യാപിറ്റൽ അക്ഷരങ്ങൾ കൂട്ടി വായിക്കാൻ ഇത് സഹായിക്കും)
-    let utterName = new SpeechSynthesisUtterance(name.toLowerCase().trim());
-    utterName.lang = 'en-IN'; 
-    utterName.rate = 0.8;
-    window.speechSynthesis.speak(utterName);
-
-    // ഭാഗം 3: ഔട്ട്‌ട്രോ
-    let outroText = (sts === "passed") ? `എന്ന വിദ്യാർത്ഥി... ${maxMark}-ൽ ${total} മാർക്കോടെ... ${malayalamRank} വിജയിച്ചിരിക്കുന്നു.` :
-                    (sts === "promoted") ? `എന്ന വിദ്യാർത്ഥിയെ അടുത്ത ക്ലാസിലേക്ക് പ്രമോട്ട് ചെയ്തിരിക്കുന്നു. അഭിനന്ദനങ്ങൾ.` :
-                    `ഈ പരീക്ഷയിൽ പരാജയപ്പെട്ടിരിക്കുന്നു. കൂടുതൽ പരിശ്രമിക്കുക.`;
-
-    let utterOutro = new SpeechSynthesisUtterance(outroText);
-    utterOutro.lang = 'ml-IN';
-    utterOutro.rate = 0.8;
-    if (maleVoiceML) utterOutro.voice = maleVoiceML;
-    window.speechSynthesis.speak(utterOutro);
-}
     function downloadImage() {
         const btn = document.querySelector('.btn-download');
         btn.innerText = "Generating...";
