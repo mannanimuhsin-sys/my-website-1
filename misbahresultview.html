@@ -389,52 +389,54 @@ function celebrate() {
 function announceResult(name, total, maxMark, rank, status) {
     window.speechSynthesis.cancel(); 
 
-    let englishName = name.trim(); 
-    let message = "";
     const sts = status.toLowerCase();
-
-    // റാങ്ക് നമ്പറിനെ മലയാളം ശൈലിയിലേക്ക് മാറ്റുന്നു
-    let malayalamRank = "";
     let rString = rank ? rank.toString().trim() : "";
+    let malayalamRank = "";
 
+    // റാങ്ക് ലോജിക്
     if (rString && rString !== "---" && !isNaN(rString)) {
         const rankMap = {
             "1": "ഒന്നാം", "2": "രണ്ടാം", "3": "മൂന്നാം", "4": "നാലാം", "5": "അഞ്ചാം",
             "6": "ആറാം", "7": "ഏഴാം", "8": "എട്ടാം", "9": "ഒൻപതാം", "10": "പത്താം"
         };
-        
-        // പത്തിന് മുകളിൽ ആണെങ്കിൽ നമ്പറിനൊപ്പം "-ാം" ചേർക്കുന്നു
-        let rankText = rankMap[rString] || rString + "-ാം";
-        malayalamRank = rankText + " സ്ഥാനം നേടി";
+        malayalamRank = (rankMap[rString] || rString + "-ാം") + " സ്ഥാനം നേടി";
     } else {
-        malayalamRank = "വിജയകരമായി"; 
+        malayalamRank = "വിജയകരമായി";
     }
 
-    if (sts === "passed") {
-        message = `അഭിനന്ദനങ്ങൾ... ${englishName}... എന്ന വിദ്യാർത്ഥി... ${maxMark}-ൽ ${total} മാർക്കോടെ... ${malayalamRank} വിജയിച്ചിരിക്കുന്നു.`;
-    } 
-    else if (sts === "promoted") {
-        message = `${englishName}... എന്ന വിദ്യാർത്ഥിയെ അടുത്ത ക്ലാസിലേക്ക് പ്രമോട്ട് ചെയ്തിരിക്കുന്നു. അഭിനന്ദനങ്ങൾ.`;
-    } 
-    else {
-        message = `ക്ഷമിക്കണം... ${englishName}... എന്ന വ്യക്തിയായ താങ്കൾ ഈ പരീക്ഷയിൽ പരാജയപ്പെട്ടിരിക്കുന്നു. കൂടുതൽ പരിശ്രമിക്കുക.`;
-    }
+    // ഭാഗം 1: തുടക്കത്തിലെ മലയാളം (അഭിനന്ദനങ്ങൾ...)
+    let introText = (sts === "passed") ? `അഭിനന്ദനങ്ങൾ...` : 
+                    (sts === "promoted") ? `പ്രമോട്ടഡ്...` : `ക്ഷമിക്കണം...`;
+    
+    // ഭാഗം 2: ബാക്കി മലയാളം സന്ദേശം
+    let outroText = (sts === "passed") ? `എന്ന വിദ്യാർത്ഥി... ${maxMark}-ൽ ${total} മാർക്കോടെ... ${malayalamRank} വിജയിച്ചിരിക്കുന്നു.` :
+                    (sts === "promoted") ? `എന്ന വിദ്യാർത്ഥിയെ അടുത്ത ക്ലാസിലേക്ക് പ്രമോട്ട് ചെയ്തിരിക്കുന്നു. അഭിനന്ദനങ്ങൾ.` :
+                    `എന്ന വ്യക്തിയായ താങ്കൾ ഈ പരീക്ഷയിൽ പരാജയപ്പെട്ടിരിക്കുന്നു. കൂടുതൽ പരിശ്രമിക്കുക.`;
 
-    const speech = new SpeechSynthesisUtterance();
-    speech.text = message;
-    speech.lang = 'ml-IN'; 
-    speech.rate = 0.8;      
-    speech.pitch = 0.8;     
-
+    // വോയിസ് സെറ്റിംഗ്സ്
     let voices = window.speechSynthesis.getVoices();
-    if (voices.length > 0) {
-        let maleVoice = voices.find(v => v.lang.includes('ml') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david')));
-        if (maleVoice) {
-            speech.voice = maleVoice;
-        }
-    }
+    let maleVoiceML = voices.find(v => v.lang.includes('ml') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david')));
+    let engVoice = voices.find(v => v.lang.includes('en-IN') || v.lang.includes('en-GB')) || voices[0];
 
-    window.speechSynthesis.speak(speech);
+    // 1. ഇൻട്രോ (മലയാളം)
+    let utterIntro = new SpeechSynthesisUtterance(introText);
+    utterIntro.lang = 'ml-IN';
+    utterIntro.rate = 0.8;
+    if (maleVoiceML) utterIntro.voice = maleVoiceML;
+    window.speechSynthesis.speak(utterIntro);
+
+    // 2. പേര് (ഇംഗ്ലീഷിൽ - അക്ഷരങ്ങൾ വിട്ടു വായിക്കാതിരിക്കാൻ)
+    let utterName = new SpeechSynthesisUtterance(name.trim());
+    utterName.lang = 'en-US'; // പേര് വായിക്കുമ്പോൾ ഇംഗ്ലീഷ് ഉപയോഗിക്കുന്നു
+    utterName.rate = 0.7;      // പേര് സാവധാനം വായിക്കാൻ
+    window.speechSynthesis.speak(utterName);
+
+    // 3. ബാക്കി കാര്യങ്ങൾ (മലയാളം)
+    let utterOutro = new SpeechSynthesisUtterance(outroText);
+    utterOutro.lang = 'ml-IN';
+    utterOutro.rate = 0.8;
+    if (maleVoiceML) utterOutro.voice = maleVoiceML;
+    window.speechSynthesis.speak(utterOutro);
 }
     function downloadImage() {
         const btn = document.querySelector('.btn-download');
