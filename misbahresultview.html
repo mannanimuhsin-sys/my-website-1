@@ -338,33 +338,33 @@ function celebrate() {
 function announceResult(name, total, maxMark, rank, status) {
     window.speechSynthesis.cancel(); // പഴയ വോയിസ് ഉണ്ടെങ്കിൽ നിർത്താൻ
 
-    // പേര് കൃത്യമായി വായിക്കാൻ ചെറിയ തിരുത്തൽ
-    let cleanName = name.replace(/[0-9]/g, '').trim(); 
+    // പേര് ഇംഗ്ലീഷിൽ തന്നെ നിലനിർത്തുന്നു (English letters are read better by the system)
+    let englishName = name.trim(); 
     let message = "";
     const sts = status.toLowerCase();
 
+    // സന്ദേശം തയ്യാറാക്കുന്നു (പേര് മാത്രം ഇംഗ്ലീഷിൽ, ബാക്കി മലയാളത്തിൽ)
     if (sts === "passed") {
-        message = `അഭിനന്ദനങ്ങൾ... ${cleanName}, എന്ന വിദ്യാർത്ഥി... ${maxMark}-ൽ ${total} മാർക്കോടെ... ${rank} സ്ഥാനം നേടി വിജയിച്ചിരിക്കുന്നു.`;
+        message = `അഭിനന്ദനങ്ങൾ... ${englishName}... എന്ന വിദ്യാർത്ഥി... ${maxMark}-ൽ ${total} മാർക്കോടെ... ${rank} സ്ഥാനം നേടി വിജയിച്ചിരിക്കുന്നു.`;
     } 
     else if (sts === "promoted") {
-        message = `${cleanName}, എന്ന വിദ്യാർത്ഥിയെ അടുത്ത ക്ലാസിലേക്ക് പ്രമോട്ട് ചെയ്തിരിക്കുന്നു. അഭിനന്ദനങ്ങൾ.`;
+        message = `${englishName}... എന്ന വിദ്യാർത്ഥിയെ അടുത്ത ക്ലാസിലേക്ക് പ്രമോട്ട് ചെയ്തിരിക്കുന്നു. അഭിനന്ദനങ്ങൾ.`;
     } 
     else {
-        message = `ക്ഷമിക്കണം... ${cleanName}, എന്ന വ്യക്തിയായ താങ്കൾ ഈ പരീക്ഷയിൽ പരാജയപ്പെട്ടിരിക്കുന്നു. കൂടുതൽ പരിശ്രമിക്കുക.`;
+        message = `ക്ഷമിക്കണം... ${englishName}... എന്ന വ്യക്തിയായ താങ്കൾ ഈ പരീക്ഷയിൽ പരാജയപ്പെട്ടിരിക്കുന്നു. കൂടുതൽ പരിശ്രമിക്കുക.`;
     }
 
     const speech = new SpeechSynthesisUtterance();
     speech.text = message;
-    speech.lang = 'ml-IN'; 
-    speech.rate = 0.8; // വേഗത കുറച്ചുകൂടി കുറച്ചു (വ്യക്തതയ്ക്ക് വേണ്ടി)
-    speech.pitch = 0.9; // ശബ്ദത്തിന്റെ ഘനം കൂട്ടാൻ (ആണിന്റെ ശബ്ദത്തിന് വേണ്ടി)
+    speech.lang = 'ml-IN'; // മലയാളം വോയിസ് സെറ്റ് ചെയ്യുന്നു
+    speech.rate = 0.8;      // വേഗത കുറച്ചു (വ്യക്തതയ്ക്ക് വേണ്ടി)
+    speech.pitch = 0.8;     // ശബ്ദത്തിന് ഗൗരവം നൽകുന്നു (ആണിന്റെ ശബ്ദത്തിന് വേണ്ടി)
 
-    // ആണിന്റെ വോയിസ് ഉണ്ടെങ്കിൽ അത് സെറ്റ് ചെയ്യാൻ
+    // ആണിന്റെ ശബ്ദം തിരഞ്ഞെടുക്കാനുള്ള ശ്രമം
     let voices = window.speechSynthesis.getVoices();
-    // സാധാരണയായി ഇൻഡക്സ് 0 പെണ്ണും, 1 അല്ലെങ്കിൽ 2 മിക്ക ഫോണുകളിലും ആണുമാണ്
     if (voices.length > 0) {
-        // മലയാളം വോയിസുകളിൽ ആണിന്റെ ശബ്ദം തിരയുന്നു
-        let maleVoice = voices.find(voice => voice.lang.includes('ml') && (voice.name.toLowerCase().includes('male') || voice.name.toLowerCase().includes('david') || voice.name.toLowerCase().includes('valluvar')));
+        // മലയാളം സപ്പോർട്ട് ചെയ്യുന്ന ആൺ ശബ്ദങ്ങൾ ഉണ്ടോ എന്ന് നോക്കുന്നു
+        let maleVoice = voices.find(v => v.lang.includes('ml') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david')));
         if (maleVoice) {
             speech.voice = maleVoice;
         }
