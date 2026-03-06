@@ -321,6 +321,7 @@ function celebrate() {
     
     // Attendance
     document.getElementById('attendance').innerText = res.att + "/" + (fullData.attSettings[cls] || 0);
+    announceResult(stName, res.total, maxMarks, (res.rank || "സ്ഥാനമില്ലാതെ"), res.status);
 }
     function calculateGrade(m) {
         let mark = parseFloat(m);
@@ -333,6 +334,33 @@ function celebrate() {
         if (mark >= 18) return "D+";
         return "D";
     }
+
+// വോയിസ് അനൗൺസ്‌മെന്റ് ഫംഗ്ഷൻ
+function announceResult(name, total, maxMark, rank, status) {
+    window.speechSynthesis.cancel(); 
+    let message = "";
+
+    // റിസൾട്ട് അനുസരിച്ച് സന്ദേശം തയ്യാറാക്കുന്നു
+    if (status.toLowerCase() === "passed") {
+        message = `അഭിനന്ദനങ്ങൾ. ${name} എന്ന വിദ്യാർത്ഥി, ${maxMark}-ൽ ${total} മാർക്കോടെ, ${rank}-ാം സ്ഥാനം നേടി വിജയിച്ചിരിക്കുന്നു.`;
+    } 
+    else if (status.toLowerCase() === "promoted") {
+        message = `${name} എന്ന വിദ്യാർത്ഥിയെ അടുത്ത ക്ലാസിലേക്ക് പ്രമോട്ട് ചെയ്തിരിക്കുന്നു. അഭിനന്ദനങ്ങൾ.`;
+    } 
+    else {
+        message = `ക്ഷമിക്കണം. ${name} എന്ന വ്യക്തിയായ താങ്കൾ ഈ പരീക്ഷയിൽ പരാജയപ്പെട്ടിരിക്കുന്നു. കൂടുതൽ പരിശ്രമിക്കുക.`;
+    }
+
+    // ബ്രൗസർ വോയിസ് സിസ്റ്റം ഉപയോഗിക്കുന്നു
+    const speech = new SpeechSynthesisUtterance();
+    speech.text = message;
+    speech.lang = 'ml-IN'; // മലയാളം ഭാഷ
+    speech.rate = 0.85;    // ശബ്ദത്തിന്റെ വേഗത (സാവധാനം)
+    speech.pitch = 1;
+
+    // അനൗൺസ്‌മെന്റ് തുടങ്ങുന്നു
+    window.speechSynthesis.speak(speech);
+}
 
     function downloadImage() {
         const btn = document.querySelector('.btn-download');
