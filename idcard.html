@@ -225,8 +225,17 @@ async function saveStudent(){
    data[f] = val;
  }
 
+ if(data.regPass.length < 4) {
+   alert("പാസ്‌വേർഡിന് കുറഞ്ഞത് 4 അക്കങ്ങൾ വേണം!");
+   btn.disabled = false;
+   btn.innerText = "SAVE & GENERATE ID CARD";
+   return;
+ }
+
  if(data.regPass !== data.regPassConf) {
    alert("പാസ്‌വേർഡുകൾ തമ്മിൽ യോജിക്കുന്നില്ല!");
+   btn.disabled = false; // ബട്ടൺ വീണ്ടും ആക്റ്റീവ് ആക്കാൻ
+   btn.innerText = "SAVE & GENERATE ID CARD";
    return;
  }
  
