@@ -21,7 +21,7 @@ label{font-size:12px;font-weight:bold;color:var(--green);margin-top:10px;display
 .main-btn{width:100%;padding:14px;margin-top:15px;border:none;border-radius:10px;background:var(--green);color:#fff;font-weight:bold;cursor:pointer;transition:0.3s}
 .main-btn:disabled{background:#ccc;cursor:not-allowed}
 
-/* ID CARD DESIGN (PROTECTED) */
+/* ID CARD DESIGN (ORIGINAL STYLE) */
 #idArea{display:none;text-align:center;padding:20px 10px}
 #idCard{
  width:280px;background:#fff;margin:auto;border-radius:12px;
@@ -58,6 +58,14 @@ label{font-size:12px;font-weight:bold;color:var(--green);margin-top:10px;display
 .crop-container { background: #fff; padding: 10px; border-radius: 14px; width: 90%; max-width: 320px; }
 #cropImg { display: block; max-width: 100%; max-height: 350px; }
 
+/* Photo Preview Section */
+#photoPreviewWrap {
+  margin-top: 10px;
+  text-align: center;
+  border: 1px dashed #ccc;
+  padding: 10px;
+  border-radius: 8px;
+}
 </style>
 </head>
 <body>
@@ -75,7 +83,7 @@ label{font-size:12px;font-weight:bold;color:var(--green);margin-top:10px;display
    <input id="classN" placeholder="Class">
    <input id="father" placeholder="Father Name">
    <input id="mentor" placeholder="Mentor Name">
-   <input id="phone" placeholder="Phone Number">
+   <input id="phone" placeholder="Phone Number" type="tel">
 
    <select id="gender">
     <option value="">Select Gender</option>
@@ -94,12 +102,22 @@ label{font-size:12px;font-weight:bold;color:var(--green);margin-top:10px;display
    <label>Student Photo</label>
    <input type="file" id="photoInp" accept="image/*">
    
+   <div id="photoPreviewWrap" style="display:none;">
+     <img id="uploadPreview" style="width:80px; height:100px; border-radius:8px; object-fit:cover; border:2px solid var(--green);">
+     <p style="font-size:11px; color:red; cursor:pointer; margin-top:5px;" onclick="document.getElementById('photoInp').click()">Change Photo</p>
+   </div>
+
+   <label>Set Password</label>
+   <input type="password" id="regPass" placeholder="Create Password">
+   <input type="password" id="regPassConf" placeholder="Confirm Password">
+   
    <button id="saveBtn" class="main-btn" onclick="saveStudent()">SAVE & GENERATE ID CARD</button>
   </div>
 
   <div id="logTab" style="display:none">
    <input id="loginReg" placeholder="Enter Register Number">
-   <button class="main-btn" onclick="login()">VIEW ID CARD</button>
+   <input type="password" id="loginPass" placeholder="Enter Password">
+   <button id="loginBtn" class="main-btn" onclick="login()">VIEW ID CARD</button>
   </div>
  </div>
 </div>
@@ -151,7 +169,7 @@ label{font-size:12px;font-weight:bold;color:var(--green);margin-top:10px;display
 <script>
 let cropper, photoData = "";
 
-// Firebase Configuration (പഴയത് തന്നെ നിലനിർത്തി)
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
   authDomain: "mum-new-id.firebaseapp.com",
@@ -170,6 +188,7 @@ function showTab(t){
  document.getElementById('tLog').className = t=="log"?"active":"";
 }
 
+// Photo Input Logic
 document.getElementById('photoInp').onchange = e => {
  const file = e.target.files[0];
  if (file) {
@@ -184,14 +203,20 @@ document.getElementById('photoInp').onchange = e => {
  }
 };
 
+// Crop & Show Preview
 function applyCrop(){
  photoData = cropper.getCroppedCanvas({ width: 300, height: 400 }).toDataURL("image/jpeg", 0.7);
+ 
+ // Show Preview on registration form
+ document.getElementById('uploadPreview').src = photoData;
+ document.getElementById('photoPreviewWrap').style.display = "block";
+ 
  document.getElementById('cropBox').style.display = "none";
  alert("ഫോട്ടോ തയ്യാറായിക്കഴിഞ്ഞു ✅");
 }
 
 async function saveStudent(){
- const fields = ['name', 'regno', 'classN', 'father', 'mentor', 'phone', 'gender', 'blood', 'dob'];
+ const fields = ['name', 'regno', 'classN', 'father', 'mentor', 'phone', 'gender', 'blood', 'dob', 'regPass', 'regPassConf'];
  const data = {};
  
  for(let f of fields) {
@@ -200,33 +225,54 @@ async function saveStudent(){
    data[f] = val;
  }
 
+ if(data.regPass !== data.regPassConf) {
+   alert("പാസ്‌വേർഡുകൾ തമ്മിൽ യോജിക്കുന്നില്ല!");
+   return;
+ }
+ 
+ if(data.phone.length < 10) {
+   alert("ശരിയായ ഫോൺ നമ്പർ നൽകുക!");
+   return;
+ }
+
  if(!photoData) { alert("ഫോട്ടോ അപ്‌ലോഡ് ചെയ്യുക!"); return; }
  
  const btn = document.getElementById('saveBtn');
  btn.disabled = true;
- btn.innerText = "SAVING... PLEASE WAIT";
-
- const studentObj = {
-  name: data.name,
-  number: data.regno,
-  class: data.classN,
-  father: data.father,
-  mentor: data.mentor,
-  phone: data.phone,
-  gender: data.gender,
-  blood: data.blood,
-  dob: data.dob,
-  photo: photoData,
-  timestamp: new Date().getTime()
- };
+ btn.innerText = "CHECKING REGISTER NUMBER...";
 
  try {
+  const checkDoc = await db.collection("students").doc(data.regno).get();
+  if(checkDoc.exists) {
+    alert("ഈ രജിസ്റ്റർ നമ്പർ നിലവിൽ ഉപയോഗിച്ചിട്ടുണ്ട്!");
+    btn.disabled = false;
+    btn.innerText = "SAVE & GENERATE ID CARD";
+    return;
+  }
+
+  btn.innerText = "SAVING... PLEASE WAIT";
+
+  const studentObj = {
+   name: data.name,
+   number: data.regno,
+   class: data.classN,
+   father: data.father,
+   mentor: data.mentor,
+   phone: data.phone,
+   gender: data.gender,
+   blood: data.blood,
+   dob: data.dob,
+   password: data.regPass,
+   photo: photoData,
+   timestamp: new Date().getTime()
+  };
+
   await db.collection("students").doc(studentObj.number).set(studentObj);
   localStorage.setItem("STU_"+studentObj.number, JSON.stringify(studentObj));
-  alert("വിജയകരമായി സേവ് ചെയ്തു ✅");
+  alert("വിജയകരമായി രജിസ്റ്റർ ചെയ്തു ✅");
   renderID(studentObj);
  } catch (e) {
-  alert("Error: സേവ് ചെയ്യാൻ കഴിഞ്ഞില്ല. ഇന്റർനെറ്റ് പരിശോധിക്കുക.");
+  alert("Error: സേവ് ചെയ്യാൻ കഴിഞ്ഞില്ല.");
   btn.disabled = false;
   btn.innerText = "SAVE & GENERATE ID CARD";
  }
@@ -234,21 +280,30 @@ async function saveStudent(){
 
 async function login(){
  const rNo = document.getElementById('loginReg').value;
- if(!rNo) return;
+ const lPass = document.getElementById('loginPass').value;
+ const lBtn = document.getElementById('loginBtn');
+
+ if(!rNo || !lPass) { alert("വിവരങ്ങൾ നൽകുക!"); return; }
  
- // ആദ്യം ലോക്കൽ സ്റ്റോറേജിൽ നോക്കും, ഇല്ലെങ്കിൽ ഫയർബേസിൽ നോക്കും
- let d = localStorage.getItem("STU_"+rNo);
- if(d) {
-   renderID(JSON.parse(d));
- } else {
-   try {
-     const doc = await db.collection("students").doc(rNo).get();
-     if(doc.exists) {
-       renderID(doc.data());
+ lBtn.disabled = true;
+ lBtn.innerText = "VERIFYING...";
+
+ try {
+   const doc = await db.collection("students").doc(rNo).get();
+   if(doc.exists) {
+     const userData = doc.data();
+     if(userData.password === lPass) {
+       renderID(userData);
      } else {
-       alert("ഈ നമ്പർ കണ്ടെത്തിയില്ല!");
+       alert("തെറ്റായ പാസ്‌വേർഡ്!");
      }
-   } catch(e) { alert("Error connecting to Database"); }
+   } else {
+     alert("രജിസ്റ്റർ നമ്പർ കണ്ടെത്തിയില്ല!");
+   }
+ } catch(e) { alert("Error connecting to Database"); }
+ finally {
+   lBtn.disabled = false;
+   lBtn.innerText = "VIEW ID CARD";
  }
 }
 
