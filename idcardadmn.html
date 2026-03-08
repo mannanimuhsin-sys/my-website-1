@@ -30,8 +30,8 @@
         th { background: #f8f9fa; padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6; color: var(--green); }
         td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
         .stu-img { width: 50px; height: 60px; object-fit: cover; border-radius: 5px; cursor: pointer; }
+        .pass-text { color: #d35400; font-family: monospace; font-weight: bold; }
 
-        /* Modal Style for Editing */
         #editModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center; }
         .modal-content { background:white; padding:25px; border-radius:15px; width:90%; max-width:500px; max-height:90vh; overflow-y:auto; }
         .modal-content input, .modal-content select { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:5px; box-sizing: border-box; }
@@ -45,7 +45,7 @@
 </div>
 
 <div class="action-bar">
-    <input type="text" id="search" placeholder="Search anything..." onkeyup="filterData()" style="flex:1; min-width:200px; padding:10px; border-radius:8px; border:1px solid #ddd;">
+    <input type="text" id="search" placeholder="Search by name, ID or phone..." onkeyup="filterData()" style="flex:1; min-width:200px; padding:10px; border-radius:8px; border:1px solid #ddd;">
     <select id="classFilter" onchange="fetchData()" style="padding:10px; border-radius:8px;">
         <option value="All">All Classes</option>
         <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
@@ -63,8 +63,8 @@
                 <th>Reg.No</th>
                 <th>Name</th>
                 <th>Class</th>
-                <th>Father</th>
                 <th>Phone</th>
+                <th>Password</th>
                 <th>Blood</th>
                 <th>Actions</th>
             </tr>
@@ -78,13 +78,17 @@
         <h3 style="color:var(--green); margin-top:0;">Edit Student Details</h3>
         <input type="hidden" id="editDocId">
         <label>Full Name</label><input type="text" id="editName">
-        <label>Register Number</label><input type="text" id="editReg" disabled>
+        <label>Register Number</label><input type="text" id="editReg" disabled title="ID cannot be changed">
         <label>Class</label><input type="text" id="editClass">
         <label>Father's Name</label><input type="text" id="editFather">
         <label>Mentor Name</label><input type="text" id="editMentor">
         <label>Phone Number</label><input type="text" id="editPhone">
         <label>Blood Group</label><input type="text" id="editBlood">
         <label>Date of Birth</label><input type="date" id="editDob">
+        
+        <label style="color:var(--red); font-weight:bold;">Student Password</label>
+        <input type="text" id="editPass" placeholder="Update Password">
+        
         <label>Change Photo</label><input type="file" id="editPhotoInp" accept="image/*">
         <div style="display:flex; gap:10px; margin-top:15px;">
             <button class="btn-excel" onclick="updateData()" style="flex:1;">SAVE CHANGES</button>
@@ -94,7 +98,6 @@
 </div>
 
 <script>
-// Firebase Initialization
 const firebaseConfig = {
     apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
     authDomain: "mum-new-id.firebaseapp.com",
@@ -125,6 +128,9 @@ async function fetchData() {
             const s = doc.data();
             const id = doc.id;
             studentData.push({ ...s, docId: id });
+            
+            // പാസ്‌വേർഡ് ഇല്ലെങ്കിൽ 'N/A' എന്ന് കാണിക്കും
+            const passDisplay = s.password ? s.password : '---';
 
             tbody.innerHTML += `
                 <tr>
@@ -132,8 +138,8 @@ async function fetchData() {
                     <td><b>${s.number}</b></td>
                     <td>${s.name}</td>
                     <td>${s.class}</td>
-                    <td>${s.father}</td>
                     <td>${s.phone}</td>
+                    <td class="pass-text">${passDisplay}</td>
                     <td>${s.blood}</td>
                     <td>
                         <button class="btn-edit" onclick="openEditModal('${id}')">Edit</button>
@@ -144,6 +150,16 @@ async function fetchData() {
         });
         document.getElementById('stats').innerText = `Total Students: ${studentData.length}`;
     } catch (e) { alert("Error fetching data!"); }
+}
+
+function filterData() {
+    const searchVal = document.getElementById('search').value.toLowerCase();
+    const rows = document.querySelectorAll("#studentBody tr");
+    
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(searchVal) ? "" : "none";
+    });
 }
 
 function openEditModal(docId) {
@@ -157,11 +173,19 @@ function openEditModal(docId) {
     document.getElementById('editPhone').value = s.phone;
     document.getElementById('editBlood').value = s.blood;
     document.getElementById('editDob').value = s.dob;
+    document.getElementById('editPass').value = s.password || ""; // പാസ്‌വേർഡ് മോഡലിലേക്ക് ലോഡ് ചെയ്യുന്നു
     document.getElementById('editModal').style.display = 'flex';
 }
 
 async function updateData() {
     const docId = document.getElementById('editDocId').value;
+    const newPass = document.getElementById('editPass').value;
+    
+    if(newPass.length > 0 && newPass.length < 4) {
+        alert("പാസ്‌വേർഡിന് കുറഞ്ഞത് 4 അക്കങ്ങൾ വേണം!");
+        return;
+    }
+
     const updated = {
         name: document.getElementById('editName').value,
         class: document.getElementById('editClass').value,
@@ -169,7 +193,8 @@ async function updateData() {
         mentor: document.getElementById('editMentor').value,
         phone: document.getElementById('editPhone').value,
         blood: document.getElementById('editBlood').value,
-        dob: document.getElementById('editDob').value
+        dob: document.getElementById('editDob').value,
+        password: newPass // പുതിയ പാസ്‌വേർഡ് ഇവിടെ അപ്‌ഡേറ്റ് ചെയ്യപ്പെടുന്നു
     };
 
     const photoInp = document.getElementById('editPhotoInp');
@@ -186,16 +211,18 @@ async function updateData() {
 }
 
 async function saveToFirebase(docId, data) {
-    await db.collection("students").doc(docId).update(data);
-    alert("Updated Successfully! ✅");
-    closeModal();
-    fetchData();
+    try {
+        await db.collection("students").doc(docId).update(data);
+        alert("വിവരങ്ങൾ വിജയകരമായി മാറ്റി! ✅");
+        closeModal();
+        fetchData();
+    } catch(e) { alert("Error updating data!"); }
 }
 
 function closeModal() { document.getElementById('editModal').style.display = 'none'; }
 
 async function deleteData(id) {
-    if(confirm("Are you sure you want to delete?")) {
+    if(confirm("ഈ വിദ്യാർത്ഥിയുടെ വിവരങ്ങൾ പൂർണ്ണമായും ഡിലീറ്റ് ചെയ്യട്ടെ?")) {
         await db.collection("students").doc(id).delete();
         fetchData();
     }
@@ -206,32 +233,33 @@ function exportToExcel() {
         "Reg.No": s.number,
         "Name": s.name,
         "Class": s.class,
+        "Password": s.password || "N/A",
+        "Phone": s.phone,
         "Father": s.father,
         "Mentor": s.mentor,
-        "Phone": s.phone,
         "Blood": s.blood,
         "DOB": s.dob
     }));
     const ws = XLSX.utils.json_to_sheet(cleanData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Students");
-    XLSX.writeFile(wb, "Student_Data_Misbahul_Uloom.xlsx");
+    XLSX.writeFile(wb, "Student_Data_Master_Panel.xlsx");
 }
 
 function exportToPDF() {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('l', 'mm', 'a4'); // Landscape for more details
-    doc.text("Student Report - Misbahul Uloom Madrasa", 14, 15);
+    const doc = new jsPDF('l', 'mm', 'a4');
+    doc.text("Master Student Report - Misbahul Uloom Madrasa", 14, 15);
     
-    const rows = studentData.map(s => [s.number, s.name, s.class, s.father, s.mentor, s.phone, s.blood, s.dob]);
+    const rows = studentData.map(s => [s.number, s.name, s.class, s.password || '---', s.phone, s.father, s.blood, s.dob]);
     doc.autoTable({
-        head: [['Reg.No', 'Name', 'Class', 'Father', 'Mentor', 'Phone', 'Blood', 'DOB']],
+        head: [['Reg.No', 'Name', 'Class', 'Password', 'Phone', 'Father', 'Blood', 'DOB']],
         body: rows,
         startY: 20,
         theme: 'grid',
         headStyles: { fillColor: [11, 93, 30] }
     });
-    doc.save("Student_Report.pdf");
+    doc.save("Master_Student_Report.pdf");
 }
 
 fetchData();
