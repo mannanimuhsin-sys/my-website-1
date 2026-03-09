@@ -35,6 +35,9 @@
         #editModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center; }
         .modal-content { background:white; padding:25px; border-radius:15px; width:90%; max-width:500px; max-height:90vh; overflow-y:auto; }
         .modal-content input, .modal-content select { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:5px; box-sizing: border-box; }
+        .btn-approve { background: #27ae60; padding: 5px 10px; font-size: 12px; margin-right: 5px; }
+.status-pending { color: #d63031; font-weight: bold; font-size: 12px; }
+.status-approved { color: #27ae60; font-weight: bold; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -124,30 +127,27 @@ async function fetchData() {
         studentData = [];
         tbody.innerHTML = '';
 
-        snapshot.forEach(doc => {
-            const s = doc.data();
-            const id = doc.id;
-            studentData.push({ ...s, docId: id });
-            
-            // പാസ്‌വേർഡ് ഇല്ലെങ്കിൽ 'N/A' എന്ന് കാണിക്കും
-            const passDisplay = s.password ? s.password : '---';
+       snapshot.forEach(doc => {
+    const s = doc.data();
+    const id = doc.id;
+    const isApproved = s.status === "approved";
 
-            tbody.innerHTML += `
-                <tr>
-                    <td><img src="${s.photo}" class="stu-img" onclick="window.open('${s.photo}')"></td>
-                    <td><b>${s.number}</b></td>
-                    <td>${s.name}</td>
-                    <td>${s.class}</td>
-                    <td>${s.phone}</td>
-                    <td class="pass-text">${passDisplay}</td>
-                    <td>${s.blood}</td>
-                    <td>
-                        <button class="btn-edit" onclick="openEditModal('${id}')">Edit</button>
-                        <button class="btn-delete" onclick="deleteData('${id}')">Del</button>
-                    </td>
-                </tr>
-            `;
-        });
+    tbody.innerHTML += `
+        <tr>
+            <td><img src="${s.photo}" class="stu-img" onclick="window.open('${s.photo}')"></td>
+            <td><b>${s.number}</b></td>
+            <td>${s.name}</td>
+            <td>${s.class}</td>
+            <td><span class="${isApproved ? 'status-approved' : 'status-pending'}">${isApproved ? 'Approved ✅' : 'Pending ⏳'}</span></td>
+            <td class="pass-text">${s.password || '---'}</td>
+            <td>
+                ${!isApproved ? `<button class="btn-approve" onclick="approveStudent('${id}')">Approve</button>` : ''}
+                <button class="btn-edit" onclick="openEditModal('${id}')">Edit</button>
+                <button class="btn-delete" onclick="deleteData('${id}')">Del</button>
+            </td>
+        </tr>
+    `;
+});
         document.getElementById('stats').innerText = `Total Students: ${studentData.length}`;
     } catch (e) { alert("Error fetching data!"); }
 }
@@ -220,6 +220,18 @@ async function saveToFirebase(docId, data) {
 }
 
 function closeModal() { document.getElementById('editModal').style.display = 'none'; }
+
+async function approveStudent(id) {
+    if(confirm("ഈ വിദ്യാർത്ഥിയെ അംഗീകരിക്കണമെന്നുറപ്പാണോ?")) {
+        try {
+            await db.collection("students").doc(id).update({ status: "approved" });
+            alert("അംഗീകാരം നൽകി! ✅");
+            fetchData();
+        } catch(e) {
+            alert("Error approving student");
+        }
+    }
+}
 
 async function deleteData(id) {
     if(confirm("ഈ വിദ്യാർത്ഥിയുടെ വിവരങ്ങൾ പൂർണ്ണമായും ഡിലീറ്റ് ചെയ്യട്ടെ?")) {
