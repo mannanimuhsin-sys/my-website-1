@@ -260,7 +260,7 @@ async function saveStudent(){
     return;
   }
 
-  btn.innerText = "SAVING... PLEASE WAIT";
+ btn.innerText = "SAVING... PLEASE WAIT";
 
   const studentObj = {
    name: data.name,
@@ -274,6 +274,7 @@ async function saveStudent(){
    dob: data.dob,
    password: data.regPass,
    photo: photoData,
+   status: "pending", 
    timestamp: new Date().getTime()
   };
 
@@ -303,7 +304,14 @@ async function login(){
    if(doc.exists) {
      const userData = doc.data();
      if(userData.password === lPass) {
-       renderID(userData);
+       
+       // അപ്രൂവൽ ചെക്കിംഗ് ഇവിടെയാണ്
+       if(userData.status === "approved") {
+         renderID(userData);
+       } else {
+         alert("നിങ്ങളുടെ അപേക്ഷ അഡ്മിൻ അംഗീകരിച്ചിട്ടില്ല. ദയവായി കാത്തിരിക്കുക! ⏳");
+       }
+
      } else {
        alert("തെറ്റായ പാസ്‌വേർഡ്!");
      }
