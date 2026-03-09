@@ -278,10 +278,14 @@ async function saveStudent(){
    timestamp: new Date().getTime()
   };
 
-  await db.collection("students").doc(studentObj.number).set(studentObj);
-  localStorage.setItem("STU_"+studentObj.number, JSON.stringify(studentObj));
-  alert("വിജയകരമായി രജിസ്റ്റർ ചെയ്തു ✅");
-  renderID(studentObj);
+ await db.collection("students").doc(studentObj.number).set(studentObj);
+  
+  // ഐഡി കാർഡ് ഉടനെ കാണിക്കാതെ അലേർട്ട് മാത്രം നൽകുന്നു
+  alert("രജിസ്ട്രേഷൻ വിജയകരമായി പൂർത്തിയായി! ✅ അഡ്മിൻ അപ്രൂവ് ചെയ്ത ശേഷം ലോഗിൻ ചെയ്ത് ഐഡി കാർഡ് ഡൗൺലോഡ് ചെയ്യാം.");
+  
+  // പേജ് റീലോഡ് ചെയ്ത് ലോഗിൻ ടാബിലേക്ക് വിടുന്നു
+  location.reload(); 
+
  } catch (e) {
   alert("Error: സേവ് ചെയ്യാൻ കഴിഞ്ഞില്ല.");
   btn.disabled = false;
