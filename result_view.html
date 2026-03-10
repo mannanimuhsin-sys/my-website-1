@@ -17,10 +17,24 @@
         .bg-passed { background: var(--success); }
         .bg-failed { background: var(--danger); }
         footer { margin: 40px 15px 20px; padding: 20px; text-align: center; border-top: 1px solid #eee; }
+        
+        /* ബ്ലോക്ക് മെസ്സേജിനുള്ള സ്പെഷ്യൽ സ്റ്റൈൽ */
+        .blocked-container { text-align: center; padding: 50px 20px; }
+        .blocked-icon { font-size: 60px; color: var(--danger); margin-bottom: 20px; }
+        .blocked-title { font-size: 22px; font-weight: 800; color: var(--danger); margin-bottom: 10px; }
+        .blocked-msg { color: #555; line-height: 1.6; }
     </style>
 </head>
 <body>
+
 <div id="loader" style="text-align:center; padding:100px;">റിസൾട്ടിനായി കാത്തിരിക്കൂ...</div>
+
+<div id="blockedContent" style="display:none;" class="blocked-container">
+    <i class="fa-solid fa-circle-exclamation blocked-icon"></i>
+    <div class="blocked-title">നിലവിൽ ബ്ലോക്ക് ചെയ്തിരിക്കുന്നു</div>
+    <p class="blocked-msg">ക്ഷമിക്കണം, ഈ മദ്രസയുടെ റിസൾട്ട് ലിങ്ക് സൂപ്പർ അഡ്മിൻ താൽക്കാലികമായി ബ്ലോക്ക് ചെയ്തിരിക്കുകയാണ്. കൂടുതൽ വിവരങ്ങൾക്ക് ഓഫീസുമായി ബന്ധപ്പെടുക.</p>
+</div>
+
 <div id="mainContent" style="display:none;">
     <div class="header-card">
         <div class="m-name" id="mName">MADRASA NAME</div>
@@ -65,8 +79,23 @@ const mId = new URLSearchParams(window.location.search).get('id');
 
 if(mId) {
     db.collection("exam_results_final").where("secretId", "==", mId).limit(1).onSnapshot((snap) => {
+        const loader = document.getElementById('loader');
+        const mainContent = document.getElementById('mainContent');
+        const blockedContent = document.getElementById('blockedContent');
+
         if (!snap.empty) {
             madrasaData = snap.docs[0].data();
+
+            // --- ബ്ലോക്ക് ചെക്കിംഗ് ലോജിക് ---
+            if (madrasaData.status === 'blocked') {
+                loader.style.display = 'none';
+                mainContent.style.display = 'none';
+                blockedContent.style.display = 'block';
+                return; 
+            }
+
+            // ബ്ലോക്ക് അല്ലെങ്കില്‍ ഉള്ളടക്കം കാണിക്കുക
+            blockedContent.style.display = 'none';
             document.getElementById('mName').innerText = madrasaData.madrasa;
             document.getElementById('mPlace').innerText = madrasaData.place;
             document.getElementById('sadrName').innerText = madrasaData.sadr;
@@ -75,20 +104,24 @@ if(mId) {
             const sel = document.getElementById('classSelect');
             const currentVal = sel.value;
             sel.innerHTML = '<option value="">-- Select Class --</option>';
-            const sortedKeys = Object.keys(madrasaData.results).sort((a, b) => parseInt(a) - parseInt(b));
-            sortedKeys.forEach(key => {
-                let cls = key.split('-')[0];
-                if(![...sel.options].some(o => o.value == cls)) {
-                    let opt = document.createElement('option'); 
-                    opt.value = cls; opt.innerText = "Class " + cls; 
-                    sel.appendChild(opt);
-                }
-            });
+            
+            if(madrasaData.results) {
+                const sortedKeys = Object.keys(madrasaData.results).sort((a, b) => parseInt(a) - parseInt(b));
+                sortedKeys.forEach(key => {
+                    let cls = key.split('-')[0];
+                    if(![...sel.options].some(o => o.value == cls)) {
+                        let opt = document.createElement('option'); 
+                        opt.value = cls; opt.innerText = "Class " + cls; 
+                        sel.appendChild(opt);
+                    }
+                });
+            }
+            
             if(currentVal) sel.value = currentVal;
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
+            loader.style.display = 'none';
+            mainContent.style.display = 'block';
         } else {
-            document.getElementById('loader').innerHTML = "റിസൾട്ട് ലഭ്യമല്ല!";
+            loader.innerHTML = "റിസൾട്ട് ലഭ്യമല്ല!";
         }
     });
 }
@@ -107,7 +140,7 @@ function displayResults() {
     const div = document.getElementById('divSelect').value;
     const area = document.getElementById('resultsArea');
     area.innerHTML = "";
-    if(!cls) return;
+    if(!cls || !madrasaData) return;
     const key = (document.getElementById('divWrapper').style.display === 'none' || div === "None") ? cls : cls + "-" + div;
     const students = madrasaData.results[key];
     if(students) {
@@ -120,7 +153,6 @@ function displayResults() {
         });
     }
 }
-
 </script>
 </body>
 </html>
