@@ -78,8 +78,12 @@
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div id="mInfoDisplay"></div>
             <button class="btn btn-add" onclick="syncWithCloud()"><i class="fa fa-cloud-upload"></i> SAVE ALL DATA</button>
+            <button class="btn" style="background: #e67e22;" onclick="restoreLastChange()">
+    <i class="fa fa-undo"></i> RESTORE DATA
+</button>
         </div>
     </div>
+    
 
     <div class="section">
         <h3><i class="fa fa-user-plus"></i> വിദ്യാർത്ഥികളെ ചേർക്കുക</h3>
@@ -136,6 +140,87 @@
     const db = firebase.firestore();
 
     let mData = {};
+    // ഡിലീറ്റ് ചെയ്യുന്ന ഡാറ്റ താൽക്കാലികമായി സൂക്ഷിക്കാൻ
+let deleteHistory = [];
+
+// 1. വിദ്യാർത്ഥിയെ ഡിലീറ്റ് ചെയ്യുന്ന ഫങ്ക്ഷൻ (പുതുക്കിയത്)
+async function deleteStudent(cls, reg) { 
+    if(confirm("ഈ വിദ്യാർത്ഥിയെ നീക്കം ചെയ്യട്ടെ? (നിങ്ങൾക്ക് ഇത് Restore ചെയ്യാവുന്നതാണ്)")) { 
+        // ഡിലീറ്റ് ചെയ്യുന്നതിന് മുൻപ് ഹിസ്റ്ററിയിലേക്ക് മാറ്റുന്നു
+        const studentInfo = {
+            type: 'student',
+            class: cls,
+            reg: reg,
+            data: mData.students[cls][reg],
+            resultData: (mData.results && mData.results[cls]) ? mData.results[cls][reg] : null
+        };
+        deleteHistory.push(studentInfo);
+
+        // ഡാറ്റ നീക്കം ചെയ്യുന്നു
+        delete mData.students[cls][reg]; 
+        if(mData.results && mData.results[cls]) delete mData.results[cls][reg];
+        
+        await syncWithCloud(); 
+        refreshStudentDisplay(); 
+    } 
+}
+
+// 2. വിഷയം ഡിലീറ്റ് ചെയ്യുന്ന ഫങ്ക്ഷൻ (പുതുക്കിയത്)
+function deleteSubject(cls, index) {
+    if(confirm("ഈ വിഷയം നീക്കം ചെയ്യട്ടെ?")) {
+        const subName = mData.subjects[cls][index];
+        
+        // ഹിസ്റ്ററിയിലേക്ക് മാറ്റുന്നു
+        deleteHistory.push({
+            type: 'subject',
+            class: cls,
+            name: subName,
+            index: index
+        });
+
+        mData.subjects[cls].splice(index, 1);
+        loadSubjects();
+    }
+}
+
+// 3. ഡാറ്റ റീസ്റ്റോർ ചെയ്യാനുള്ള പ്രധാന ഫങ്ക്ഷൻ (പുതിയത്)
+async function restoreLastChange() {
+    if (deleteHistory.length === 0) {
+        return alert("റീസ്റ്റോർ ചെയ്യാൻ ഡാറ്റ ഒന്നുമില്ല!");
+    }
+
+    // ഏറ്റവും ഒടുവിൽ ഡിലീറ്റ് ചെയ്ത ഡാറ്റ എടുക്കുന്നു (Last In First Out)
+    const lastDeleted = deleteHistory.pop();
+
+    try {
+        if (lastDeleted.type === 'student') {
+            const { class: cls, reg, data, resultData } = lastDeleted;
+            
+            if (!mData.students[cls]) mData.students[cls] = {};
+            mData.students[cls][reg] = data;
+
+            if (resultData) {
+                if (!mData.results) mData.results = {};
+                if (!mData.results[cls]) mData.results[cls] = {};
+                mData.results[cls][reg] = resultData;
+            }
+            alert(`വിദ്യാർത്ഥി ${reg} റീസ്റ്റോർ ചെയ്തു.`);
+            refreshStudentDisplay();
+        } 
+        else if (lastDeleted.type === 'subject') {
+            const { class: cls, name, index } = lastDeleted;
+            if (!mData.subjects[cls]) mData.subjects[cls] = [];
+            mData.subjects[cls].splice(index, 0, name);
+            alert(`വിഷയം ${name} റീസ്റ്റോർ ചെയ്തു.`);
+            loadSubjects();
+        }
+
+        // മാറ്റങ്ങൾ ക്ലൗഡിലേക്ക് സേവ് ചെയ്യുന്നു
+        await syncWithCloud();
+    } catch (e) {
+        alert("റീസ്റ്റോർ ചെയ്യുന്നതിൽ പിശക് സംഭവിച്ചു.");
+    }
+}
     const classes = ["Class 1", "Class 2", "Class 3", "Class 4", "Class 6", "Class 8", "Class 9", "Class 10", "Class +1", "Class +2"];
 
     window.onload = () => {
@@ -270,13 +355,6 @@ function refreshStudentDisplay() {
     }
 }
 
-   async function deleteStudent(cls, reg) { 
-    if(confirm("ഈ വിദ്യാർത്ഥിയെ നീക്കം ചെയ്യട്ടെ?")) { 
-        delete mData.students[cls][reg]; 
-        await syncWithCloud(); // ക്ലൗഡിൽ നിന്ന് നീക്കം ചെയ്യുന്നു
-        refreshStudentDisplay(); 
-    } 
-}
 
 // രജിസ്റ്റർ നമ്പർ മാറ്റം വരുത്താൻ
 function editStudentReg(cls, oldReg, newReg) {
