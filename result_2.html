@@ -3,28 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Head Admin</title>
+    <title>Master Head Admin - Control Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #198754; --danger: #dc3545; --warning: #ffc107; --dark: #1e1e1e; --info: #0d6efd; }
+        :root { --primary: #198754; --danger: #dc3545; --warning: #ffc107; --dark: #1e1e1e; --info: #0d6efd; --secondary: #6c757d; }
         body { font-family: 'Poppins', sans-serif; background: #121212; color: #eee; margin: 0; padding: 20px; }
         .header { text-align: center; padding: 20px; border-bottom: 2px solid var(--primary); margin-bottom: 30px; }
-        .m-card { background: #252525; border-radius: 15px; padding: 20px; margin-bottom: 15px; border-left: 6px solid var(--warning); position: relative; }
+        
+        /* Card Styles */
+        .m-card { background: #252525; border-radius: 15px; padding: 20px; margin-bottom: 15px; border-left: 6px solid var(--warning); position: relative; transition: 0.3s; }
         .m-card.approved { border-left-color: var(--primary); }
+        .m-card.blocked { border-left-color: var(--danger); opacity: 0.8; } /* Blocked Style */
+        
         .m-name { font-size: 20px; font-weight: bold; color: var(--warning); margin-bottom: 5px; }
         .m-details { font-size: 13px; color: #bbb; line-height: 1.6; }
         .m-details b { color: #fff; }
-        .time-tag { font-size: 11px; color: #888; margin-top: 8px; display: block; background: #333; padding: 4px 8px; border-radius: 5px; width: fit-content; }
+        
+        /* Tags */
         .status-tag { display: inline-block; padding: 4px 10px; border-radius: 5px; font-size: 11px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
         .st-pending { background: var(--warning); color: #000; }
         .st-submitted { background: var(--info); color: #fff; }
         .st-approved { background: var(--primary); color: #fff; }
+        .st-blocked { background: var(--danger); color: #fff; }
+        
+        .time-tag { font-size: 11px; color: #888; margin-top: 8px; display: block; background: #333; padding: 4px 8px; border-radius: 5px; width: fit-content; }
+        
+        /* Buttons */
         .btn-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
         .btn { padding: 8px 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.3s; color: white; font-size: 12px; }
         .btn-app { background: var(--primary); }
         .btn-edit { background: var(--info); }
+        .btn-block { background: var(--secondary); }
+        .btn-unblock { background: var(--warning); color: #000; }
         .btn-del { background: var(--danger); }
         .btn:hover { opacity: 0.8; transform: translateY(-2px); }
+        
         #loader { text-align: center; color: var(--warning); padding: 50px; }
     </style>
 </head>
@@ -32,7 +45,7 @@
 
 <div class="header">
     <h1><i class="fa-solid fa-shield-halved"></i> MASTER CONTROL</h1>
-    <p style="color: #888;">മദ്രസകളെ നിയന്ത്രിക്കാനും എഡിറ്റ് പെർമിഷൻ നൽകാനും ഇവിടെ സാധിക്കും</p>
+    <p style="color: #888;">മദ്രസകളെ നിയന്ത്രിക്കാനും ബ്ലോക്ക് ചെയ്യാനും ഇവിടെ സാധിക്കും</p>
 </div>
 
 <div id="loader">വിവരങ്ങൾ ശേഖരിക്കുന്നു...</div>
@@ -55,7 +68,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ഡാറ്റാ ലോഡ് ചെയ്യുന്നു (orderBy ഒഴിവാക്കി)
+// ഡാറ്റ റിയൽ ടൈം ആയി ലോഡ് ചെയ്യുന്നു
 db.collection("exam_results_final").onSnapshot((snapshot) => {
     const listDiv = document.getElementById('masterList');
     const loader = document.getElementById('loader');
@@ -69,60 +82,85 @@ db.collection("exam_results_final").onSnapshot((snapshot) => {
 
     snapshot.forEach((doc) => {
         const data = doc.data();
+        const id = doc.id;
+        
+        // സ്റ്റാറ്റസ് തിരിച്ചറിയൽ
         const isApproved = data.status === 'approved';
+        const isBlocked = data.status === 'blocked';
+        
         let stClass = 'st-pending';
         if(data.status === 'submitted') stClass = 'st-submitted';
         if(data.status === 'approved') stClass = 'st-approved';
+        if(data.status === 'blocked') stClass = 'st-blocked';
 
-        // സമയം കാണിക്കാൻ (ഡാറ്റയിൽ സമയം ഇല്ലെങ്കിൽ 'ലഭ്യമല്ല' എന്ന് കാണിക്കും)
-        const timeStr = data.lastUpdated ? new Date(data.lastUpdated).toLocaleString('ml-IN') : 'രജിസ്റ്റർ ചെയ്ത സമയം ലഭ്യമല്ല';
+        const timeStr = data.lastUpdated ? new Date(data.lastUpdated).toLocaleString('ml-IN') : 'സമയം ലഭ്യമല്ല';
 
         const card = document.createElement('div');
-        card.className = `m-card ${isApproved ? 'approved' : ''}`;
+        card.className = `m-card ${isApproved ? 'approved' : ''} ${isBlocked ? 'blocked' : ''}`;
+        
         card.innerHTML = `
-            <div class="status-tag ${stClass}">${data.status}</div>
-            <div class="m-name">${data.madrasa}</div>
+            <div class="status-tag ${stClass}">${data.status || 'pending'}</div>
+            <div class="m-name">
+                ${data.madrasa} 
+                ${isBlocked ? '<i class="fa-solid fa-ban" style="color:var(--danger); font-size:14px;"></i>' : ''}
+            </div>
             <div class="m-details">
                 <i class="fa-solid fa-location-dot"></i> സ്ഥലം: <b>${data.place}</b> | 
                 <i class="fa-solid fa-user-tie"></i> സദർ: <b>${data.sadr}</b><br>
                 <i class="fa-solid fa-phone"></i> മൊബൈൽ: <b>${data.mobile}</b> | 
                 <i class="fa-solid fa-key"></i> ID: <b>${data.secretId}</b>
-                <span class="time-tag"><i class="fa-regular fa-clock"></i> സമയം: ${timeStr}</span>
+                <span class="time-tag"><i class="fa-regular fa-clock"></i> അവസാനം പുതുക്കിയത്: ${timeStr}</span>
             </div>
             <div class="btn-group">
-                ${data.status !== 'approved' ? 
-                `<button class="btn btn-app" onclick="approveMadrasa('${doc.id}')"><i class="fa-solid fa-check"></i> APPROVE</button>` : 
-                `<button class="btn" style="background:#444; color:#aaa; cursor:default;"><i class="fa-solid fa-circle-check"></i> APPROVED</button>`}
+                ${(!isApproved && !isBlocked) ? 
+                `<button class="btn btn-app" onclick="updateStatus('${id}', 'approved', 'അപ്രൂവ് ചെയ്യട്ടെ?')"><i class="fa-solid fa-check"></i> APPROVE</button>` : 
+                (isApproved ? `<button class="btn" style="background:#444; color:#aaa; cursor:default;"><i class="fa-solid fa-circle-check"></i> APPROVED</button>` : '')}
                 
-                <button class="btn btn-edit" onclick="enableEdit('${doc.id}')"><i class="fa-solid fa-pen-to-square"></i> ENABLE EDIT</button>
-                <button class="btn btn-del" onclick="deleteMadrasa('${doc.id}')"><i class="fa-solid fa-trash"></i> DELETE</button>
+                <button class="btn btn-edit" onclick="updateStatus('${id}', 'pending', 'എഡിറ്റ് പെർമിഷൻ നൽകട്ടെയോ? സ്റ്റാറ്റസ് Pending ആകും.')"><i class="fa-solid fa-pen-to-square"></i> ENABLE EDIT</button>
+                
+                <button class="btn ${isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="toggleBlock('${id}', '${data.status}')">
+                    <i class="fa-solid ${isBlocked ? 'fa-unlock' : 'fa-ban'}"></i> 
+                    ${isBlocked ? 'UNBLOCK' : 'BLOCK'}
+                </button>
+
+                <button class="btn btn-del" onclick="deleteMadrasa('${id}')"><i class="fa-solid fa-trash"></i> DELETE</button>
             </div>
         `;
         listDiv.appendChild(card);
     });
 });
 
-async function approveMadrasa(id) {
-    if(confirm("ഈ മദ്രസ അപ്രൂവ് ചെയ്യട്ടെ? അവർക്ക് റിസൾട്ട് ലിങ്ക് കാണാൻ സാധിക്കും.")) {
+// സ്റ്റാറ്റസ് അപ്ഡേറ്റ് ചെയ്യാനുള്ള ഫങ്ക്ഷൻ (Approve & Edit)
+async function updateStatus(id, newStatus, message) {
+    if(confirm(message)) {
+        try {
+            await db.collection("exam_results_final").doc(id).update({ 
+                status: newStatus,
+                lastUpdated: Date.now() 
+            });
+        } catch (error) {
+            alert("Error: " + error.message);
+        }
+    }
+}
+
+// ബ്ലോക്ക് ചെയ്യാനുള്ള ഫങ്ക്ഷൻ
+async function toggleBlock(id, currentStatus) {
+    const isBlockedNow = currentStatus === 'blocked';
+    const newStatus = isBlockedNow ? 'pending' : 'blocked';
+    const msg = isBlockedNow ? "ഈ മദ്രസയുടെ ബ്ലോക്ക് നീക്കം ചെയ്യട്ടെ?" : "ഈ മദ്രസയെ ബ്ലോക്ക് ചെയ്യട്ടെ? അവർക്ക് റിസൾട്ട് ലിങ്ക് കാണാൻ കഴിയില്ല.";
+
+    if(confirm(msg)) {
         await db.collection("exam_results_final").doc(id).update({ 
-            status: 'approved',
+            status: newStatus,
             lastUpdated: Date.now() 
         });
     }
 }
 
-async function enableEdit(id) {
-    if(confirm("ഈ മദ്രസയ്ക്ക് എഡിറ്റ് ചെയ്യാനുള്ള അനുവാദം നൽകട്ടെയോ? സ്റ്റാറ്റസ് വീണ്ടും 'Pending' ആകും.")) {
-        await db.collection("exam_results_final").doc(id).update({ 
-            status: 'pending',
-            lastUpdated: Date.now() 
-        });
-        alert("എഡിറ്റ് പെർമിഷൻ നൽകി. അവർക്ക് ഇനി വിവരങ്ങൾ മാറ്റാം.");
-    }
-}
-
+// ഡിലീറ്റ് ചെയ്യാനുള്ള ഫങ്ക്ഷൻ
 async function deleteMadrasa(id) {
-    if(confirm("ഈ മദ്രസയുടെ എല്ലാ വിവരങ്ങളും ഡിലീറ്റ് ചെയ്യട്ടെ?")) {
+    if(confirm("ശ്രദ്ധിക്കുക! ഈ മദ്രസയുടെ എല്ലാ വിവരങ്ങളും സ്ഥിരമായി ഇല്ലാതാകും. ഡിലീറ്റ് ചെയ്യട്ടെ?")) {
         await db.collection("exam_results_final").doc(id).delete();
     }
 }
