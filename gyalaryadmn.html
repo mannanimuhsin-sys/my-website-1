@@ -3,66 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gallery Admin Panel | Misbahul Uloom</title>
+    <title>Master Admin | Misbahul Uloom</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <style>
         :root { --primary: #0b5d1e; --pending: #f39c12; --approved: #27ae60; --danger: #c0392b; }
-        body { font-family: 'Roboto', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .header { background: var(--primary); color: white; padding: 20px; text-align: center; border-radius: 15px; margin-bottom: 30px; }
+        body { font-family: 'Roboto', sans-serif; background: #f0f2f5; margin: 0; padding: 15px; }
         
+        .header { background: var(--primary); color: white; padding: 20px; text-align: center; border-radius: 15px; margin-bottom: 20px; }
+        
+        /* Admin Upload Section */
+        .admin-upload-card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 5px solid var(--primary); }
+        .admin-profile { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .admin-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        
+        input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        .btn-post { background: var(--primary); color: white; font-weight: bold; cursor: pointer; border: none; }
+
+        /* Grid for submissions */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; border: 1px solid #ddd; }
+        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; }
         
-        /* Image Style */
-        .work-img { width: 100%; height: 200px; object-fit: cover; cursor: pointer; transition: 0.3s; }
-        .work-img:hover { opacity: 0.8; }
-        
+        .work-img { width: 100%; height: 200px; object-fit: cover; cursor: pointer; }
         .content { padding: 15px; }
-        .st-info { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .st-photo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
-        .st-name { font-weight: bold; font-size: 14px; }
+        .st-info { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .st-photo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
         
-        .work-title { font-size: 16px; font-weight: bold; color: #333; margin: 5px 0; }
-        .meta { font-size: 11px; color: #777; display: flex; justify-content: space-between; }
-        
-        /* Buttons */
-        .actions { display: flex; gap: 5px; margin-top: 15px; }
-        .btn { flex: 1; padding: 8px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; font-size: 12px; }
-        .btn-approve { background: var(--approved); }
-        .btn-edit { background: #3498db; }
-        .btn-delete { background: var(--danger); }
-        
-        /* Badge */
-        .badge { position: absolute; top: 10px; right: 10px; padding: 5px 10px; border-radius: 20px; color: white; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .interaction-info { display: flex; gap: 15px; font-size: 13px; font-weight: bold; color: #555; margin-top: 10px; padding: 10px 0; border-top: 1px solid #f0f0f0; }
+        .actions { display: flex; gap: 5px; margin-top: 10px; }
+        .btn-action { flex: 1; padding: 8px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; font-size: 11px; }
+
+        /* Cropper Modal */
+        #cropModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
+        .crop-wrapper { background: white; padding: 10px; border-radius: 15px; width: 100%; max-width: 400px; }
+        #cropImg { display: block; max-width: 100%; max-height: 400px; }
+
+        .badge { position: absolute; top: 10px; right: 10px; padding: 5px 10px; border-radius: 20px; color: white; font-size: 10px; font-weight: bold; }
         .pending { background: var(--pending); }
         .approved { background: var(--approved); }
-
-        /* Full View Modal */
-        #imgModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
-        #imgModal img { max-width: 100%; max-height: 90vh; border-radius: 10px; }
-        .close-modal { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1><i class="fa fa-tasks"></i> Gallery Admin Panel</h1>
-    <p>വിദ്യാർത്ഥികൾ അയച്ച സൃഷ്ടികൾ ഇവിടെ കൈകാര്യം ചെയ്യാം</p>
+    <h1>MASTER ADMIN PANEL</h1>
 </div>
 
-<div class="grid" id="adminGrid">
+<div class="admin-upload-card">
+    <div class="admin-profile">
+        <img src="icon-192.png" class="admin-img" onerror="this.src='https://via.placeholder.com/150'">
+        <b style="color:var(--primary)">Misbahul Uloom Madrasa (Admin)</b>
     </div>
-
-<div id="imgModal">
-    <span class="close-modal" onclick="closeModal()">&times;</span>
-    <img id="fullImg" src="">
+    <input type="text" id="adminWorkTitle" placeholder="സൃഷ്ടിയുടെ പേര് നൽകുക...">
+    <input type="file" id="adminFileInp" accept="image/*">
+    <button class="btn-post" id="adminPostBtn" onclick="postAsAdmin()">POST TO GALLERY</button>
 </div>
 
+<h3 style="color:var(--primary); margin-left: 10px;">വിദ്യാർത്ഥികളുടെ സൃഷ്ടികൾ</h3>
+<div class="grid" id="adminGrid"></div>
+
+<div id="cropModal">
+    <div class="crop-wrapper">
+        <img id="cropImg">
+        <button class="btn-post" onclick="applyCrop()">CROP & READY</button>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
   authDomain: "mum-new-id.firebaseapp.com",
@@ -73,7 +84,59 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ഡാറ്റ ലോഡ് ചെയ്യാൻ
+let cropper, base64Work = "";
+
+// അഡ്മിൻ ഫോട്ടോ സെലക്ട് ചെയ്യുമ്പോൾ
+document.getElementById('adminFileInp').onchange = e => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            document.getElementById('cropImg').src = reader.result;
+            document.getElementById('cropModal').style.display = "flex";
+            if (cropper) cropper.destroy();
+            cropper = new Cropper(document.getElementById('cropImg'), { viewMode: 1 });
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+function applyCrop() {
+    base64Work = cropper.getCroppedCanvas({ maxWidth: 800 }).toDataURL("image/jpeg", 0.8);
+    document.getElementById('cropModal').style.display = "none";
+    document.getElementById('adminPostBtn').innerText = "PHOTO READY - POST NOW";
+}
+
+// അഡ്മിനായി പോസ്റ്റ് ചെയ്യാൻ
+async function postAsAdmin() {
+    const title = document.getElementById('adminWorkTitle').value;
+    if(!title || !base64Work) return alert("പേരും ഫോട്ടോയും നൽകുക!");
+
+    const btn = document.getElementById('adminPostBtn');
+    btn.disabled = true; btn.innerText = "UPLOADING...";
+
+    const adminPost = {
+        studentName: "Misbahul Uloom Madrasa",
+        regNo: "ADMIN",
+        class: "Official",
+        stPhoto: "icon-192.png",
+        mentor: "Admin",
+        workTitle: title,
+        workImage: base64Work,
+        status: "approved", // അഡ്മിൻ ആയതുകൊണ്ട് നേരിട്ട് അപ്രൂവ്ഡ്
+        likes: 0,
+        comments: [],
+        timestamp: new Date().getTime()
+    };
+
+    try {
+        await db.collection("gallery_submissions").add(adminPost);
+        alert("വിജയകരമായി പോസ്റ്റ് ചെയ്തു! ✅");
+        location.reload();
+    } catch(e) { alert("Error!"); btn.disabled = false; }
+}
+
+// ഗാലറി ഐറ്റംസ് ലോഡ് ചെയ്യാൻ
 function loadSubmissions() {
     db.collection("gallery_submissions").orderBy("timestamp", "desc").onSnapshot(snapshot => {
         const grid = document.getElementById('adminGrid');
@@ -82,33 +145,36 @@ function loadSubmissions() {
         snapshot.forEach(doc => {
             const data = doc.data();
             const id = doc.id;
-            const date = new Date(data.timestamp).toLocaleString('ml-IN');
+            const likes = data.likes || 0;
+            const comments = data.comments ? data.comments.length : 0;
             
             grid.innerHTML += `
                 <div class="card">
                     <span class="badge ${data.status}">${data.status}</span>
-                    <img src="${data.workImage}" class="work-img" onclick="openModal('${data.workImage}')">
+                    <img src="${data.workImage}" class="work-img">
                     
                     <div class="content">
                         <div class="st-info">
-                            <img src="${data.stPhoto || 'https://via.placeholder.com/40'}" class="st-photo">
+                            <img src="${data.stPhoto || 'https://via.placeholder.com/40'}" class="st-photo" onerror="this.src='icon-192.png'">
                             <div>
                                 <div class="st-name">${data.studentName}</div>
-                                <div style="font-size:11px; color:#666;">Reg No: ${data.regNo} | Class: ${data.class}</div>
+                                <div style="font-size:10px; color:#666;">${data.regNo === 'ADMIN' ? 'Official Post' : 'Reg No: '+data.regNo}</div>
                             </div>
                         </div>
                         
-                        <div class="work-title" id="title-${id}">${data.workTitle}</div>
-                        <div class="meta">
-                            <span><i class="fa fa-clock"></i> ${date}</span>
+                        <div style="font-weight:bold; margin:10px 0;">${data.workTitle}</div>
+                        
+                        <div class="interaction-info">
+                            <span><i class="fa fa-heart" style="color:#ed4956"></i> ${likes} Likes</span>
+                            <span><i class="fa fa-comment" style="color:#3498db"></i> ${comments} Comments</span>
                         </div>
 
                         <div class="actions">
-                            <button class="btn btn-approve" onclick="toggleStatus('${id}', '${data.status}')">
-                                ${data.status === 'pending' ? 'APPROVE' : 'PENDING'}
+                            <button class="btn-action" style="background:var(--approved)" onclick="toggleStatus('${id}', '${data.status}')">
+                                ${data.status === 'pending' ? 'APPROVE' : 'SET PENDING'}
                             </button>
-                            <button class="btn btn-edit" onclick="editTitle('${id}', '${data.workTitle}')">EDIT</button>
-                            <button class="btn btn-delete" onclick="deleteWork('${id}')">DELETE</button>
+                            <button class="btn-action" style="background:#3498db" onclick="editTitle('${id}', '${data.workTitle}')">EDIT</button>
+                            <button class="btn-action" style="background:var(--danger)" onclick="deleteWork('${id}')">DEL</button>
                         </div>
                     </div>
                 </div>
@@ -117,37 +183,19 @@ function loadSubmissions() {
     });
 }
 
-// സ്റ്റാറ്റസ് മാറ്റാൻ (Approve/Pending)
 async function toggleStatus(id, currentStatus) {
     const newStatus = currentStatus === 'pending' ? 'approved' : 'pending';
     await db.collection("gallery_submissions").doc(id).update({ status: newStatus });
 }
 
-// ടൈറ്റിൽ എഡിറ്റ് ചെയ്യാൻ
 async function editTitle(id, oldTitle) {
-    const newTitle = prompt("പുതിയ ഹെഡിംഗ് നൽകുക:", oldTitle);
-    if(newTitle && newTitle !== oldTitle) {
-        await db.collection("gallery_submissions").doc(id).update({ workTitle: newTitle });
-    }
+    const newTitle = prompt("പുതിയ ഹെഡിംഗ്:", oldTitle);
+    if(newTitle) await db.collection("gallery_submissions").doc(id).update({ workTitle: newTitle });
 }
 
-// ഡിലീറ്റ് ചെയ്യാൻ
 async function deleteWork(id) {
-    if(confirm("ഈ സൃഷ്ടി ഡിലീറ്റ് ചെയ്യട്ടെ?")) {
-        await db.collection("gallery_submissions").doc(id).delete();
-    }
+    if(confirm("ഡിലീറ്റ് ചെയ്യട്ടെ?")) await db.collection("gallery_submissions").doc(id).delete();
 }
-
-// ഫോട്ടോ വലുതാക്കി കാണാൻ
-function openModal(src) {
-    document.getElementById('fullImg').src = src;
-    document.getElementById('imgModal').style.display = "flex";
-}
-
-function closeModal() {
-    document.getElementById('imgModal').style.display = "none";
-}
-
 
 loadSubmissions();
 </script>
