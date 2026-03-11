@@ -6,55 +6,65 @@
     <title>Madrasa Instagram Gallery</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --insta-gray: #fafafa; --insta-border: #dbdbdb; --insta-text: #262626; --insta-link: #00376b; }
+        :root { --insta-gray: #fafafa; --insta-border: #dbdbdb; --insta-text: #262626; --green: #0b5d1e; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--insta-gray); margin: 0; color: var(--insta-text); }
         
-        /* Navigation Bar */
         .navbar { background: white; border-bottom: 1px solid var(--insta-border); padding: 10px 0; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: center; align-items: center; }
-        .navbar h1 { font-size: 22px; margin: 0; font-family: 'Grand Hotel', cursive, sans-serif; font-weight: 500; }
+        .navbar h1 { font-size: 22px; margin: 0; font-family: 'Grand Hotel', cursive, sans-serif; }
 
         .main-container { max-width: 500px; margin: 20px auto; padding-bottom: 50px; }
 
-        /* Instagram Post Card */
         .insta-post { background: white; border: 1px solid var(--insta-border); border-radius: 10px; margin-bottom: 25px; overflow: hidden; }
-        
         .post-header { display: flex; align-items: center; padding: 14px; }
-        .story-border { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); padding: 2px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .st-photo { width: 38px; height: 38px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
-        
+        .st-photo { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; object-fit: cover; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
         .header-text { margin-left: 12px; flex-grow: 1; }
         .st-name { font-weight: 700; font-size: 14px; display: block; }
-        .st-mentor { font-size: 11px; color: #8e8e8e; display: block; }
+        .st-info { font-size: 11px; color: #8e8e8e; display: block; }
 
-        .post-img-container { width: 100%; min-height: 300px; background: #efefef; display: flex; align-items: center; }
+        .post-img-container { width: 100%; min-height: 300px; background: #efefef; }
         .post-img { width: 100%; height: auto; display: block; }
 
         .post-content { padding: 14px; }
-        .interaction-row { margin-bottom: 10px; display: flex; gap: 15px; }
-        .interaction-row i { font-size: 24px; cursor: pointer; transition: 0.2s; }
+        .interaction-row { margin-bottom: 10px; display: flex; gap: 18px; }
+        .interaction-row i { font-size: 24px; cursor: pointer; }
         .fa-heart.active { color: #ed4956; }
+        .fa-whatsapp { color: #25D366; }
 
-        .likes-count { font-weight: 700; font-size: 14px; margin-bottom: 6px; display: block; }
-        .caption { font-size: 14px; line-height: 1.5; }
-        .caption b { margin-right: 6px; }
-        .post-time { font-size: 10px; color: #8e8e8e; margin-top: 10px; text-transform: uppercase; }
+        .likes-count, .comments-count { font-weight: 700; font-size: 14px; margin-right: 10px; cursor: pointer; }
+        .caption { font-size: 14px; line-height: 1.5; margin-top: 5px; }
+        .post-time { font-size: 10px; color: #8e8e8e; margin-top: 10px; }
 
-        /* Loader */
-        #loader { text-align: center; padding: 20px; color: #8e8e8e; font-size: 14px; }
+        /* Modal Styles */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 15px; padding: 20px; max-height: 80vh; overflow-y: auto; }
+        .comment-input-box { display: flex; gap: 10px; margin-top: 15px; }
+        .comment-input-box input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .comment-list { list-style: none; padding: 0; margin-top: 15px; border-top: 1px solid #eee; }
+        .comment-item { padding: 8px 0; border-bottom: 1px solid #f9f9f9; font-size: 14px; }
+        .close-btn { float: right; cursor: pointer; font-weight: bold; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<div class="navbar">
-    <h1>മിസ്ബാഹ് സർഗ്ഗവേദി</h1>
-</div>
+<div class="navbar"><h1>മിസ്ബാഹ് സർഗ്ഗവേദി</h1></div>
 
 <div class="main-container">
-    <div id="loader">ഡാറ്റ ലോഡ് ചെയ്യുന്നു...</div>
+    <div id="loader" style="text-align: center; padding: 20px;">ഡാറ്റ ലോഡ് ചെയ്യുന്നു...</div>
     <div id="instaFeed"></div>
 </div>
 
+<div id="commentModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('commentModal')">✕</span>
+        <h3 style="margin-top:0">Comments</h3>
+        <div class="comment-list" id="commentList"></div>
+        <div class="comment-input-box">
+            <input type="text" id="newComment" placeholder="കമന്റ് എഴുതുക...">
+            <button onclick="addComment()" style="background:var(--green); color:white; border:none; padding:8px 15px; border-radius:5px;">Post</button>
+        </div>
+    </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -70,26 +80,24 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+let activePostId = null;
+
 function loadGallery() {
-    // ഇൻഡക്സ് പ്രശ്നം ഒഴിവാക്കാൻ സിംപിൾ ക്വറി ഉപയോഗിക്കുന്നു
-    db.collection("gallery_submissions")
-      .onSnapshot(snapshot => {
+    db.collection("gallery_submissions").onSnapshot(snapshot => {
         const feed = document.getElementById('instaFeed');
-        const loader = document.getElementById('loader');
+        document.getElementById('loader').classList.add('hidden');
         
         let postsHTML = "";
-        let approvedCount = 0;
-
-        // ഡാറ്റയെ സമയക്രമത്തിൽ സോർട്ട് ചെയ്യുന്നു (JS ഉപയോഗിച്ച്)
         const docs = [];
         snapshot.forEach(doc => docs.push({id: doc.id, ...doc.data()}));
         docs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
         docs.forEach(data => {
             if(data.status === "approved") {
-                approvedCount++;
                 const id = data.id;
                 const likes = data.likes || 0;
+                const comments = data.comments || [];
+                const commentCount = comments.length;
                 const isLiked = localStorage.getItem('liked_'+id);
                 const heartClass = isLiked ? 'fa-solid fa-heart active' : 'fa-regular fa-heart';
                 const timeStr = data.timestamp ? new Date(data.timestamp).toLocaleDateString('ml-IN') : "";
@@ -97,49 +105,96 @@ function loadGallery() {
                 postsHTML += `
                     <div class="insta-post">
                         <div class="post-header">
-                            <div class="story-border">
-                                <img src="${data.stPhoto || 'https://via.placeholder.com/150'}" class="st-photo">
-                            </div>
+                            <img src="${data.stPhoto || 'https://via.placeholder.com/150'}" class="st-photo">
                             <div class="header-text">
                                 <span class="st-name">${data.studentName}</span>
-                                <span class="st-mentor">Mentor: ${data.mentor || 'Not Assigned'}</span>
+                                <span class="st-info">Class: ${data.class} | Mentor: ${data.mentor || '---'}</span>
                             </div>
                         </div>
-                        
                         <div class="post-img-container">
-                            <img src="${data.workImage}" class="post-img">
+                            <img src="${data.workImage}" class="post-img" id="img-${id}">
                         </div>
-                        
                         <div class="post-content">
                             <div class="interaction-row">
                                 <i class="${heartClass}" onclick="likePost('${id}', ${likes})"></i>
+                                <i class="fa-regular fa-comment" onclick="openComments('${id}')"></i>
+                                <i class="fa-brands fa-whatsapp" onclick="shareWithImage('${id}', '${data.studentName}', '${data.workTitle}', ${likes}, ${commentCount})"></i>
                             </div>
                             <span class="likes-count">${likes} likes</span>
-                            <div class="caption">
-                                <b>${data.studentName}</b> ${data.workTitle}
-                            </div>
+                            <span class="comments-count" onclick="openComments('${id}')">${commentCount} comments</span>
+                            <div class="caption"><b>${data.studentName}</b> ${data.workTitle}</div>
                             <div class="post-time">${timeStr}</div>
                         </div>
                     </div>
                 `;
             }
         });
-
-        loader.classList.add('hidden');
-        feed.innerHTML = approvedCount > 0 ? postsHTML : "<p style='text-align:center'>അപ്രൂവ് ചെയ്ത പോസ്റ്റുകൾ ഒന്നുമില്ല.</p>";
+        feed.innerHTML = postsHTML || "<p style='text-align:center'>അപ്രൂവ് ചെയ്ത പോസ്റ്റുകൾ ഒന്നുമില്ല.</p>";
     });
 }
 
-async function likePost(id, currentLikes) {
-    const key = 'liked_' + id;
-    if(localStorage.getItem(key)) {
-        await db.collection("gallery_submissions").doc(id).update({ likes: Math.max(0, currentLikes - 1) });
-        localStorage.removeItem(key);
-    } else {
-        await db.collection("gallery_submissions").doc(id).update({ likes: currentLikes + 1 });
-        localStorage.setItem(key, 'true');
+// ഇമേജും വിവരങ്ങളും ക്യാപ്ഷനായി ഷെയർ ചെയ്യാനുള്ള ഫങ്ക്ഷൻ
+async function shareWithImage(id, name, title, likes, comments) {
+    const imgElement = document.getElementById(`img-${id}`);
+    
+    // ഷെയർ ചെയ്യുമ്പോൾ വരുന്ന മനോഹരമായ ടെക്സ്റ്റ്
+    const shareText = `🌟 *മിസ്ബാഹുൽ ഉലൂം സർഗ്ഗവേദി* 🌟\n\n` +
+                      `👤 *വിദ്യാർത്ഥി:* ${name}\n` +
+                      `🎨 *സൃഷ്ടി:* ${title}\n\n` +
+                      `❤️ ${likes} Likes | 💬 ${comments} Comments\n\n` +
+                      `കൂടുതൽ സൃഷ്ടികൾ കാണാൻ സന്ദർശിക്കുക:\n${window.location.href}`;
+
+    try {
+        const response = await fetch(imgElement.src);
+        const blob = await response.blob();
+        const file = new File([blob], 'misbah_gallery.jpg', { type: blob.type });
+
+        // മൊബൈൽ ഷെയറിംഗ് ഓപ്ഷൻ
+        if (navigator.share && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file], // ചിത്രം
+                title: 'മിസ്ബാഹുൽ ഉലൂം സർഗ്ഗവേദി',
+                text: shareText // ചിത്രത്തിന് താഴെയുള്ള വിവരങ്ങൾ (Caption)
+            });
+        } else {
+            // സിസ്റ്റം ഷെയറിംഗ് ലഭ്യമല്ലെങ്കിൽ മാത്രം വാട്സ്ആപ്പ് ലിങ്ക് വഴി അയക്കും
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+            window.open(waUrl, '_blank');
+        }
+    } catch (err) {
+        console.error('Sharing failed', err);
+        alert("ഷെയർ ചെയ്യാൻ സാധിക്കുന്നില്ല. ബ്രൗസർ പെർമിഷൻ പരിശോധിക്കുക.");
     }
 }
+async function likePost(id, currentLikes) {
+    const key = 'liked_' + id;
+    const isLiked = localStorage.getItem(key);
+    const newLikes = isLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
+    await db.collection("gallery_submissions").doc(id).update({ likes: newLikes });
+    isLiked ? localStorage.removeItem(key) : localStorage.setItem(key, 'true');
+}
+
+function openComments(id) {
+    activePostId = id;
+    document.getElementById('commentModal').style.display = 'flex';
+    db.collection("gallery_submissions").doc(id).get().then(doc => {
+        const comments = doc.data().comments || [];
+        const list = document.getElementById('commentList');
+        list.innerHTML = comments.map(c => `<div class="comment-item">💬 ${c}</div>`).join('') || "No comments yet.";
+    });
+}
+
+async function addComment() {
+    const text = document.getElementById('newComment').value;
+    if(!text) return;
+    await db.collection("gallery_submissions").doc(activePostId).update({
+        comments: firebase.firestore.FieldValue.arrayUnion(text)
+    });
+    document.getElementById('newComment').value = "";
+    openComments(activePostId);
+}
+
+function closeModal(mId) { document.getElementById(mId).style.display = 'none'; }
 
 loadGallery();
 </script>
