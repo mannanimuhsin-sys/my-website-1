@@ -11,24 +11,23 @@
         body { font-family: 'Roboto', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
         .card { max-width: 400px; margin: auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
         .title { color: var(--green); font-weight: 900; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        .main-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; background: var(--green); color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; outline: none; }
+        .main-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; background: var(--green); color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .main-btn:disabled { background: #ccc; }
         .secondary-btn { background: #666; margin-top: 5px; }
 
-        /* Profile Style */
         .profile-box { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-top: 15px; border: 2px solid #eee; }
         .st-photo { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--green); margin-bottom: 10px; }
 
-        /* Preview Area */
         #previewContainer { margin-top: 10px; border: 2px dashed #ccc; border-radius: 10px; padding: 5px; min-height: 100px; display: flex; align-items: center; justify-content: center; }
         #workPreview { max-width: 100%; border-radius: 8px; display: none; }
 
-        /* Cropper Modal */
         #cropModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
         .crop-wrapper { background: white; padding: 10px; border-radius: 15px; width: 100%; max-width: 350px; }
         #cropImg { display: block; max-width: 100%; max-height: 400px; }
 
         .hidden { display: none; }
+        label { font-size: 11px; color: var(--green); font-weight: bold; display: block; text-align: left; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -37,9 +36,14 @@
     <h2 class="title">ഡിജിറ്റൽ സർഗ്ഗവേദി</h2>
 
     <div id="searchStep">
-        <p style="font-size: 14px;">വിദ്യാർത്ഥിയുടെ രജിസ്റ്റർ നമ്പർ നൽകുക</p>
-        <input type="number" id="regInput" placeholder="Register Number">
-        <button class="main-btn" onclick="findStudent()">FIND PROFILE</button>
+        <p style="font-size: 14px; margin-bottom: 15px;">ലോഗിൻ ചെയ്യാൻ വിവരങ്ങൾ നൽകുക</p>
+        <label>REGISTER NUMBER</label>
+        <input type="number" id="regInput" placeholder="Enter Register Number">
+        
+        <label>PASSWORD</label>
+        <input type="password" id="passInput" placeholder="Enter Your Password">
+        
+        <button id="findBtn" class="main-btn" onclick="findStudent()">FIND PROFILE</button>
     </div>
 
     <div id="confirmStep" class="hidden">
@@ -50,15 +54,15 @@
         </div>
         <p style="font-size: 12px; margin-top: 10px;">ഇത് നിങ്ങളുടെ പ്രൊഫൈൽ തന്നെയാണോ?</p>
         <button class="main-btn" onclick="showUpload()">YES, CONFIRM</button>
-        <button class="main-btn secondary-btn" onclick="resetSearch()">NOT ME</button>
+        <button class="main-btn secondary-btn" onclick="resetSearch()">NOT ME / BACK</button>
     </div>
 
     <div id="uploadStep" class="hidden">
         <div style="text-align: left;">
-            <label style="font-size: 12px; font-weight: bold; color: var(--green);">HEADING / TITLE</label>
-            <input type="text" id="workTitle" placeholder="സൃഷ്ടിയുടെ പേര് നൽകുക">
+            <label>HEADING / TITLE (സൃഷ്ടിയുടെ പേര്)</label>
+            <input type="text" id="workTitle" placeholder="ഉദാ: എന്റെ കവിത, ചിത്രം...">
             
-            <label style="font-size: 12px; font-weight: bold; color: var(--green);">SELECT PHOTO (Gellery)</label>
+            <label>SELECT PHOTO (Gallery)</label>
             <input type="file" id="fileInput" accept="image/*">
             
             <div id="previewContainer">
@@ -67,6 +71,7 @@
             </div>
             
             <button id="submitBtn" class="main-btn" onclick="submitToUstad()">SUBMIT WORK</button>
+            <button class="main-btn secondary-btn" onclick="location.reload()">CANCEL</button>
         </div>
     </div>
 </div>
@@ -83,7 +88,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
   authDomain: "mum-new-id.firebaseapp.com",
@@ -99,21 +103,42 @@ let cropper, base64Work = "";
 
 async function findStudent() {
     const reg = document.getElementById('regInput').value;
-    if(!reg) return alert("രജിസ്റ്റർ നമ്പർ നൽകുക!");
-    const doc = await db.collection("students").doc(reg).get();
-    if(doc.exists) {
-        userData = doc.data();
-        document.getElementById('stName').innerText = userData.name;
-        document.getElementById('stClass').innerText = userData.class;
-        document.getElementById('stImg').src = userData.photo || "https://via.placeholder.com/100";
-        document.getElementById('searchStep').classList.add('hidden');
-        document.getElementById('confirmStep').classList.remove('hidden');
-    } else { alert("നമ്പർ കണ്ടെത്തിയില്ല!"); }
+    const pass = document.getElementById('passInput').value;
+    const btn = document.getElementById('findBtn');
+
+    if(!reg || !pass) return alert("രജിസ്റ്റർ നമ്പറും പാസ്‌വേർഡും നൽകുക!");
+
+    btn.disabled = true; btn.innerText = "VERIFYING...";
+
+    try {
+        const doc = await db.collection("students").doc(reg).get();
+        if(doc.exists) {
+            userData = doc.data();
+            // പാസ്‌വേർഡ് ശരിയാണോ എന്ന് പരിശോധിക്കുന്നു
+            if(userData.password === pass) {
+                document.getElementById('stName').innerText = userData.name;
+                document.getElementById('stClass').innerText = userData.class;
+                document.getElementById('stImg').src = userData.photo || "https://via.placeholder.com/100";
+                
+                document.getElementById('searchStep').classList.add('hidden');
+                document.getElementById('confirmStep').classList.remove('hidden');
+            } else {
+                alert("തെറ്റായ പാസ്‌വേർഡ്! ദയവായി വീണ്ടും ശ്രമിക്കുക.");
+            }
+        } else {
+            alert("ഈ രജിസ്റ്റർ നമ്പർ കണ്ടെത്തിയില്ല!");
+        }
+    } catch(e) {
+        alert("ഡാറ്റാബേസ് എറർ!");
+    } finally {
+        btn.disabled = false; btn.innerText = "FIND PROFILE";
+    }
 }
 
 function resetSearch() {
     document.getElementById('confirmStep').classList.add('hidden');
     document.getElementById('searchStep').classList.remove('hidden');
+    document.getElementById('passInput').value = ""; // പാസ്‌വേർഡ് ക്ലിയർ ചെയ്യുന്നു
 }
 
 function showUpload() {
@@ -121,7 +146,6 @@ function showUpload() {
     document.getElementById('uploadStep').classList.remove('hidden');
 }
 
-// ഫോട്ടോ സെലക്ട് ചെയ്യുമ്പോൾ ക്രോപ്പർ കാണിക്കാൻ
 document.getElementById('fileInput').onchange = e => {
     const file = e.target.files[0];
     if (file) {
@@ -130,7 +154,6 @@ document.getElementById('fileInput').onchange = e => {
             document.getElementById('cropImg').src = reader.result;
             document.getElementById('cropModal').style.display = "flex";
             if (cropper) cropper.destroy();
-            // ഫ്രീ ക്രോപ്പിംഗിനായി ആസ്പെക്ട് റേഷ്യോ ഒഴിവാക്കി
             cropper = new Cropper(document.getElementById('cropImg'), { viewMode: 1 });
         };
         reader.readAsDataURL(file);
@@ -138,7 +161,6 @@ document.getElementById('fileInput').onchange = e => {
 };
 
 function applyCrop() {
-    // ക്രോപ്പ് ചെയ്ത ചിത്രം ലഭിക്കുന്നു
     base64Work = cropper.getCroppedCanvas({ maxWidth: 800 }).toDataURL("image/jpeg", 0.8);
     document.getElementById('workPreview').src = base64Work;
     document.getElementById('workPreview').style.display = "block";
@@ -148,7 +170,7 @@ function applyCrop() {
 
 async function submitToUstad() {
     const title = document.getElementById('workTitle').value;
-    if(!title || !base64Work) return alert("പേരും ഫോട്ടോയും നൽകുക!");
+    if(!title || !base64Work) return alert("തലക്കെട്ടും ഫോട്ടോയും നൽകുക!");
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true; btn.innerText = "UPLOADING...";
@@ -167,9 +189,13 @@ async function submitToUstad() {
 
     try {
         await db.collection("gallery_submissions").add(submission);
-        alert("വിജയകരമായി സബ്മിറ്റ് ചെയ്തു ✅");
+        alert("നിങ്ങളുടെ സൃഷ്ടി വിജയകരമായി സബ്മിറ്റ് ചെയ്തു! ✅ ഉസ്താദിന്റെ അപ്രൂവലിന് ശേഷം ഇത് ഗാലറിയിൽ കാണാൻ സാധിക്കും.");
         location.reload();
-    } catch(e) { alert("Error!"); btn.disabled = false; }
+    } catch(e) {
+        alert("സബ്മിഷൻ പരാജയപ്പെട്ടു!");
+        btn.disabled = false;
+        btn.innerText = "SUBMIT WORK";
+    }
 }
 </script>
 </body>
