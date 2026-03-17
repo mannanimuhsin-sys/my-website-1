@@ -99,6 +99,10 @@
             color: white;
         }
         .admin-item:hover { opacity: 0.9; transform: translateY(-2px); transition: 0.2s; color: white; }
+        /* Play Store Button Styling */
+.playstore-container { text-align: center; margin-top: 30px; padding: 15px; border-top: 1px solid #ddd; display: none; }
+.playstore-btn img { width: 180px; transition: transform 0.2s; }
+.playstore-btn:active img { transform: scale(0.95); }
     </style>
 </head>
 <body>
@@ -223,6 +227,12 @@
     </div>
     <button class="btn btn-sm btn-danger" style="margin-top: 15px;" onclick="location.reload()">Logout</button>
 </div>
+<div id="pwaInstallArea" class="playstore-container">
+    <p style="font-size: 12px; color: #888; margin-bottom: 10px;">മികച്ച അനുഭവത്തിനായി ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യൂ</p>
+    <a href="javascript:void(0)" class="playstore-btn" id="pwaInstallBtn">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play">
+    </a>
+</div>
 <footer>© 2026 | Designed by Muhsin Mannani</footer>
 
 <script>
@@ -239,6 +249,55 @@
     // ഫയർബേസ് തുടങ്ങുന്നു
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
+    // --- PWA Install Logic (Android & iOS) START ---
+let deferredPrompt;
+const installArea = document.getElementById('pwaInstallArea');
+const installBtn = document.getElementById('pwaInstallBtn');
+
+const isIos = () => {
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+};
+
+const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!isIos()) {
+        installArea.style.display = 'block';
+    }
+});
+
+if (isIos() && !isInStandaloneMode()) {
+    installArea.style.display = 'block';
+    installArea.innerHTML = `
+        <div style="background: #fff3cd; padding: 15px; border-radius: 12px; border: 1px solid #ffeeba; text-align: left; margin: 10px;">
+            <p style="font-size: 14px; color: #856404; margin: 0; font-weight: bold;">iPhone-ൽ ഇൻസ്റ്റാൾ ചെയ്യാൻ:</p>
+            <p style="font-size: 13px; color: #856404; margin: 8px 0;">
+                താഴെയുള്ള <b>'Share'</b> ബട്ടൺ <i class="fa fa-share-square"></i> ക്ലിക്ക് ചെയ്ത് 
+                അതിൽ <b>'Add to Home Screen'</b> <i class="fa fa-plus-square"></i> എന്നത് തിരഞ്ഞെടുക്കുക.
+            </p>
+        </div>
+    `;
+}
+
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            installArea.style.display = 'none';
+        }
+        deferredPrompt = null;
+    }
+});
+
+window.addEventListener('appinstalled', () => {
+    installArea.style.display = 'none';
+    deferredPrompt = null;
+});
+// --- PWA Install Logic END ---
 
     // ലൈവ് നോട്ടീസ് പരിശോധിക്കുന്നു
     db.collection("notices").doc("latest").onSnapshot((doc) => {
