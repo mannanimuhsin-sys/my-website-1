@@ -3,139 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eid Poster Maker - Misbahul Uloom</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <title>Eid Poster Maker</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; text-align: center; background-color: #f4f4f4; margin: 0; padding: 10px; }
+        body { font-family: sans-serif; text-align: center; background: #f4f4f4; padding: 20px; }
         .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        canvas { max-width: 100%; height: auto; border-radius: 10px; border: 1px solid #ddd; }
+        canvas { max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 10px; cursor: move; touch-action: none; }
         .controls { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; text-align: left; }
         input, button { padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
-        button { background-color: #d81b60; color: white; border: none; font-weight: bold; cursor: pointer; }
-        label { font-weight: bold; font-size: 14px; color: #555; }
-
-        /* ക്രോപ്പ് ചെയ്യാനുള്ള വിൻഡോ */
-        #cropperModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
-        .cropper-container-box { background: white; padding: 15px; border-radius: 10px; width: 90%; max-width: 400px; }
-        .crop-btn { margin-top: 15px; background: #28a745; width: 100%; }
+        button { background: #d81b60; color: white; border: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h3 style="margin-top:0;">പെരുന്നാൾ പോസ്റ്റർ നിർമ്മാതാവ്</h3>
-    
     <canvas id="posterCanvas" width="800" height="1100"></canvas>
-
     <div class="controls">
         <label>1. ഫോട്ടോ തിരഞ്ഞെടുക്കുക:</label>
         <input type="file" id="imageInput" accept="image/*">
         
-        <label>2. പേര് നൽകുക:</label>
-        <input type="text" id="nameInput" placeholder="നിങ്ങളുടെ പേര് ഇവിടെ എഴുതുക..." maxlength="25">
+        <label>2. ഫോട്ടോ വലുപ്പം അഡ്ജസ്റ്റ് ചെയ്യുക:</label>
+        <input type="range" id="zoomInput" min="0.1" max="2" step="0.01" value="0.6">
+
+        <label>3. പേര് നൽകുക:</label>
+        <input type="text" id="nameInput" placeholder="പേര് ഇവിടെ എഴുതുക...">
         
-        <button onclick="downloadPoster()">പോസ്റ്റർ ഡൗൺലോഡ് ചെയ്യുക</button>
+        <button onclick="downloadPoster()">പോസ്റ്റർ സേവ് ചെയ്യുക</button>
     </div>
 </div>
-
-<div id="cropperModal">
-    <div class="cropper-container-box">
-        <div style="height: 300px;">
-            <img id="imageToCrop" style="max-width: 100%;">
-        </div>
-        <button class="crop-btn" id="cropButtonClick">ക്രോപ്പ് ചെയ്യുക (Set Photo)</button>
-    </div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <script>
     const canvas = document.getElementById('posterCanvas');
     const ctx = canvas.getContext('2d');
     const imgInput = document.getElementById('imageInput');
     const nameInput = document.getElementById('nameInput');
-    const cropperModal = document.getElementById('cropperModal');
-    const imageToCrop = document.getElementById('imageToCrop');
-    
+    const zoomInput = document.getElementById('zoomInput');
+
     let baseImage = new Image();
-    // ഇമേജ് പേര് ശരിയാണെന്ന് ഉറപ്പാക്കുക
     baseImage.src = 'poster-bg.png'; 
 
-    let croppedImgData = null;
-    let cropper;
+    let userImg = new Image();
+    let imgLoaded = false;
+    
+    let imgX = 515, imgY = 350; 
+    let scale = 0.6;
+    let isDragging = false;
+    let startX, startY;
+    let initialDistance = null; // Pinch സൂമിന് വേണ്ടി
+
+    const boxW = 270, boxH = 355, r = 45;
 
     baseImage.onload = () => draw();
 
     imgInput.onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                imageToCrop.src = event.target.result;
-                cropperModal.style.display = 'flex';
-                if (cropper) cropper.destroy();
-                cropper = new Cropper(imageToCrop, {
-                    aspectRatio: 245 / 320, // അല്പം വലിപ്പം കൂട്ടി ക്രമീകരിച്ചു
-                    viewMode: 1
-                });
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            userImg.onload = () => {
+                imgLoaded = true;
+                draw();
             };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    document.getElementById('cropButtonClick').onclick = () => {
-        const croppedCanvas = cropper.getCroppedCanvas({ width: 245, height: 320 });
-        croppedImgData = new Image();
-        croppedImgData.onload = () => {
-            cropperModal.style.display = 'none';
-            draw();
+            userImg.src = event.target.result;
         };
-        croppedImgData.src = croppedCanvas.toDataURL();
+        reader.readAsDataURL(e.target.files[0]);
     };
 
-   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
 
-    // 1. ഫോട്ടോ വരയ്ക്കുന്നു
-    if (croppedImgData) {
-        // x, y സ്ഥാനവും w, h വലിപ്പവും ശ്രദ്ധിക്കുക
-        // വൈറ്റ് ബോക്സിനെ പൂർണ്ണമായും മൂടാൻ വേണ്ടി ഞാൻ ഇത് കൂട്ടിയിട്ടുണ്ട്
-        const x = 480;  // ഫോട്ടോ അല്പം കൂടി ഇടത്തോട്ട് നീക്കി
-        const y = 350;  // അല്പം കൂടി മുകളിലേക്ക് നീക്കി
-        const w = 310;  // വീതി കൂട്ടി
-        const h = 360;  // നീളം കൂട്ടി
-        const r = 40;   // ബോർഡർ റൗണ്ട് ഷേപ്പ്
-        
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(x + r, y);
-        ctx.arcTo(x + w, y, x + w, y + h, r);
-        ctx.arcTo(x + w, y + h, x, y + h, r);
-        ctx.arcTo(x, y + h, x, y, r);
-        ctx.arcTo(x, y, x + w, y, r);
-        ctx.closePath();
-        ctx.clip();
-        ctx.drawImage(croppedImgData, x, y, w, h);
-        ctx.restore();
+        if (imgLoaded) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(imgX + r, imgY);
+            ctx.arcTo(imgX + boxW, imgY, imgX + boxW, imgY + boxH, r);
+            ctx.arcTo(imgX + boxW, imgY + boxH, imgX, imgY + boxH, r);
+            ctx.arcTo(imgX, imgY + boxH, imgX, imgY, r);
+            ctx.arcTo(imgX, imgY, imgX + boxW, imgY, r);
+            ctx.closePath();
+            
+            ctx.fillStyle = "white";
+            ctx.fill();
+            
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "#eee";
+            ctx.stroke();
+
+            ctx.clip(); 
+
+            let w = userImg.width * scale;
+            let h = userImg.height * scale;
+            ctx.drawImage(userImg, imgX + (boxW - w) / 2, imgY + (boxH - h) / 2, w, h);
+            ctx.restore();
+        }
+
+        const name = nameInput.value;
+        if (name) {
+            ctx.font = "bold 35px sans-serif";
+            ctx.fillStyle = "#FFFFFF";
+            ctx.textAlign = "center";
+            ctx.fillText(name, imgX + (boxW / 2), imgY + boxH + 45);
+        }
     }
 
-    // 2. ബാക്ക്ഗ്രൗണ്ട് പോസ്റ്റർ മുകളിൽ വരയ്ക്കുന്നു
-    ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-
-    // 3. പേര് എഴുതുന്നു
-    const name = nameInput.value;
-    if (name) {
-        ctx.font = "bold 34px sans-serif"; // പേര് അല്പം കൂടി വലുതാക്കി
-        ctx.fillStyle = "#333"; 
-        ctx.textAlign = "center";
-        // വൈറ്റ് ബോക്സിന്റെ താഴെ വരാൻ 820 എന്ന വാല്യൂ നൽകി
-        ctx.fillText(name, 630, 820); 
+    function handleStart(x, y) {
+        isDragging = true;
+        startX = x; startY = y;
     }
-}
+
+    function handleMove(x, y) {
+        if (!isDragging || !imgLoaded) return;
+        imgX += (x - startX);
+        imgY += (y - startY);
+        startX = x; startY = y;
+        draw();
+    }
+
+    // മൗസ് ഇവന്റുകൾ
+    canvas.onmousedown = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        handleStart((e.clientX - rect.left) * (canvas.width / rect.width), (e.clientY - rect.top) * (canvas.height / rect.height));
+    };
+
+    canvas.onmousemove = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        handleMove((e.clientX - rect.left) * (canvas.width / rect.width), (e.clientY - rect.top) * (canvas.height / rect.height));
+    };
+
+    window.onmouseup = () => isDragging = false;
+
+    // ടച്ച് ഇവന്റുകൾ (പിഞ്ച് സൂം ഉൾപ്പെടെ)
+    canvas.ontouchstart = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        if (e.touches.length === 1) {
+            const t = e.touches[0];
+            handleStart((t.clientX - rect.left) * (canvas.width / rect.width), (t.clientY - rect.top) * (canvas.height / rect.height));
+        } else if (e.touches.length === 2) {
+            initialDistance = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+        }
+        e.preventDefault();
+    };
+
+    canvas.ontouchmove = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        if (e.touches.length === 1 && isDragging) {
+            const t = e.touches[0];
+            handleMove((t.clientX - rect.left) * (canvas.width / rect.width), (t.clientY - rect.top) * (canvas.height / rect.height));
+        } else if (e.touches.length === 2 && imgLoaded) {
+            const currentDistance = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            if (initialDistance !== null) {
+                const delta = currentDistance / initialDistance;
+                const newScale = Math.min(Math.max(scale * delta, 0.1), 2);
+                scale = newScale;
+                zoomInput.value = scale;
+                initialDistance = currentDistance;
+                draw();
+            }
+        }
+        e.preventDefault();
+    };
+
+    canvas.ontouchend = () => {
+        isDragging = false;
+        initialDistance = null;
+    };
+
+    // സ്ലൈഡർ സൂം (സെന്റർ മാറാതെ)
+    zoomInput.oninput = (e) => { 
+        scale = parseFloat(e.target.value); 
+        draw(); 
+    };
+
+    nameInput.oninput = () => draw();
+
     function downloadPoster() {
         const link = document.createElement('a');
-        link.download = 'Misbahul_Uloom_Eid_Wishes.png';
-        link.href = canvas.toDataURL('image/png');
+        link.download = 'Eid_Poster.png';
+        link.href = canvas.toDataURL();
         link.click();
     }
 </script>
