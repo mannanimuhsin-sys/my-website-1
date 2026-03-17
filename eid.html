@@ -10,7 +10,9 @@
         canvas { max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 10px; cursor: move; touch-action: none; }
         .controls { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; text-align: left; }
         input, button { padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
-        button { background: #d81b60; color: white; border: none; font-weight: bold; cursor: pointer; }
+        .btn-download { background: #d81b60; color: white; border: none; font-weight: bold; cursor: pointer; }
+        /* വാട്സ്ആപ്പ് ബട്ടൺ സ്റ്റൈൽ */
+        .btn-whatsapp { background: #25D366; color: white; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
     </style>
 </head>
 <body>
@@ -27,7 +29,11 @@
         <label>3. പേര് നൽകുക:</label>
         <input type="text" id="nameInput" placeholder="പേര് ഇവിടെ എഴുതുക...">
         
-        <button onclick="downloadPoster()">പോസ്റ്റർ സേവ് ചെയ്യുക</button>
+        <button class="btn-download" onclick="downloadPoster()">ഗാലറിയിലേക്ക് സേവ് ചെയ്യുക</button>
+        <button class="btn-whatsapp" onclick="shareToWhatsApp()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="20" height="20" alt="WA">
+            വാട്സാപ്പിൽ പങ്കുവെക്കുക
+        </button>
     </div>
 </div>
 
@@ -48,7 +54,7 @@
     let scale = 0.6;
     let isDragging = false;
     let startX, startY;
-    let initialDistance = null; // Pinch സൂമിന് വേണ്ടി
+    let initialDistance = null;
 
     const boxW = 270, boxH = 355, r = 45;
 
@@ -104,43 +110,31 @@
         }
     }
 
-    function handleStart(x, y) {
-        isDragging = true;
-        startX = x; startY = y;
-    }
-
+    // ടച്ച് & മൗസ് ഇവന്റുകൾ (പഴയത് പോലെ തന്നെ)
+    function handleStart(x, y) { isDragging = true; startX = x; startY = y; }
     function handleMove(x, y) {
         if (!isDragging || !imgLoaded) return;
-        imgX += (x - startX);
-        imgY += (y - startY);
-        startX = x; startY = y;
-        draw();
+        imgX += (x - startX); imgY += (y - startY);
+        startX = x; startY = y; draw();
     }
 
-    // മൗസ് ഇവന്റുകൾ
     canvas.onmousedown = (e) => {
         const rect = canvas.getBoundingClientRect();
         handleStart((e.clientX - rect.left) * (canvas.width / rect.width), (e.clientY - rect.top) * (canvas.height / rect.height));
     };
-
     canvas.onmousemove = (e) => {
         const rect = canvas.getBoundingClientRect();
         handleMove((e.clientX - rect.left) * (canvas.width / rect.width), (e.clientY - rect.top) * (canvas.height / rect.height));
     };
-
     window.onmouseup = () => isDragging = false;
 
-    // ടച്ച് ഇവന്റുകൾ (പിഞ്ച് സൂം ഉൾപ്പെടെ)
     canvas.ontouchstart = (e) => {
         const rect = canvas.getBoundingClientRect();
         if (e.touches.length === 1) {
             const t = e.touches[0];
             handleStart((t.clientX - rect.left) * (canvas.width / rect.width), (t.clientY - rect.top) * (canvas.height / rect.height));
         } else if (e.touches.length === 2) {
-            initialDistance = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
+            initialDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
         }
         e.preventDefault();
     };
@@ -151,14 +145,10 @@
             const t = e.touches[0];
             handleMove((t.clientX - rect.left) * (canvas.width / rect.width), (t.clientY - rect.top) * (canvas.height / rect.height));
         } else if (e.touches.length === 2 && imgLoaded) {
-            const currentDistance = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
+            const currentDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
             if (initialDistance !== null) {
                 const delta = currentDistance / initialDistance;
-                const newScale = Math.min(Math.max(scale * delta, 0.1), 2);
-                scale = newScale;
+                scale = Math.min(Math.max(scale * delta, 0.1), 2);
                 zoomInput.value = scale;
                 initialDistance = currentDistance;
                 draw();
@@ -166,18 +156,9 @@
         }
         e.preventDefault();
     };
+    canvas.ontouchend = () => { isDragging = false; initialDistance = null; };
 
-    canvas.ontouchend = () => {
-        isDragging = false;
-        initialDistance = null;
-    };
-
-    // സ്ലൈഡർ സൂം (സെന്റർ മാറാതെ)
-    zoomInput.oninput = (e) => { 
-        scale = parseFloat(e.target.value); 
-        draw(); 
-    };
-
+    zoomInput.oninput = (e) => { scale = parseFloat(e.target.value); draw(); };
     nameInput.oninput = () => draw();
 
     function downloadPoster() {
@@ -185,6 +166,27 @@
         link.download = 'Eid_Poster.png';
         link.href = canvas.toDataURL();
         link.click();
+    }
+
+    // വാട്സാപ്പിൽ പങ്കുവെക്കാനുള്ള ഫങ്ക്ഷൻ
+    async function shareToWhatsApp() {
+        const dataUrl = canvas.toDataURL('image/png');
+        const blob = await (await fetch(dataUrl)).blob();
+        const file = new File([blob], 'Eid_Poster.png', { type: blob.type });
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    files: [file],
+                    title: 'Eid Poster',
+                    text: 'എല്ലാവർക്കും എന്റെ ഹൃദയം നിറഞ്ഞ പെരുന്നാൾ ആശംസകൾ!'
+                });
+            } catch (err) {
+                console.error("Share failed:", err);
+            }
+        } else {
+            alert("നിങ്ങളുടെ ബ്രൗസർ ഷെയർ ഓപ്ഷൻ സപ്പോർട്ട് ചെയ്യുന്നില്ല. ദയവായി സേവ് ചെയ്ത് വാട്സാപ്പിൽ അയക്കുക.");
+        }
     }
 </script>
 
