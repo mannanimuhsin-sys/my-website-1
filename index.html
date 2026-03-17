@@ -38,6 +38,10 @@
             background-size:cover; background-position:center; color:white; padding:70px 10px; border-radius: 0 0 30px 30px;
         }
         .box{ background:white; padding:20px; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.05); margin-bottom:20px; border-top: 4px solid #198754; }
+.eid-card { background: linear-gradient(135deg, #ffd700, #8e44ad);  color: white;  padding: 25px;  border-radius: 15px; text-align: center;  margin-bottom: 25px;  cursor: pointer; transition: 0.3s;  box-shadow: 0 6px 15px rgba(142,68,173,0.4);  border: 2px solid rgba(255,215,0,0.5); }
+.eid-card:hover { transform: scale(1.02); }
+.eid-card i { color: #ffd700; margin-bottom: 10px; }
+.eid-card h2 { font-weight: 800; margin-top: 10px; }
         .portal-card { background: linear-gradient(135deg, #198754, #20c997); color: white; padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 25px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(25,135,84,0.3); }
         .quiz-card { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 25px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(245,87,108,0.3); }
         
@@ -113,6 +117,11 @@
 </div>
 
 <div class="container">
+    <div class="eid-card" onclick="window.location.href='https://mannanimuhsin-sys.github.io/my-website-1/eid'">
+    <i class="fas fa-moon fa-3x"></i>
+    <h2>EID POSTER MAKER</h2>
+    <p>നിങ്ങളുടെ ഫോട്ടോ വെച്ചുള്ള മനോഹരമായ പെരുന്നാൾ പോസ്റ്ററുകൾ ഉണ്ടാക്കാം</p>
+</div>
   <div class="portal-card" onclick="window.location.href='https://mannanimuhsin-sys.github.io/my-website-1/idcard.html'">
         <i class="fas fa-id-card-alt fa-3x"></i>
         <h2>Student Registration & ID Portal</h2>
@@ -236,19 +245,22 @@
 <footer>© 2026 | Designed by Muhsin Mannani</footer>
 
 <script>
+    
     // **പ്രധാനപ്പെട്ട ഭാഗം: ഈ Config നിങ്ങളുടെ ഡാറ്റാബേസിന് കൃത്യമായിരിക്കണം**
-    const firebaseConfig = {
-        apiKey: "AIzaSyAUkOIp33p7sMviItKLEP6EGyPQvFBuQeY",
-        authDomain: "result-aedec.firebaseapp.com",
-        projectId: "result-aedec",
-        storageBucket: "result-aedec.firebasestorage.app",
-        messagingSenderId: "654773450983",
-        appId: "1:654773450983:web:463a919c5c83ec55134a42"
-    };
+   const firebaseConfig = {
+    apiKey: "AIzaSyAUkOIp33p7sMviItKLEP6EGyPQvFBuQeY",
+    authDomain: "result-aedec.firebaseapp.com",
+    projectId: "result-aedec",
+    storageBucket: "result-aedec.firebasestorage.app",
+    messagingSenderId: "654773450983",
+    appId: "1:654773450983:web:463a919c5c83ec55134a42"
+};
 
-    // ഫയർബേസ് തുടങ്ങുന്നു
+// ഫയർബേസ് ആപ്പ് തുടങ്ങുന്നു
+if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+}
+const db = firebase.firestore();
 
     // --- PWA Install Logic (Android & iOS) START ---
 let deferredPrompt;
