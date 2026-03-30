@@ -133,7 +133,7 @@ async function loadData() {
     tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;">Loading...</td></tr>';
 
     try {
-        const snapshot = await db.collection("students").orderBy("timestamp", "desc").get();
+        const snapshot = await db.collection("misbahul_uloom_students").orderBy("timestamp", "desc").get();
         allStudents = [];
         snapshot.forEach(doc => {
             allStudents.push({ ...doc.data(), docId: doc.id });
@@ -233,7 +233,7 @@ async function updateData() {
 
 async function saveToFirebase(docId, data) {
     try {
-        await db.collection("students").doc(docId).update(data);
+        await db.collection("misbahul_uloom_students").doc(docId).update(data);
         alert("വിവരങ്ങൾ അപ്‌ഡേറ്റ് ചെയ്തു! ✅");
         closeModal();
         loadData();
