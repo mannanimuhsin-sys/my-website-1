@@ -239,7 +239,7 @@ async function saveStudent(){
    timestamp: new Date().getTime()
   };
 
-  await db.collection("students").doc(studentObj.number).set(studentObj);
+  await db.collection("misbahul_uloom_students").doc(studentObj.number).set(studentObj);
   alert("രജിസ്ട്രേഷൻ വിജയകരമായി പൂർത്തിയായി! ✅ അഡ്മിൻ അപ്രൂവ് ചെയ്ത ശേഷം ലോഗിൻ ചെയ്യുക.");
   location.reload(); 
  } catch (e) {
@@ -258,7 +258,7 @@ async function login(){
  lBtn.innerText = "VERIFYING...";
 
  try {
-   const doc = await db.collection("students").doc(rNo).get();
+  const doc = await db.collection("misbahul_uloom_students").doc(rNo).get();
    if(doc.exists) {
      const s = doc.data();
      if(s.password === lPass) {
