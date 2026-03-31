@@ -80,6 +80,7 @@
                 <th>Mentor</th>
                 <th>Phone</th>
                 <th>Blood</th>
+                <th>Password</th>
                 <th>Status</th>
                 <th>Actions</th>
             </tr>
@@ -129,7 +130,7 @@ let allStudents = []; // ഡാറ്റാബേസിൽ നിന്നുള
 
 async function loadData() {
     const tbody = document.getElementById('studentBody');
-    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;">Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;">Loading...</td></tr>';
 
     try {
         const snapshot = await db.collection("misbahul_uloom_students").orderBy("timestamp", "desc").get();
@@ -174,6 +175,7 @@ function renderTable(data) {
                 <td>${s.mentor}</td>
                 <td>${s.phone}</td>
                 <td>${s.blood}</td>
+                <td>${s.password || ''}</td>
                 <td><span class="${isApproved ? 'status-approved' : 'status-pending'}">${isApproved ? 'Approved ✅' : 'Pending ⏳'}</span></td>
                 <td>
                     <div style="display:flex; gap:5px;">
@@ -243,15 +245,23 @@ function closeModal() { document.getElementById('editModal').style.display = 'no
 
 async function approveStudent(id) {
     if(confirm("ഈ വിദ്യാർത്ഥിയെ അപ്രൂവ് ചെയ്യട്ടെ?")) {
-        await db.collection("students").doc(id).update({ status: "approved" });
-        loadData();
+        try {
+            await db.collection("misbahul_uloom_students").doc(id).update({ status: "approved" });
+            loadData();
+        } catch (e) {
+            alert("Approval failed. Please check your connection and try again.");
+        }
     }
 }
 
 async function deleteData(id) {
     if(confirm("ഈ വിദ്യാർത്ഥിയെ ഡിലീറ്റ് ചെയ്യട്ടെ?")) {
-        await db.collection("students").doc(id).delete();
-        loadData();
+        try {
+            await db.collection("misbahul_uloom_students").doc(id).delete();
+            loadData();
+        } catch (e) {
+            alert("Delete failed. Please check your connection and try again.");
+        }
     }
 }
 
