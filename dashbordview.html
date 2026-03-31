@@ -13,15 +13,39 @@
         h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; font-size: 26px; }
         .subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; }
         .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 700px; }
-        th, td { border: 1px solid #eee; padding: 15px 10px; text-align: center; }
-        th { background: #2c3e50; color: #fff; font-size: 13px; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; min-width: 640px; }
+        th, td { border: 1px solid #eee; padding: 12px 8px; text-align: center; font-size: 13px; }
+        th { background: #2c3e50; color: #fff; text-transform: uppercase; }
         .boys { color: #0b5ed7; font-weight: bold; }
         .girls { color: #d63384; font-weight: bold; }
         .total-cell { color: #198754; font-weight: bold; background: #f9f9f9; }
-        .contact-btns a { font-size: 20px; margin: 0 8px; transition: 0.3s; text-decoration: none;}
+        .contact-btns { display: inline-flex; gap: 6px; align-items: center; justify-content: center; }
+        .contact-btns a { font-size: 16px; margin: 0 4px; padding: 6px; transition: 0.3s; text-decoration: none; }
         .call { color: #0d6efd; } .whatsapp { color: #25D366; }
         tfoot tr { background: #2c3e50; color: white; font-weight: bold; }
+        @media (max-width: 720px) {
+            body { padding: 10px; }
+            .container { margin: 10px auto; padding: 18px; }
+            h1 { font-size: 22px; }
+            .subtitle { font-size: 12px; }
+            table { min-width: 100%; }
+            th, td { padding: 10px 6px; font-size: 12px; }
+            .contact-btns a { font-size: 14px; margin: 0 3px; padding: 5px; }
+            td:nth-child(5) { text-align: left; }
+        }
+        @media (max-width: 640px) {
+            .table-responsive { overflow: hidden; }
+            table { display: block; width: 100%; }
+            thead { display: none; }
+            tbody tr { display: block; margin-bottom: 14px; background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
+            td { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border: none; border-bottom: 1px solid #f1f1f1; text-align: left; }
+            td:last-child { border-bottom: none; }
+            td:before { content: attr(data-label); flex: 0 0 42%; color: #525252; font-weight: 600; }
+            .total-cell { background: transparent; }
+            .contact-btns { justify-content: flex-end; width: 100%; }
+            .contact-btns a { margin: 0 4px; }
+            tfoot, tfoot tr, tfoot td { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -73,11 +97,12 @@
                 tb += b; tg += g; tt += rowTotal;
 
                 rows += `<tr>
-                    <td><b>${item.class}</b></td>
-                    <td class="boys">${b}</td> <td class="girls">${g}</td>
-                    <td class="total-cell">${rowTotal}</td>
-                    <td style="text-align:left">${item.usthad}</td>
-                    <td>
+                    <td data-label="CLASS"><b>${item.class}</b></td>
+                    <td class="boys" data-label="BOYS">${b}</td>
+                    <td class="girls" data-label="GIRLS">${g}</td>
+                    <td class="total-cell" data-label="TOTAL">${rowTotal}</td>
+                    <td data-label="CLASS USTHAD" style="text-align:left">${item.usthad}</td>
+                    <td data-label="CONTACT">
                         <div class="contact-btns">
                             <a href="tel:${item.phone}" class="call"><i class="fa fa-phone-alt"></i></a>
                             <a href="https://wa.me/91${item.phone}" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
