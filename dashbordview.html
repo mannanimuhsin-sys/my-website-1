@@ -3,29 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class Strength & Usthad Details</title>
+    <title>Misbahul Uloom - Student List</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f7f6; padding: 15px; margin: 0; }
         .container { max-width: 1100px; margin: 20px auto; background: #fff; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 25px; border-top: 5px solid #2c3e50; }
-        h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; font-size: 26px; font-weight: 800; }
-        .subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; letter-spacing: 1px; }
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; font-size: 26px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; }
+        .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
         th, td { border: 1px solid #eee; padding: 15px 10px; text-align: center; }
         th { background: #2c3e50; color: #fff; font-size: 13px; text-transform: uppercase; }
         .boys { color: #0b5ed7; font-weight: bold; }
         .girls { color: #d63384; font-weight: bold; }
         .total-cell { color: #198754; font-weight: bold; background: #f9f9f9; }
-        .usthad-name { text-align: left; font-weight: 600; color: #333; padding-left: 15px; }
-        .contact-btns { display: flex; justify-content: center; gap: 15px; }
-        .contact-btns a { font-size: 20px; transition: 0.3s; }
-        .contact-btns a:hover { transform: translateY(-3px); }
-        .call { color: #0d6efd; }
-        .whatsapp { color: #25D366; }
+        .contact-btns a { font-size: 20px; margin: 0 8px; transition: 0.3s; text-decoration: none;}
+        .call { color: #0d6efd; } .whatsapp { color: #25D366; }
         tfoot tr { background: #2c3e50; color: white; font-weight: bold; }
-        tfoot td { border: none; padding: 15px; }
-        @media(max-width: 768px) { h1 { font-size: 20px; } .container { padding: 15px; } }
     </style>
 </head>
 <body>
@@ -33,7 +29,6 @@
 <div class="container">
     <h1>വിദ്യാർത്ഥി വിവര പട്ടിക</h1>
     <div class="subtitle">MISBAHUL ULOOM MADRASA PERUVANA</div>
-
     <div class="table-responsive">
         <table>
             <thead>
@@ -44,85 +39,60 @@
                     <th rowspan="2">CONTACT</th>
                 </tr>
                 <tr>
-                    <th>BOYS</th>
-                    <th>GIRLS</th>
-                    <th>TOTAL</th>
+                    <th>BOYS</th> <th>GIRLS</th> <th>TOTAL</th>
                 </tr>
             </thead>
-            <tbody id="viewTableBody">
-                </tbody>
-            <tfoot id="viewTableFoot">
-                </tfoot>
+            <tbody id="viewTableBody"></tbody>
+            <tfoot id="viewTableFoot"></tfoot>
         </table>
     </div>
 </div>
 
 <script>
-    // അഡ്മിൻ പേജിൽ സേവ് ചെയ്ത ഡാറ്റ ലോഡ് ചെയ്യുന്നു
-    function loadMadrasaData() {
-        // ഡീഫോൾട്ട് ഡാറ്റ (ആദ്യ തവണ പേജ് തുറക്കുമ്പോൾ കാണാൻ)
-        let defaultData = [
-            { class: "I", boys: 5, girls: 8, usthad: "SAITHALAVI FAIZY IRFANI", phone: "9447483109" },
-            { class: "II", boys: 3, girls: 3, usthad: "ABDU RAHMAN BADRI", phone: "7695020736" },
-            { class: "III", boys: 7, girls: 6, usthad: "MUHSIN MANNANI", phone: "7559950633" },
-            { class: "IV", boys: 12, girls: 7, usthad: "ABDUL JALEEL FAIZY IRFANI", phone: "9961292787" },
-            { class: "V", boys: 6, girls: 9, usthad: "ABDUL JALEEL FAIZY IRFANI", phone: "9961292787" },
-            { class: "VI", boys: 7, girls: 11, usthad: "ABDU RAHMAN BADRI", phone: "7695020736" },
-            { class: "VII", boys: 1, girls: 1, usthad: "MUHSIN MANNANI", phone: "7559950633" },
-            { class: "VIII", boys: 6, girls: 5, usthad: "ABDUL JALEEL FAIZY IRFANI", phone: "9961292787" },
-            { class: "IX", boys: 6, girls: 7, usthad: "SAITHALAVI FAIZY IRFANI", phone: "9447483109" },
-            { class: "X", boys: 1, girls: 5, usthad: "MUHSIN MANNANI", phone: "7559950633" },
-            { class: "Plus One", boys: 0, girls: 1, usthad: "MUHSIN MANNANI", phone: "7559950633" }
-        ];
+    const firebaseConfig = {
+        apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
+        authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
+        projectId: "misbahul-uloom-madrasa-4830c",
+        storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app",
+        messagingSenderId: "370558703441",
+        appId: "1:370558703441:web:dc68dbdbd685c9d07ea570"
+    };
 
-        let storedData = localStorage.getItem('madrasaData');
-        let data = storedData ? JSON.parse(storedData) : defaultData;
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-        // Ensure Plus One row exists even if local storage data is older
-        if (!data.some(item => item.class === "Plus One")) {
-            data.push({ class: "Plus One", boys: 0, girls: 0, usthad: "", phone: "" });
-        }
+    function listenData() {
+        db.collection("stats").doc("current").onSnapshot(doc => {
+            if(!doc.exists) return;
+            let data = doc.data().list;
+            let rows = "", tb = 0, tg = 0, tt = 0;
 
-        let rows = "";
-        let tb = 0, tg = 0, tt = 0;
+            data.forEach(item => {
+                let b = parseInt(item.boys) || 0, g = parseInt(item.girls) || 0;
+                let rowTotal = b + g;
+                tb += b; tg += g; tt += rowTotal;
 
-        data.forEach(item => {
-            let b = parseInt(item.boys) || 0;
-            let g = parseInt(item.girls) || 0;
-            let rowTotal = b + g;
-            
-            tb += b; tg += g; tt += rowTotal;
-
-            rows += `
-            <tr>
-                <td><b>${item.class}</b></td>
-                <td class="boys">${b}</td>
-                <td class="girls">${g}</td>
-                <td class="total-cell">${rowTotal}</td>
-                <td class="usthad-name">${item.usthad}</td>
-                <td>
-                    <div class="contact-btns">
-                        <a href="tel:${item.phone}" class="call"><i class="fa fa-phone-alt"></i></a>
-                        <a href="https://wa.me/91${item.phone}" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-                    </div>
-                </td>
-            </tr>`;
-        });
-
-        document.getElementById('viewTableBody').innerHTML = rows;
-        document.getElementById('viewTableFoot').innerHTML = `
-            <tr>
-                <td>ആകെ</td>
-                <td>${tb}</td>
-                <td>${tg}</td>
-                <td>${tt}</td>
+                rows += `<tr>
+                    <td><b>${item.class}</b></td>
+                    <td class="boys">${b}</td> <td class="girls">${g}</td>
+                    <td class="total-cell">${rowTotal}</td>
+                    <td style="text-align:left">${item.usthad}</td>
+                    <td>
+                        <div class="contact-btns">
+                            <a href="tel:${item.phone}" class="call"><i class="fa fa-phone-alt"></i></a>
+                            <a href="https://wa.me/91${item.phone}" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            document.getElementById('viewTableBody').innerHTML = rows;
+            document.getElementById('viewTableFoot').innerHTML = `<tr>
+                <td>ആകെ</td> <td>${tb}</td> <td>${tg}</td> <td>${tt}</td>
                 <td colspan="2">TOTAL STRENGTH</td>
             </tr>`;
+        });
     }
-
-    // പേജ് തുറക്കുമ്പോൾ ഡാറ്റ ലോഡ് ചെയ്യുക
-    window.onload = loadMadrasaData;
+    window.onload = listenData;
 </script>
-
 </body>
 </html>
