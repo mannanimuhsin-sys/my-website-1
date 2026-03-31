@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Misbahul Uloom</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #eef2f3; padding: 15px; margin: 0; }
+        .container { max-width: 1000px; margin: 20px auto; background: #fff; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid #198754; }
+        h1 { text-align: center; color: #198754; }
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #198754; color: #fff; font-size: 13px; }
+        input { width: 90%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; text-align: center; }
+        .save-btn { display: block; width: 220px; margin: 30px auto; padding: 15px; background: #198754; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .save-btn:hover { background: #146c43; transform: scale(1.03); }
+        .loading { text-align: center; color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>മദ്റസ അഡ്മിൻ പാനൽ</h1>
+    <p id="loadMsg" class="loading">ഡാറ്റ ലോഡ് ചെയ്യുന്നു...</p>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>CLASS</th>
+                    <th>BOYS</th>
+                    <th>GIRLS</th>
+                    <th>USTHAD NAME</th>
+                    <th>PHONE</th>
+                </tr>
+            </thead>
+            <tbody id="editTableBody"></tbody>
+        </table>
+    </div>
+
+    <button class="save-btn" id="saveBtn" onclick="saveData()"><i class="fa fa-save"></i> UPDATE DATABASE</button>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
+        authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
+        projectId: "misbahul-uloom-madrasa-4830c",
+        storageBucket: "misbahul-uloom-madrasa-4830c.firebasestorage.app",
+        messagingSenderId: "370558703441",
+        appId: "1:370558703441:web:dc68dbdbd685c9d07ea570"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const classes = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "Plus One"];
+
+    async function initAdmin() {
+        const doc = await db.collection("stats").doc("current").get();
+        let data = doc.exists ? doc.data().list : [];
+        
+        let rows = "";
+        classes.forEach((cls, i) => {
+            let item = data.find(d => d.class === cls) || { class: cls, boys: 0, girls: 0, usthad: "", phone: "" };
+            rows += `
+            <tr>
+                <td><b>${cls}</b></td>
+                <td><input type="number" class="b-val" value="${item.boys}"></td>
+                <td><input type="number" class="g-val" value="${item.girls}"></td>
+                <td><input type="text" class="u-val" style="text-align:left" value="${item.usthad}"></td>
+                <td><input type="tel" class="p-val" value="${item.phone}"></td>
+            </tr>`;
+        });
+        document.getElementById('editTableBody').innerHTML = rows;
+        document.getElementById('loadMsg').style.display = 'none';
+    }
+
+    async function saveData() {
+        const btn = document.getElementById('saveBtn');
+        btn.disabled = true; btn.innerText = "UPDATING...";
+
+        let newList = [];
+        const b = document.querySelectorAll('.b-val');
+        const g = document.querySelectorAll('.g-val');
+        const u = document.querySelectorAll('.u-val');
+        const p = document.querySelectorAll('.p-val');
+
+        classes.forEach((cls, i) => {
+            newList.push({
+                class: cls, boys: b[i].value || 0, girls: g[i].value || 0,
+                usthad: u[i].value || "", phone: p[i].value || ""
+            });
+        });
+
+        try {
+            await db.collection("stats").doc("current").set({ list: newList });
+            alert("ഡാറ്റ വിജയകരമായി അപ്‌ഡേറ്റ് ചെയ്തു! ✅");
+        } catch (e) { alert("Error: " + e.message); }
+        btn.disabled = false; btn.innerText = "UPDATE DATABASE";
+    }
+
+    window.onload = initAdmin;
+</script>
+</body>
+</html>
