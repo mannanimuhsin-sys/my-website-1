@@ -12,6 +12,14 @@
         .container { max-width: 1100px; margin: 20px auto; background: #fff; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 25px; border-top: 5px solid #2c3e50; }
         h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; font-size: 26px; }
         .subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; }
+        .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-bottom: 28px; }
+        .summary-card { padding: 22px 20px; border-radius: 18px; color: #fff; box-shadow: 0 16px 32px rgba(0,0,0,0.12); min-height: 120px; display: flex; flex-direction: column; justify-content: space-between; }
+        .summary-card h2 { margin: 0; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.9; }
+        .summary-card p { margin: 10px 0 0; font-size: 38px; font-weight: 700; line-height: 1; }
+        .summary-card span { display: block; margin-top: 8px; opacity: 0.85; font-size: 13px; }
+        .card-boys { background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
+        .card-girls { background: linear-gradient(135deg, #9d174d, #ec4899); }
+        .card-total { background: linear-gradient(135deg, #0f766e, #2dd4bf); }
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 640px; }
         th, td { border: 1px solid #eee; padding: 12px 8px; text-align: center; font-size: 13px; }
@@ -53,6 +61,23 @@
 <div class="container">
     <h1>വിദ്യാർത്ഥി വിവര പട്ടിക</h1>
     <div class="subtitle">MISBAHUL ULOOM MADRASA PERUVANA</div>
+    <div class="summary-grid">
+        <div class="summary-card card-boys">
+            <h2>BOYS</h2>
+            <p id="summaryBoys">0</p>
+            <span>All Classes Total</span>
+        </div>
+        <div class="summary-card card-girls">
+            <h2>GIRLS</h2>
+            <p id="summaryGirls">0</p>
+            <span>All Classes Total</span>
+        </div>
+        <div class="summary-card card-total">
+            <h2>TOTAL</h2>
+            <p id="summaryTotal">0</p>
+            <span>All Classes Combined</span>
+        </div>
+    </div>
     <div class="table-responsive">
         <table>
             <thead>
@@ -110,6 +135,9 @@
                     </td>
                 </tr>`;
             });
+            document.getElementById('summaryBoys').textContent = tb;
+            document.getElementById('summaryGirls').textContent = tg;
+            document.getElementById('summaryTotal').textContent = tt;
             document.getElementById('viewTableBody').innerHTML = rows;
             document.getElementById('viewTableFoot').innerHTML = `<tr>
                 <td>ആകെ</td> <td>${tb}</td> <td>${tg}</td> <td>${tt}</td>
