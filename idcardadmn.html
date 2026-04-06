@@ -17,6 +17,11 @@
         body { font-family: 'Roboto', sans-serif; background: #eef2f3; margin: 0; padding: 15px; }
         .header { background: var(--green); color: white; padding: 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         
+.stats-container { display: flex; gap: 20px; }
+.stats-box { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+.stats-box .label { font-size: 12px; color: #666; margin-bottom: 5px; }
+.stats-box .value { font-size: 24px; font-weight: bold; }
+        
         .action-bar { background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         
         button { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
@@ -45,7 +50,20 @@
 
 <div class="header">
     <div><h2 style="margin:0;">ADMIN DASHBOARD</h2><small>Misbahul Uloom Madrasa</small></div>
-    <div id="stats" style="font-weight: bold; font-size: 18px;">Total: 0</div>
+    <div class="stats-container">
+        <div class="stats-box">
+            <div class="label">Total Students</div>
+            <div class="value" style="color: var(--green);" id="totalStudents">118</div>
+        </div>
+        <div class="stats-box">
+            <div class="label">Submitted</div>
+            <div class="value" style="color: var(--orange);" id="submitted">0</div>
+        </div>
+        <div class="stats-box">
+            <div class="label">Approved</div>
+            <div class="value" style="color: var(--blue);" id="approved">0</div>
+        </div>
+    </div>
 </div>
 
 <div class="action-bar">
@@ -133,11 +151,13 @@ async function loadData() {
     tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;">Loading...</td></tr>';
 
     try {
-        const snapshot = await db.collection("misbahul_uloom_students").orderBy("timestamp", "desc").get();
+        const snapshot = await db.collection("misbahul_uloom_students").get();
         allStudents = [];
         snapshot.forEach(doc => {
             allStudents.push({ ...doc.data(), docId: doc.id });
         });
+        document.getElementById('submitted').innerText = allStudents.length;
+        document.getElementById('approved').innerText = allStudents.filter(s => s.status === "approved").length;
         applyFilters(); // ഡാറ്റ ലോഡ് ചെയ്ത ശേഷം ഫിൽട്ടർ അപ്ലൈ ചെയ്യുക
     } catch (e) { alert("Error loading data!"); }
 }
@@ -148,12 +168,24 @@ function applyFilters() {
     const searchVal = document.getElementById('search').value.toLowerCase();
     
     // ജാവാസ്ക്രിപ്റ്റ് വഴി ഫിൽട്ടർ ചെയ്യുന്നു (ഇതാണ് കൂടുതൽ സുരക്ഷിതം)
-    const filtered = allStudents.filter(s => {
+    let filtered = allStudents.filter(s => {
         const matchClass = (classVal === "All" || s.class == classVal);
         const matchGender = (genderVal === "All" || s.gender == genderVal);
         const matchSearch = (s.name.toLowerCase().includes(searchVal) || s.number.includes(searchVal) || s.phone.includes(searchVal));
         return matchClass && matchGender && matchSearch;
     });
+
+    // Sort the filtered data
+    if (classVal === "All") {
+        filtered.sort((a, b) => parseInt(a.number) - parseInt(b.number));
+    } else {
+        filtered.sort((a, b) => {
+            if (a.gender !== b.gender) {
+                return a.gender === "Male" ? -1 : 1;
+            }
+            return parseInt(a.number) - parseInt(b.number);
+        });
+    }
 
     renderTable(filtered);
 }
@@ -187,7 +219,7 @@ function renderTable(data) {
             </tr>
         `;
     });
-    document.getElementById('stats').innerText = `Total: ${data.length}`;
+    // document.getElementById('stats').innerText = `Total: ${data.length}`;
 }
 
 function openEditModal(docId) {
@@ -271,12 +303,24 @@ function exportToExcel() {
     const genderVal = document.getElementById('genderFilter').value;
     const searchVal = document.getElementById('search').value.toLowerCase();
     
-    const filtered = allStudents.filter(s => {
+    let filtered = allStudents.filter(s => {
         const matchClass = (classVal === "All" || s.class == classVal);
         const matchGender = (genderVal === "All" || s.gender == genderVal);
         const matchSearch = (s.name.toLowerCase().includes(searchVal) || s.number.includes(searchVal));
         return matchClass && matchGender && matchSearch;
     });
+
+    // Sort the filtered data
+    if (classVal === "All") {
+        filtered.sort((a, b) => parseInt(a.number) - parseInt(b.number));
+    } else {
+        filtered.sort((a, b) => {
+            if (a.gender !== b.gender) {
+                return a.gender === "Male" ? -1 : 1;
+            }
+            return parseInt(a.number) - parseInt(b.number);
+        });
+    }
 
     const excelRows = filtered.map(s => ({
         "Reg Number": s.number,
@@ -308,12 +352,24 @@ function exportToPDF() {
     const genderVal = document.getElementById('genderFilter').value;
     const searchVal = document.getElementById('search').value.toLowerCase();
     
-    const filtered = allStudents.filter(s => {
+    let filtered = allStudents.filter(s => {
         const matchClass = (classVal === "All" || s.class == classVal);
         const matchGender = (genderVal === "All" || s.gender == genderVal);
         const matchSearch = (s.name.toLowerCase().includes(searchVal) || s.number.includes(searchVal));
         return matchClass && matchGender && matchSearch;
     });
+
+    // Sort the filtered data
+    if (classVal === "All") {
+        filtered.sort((a, b) => parseInt(a.number) - parseInt(b.number));
+    } else {
+        filtered.sort((a, b) => {
+            if (a.gender !== b.gender) {
+                return a.gender === "Male" ? -1 : 1;
+            }
+            return parseInt(a.number) - parseInt(b.number);
+        });
+    }
 
     const rows = filtered.map(s => [
         s.number, s.name, s.gender || '', s.class, s.father, s.mentor, s.phone, s.blood, s.status
