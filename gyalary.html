@@ -51,8 +51,10 @@
             <img id="stImg" src="" class="st-photo">
             <span id="stName" style="font-weight: bold; display: block;">---</span>
             <p style="font-size: 13px; color: #666;">Class: <b id="stClass">---</b></p>
+            <p style="font-size: 13px; color: #666;">Mentor: <b id="stMentor">---</b></p>
+            <p style="font-size: 13px; color: #666;">Register No: <b id="stReg">---</b></p>
         </div>
-        <p style="font-size: 12px; margin-top: 10px;">ഇത് നിങ്ങളുടെ പ്രൊഫൈൽ തന്നെയാണോ?</p>
+        <p style="font-size: 12px; margin-top: 10px;">ഈ അക്കൗണ്ട് നിങ്ങളുടേതാണോ? ശേഷം നിങ്ങളുടെ സൃഷ്ടി അപ്‌ലോഡ് ചെയ്യാം.</p>
         <button class="main-btn" onclick="showUpload()">YES, CONFIRM</button>
         <button class="main-btn secondary-btn" onclick="resetSearch()">NOT ME / BACK</button>
     </div>
@@ -61,6 +63,9 @@
         <div style="text-align: left;">
             <label>HEADING / TITLE (സൃഷ്ടിയുടെ പേര്)</label>
             <input type="text" id="workTitle" placeholder="ഉദാ: എന്റെ കവിത, ചിത്രം...">
+            
+            <label>PHOTO DESCRIPTION (ഈ ഫോട്ടോ എന്തിനാണ്?)</label>
+            <input type="text" id="workDescription" placeholder="ഉദാ: എന്റെ തുറമുഖം, കാർട്ടൂൺ തുടങ്ങിയവ...">
             
             <label>SELECT PHOTO (Gallery)</label>
             <input type="file" id="fileInput" accept="image/*">
@@ -111,13 +116,15 @@ async function findStudent() {
     btn.disabled = true; btn.innerText = "VERIFYING...";
 
     try {
-        const doc = await db.collection("students").doc(reg).get();
+        const doc = await db.collection("misbahul_uloom_students").doc(reg).get();
         if(doc.exists) {
             userData = doc.data();
             // പാസ്‌വേർഡ് ശരിയാണോ എന്ന് പരിശോധിക്കുന്നു
             if(userData.password === pass) {
                 document.getElementById('stName').innerText = userData.name;
                 document.getElementById('stClass').innerText = userData.class;
+                document.getElementById('stReg').innerText = userData.number || userData.regno || reg;
+                document.getElementById('stMentor').innerText = userData.mentor || '---';
                 document.getElementById('stImg').src = userData.photo || "https://via.placeholder.com/100";
                 
                 document.getElementById('searchStep').classList.add('hidden');
@@ -170,18 +177,21 @@ function applyCrop() {
 
 async function submitToUstad() {
     const title = document.getElementById('workTitle').value;
-    if(!title || !base64Work) return alert("തലക്കെട്ടും ഫോട്ടോയും നൽകുക!");
+    const description = document.getElementById('workDescription').value;
+    if(!title || !description || !base64Work) return alert("തലക്കെട്ടും വിവരണവും ഫോട്ടോയും നൽകുക!");
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true; btn.innerText = "UPLOADING...";
 
+    const regNo = userData.number || userData.regno || document.getElementById('regInput').value;
     const submission = {
         studentName: userData.name,
-        regNo: userData.number,
+        regNo: regNo,
         class: userData.class,
         stPhoto: userData.photo,
         mentor: userData.mentor || "",
         workTitle: title,
+        workDescription: description,
         workImage: base64Work,
         status: "pending",
         timestamp: new Date().getTime()

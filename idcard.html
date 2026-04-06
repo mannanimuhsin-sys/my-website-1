@@ -215,7 +215,7 @@ async function saveStudent(){
  btn.innerText = "CHECKING ID...";
 
  try {
-  const checkDoc = await db.collection("students").doc(data.regno).get();
+  const checkDoc = await db.collection("misbahul_uloom_students").doc(data.regno).get();
   if(checkDoc.exists) {
     alert("ഈ രജിസ്റ്റർ നമ്പർ നിലവിൽ ഉപയോഗിച്ചിട്ടുണ്ട്!");
     btn.disabled = false;

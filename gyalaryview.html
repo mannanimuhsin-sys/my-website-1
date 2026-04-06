@@ -108,7 +108,7 @@ function loadGallery() {
                             <img src="${data.stPhoto || 'https://via.placeholder.com/150'}" class="st-photo">
                             <div class="header-text">
                                 <span class="st-name">${data.studentName}</span>
-                                <span class="st-info">Class: ${data.class} | Mentor: ${data.mentor || '---'}</span>
+                                <span class="st-info">Class: ${data.class} | Mentor: ${data.mentor || '---'} | ID: ${data.regNo || '---'}</span>
                             </div>
                         </div>
                         <div class="post-img-container">
@@ -123,6 +123,7 @@ function loadGallery() {
                             <span class="likes-count">${likes} likes</span>
                             <span class="comments-count" onclick="openComments('${id}')">${commentCount} comments</span>
                             <div class="caption"><b>${data.studentName}</b> ${data.workTitle}</div>
+                            ${data.workDescription ? `<div class="caption">${data.workDescription}</div>` : ''}
                             <div class="post-time">${timeStr}</div>
                         </div>
                     </div>
