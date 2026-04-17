@@ -28,7 +28,20 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
+    
+    <!-- OneSignal Push Notifications -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "552c4166-3ffb-4065-a521-e1491b930d40",
+          notifyButton: {
+            enable: true,
+          },
+        });
+      });
+    </script>
 
     <style>
         /* നിങ്ങളുടെ സിഎസ്എസ് സ്റ്റൈലുകൾ ഇവിടെ തുടരും */
@@ -111,16 +124,16 @@
 </head>
 <body>
 
-    <div id="liveNoticeBox" class="live-notice-card" onclick="window.location.href='notice.html'" style="border-radius: 0; margin-bottom: 0; position: sticky; top: 0; z-index: 1000;">
-        <i class="fas fa-bullhorn fa-2x"></i>
-        <h2 id="liveNoticeTitle" style="margin: 10px 0 5px; font-weight: 800; font-size: 20px;">LIVE NOTICE BOARD</h2>
-        <p id="liveNoticeDesc" style="margin: 0; font-size: 14px;">പുതിയ അറിയിപ്പുകൾ ഉണ്ട്. കാണാൻ ഇവിടെ ക്ലിക്ക് ചെയ്യുക.</p>
-    </div>
-
 <div class="jumbotron text-center">
     <h1>MISBAHUL ULOOM MADRASA</h1>
     <p>Peruvana | Under SKIMVB Reg.No: 4224</p>
 </div>
+
+    <div id="liveNoticeBox" class="live-notice-card" onclick="window.location.href='notice.html'" style="border-radius: 15px; margin: 0 auto 25px auto; width: 90%; max-width: 600px; z-index: 1000;">
+        <i class="fas fa-bullhorn fa-2x"></i>
+        <h2 id="liveNoticeTitle" style="margin: 10px 0 5px; font-weight: 800; font-size: 20px;">LIVE NOTICE BOARD</h2>
+        <p id="liveNoticeDesc" style="margin: 0; font-size: 14px;">പുതിയ അറിയിപ്പുകൾ ഉണ്ട്. കാണാൻ ഇവിടെ ക്ലിക്ക് ചെയ്യുക.</p>
+    </div>
 
 <div class="gallery-card" onclick="window.location.href='https://mannanimuhsin-sys.github.io/my-website-1/gyalaryview.html'">
     <div class="add-btn" onclick="event.stopPropagation(); window.location.href='https://mannanimuhsin-sys.github.io/my-website-1/gyalary.html'">
@@ -379,36 +392,14 @@ function checkAdminPass() {
     };
 </script>
 <script>
+// PWA Service Worker Registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
-    const reg = await navigator.serviceWorker.register('sw.js');
-    console.log('SW Registered');
-
-    // 🔔 Notification Permission ചോദിക്കുന്നു
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      console.log('Notification permission granted');
-
-      // FCM Token എടുക്കുന്നു
-      const messaging = firebase.messaging();
-      const token = await messaging.getToken({
-        vapidKey: 'YOUR_VAPID_KEY_HERE', // Firebase console-ൽ നിന്ന് എടുക്കുക
-        serviceWorkerRegistration: reg
-      });
-
-      // Token Firestore-ൽ save ചെയ്യുന്നു
-      if (token) {
-        await db.collection("fcm_tokens").doc(token).set({
-          token: token,
-          createdAt: new Date()
-        });
-        console.log('Token saved:', token);
-
-        // App Badge set ചെയ്യുന്നു
-        if ('setAppBadge' in navigator) {
-          navigator.setAppBadge(1);
-        }
-      }
+    try {
+      const reg = await navigator.serviceWorker.register('sw.js');
+      console.log('PWA SW Registered');
+    } catch(err) {
+      console.log('SW Registration failed: ', err);
     }
   });
 }
