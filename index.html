@@ -40,6 +40,8 @@
             enable: true,
           },
         });
+        // Auto-prompt users for push notification subscription
+        OneSignal.Slidedown.promptPush();
       });
     </script>
 
@@ -329,8 +331,30 @@ window.addEventListener('appinstalled', () => {
             if (data && data.title && data.title.trim() !== "") {
                 noticeBox.style.display = "block";
                 noticeTitleDisplay.innerText = data.title;
-            } else { noticeBox.style.display = "none"; }
-        } else { noticeBox.style.display = "none"; }
+                // Add Red App Badge (Red Dot Notification)
+                if (navigator.setAppBadge) {
+                    navigator.setAppBadge(1).catch((err) => console.log('App badge error:', err));
+                }
+            } else { 
+                noticeBox.style.display = "none"; 
+                // Clear App Badge when notice is cleared
+                if (navigator.clearAppBadge) {
+                    navigator.clearAppBadge().catch((err) => console.log('Clear badge error:', err));
+                }
+            }
+        } else { 
+            noticeBox.style.display = "none"; 
+            if (navigator.clearAppBadge) {
+                navigator.clearAppBadge();
+            }
+        }
+    });
+
+    // Clear App badge when user opens notice explicitly
+    document.getElementById('liveNoticeBox').addEventListener('click', () => {
+        if (navigator.clearAppBadge) {
+            navigator.clearAppBadge();
+        }
     });
 
     function openDashboard() {
