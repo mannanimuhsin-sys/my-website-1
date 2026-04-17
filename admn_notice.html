@@ -4,53 +4,184 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notice Admin - Madrasa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #eef2f3; padding: 15px; margin: 0; }
-        .admin-box { max-width: 500px; background: white; padding: 25px; margin: 20px auto; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #2c3e50; }
-        label { display: block; margin: 15px 0 8px; font-weight: bold; color: #34495e; }
-        input, textarea { width: 100%; padding: 15px; border: 2px solid #dfe6e9; border-radius: 12px; box-sizing: border-box; font-size: 16px; }
-        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 25px; }
-        button { width: 100%; padding: 16px; font-size: 16px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; transition: 0.3s; color: white; }
-        .update-btn { background: #198754; }
-        .reset-btn { background: #dc3545; }
+        body { 
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); 
+            color: #fff; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px; 
+            font-family: 'Poppins', 'Manjari', sans-serif; 
+        }
+        .admin-card {
+            width: 100%; max-width: 500px; 
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(212, 175, 55, 0.3); 
+            border-radius: 20px; 
+            padding: 30px; 
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); 
+            position: relative;
+        }
+        .header { text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 25px; }
+        .header i { font-size: 40px; color: #D4AF37; margin-bottom: 10px; }
+        .header h1 { color: #D4AF37; font-size: 24px; font-weight: 800; margin: 0; letter-spacing: 1px; text-transform: uppercase; }
+        .header p { color: #aaa; font-size: 14px; margin: 5px 0 0; }
+        
+        #loginArea { text-align: center; }
+        #adminArea { display: none; }
+
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; color: #ccc; font-size: 14px; margin-bottom: 8px; font-weight: 600; }
+        .input-control { 
+            width: 100%; padding: 12px 15px; 
+            background: rgba(0,0,0,0.3); 
+            border: 1px solid rgba(212, 175, 55, 0.5); 
+            border-radius: 10px; color: #fff; 
+            font-size: 16px; font-family: 'Manjari', sans-serif;
+            transition: all 0.3s ease; box-sizing: border-box;
+        }
+        .input-control:focus { outline: none; border-color: #D4AF37; background: rgba(0,0,0,0.5); box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
+        textarea.input-control { resize: vertical; min-height: 120px; }
+        
+        .btn-group { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+        .btn { 
+            width: 100%; padding: 14px; border: none; border-radius: 10px; 
+            font-size: 16px; font-weight: bold; cursor: pointer; 
+            transition: all 0.3s ease; display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .btn-gold { background: linear-gradient(135deg, #D4AF37, #AA771C); color: #000; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4); }
+        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(212, 175, 55, 0.6); }
+        .btn-danger { background: linear-gradient(135deg, #ff4757, #ff6b81); color: #fff; box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4); }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255, 71, 87, 0.6); }
+        .btn-back { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-back:hover { background: rgba(255,255,255,0.2); }
+
+        .status { margin-top: 15px; text-align: center; font-size: 14px; font-weight: bold; display: none; padding: 10px; border-radius: 8px; }
+        .status.success { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
+        .status.error { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
     </style>
 </head>
 <body>
 
-<div class="admin-box">
-    <h2>Notice Control Panel</h2>
-    
-    <label>നോട്ടീസ് ഹെഡിംഗ്</label>
-    <input type="text" id="noticeTitle" placeholder="വിഷയം നൽകുക">
-    
-    <label>വിശദവിവരങ്ങൾ</label>
-    <textarea id="noticeMsg" rows="4" placeholder="വിവരങ്ങൾ ടൈപ്പ് ചെയ്യുക..."></textarea>
-    
-    <div class="btn-group">
-        <button class="update-btn" onclick="updateNotice()">📢 UPDATE & SEND NOTIFICATION</button>
-        <button class="reset-btn" onclick="resetNotice()">🗑️ RESET (ക്ലിയർ ചെയ്യുക)</button>
+<div class="admin-card">
+    <div class="header">
+        <i class="fas fa-user-shield"></i>
+        <h1>Notice Admin</h1>
+        <p>Manage Digital Notice Board</p>
+    </div>
+
+    <div id="loginArea">
+        <div class="input-group">
+            <label>Admin Password</label>
+            <input type="password" id="adminPass" class="input-control" placeholder="Enter Password">
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-gold" onclick="verifyAdmin()">
+                <i class="fas fa-unlock-alt"></i> Login
+            </button>
+            <button class="btn btn-back" onclick="window.location.href='index.html'">
+                <i class="fas fa-home"></i> Back to Home
+            </button>
+        </div>
+    </div>
+
+    <div id="adminArea">
+        <div class="input-group">
+            <label>Notice Heading (തലക്കെട്ട്)</label>
+            <input type="text" id="noticeTitle" class="input-control" placeholder="വിഷയം നൽകുക">
+        </div>
+        
+        <div class="input-group">
+            <label>Details (വിശദവിവരങ്ങൾ)</label>
+            <textarea id="noticeMsg" class="input-control" placeholder="വിവരങ്ങൾ ടൈപ്പ് ചെയ്യുക..."></textarea>
+        </div>
+        
+        <div class="btn-group">
+            <button class="btn btn-gold" onclick="updateNotice()">
+                <i class="fas fa-paper-plane"></i> Update & Send Notification
+            </button>
+            <button class="btn btn-danger" onclick="resetNotice()">
+                <i class="fas fa-trash-alt"></i> Reset (ക്ലിയർ ചെയ്യുക)
+            </button>
+            <button class="btn btn-back" onclick="window.location.href='index.html'">
+                <i class="fas fa-home"></i> Back to Home
+            </button>
+        </div>
+        
+        <div id="statusMsg" class="status"></div>
     </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-    // Firebase Config
+    // Project config corresponding to main index.html
     const firebaseConfig = {
-        apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
-        projectId: "misbahul-uloom-madrasa-4830c"
+        apiKey: "AIzaSyAUkOIp33p7sMviItKLEP6EGyPQvFBuQeY",
+        authDomain: "result-aedec.firebaseapp.com",
+        projectId: "result-aedec",
+        storageBucket: "result-aedec.firebasestorage.app",
+        messagingSenderId: "654773450983",
+        appId: "1:654773450983:web:463a919c5c83ec55134a42"
     };
-    firebase.initializeApp(firebaseConfig);
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.firestore();
 
-    // 1. Update Notice & Send Push
-    async function updateNotice() {
-        const title = document.getElementById('noticeTitle').value;
-        const msg = document.getElementById('noticeMsg').value;
+    function verifyAdmin() {
+        const pass = document.getElementById('adminPass').value;
+        if (pass === "0633") {
+            document.getElementById('loginArea').style.display = "none";
+            document.getElementById('adminArea').style.display = "block";
+            loadCurrentNotice();
+        } else {
+            alert("തെറ്റായ പാസ്‌വേഡ്! വീണ്ടും ശ്രമിക്കുക.");
+        }
+    }
 
-        if(!title || !msg) return alert("രണ്ടും പൂരിപ്പിക്കുക!");
+    // Allow Enter key to login
+    document.getElementById("adminPass").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            verifyAdmin();
+        }
+    });
+
+    function loadCurrentNotice() {
+        db.collection("notices").doc("latest").get().then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                document.getElementById('noticeTitle').value = data.title || "";
+                document.getElementById('noticeMsg').value = data.message || "";
+            }
+        });
+    }
+
+    function showStatus(msg, isSuccess) {
+        const statusEl = document.getElementById('statusMsg');
+        statusEl.innerText = msg;
+        statusEl.className = "status " + (isSuccess ? "success" : "error");
+        statusEl.style.display = "block";
+        setTimeout(() => { statusEl.style.display = "none"; }, 4000);
+    }
+
+    async function updateNotice() {
+        const title = document.getElementById('noticeTitle').value.trim();
+        const msg = document.getElementById('noticeMsg').value.trim();
+
+        if(!title || !msg) {
+            showStatus("രണ്ടും പൂരിപ്പിക്കുക! (Title and Message are required)", false);
+            return;
+        }
 
         try {
             await db.collection("notices").doc("latest").set({
@@ -60,29 +191,34 @@
                 active: true
             });
 
-            // OneSignal നോട്ടിഫിക്കേഷൻ അയക്കുന്നു
+            // Send OneSignal Push Notification
             sendPushNotification(title, msg);
 
-            alert("നോട്ടീസ് അപ്ഡേറ്റ് ആയി! എല്ലാവർക്കും നോട്ടിഫിക്കേഷൻ പോയിട്ടുണ്ട്.");
+            showStatus("നോട്ടീസ് അപ്ഡേറ്റ് ആയി! എല്ലാവർക്കും നോട്ടിഫിക്കേഷൻ പോയിട്ടുണ്ട്.", true);
         } catch (error) {
-            alert("Error: " + error.message);
+            showStatus("Error: " + error.message, false);
         }
     }
 
-    // 2. Clear Notice
     async function resetNotice() {
         if(confirm("നോട്ടീസ് ബോർഡ് ക്ലിയർ ചെയ്യണമോ?")) {
-            await db.collection("notices").doc("latest").set({
-                title: "",
-                message: "നിലവിൽ അറിയിപ്പുകൾ ഒന്നുമില്ല",
-                time: new Date(),
-                active: false
-            });
-            alert("നോട്ടീസ് ബോർഡ് ക്ലിയർ ചെയ്തു!");
+            try {
+                // Setting title to empty will hide the live notice in index.html completely
+                await db.collection("notices").doc("latest").set({
+                    title: "",
+                    message: "",
+                    time: new Date(),
+                    active: false
+                });
+                document.getElementById('noticeTitle').value = "";
+                document.getElementById('noticeMsg').value = "";
+                showStatus("നോട്ടീസ് ബോർഡ് ക്ലിയർ ചെയ്തു! (Notice Cleared)", true);
+            } catch (error) {
+                showStatus("Error: " + error.message, false);
+            }
         }
     }
 
-    // 3. OneSignal API call
     function sendPushNotification(title, msg) {
         const options = {
             method: 'POST',
@@ -102,8 +238,8 @@
 
         fetch('https://onesignal.com/api/v1/notifications', options)
             .then(res => res.json())
-            .then(data => console.log("Success:", data))
-            .catch(err => console.error("Error:", err));
+            .then(data => console.log("Push Success:", data))
+            .catch(err => console.error("Push Error:", err));
     }
 </script>
 </body>

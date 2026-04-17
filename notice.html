@@ -4,58 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notice Board - Misbahul Uloom</title>
-    <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Chilanka&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #000; display: flex; justify-content: center; padding: 20px; font-family: 'Manjari', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px; 
+            font-family: 'Poppins', 'Manjari', sans-serif; 
+        }
         .poster {
-            width: 100%; max-width: 500px; background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
-            border: 4px double #D4AF37; border-radius: 30px; padding: 30px; text-align: center;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2); position: relative;
+            width: 100%; max-width: 550px; 
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(15px);
+            border: 2px solid #D4AF37; 
+            border-radius: 20px; 
+            padding: 40px; 
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 20px rgba(212, 175, 55, 0.15); 
+            position: relative;
         }
         .poster::before {
-            content: ""; position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;
-            border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; pointer-events: none;
+            content: ""; position: absolute; top: 12px; left: 12px; right: 12px; bottom: 12px;
+            border: 1px dashed rgba(212, 175, 55, 0.4); border-radius: 12px; pointer-events: none;
         }
-        .main-title { color: #D4AF37; font-size: 24px; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px; }
-        .sub-title { color: #fff; font-size: 16px; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .icon-header {
+            font-size: 50px;
+            color: #D4AF37;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 10px rgba(212, 175, 55, 0.4);
+        }
+        .main-title { color: #D4AF37; font-size: 26px; font-weight: 800; letter-spacing: 2px; margin-bottom: 5px; text-transform: uppercase; }
+        .sub-title { color: #ccc; font-size: 16px; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); letter-spacing: 1px; }
         
-        .notice-content { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border-left: 4px solid #D4AF37; }
-        #heading { color: #00ff88; font-size: 22px; font-weight: bold; margin-bottom: 15px; line-height: 1.4; }
-        #details { color: #eee; font-size: 17px; line-height: 1.8; white-space: pre-wrap; text-align: justify; }
+        .notice-content { 
+            background: rgba(255,255,255,0.03); 
+            padding: 30px; 
+            border-radius: 15px; 
+            border-left: 5px solid #D4AF37;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        #heading { color: #fff; font-size: 24px; font-weight: bold; margin-bottom: 20px; line-height: 1.4; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        #details { color: #ddd; font-size: 18px; line-height: 1.8; white-space: pre-wrap; text-align: justify; font-family: 'Manjari', sans-serif; }
         
-        .footer-note { margin-top: 30px; font-size: 12px; color: #555; }
+        .empty-state {
+            color: #888;
+            font-size: 18px;
+            font-style: italic;
+        }
+
+        .footer-note { margin-top: 40px; font-size: 13px; color: #666; letter-spacing: 1px; }
+        
+        .btn-home {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            color: #D4AF37;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+        }
+        .btn-home:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #D4AF37;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
 
 <div class="poster">
-    <div class="main-title">MISBAHUL ULOOM MADRASA</div>
-    <div class="sub-title">ഡിജിറ്റൽ നോട്ടീസ് ബോർഡ്</div>
-
-    <div class="notice-content" id="noticeArea" style="display:none;">
-        <div id="heading">നോട്ടീസ് ലഭ്യമല്ല</div>
-        <div id="details">പുതിയ അറിയിപ്പുകൾക്കായി കാത്തിരിക്കുക.</div>
+    <div class="icon-header">
+        <i class="fas fa-bullhorn"></i>
     </div>
+    <div class="main-title">MISBAHUL ULOOM</div>
+    <div class="sub-title">DIGITAL NOTICE BOARD</div>
+
+    <div class="notice-content" id="noticeArea">
+        <div id="heading" class="empty-state">Loading...</div>
+        <div id="details"></div>
+    </div>
+    
+    <a href="index.html" class="btn-home"><i class="fas fa-arrow-left"></i> Back to Home</a>
     
     <div class="footer-note">Peruvana | Updated Live</div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-    firebase.initializeApp({
-        apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
-        projectId: "misbahul-uloom-madrasa-4830c"
-    });
+    const firebaseConfig = {
+        apiKey: "AIzaSyAUkOIp33p7sMviItKLEP6EGyPQvFBuQeY",
+        authDomain: "result-aedec.firebaseapp.com",
+        projectId: "result-aedec",
+        storageBucket: "result-aedec.firebasestorage.app",
+        messagingSenderId: "654773450983",
+        appId: "1:654773450983:web:463a919c5c83ec55134a42"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.firestore();
 
-    // ലൈവ് ആയി നോട്ടീസ് ശ്രദ്ധിക്കുന്നു
     db.collection("notices").doc("latest").onSnapshot(doc => {
-        if(doc.exists) {
-            document.getElementById('noticeArea').style.display = "block";
-            document.getElementById('heading').innerText = doc.data().title;
-            document.getElementById('details').innerText = doc.data().message;
+        const headingEl = document.getElementById('heading');
+        const detailsEl = document.getElementById('details');
+        
+        if(doc.exists && doc.data().title && doc.data().title.trim() !== "") {
+            headingEl.classList.remove("empty-state");
+            headingEl.style.color = "#D4AF37";
+            headingEl.innerText = doc.data().title;
+            detailsEl.innerText = doc.data().message;
+        } else {
+            headingEl.classList.add("empty-state");
+            headingEl.style.color = "#888";
+            headingEl.innerText = "നോട്ടീസ് ലഭ്യമല്ല (No Active Notices)";
+            detailsEl.innerText = "പുതിയ അറിയിപ്പുകൾക്കായി കാത്തിരിക്കുക.";
         }
     });
 </script>
