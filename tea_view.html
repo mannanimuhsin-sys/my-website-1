@@ -3,143 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ഇന്നത്തെ ചായ വിതരണ അറിയിപ്പ്</title>
+    <title>ചായ വിതരണം - സമ്പൂർണ്ണ പട്ടിക</title>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root {
-            --primary: #1e3c72;
-            --morning-gradient: linear-gradient(135deg, #FF9100, #F5AF19);
-            --evening-gradient: linear-gradient(135deg, #00B4DB, #0083B0);
-            --bg: #f0f4f8;
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: #f4f7f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* Header Section */
+        .header {
+            background: linear-gradient(135deg, #1a2a6c, #2a5298);
+            width: 100%;
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 800; }
+        .header p { margin: 10px 0 0; opacity: 0.8; font-size: 14px; }
+
+        /* Main Container */
+        .view-container {
+            width: 95%;
+            max-width: 600px;
+            margin: -30px auto 30px auto;
         }
 
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: var(--bg);
-            margin: 0;
+        /* Search/Filter Box */
+        .search-bar {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
             display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .search-bar i { color: #ff9100; }
+        .search-bar input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 16px;
+            color: #333;
+        }
+
+        /* Tea Card Item */
+        .tea-card {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            border: 1px solid #eee;
+            transition: 0.3s;
+        }
+        .tea-card:hover { transform: scale(1.02); }
+
+        .date-circle {
+            background: #f0f4f8;
+            color: #1a2a6c;
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 15px;
+            font-weight: 800;
+            margin-right: 15px;
+            border: 1px solid #d1d9e6;
         }
+        .date-circle span { font-size: 10px; text-transform: uppercase; opacity: 0.6; }
 
-        .main-card {
-            background: white;
-            width: 100%;
-            max-width: 420px;
-            border-radius: 35px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            overflow: hidden;
-            text-align: center;
-            border: 1px solid #fff;
-        }
+        .info-box { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        .session { padding: 8px; border-radius: 12px; }
+        .m-session { background: #fffde7; border-left: 4px solid #fbc02d; }
+        .e-session { background: #e3f2fd; border-left: 4px solid #2196f3; }
 
-        /* മുകളിലെ തീയതി സെക്ഷൻ */
-        .date-header {
-            background: var(--primary);
+        .session-label { font-size: 10px; font-weight: bold; color: #777; display: block; }
+        .name { font-size: 14px; font-weight: 800; color: #222; display: block; margin: 2px 0; }
+        .class-tag { font-size: 11px; color: #555; font-weight: bold; }
+
+        .back-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a2a6c;
             color: white;
-            padding: 30px 20px;
-        }
-
-        .date-header h1 {
-            margin: 0;
-            font-size: 3rem;
-            font-weight: 900;
-        }
-
-        .month-year {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .info-container {
-            padding: 25px;
-        }
-
-        /* കാർഡ് ബോക്സുകൾ */
-        .person-card {
-            padding: 20px;
-            border-radius: 25px;
-            margin-bottom: 25px;
-            color: white;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            position: relative;
-            transform: scale(1);
-            transition: transform 0.3s ease;
-        }
-
-        .person-card:active { transform: scale(0.98); }
-
-        .morning-card { background: var(--morning-gradient); }
-        .evening-card { background: var(--evening-gradient); }
-
-        .time-label {
-            font-size: 0.85rem;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
             font-weight: bold;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(26, 42, 108, 0.4);
+            z-index: 100;
         }
 
-        .student-name {
-            font-size: 1.9rem;
-            font-weight: 900;
-            margin: 5px 0;
-            text-shadow: 1px 1px 5px rgba(0,0,0,0.1);
-        }
-
-        .student-class {
-            font-size: 1.1rem;
-            font-weight: bold;
-            opacity: 0.95;
-            background: rgba(0,0,0,0.1);
-            display: inline-block;
-            padding: 2px 15px;
-            border-radius: 10px;
-            margin-top: 5px;
-        }
-
-        .no-data {
-            color: #888;
-            font-style: italic;
-            padding: 40px 0;
-        }
-
-        .footer {
-            padding-bottom: 20px;
-            font-size: 0.8rem;
-            color: #aaa;
-            font-weight: bold;
-        }
+        #loading { text-align: center; padding: 50px; color: #999; }
     </style>
 </head>
 <body>
 
-    <div class="main-card">
-        <div class="date-header">
-            <div class="month-year" id="monthText">---</div>
-            <h1 id="dayNum">--</h1>
-            <div class="month-year" id="yearText">----</div>
-        </div>
+<div class="header">
+    <h1>ചായ വിതരണം</h1>
+    <p>മിസ്ബാഹുൽ ഉലൂം മദ്രസ പെരുവണ</p>
+</div>
 
-        <div class="info-container" id="displayArea">
-            <p style="color: #666;">വിവരങ്ങൾ ശേഖരിക്കുന്നു...</p>
-        </div>
-
-        <div class="footer">
-            മിസ്ബാഹുൽ ഉലൂം മദ്രസ പെരുവണ 
-        </div>
+<div class="view-container">
+    <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="പേര് അല്ലെങ്കിൽ ക്ലാസ് സെർച്ച് ചെയ്യാം..." onkeyup="filterData()">
     </div>
 
+    <div id="loading"><i class="fas fa-spinner fa-spin"></i> വിവരങ്ങൾ ലോഡ് ചെയ്യുന്നു...</div>
+    <div id="teaList"></div>
+</div>
+
+<a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> തിരികെ പോകാം</a>
+
 <script>
-    // Firebase Configuration (നിങ്ങൾ നൽകിയ കോഡ്)
+    // Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
         authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
@@ -149,49 +151,61 @@
         messagingSenderId: "370558703441",
         appId: "1:370558703441:web:dc68dbdbd685c9d07ea570"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function startDisplay() {
-        const area = document.getElementById('displayArea');
-        const dayH = document.getElementById('dayNum');
-        const monthH = document.getElementById('monthText');
-        const yearH = document.getElementById('yearText');
-
-        // ഇന്നത്തെ തിയതിയും വിവരങ്ങളും എടുക്കുന്നു
-        const now = new Date();
-        const currentDay = now.getDate(); // 1-31 വരെയുള്ള തിയതി
+    // ഡാറ്റ ലോഡ് ചെയ്യുന്ന ഫങ്ക്ഷൻ
+    db.ref('teaSchedule').on('value', (snap) => {
+        const list = snap.val();
+        const container = document.getElementById('teaList');
+        const loading = document.getElementById('loading');
         
-        // തീയതി സെക്ഷൻ അപ്ഡേറ്റ് ചെയ്യുന്നു
-        dayH.innerText = currentDay;
-        monthH.innerText = now.toLocaleString('ml-IN', { month: 'long' }); // മലയാളം മാസം
-        yearH.innerText = now.getFullYear();
+        loading.style.display = 'none';
+        container.innerHTML = "";
 
-        // ഫയർബേസിൽ നിന്ന് ഇന്നത്തെ (തിയതി നമ്പർ) വിവരങ്ങൾ എടുക്കുന്നു
-        db.ref('teaSchedule/' + currentDay).on('value', (snapshot) => {
-            const data = snapshot.val();
+        if(list) {
+            // തിയതി ക്രമത്തിൽ അടുക്കുന്നു
+            const sortedDays = Object.keys(list).sort((a, b) => a - b);
             
-            if(data) {
-                area.innerHTML = `
-                    <div class="person-card morning-card">
-                        <span class="time-label">☕ രാവിലത്തെ ചായ</span>
-                        <div class="student-name">${data.mName}</div>
-                        <div class="student-class">ക്ലാസ്: ${data.mClass}</div>
-                    </div>
-
-                    <div class="person-card evening-card">
-                        <span class="time-label">🍵 വൈകുന്നേരത്തെ ചായ</span>
-                        <div class="student-name">${data.eName}</div>
-                        <div class="student-class">ക്ലാസ്: ${data.eClass}</div>
+            sortedDays.forEach(day => {
+                const item = list[day];
+                container.innerHTML += `
+                    <div class="tea-card">
+                        <div class="date-circle">
+                            <span>Date</span>
+                            ${day}
+                        </div>
+                        <div class="info-box">
+                            <div class="session m-session">
+                                <span class="session-label">Morning</span>
+                                <span class="name">${item.mName}</span>
+                                <span class="class-tag">Class: ${item.mClass || '-'}</span>
+                            </div>
+                            <div class="session e-session">
+                                <span class="session-label">Evening</span>
+                                <span class="name">${item.eName}</span>
+                                <span class="class-tag">Class: ${item.eClass || '-'}</span>
+                            </div>
+                        </div>
                     </div>
                 `;
-            } else {
-                area.innerHTML = `<div class="no-data">ഇന്നത്തെ വിവരങ്ങൾ അഡ്മിൻ പാനലിൽ ചേർത്തിട്ടില്ല.</div>`;
-            }
-        });
-    }
+            });
+        } else {
+            container.innerHTML = "<p style='text-align:center; color:#999;'>വിവരങ്ങൾ ലഭ്യമല്ല</p>";
+        }
+    });
 
-    window.onload = startDisplay;
+    // സെർച്ച് ഫിൽട്ടർ
+    function filterData() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        let cards = document.getElementsByClassName('tea-card');
+
+        for (let i = 0; i < cards.length; i++) {
+            let text = cards[i].innerText.toLowerCase();
+            cards[i].style.display = text.includes(input) ? "flex" : "none";
+        }
+    }
 </script>
 
 </body>
