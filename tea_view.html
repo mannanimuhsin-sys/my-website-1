@@ -8,140 +8,55 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body {
-            font-family: 'Manrope', sans-serif;
-            background: #f4f7f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f9; margin: 0; padding: 0; }
+        .header { background: #1a2a6c; color: white; padding: 30px 15px; text-align: center; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
+        .container { padding: 20px; max-width: 600px; margin: -20px auto 50px auto; }
         
-        /* Header Section */
-        .header {
-            background: linear-gradient(135deg, #1a2a6c, #2a5298);
-            width: 100%;
-            padding: 40px 20px;
-            text-align: center;
-            color: white;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .header h1 { margin: 0; font-size: 24px; font-weight: 800; }
-        .header p { margin: 10px 0 0; opacity: 0.8; font-size: 14px; }
-
-        /* Main Container */
-        .view-container {
-            width: 95%;
-            max-width: 600px;
-            margin: -30px auto 30px auto;
-        }
-
-        /* Search/Filter Box */
-        .search-bar {
-            background: white;
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .search-bar i { color: #ff9100; }
-        .search-bar input {
-            border: none;
-            outline: none;
-            width: 100%;
-            font-size: 16px;
-            color: #333;
-        }
-
-        /* Tea Card Item */
-        .tea-card {
-            background: white;
-            border-radius: 20px;
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        .tea-card { 
+            background: white; border-radius: 20px; padding: 15px; margin-bottom: 15px;
+            display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             border: 1px solid #eee;
-            transition: 0.3s;
         }
-        .tea-card:hover { transform: scale(1.02); }
-
-        .date-circle {
-            background: #f0f4f8;
-            color: #1a2a6c;
-            width: 50px;
-            height: 50px;
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-weight: 800;
-            margin-right: 15px;
-            border: 1px solid #d1d9e6;
+        .date-box { 
+            background: #ff9100; color: white; min-width: 50px; height: 50px; 
+            border-radius: 12px; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; font-weight: bold; margin-right: 15px;
         }
-        .date-circle span { font-size: 10px; text-transform: uppercase; opacity: 0.6; }
+        .date-box small { font-size: 10px; text-transform: uppercase; }
 
-        .info-box { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .details { flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .slot { padding: 10px; border-radius: 12px; }
+        .morning { background: #fffde7; border-left: 4px solid #fbc02d; }
+        .evening { background: #e3f2fd; border-left: 4px solid #2196f3; }
         
-        .session { padding: 8px; border-radius: 12px; }
-        .m-session { background: #fffde7; border-left: 4px solid #fbc02d; }
-        .e-session { background: #e3f2fd; border-left: 4px solid #2196f3; }
+        .slot-title { font-size: 10px; font-weight: bold; color: #777; display: block; }
+        .name { font-size: 14px; font-weight: bold; color: #222; display: block; margin: 2px 0; }
+        .class-no { font-size: 11px; color: #555; font-weight: bold; }
 
-        .session-label { font-size: 10px; font-weight: bold; color: #777; display: block; }
-        .name { font-size: 14px; font-weight: 800; color: #222; display: block; margin: 2px 0; }
-        .class-tag { font-size: 11px; color: #555; font-weight: bold; }
-
-        .back-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1a2a6c;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            box-shadow: 0 5px 15px rgba(26, 42, 108, 0.4);
-            z-index: 100;
-        }
-
-        #loading { text-align: center; padding: 50px; color: #999; }
+        #loading-screen { text-align: center; padding: 50px; color: #1a2a6c; font-weight: bold; }
+        .back-home { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1a2a6c; color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>ചായ വിതരണം</h1>
-    <p>മിസ്ബാഹുൽ ഉലൂം മദ്രസ പെരുവണ</p>
+    <h2>ചായ വിതരണ പട്ടിക</h2>
+    <p>മിസ്ബാഹുൽ ഉലൂം മദ്രസ പെരുവാന</p>
 </div>
 
-<div class="view-container">
-    <div class="search-bar">
-        <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="പേര് അല്ലെങ്കിൽ ക്ലാസ് സെർച്ച് ചെയ്യാം..." onkeyup="filterData()">
+<div class="container">
+    <div id="loading-screen">
+        <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>വിവരങ്ങൾ ശേഖരിക്കുന്നു...
     </div>
-
-    <div id="loading"><i class="fas fa-spinner fa-spin"></i> വിവരങ്ങൾ ലോഡ് ചെയ്യുന്നു...</div>
     <div id="teaList"></div>
 </div>
 
-<a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> തിരികെ പോകാം</a>
+<a href="index.html" class="back-home"><i class="fas fa-home"></i> ഹോം പേജിലേക്ക്</a>
 
 <script>
-    // Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyBriz_0zYwQOcwVgd3XTQ0l-0NKBNYaZXQ",
         authDomain: "misbahul-uloom-madrasa-4830c.firebaseapp.com",
@@ -155,57 +70,45 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // ഡാറ്റ ലോഡ് ചെയ്യുന്ന ഫങ്ക്ഷൻ
-    db.ref('teaSchedule').on('value', (snap) => {
-        const list = snap.val();
-        const container = document.getElementById('teaList');
-        const loading = document.getElementById('loading');
+    // ഡാറ്റാബേസിൽ നിന്ന് വിവരങ്ങൾ വലിച്ചെടുക്കുന്നു
+    db.ref('teaSchedule').on('value', (snapshot) => {
+        const listContainer = document.getElementById('teaList');
+        const loader = document.getElementById('loading-screen');
+        const data = snapshot.val();
         
-        loading.style.display = 'none';
-        container.innerHTML = "";
+        loader.style.display = 'none';
+        listContainer.innerHTML = "";
 
-        if(list) {
-            // തിയതി ക്രമത്തിൽ അടുക്കുന്നു
-            const sortedDays = Object.keys(list).sort((a, b) => a - b);
+        if (data) {
+            // തിയതി ക്രമത്തിൽ അടുക്കുന്നു (1, 2, 3...)
+            const days = Object.keys(data).sort((a, b) => a - b);
             
-            sortedDays.forEach(day => {
-                const item = list[day];
-                container.innerHTML += `
+            days.forEach(day => {
+                const info = data[day];
+                listContainer.innerHTML += `
                     <div class="tea-card">
-                        <div class="date-circle">
-                            <span>Date</span>
-                            ${day}
+                        <div class="date-box">
+                            <small>Date</small>${day}
                         </div>
-                        <div class="info-box">
-                            <div class="session m-session">
-                                <span class="session-label">Morning</span>
-                                <span class="name">${item.mName}</span>
-                                <span class="class-tag">Class: ${item.mClass || '-'}</span>
+                        <div class="details">
+                            <div class="slot morning">
+                                <span class="slot-title">☀️ MORNING</span>
+                                <span class="name">${info.mName || '---'}</span>
+                                <span class="class-no">Class: ${info.mClass || '-'}</span>
                             </div>
-                            <div class="session e-session">
-                                <span class="session-label">Evening</span>
-                                <span class="name">${item.eName}</span>
-                                <span class="class-tag">Class: ${item.eClass || '-'}</span>
+                            <div class="slot evening">
+                                <span class="slot-title">🌙 EVENING</span>
+                                <span class="name">${info.eName || '---'}</span>
+                                <span class="class-no">Class: ${info.eClass || '-'}</span>
                             </div>
                         </div>
                     </div>
                 `;
             });
         } else {
-            container.innerHTML = "<p style='text-align:center; color:#999;'>വിവരങ്ങൾ ലഭ്യമല്ല</p>";
+            listContainer.innerHTML = "<p style='text-align:center;'>വിവരങ്ങൾ ലഭ്യമല്ല.</p>";
         }
     });
-
-    // സെർച്ച് ഫിൽട്ടർ
-    function filterData() {
-        let input = document.getElementById('searchInput').value.toLowerCase();
-        let cards = document.getElementsByClassName('tea-card');
-
-        for (let i = 0; i < cards.length; i++) {
-            let text = cards[i].innerText.toLowerCase();
-            cards[i].style.display = text.includes(input) ? "flex" : "none";
-        }
-    }
 </script>
 
 </body>
