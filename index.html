@@ -28,6 +28,7 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <!-- OneSignal Push Notifications -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -441,7 +442,39 @@ function checkAdminPass() {
             document.getElementById('bloodBankForm').reset();
         });
     };
+  function loadLiveTea() {
+    const teaDate = document.getElementById('liveTeaDate');
+    const teaContent = document.getElementById('liveTeaContent');
+    const now = new Date();
+    const currentDay = now.getDate();
     
+    teaDate.innerText = "തിയതി: " + currentDay;
+
+    // Firebase Database-ൽ നിന്ന് വിവരങ്ങൾ എടുക്കുന്നു
+    firebase.database().ref('teaSchedule/' + currentDay).on('value', (snapshot) => {
+        const data = snapshot.val();
+        if(data) {
+            teaContent.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="background: #fff9c4; border: 1px solid #fbc02d; padding: 10px; border-radius: 15px; text-align: center;">
+                        <span style="font-size: 10px; font-weight: bold; color: #555;">☕ രാവിലെ</span>
+                        <div style="font-size: 15px; font-weight: 900; color: #000;">${data.mName}</div>
+                        <span style="font-size: 11px; color: #444; font-weight: bold;">ക്ലാസ്: ${data.mClass}</span>
+                    </div>
+                    <div style="background: #e1f5fe; border: 1px solid #03a9f4; padding: 10px; border-radius: 15px; text-align: center;">
+                        <span style="font-size: 10px; font-weight: bold; color: #555;">🍵 വൈകിട്ട്</span>
+                        <div style="font-size: 15px; font-weight: 900; color: #000;">${data.eName}</div>
+                        <span style="font-size: 11px; color: #444; font-weight: bold;">ക്ലാസ്: ${data.eClass}</span>
+                    </div>
+                </div>`;
+        } else {
+            teaContent.innerHTML = `<p style="text-align:center; font-size:13px; color:#cc0000;">വിവരങ്ങൾ ലഭ്യമല്ല.</p>`;
+        }
+    });
+}
+// ഇത് പ്രവർത്തിപ്പിക്കാൻ താഴെ നൽകുന്ന വരി കൂടി ചേർക്കുക
+loadLiveTea();
+  
 </script>
 <script>
 // PWA Service Worker Registration
