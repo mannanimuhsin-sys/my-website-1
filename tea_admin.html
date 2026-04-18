@@ -4,53 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>മദ്രസ ചായ വിതരണം - Admin</title>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .container { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        .section { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ddd; }
-        .row { display: flex; gap: 10px; margin-bottom: 10px; }
-        input, select { padding: 12px; border: 1px solid #ccc; border-radius: 8px; width: 100%; box-sizing: border-box; }
-        .btn { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.8rem; }
-        th { background: #1a2a6c; color: white; padding: 10px; }
-        td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 15px; display: flex; flex-direction: column; align-items: center; margin: 0; }
+        .container { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 600px; box-sizing: border-box; }
+        h2 { text-align: center; color: #1a2a6c; margin-bottom: 25px; font-weight: 800; }
+        
+        .date-picker { margin-bottom: 20px; }
+        label { font-weight: bold; font-size: 14px; color: #555; display: block; margin-bottom: 8px; }
+        
+        .section { background: #f8f9fa; padding: 18px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #e1e4e8; }
+        .section strong { display: block; margin-bottom: 12px; font-size: 16px; }
+        
+        .row { display: flex; gap: 10px; }
+        input, select { padding: 14px; border: 2px solid #edeff2; border-radius: 10px; width: 100%; box-sizing: border-box; outline: none; transition: 0.3s; font-size: 15px; }
+        input:focus { border-color: #27ae60; }
+        
+        .btn-group { display: flex; flex-direction: column; gap: 10px; }
+        .btn { background: #27ae60; color: white; border: none; padding: 16px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .btn:hover { background: #219150; transform: translateY(-2px); }
+        .btn-home { background: #34495e; }
+        
+        #status { text-align: center; margin: 15px 0; font-weight: bold; min-height: 20px; }
+        
+        /* Table Styles */
+        .table-container { width: 100%; overflow-x: auto; margin-top: 25px; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; min-width: 450px; }
+        th { background: #1a2a6c; color: white; padding: 15px; text-align: center; font-size: 14px; }
+        td { padding: 15px; border-bottom: 1px solid #eee; text-align: center; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        
+        .name-text { font-weight: bold; color: #333; display: block; }
+        .class-text { font-size: 12px; color: #198754; font-weight: bold; background: #e8f5e9; padding: 2px 8px; border-radius: 5px; display: inline-block; margin-top: 4px; }
+        .delete-btn { color: #e74c3c; cursor: pointer; font-size: 18px; transition: 0.2s; border: none; background: none; }
+        .delete-btn:hover { color: #c0392b; transform: scale(1.2); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>അഡ്മിൻ പാനൽ</h2>
-    <label>തിയതി (1-31):</label>
-    <select id="daySelect" style="margin-bottom: 15px;">
-        <script>for(let i=1; i<=31; i++) document.write(`<option value="${i}">${i}</option>`);</script>
-    </select>
+    <h2><i class="fas fa-user-shield"></i> അഡ്മിൻ പാനൽ</h2>
+    
+    <div class="date-picker">
+        <label>തിയതി തിരഞ്ഞെടുക്കുക (1-31):</label>
+        <select id="daySelect">
+            <script>for(let i=1; i<=31; i++) document.write(`<option value="${i}">${i}</option>`);</script>
+        </select>
+    </div>
 
     <div class="section">
-        <strong>☕ രാവിലെ</strong>
+        <strong style="color: #d35400;"><i class="fas fa-sun"></i> രാവിലെ സെക്ഷൻ</strong>
         <div class="row">
-            <input type="text" id="mName" placeholder="പേര്">
-            <input type="text" id="mClass" placeholder="ക്ലാസ്" style="width: 80px;">
+            <input type="text" id="mName" placeholder="വിദ്യാർത്ഥിയുടെ പേര്">
+            <input type="text" id="mClass" placeholder="ക്ലാസ്" style="width: 100px;">
         </div>
     </div>
 
     <div class="section">
-        <strong>🍵 വൈകിട്ട്</strong>
+        <strong style="color: #2980b9;"><i class="fas fa-moon"></i> വൈകിട്ട് സെക്ഷൻ</strong>
         <div class="row">
-            <input type="text" id="eName" placeholder="പേര്">
-            <input type="text" id="eClass" placeholder="ക്ലാസ്" style="width: 80px;">
+            <input type="text" id="eName" placeholder="വിദ്യാർത്ഥിയുടെ പേര്">
+            <input type="text" id="eClass" placeholder="ക്ലാസ്" style="width: 100px;">
         </div>
     </div>
 
-    <button class="btn" onclick="saveToFirebase()">ഡാറ്റാബേസിലേക്ക് സേവ് ചെയ്യുക</button>
+    <div class="btn-group">
+        <button class="btn" onclick="saveToFirebase()"><i class="fas fa-save"></i> സേവ് ചെയ്യുക</button>
+        <button class="btn btn-home" onclick="window.location.href='index.html'"><i class="fas fa-home"></i> ഹോം പേജിലേക്ക്</button>
+    </div>
 
-    <div id="status" style="text-align: center; margin-top: 10px; color: green; font-weight: bold;"></div>
+    <div id="status"></div>
 
-    <table>
-        <thead><tr><th>തിയതി</th><th>രാവിലെ</th><th>വൈകിട്ട്</th><th>#</th></tr></thead>
-        <tbody id="listBody"></tbody>
-    </table>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>തിയതി</th>
+                    <th>രാവിലെ</th>
+                    <th>വൈകിട്ട്</th>
+                    <th>#</th>
+                </tr>
+            </thead>
+            <tbody id="listBody">
+                </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -64,36 +107,97 @@
         messagingSenderId: "370558703441",
         appId: "1:370558703441:web:dc68dbdbd685c9d07ea570"
     };
-    firebase.initializeApp(firebaseConfig);
+
+    // Firebase Initialize
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.database();
 
+    // ഡാറ്റ സേവ് ചെയ്യാനുള്ള ഫങ്ക്ഷൻ
     function saveToFirebase() {
         const day = document.getElementById('daySelect').value;
+        const mN = document.getElementById('mName').value;
+        const mC = document.getElementById('mClass').value;
+        const eN = document.getElementById('eName').value;
+        const eC = document.getElementById('eClass').value;
+        const statusDiv = document.getElementById('status');
+
+        if(!mN || !eN) {
+            statusDiv.style.color = "red";
+            statusDiv.innerText = "പേരുകൾ നിർബന്ധമായും നൽകണം!";
+            return;
+        }
+
         const data = {
-            mName: document.getElementById('mName').value,
-            mClass: document.getElementById('mClass').value,
-            eName: document.getElementById('eName').value,
-            eClass: document.getElementById('eClass').value
+            mName: mN,
+            mClass: mC,
+            eName: eN,
+            eClass: eC
         };
 
-        db.ref('teaSchedule/' + day).set(data).then(() => {
-            document.getElementById('status').innerText = "Saved Successfully!";
-            setTimeout(() => { document.getElementById('status').innerText = ""; }, 2000);
+        db.ref('teaSchedule/' + day).set(data)
+        .then(() => {
+            statusDiv.style.color = "green";
+            statusDiv.innerText = "വിജയകരമായി സേവ് ചെയ്തു! ✅";
+            
+            // ഇൻപുട്ടുകൾ ക്ലിയർ ചെയ്യുന്നു
+            document.getElementById('mName').value = "";
+            document.getElementById('mClass').value = "";
+            document.getElementById('eName').value = "";
+            document.getElementById('eClass').value = "";
+            
+            setTimeout(() => { statusDiv.innerText = ""; }, 3000);
+        })
+        .catch((error) => {
+            statusDiv.style.color = "red";
+            statusDiv.innerText = "Error: Permission Denied! (Firebase Rules ചെക്ക് ചെയ്യുക)";
         });
     }
 
+    // പട്ടികയിൽ വിവരങ്ങൾ പ്രദർശിപ്പിക്കുന്നു
     db.ref('teaSchedule').on('value', (snap) => {
         const list = snap.val();
-        const table = document.getElementById('listBody');
-        table.innerHTML = "";
-        for(let d in list) {
-            table.innerHTML += `<tr><td>${d}</td><td>${list[d].mName}</td><td>${list[d].eName}</td><td style="color:red; cursor:pointer;" onclick="deleteData('${d}')">X</td></tr>`;
+        const tableBody = document.getElementById('listBody');
+        tableBody.innerHTML = "";
+        
+        if(list) {
+            // തിയതി ക്രമത്തിൽ അടുക്കുന്നു
+            const sortedKeys = Object.keys(list).sort((a, b) => a - b);
+            
+            sortedKeys.forEach(day => {
+                const item = list[day];
+                tableBody.innerHTML += `
+                    <tr>
+                        <td style="font-weight:bold; color:#1a2a6c;">${day}</td>
+                        <td>
+                            <span class="name-text">${item.mName}</span>
+                            <span class="class-text">Cls: ${item.mClass || '-'}</span>
+                        </td>
+                        <td>
+                            <span class="name-text">${item.eName}</span>
+                            <span class="class-text">Cls: ${item.eClass || '-'}</span>
+                        </td>
+                        <td>
+                            <button class="delete-btn" onclick="deleteData('${day}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } else {
+            tableBody.innerHTML = "<tr><td colspan='4' style='color:#999; padding:20px;'>വിവരങ്ങൾ ഒന്നും ചേർത്തിട്ടില്ല</td></tr>";
         }
     });
 
+    // ഡിലീറ്റ് ഫങ്ക്ഷൻ
     function deleteData(day) {
-        if(confirm("Delete this?")) db.ref('teaSchedule/' + day).remove();
+        if(confirm(day + "-ാം തിയതിയിലെ വിവരങ്ങൾ ഒഴിവാക്കണോ?")) {
+            db.ref('teaSchedule/' + day).remove();
+        }
     }
 </script>
+
 </body>
 </html>
