@@ -136,6 +136,8 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.2);
             position: relative;
             animation: slideIn 0.3s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         @keyframes slideIn {
@@ -175,6 +177,8 @@
             font-family: inherit;
             outline: none;
             transition: 0.3s;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         input:focus {
@@ -256,6 +260,26 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        #directEntryArea {
+            display: none;
+        }
+
+        .file-input-wrapper {
+            margin-top: 10px;
+        }
+
+        .pos-section-title {
+            background: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
@@ -268,9 +292,9 @@
 
     <div class="admin-card">
         <h2 style="margin-top:0; color: var(--primary);">Formation Panel</h2>
-        <p style="font-size: 0.9rem; color: #666; margin-bottom: 25px;">Assign students to committee positions using their registration numbers.</p>
+        <p style="font-size: 0.9rem; color: #666; margin-bottom: 25px;">Assign members to committee positions. Use Reg. No for students or Direct Entry for others.</p>
         
-        <div class="position-list" id="positionList">
+        <div id="positionList">
             <!-- Positions will be rendered here -->
             <div class="loading-spinner" id="mainLoader" style="display: block;"></div>
         </div>
@@ -282,22 +306,38 @@
     <div class="modal-content">
         <h3 id="modalTitle">Assign Position</h3>
         <input type="hidden" id="selectedPosId">
+        <input type="hidden" id="entryType" value="reg"> <!-- 'reg' or 'direct' -->
         
-        <div class="input-group">
-            <label>Registration Number</label>
-            <div class="input-row">
-                <input type="number" id="regNoInput" placeholder="Enter Reg. No...">
-                <button class="btn-fetch" onclick="fetchStudent()">Fetch</button>
+        <!-- Standard Registration Fetch Area -->
+        <div id="regFetchArea">
+            <div class="input-group">
+                <label>Registration Number</label>
+                <div class="input-row">
+                    <input type="number" id="regNoInput" placeholder="Enter Reg. No...">
+                    <button class="btn-fetch" onclick="fetchStudent()">Fetch</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Direct Entry Area (Chairman/Convener) -->
+        <div id="directEntryArea">
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="directNameInput" placeholder="Enter Name...">
+            </div>
+            <div class="input-group">
+                <label>Photo</label>
+                <input type="file" id="directPhotoInput" accept="image/*" onchange="previewDirectPhoto(this)">
             </div>
         </div>
 
         <div class="loading-spinner" id="fetchLoader"></div>
 
         <div class="student-preview" id="studentPreview">
-            <img src="" id="prevImg" alt="Student Photo">
-            <h4 id="prevName">Student Name</h4>
+            <img src="" id="prevImg" alt="Photo">
+            <h4 id="prevName">Name</h4>
             <p id="prevClass">Class: 0</p>
-            <p id="prevFather">Father: Name</p>
+            <p id="prevFather" style="display: none;">Father: Name</p>
         </div>
 
         <div class="modal-actions">
@@ -319,16 +359,30 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const positions = [
-        { id: 'president', name: 'President' },
-        { id: 'v_president', name: 'Vice President' },
-        { id: 'g_secretary', name: 'General Secretary' },
-        { id: 'secretary', name: 'Secretary' },
-        { id: 'treasurer', name: 'Treasurer' },
-        { id: 'w_secretary', name: 'Working Secretary' },
-        { id: 'member1', name: 'Member 1' },
-        { id: 'member2', name: 'Member 2' },
-        { id: 'member3', name: 'Member 3' }
+    const positionGroups = [
+        { title: 'Patrons', list: [
+            { id: 'chairman', name: 'Chairman', direct: true },
+            { id: 'convener', name: 'Convener', direct: true }
+        ]},
+        { title: 'Executive', list: [
+            { id: 'president', name: 'President' },
+            { id: 'v_president', name: 'Vice President', count: 3 },
+            { id: 'g_secretary', name: 'General Secretary' },
+            { id: 'secretary', name: 'Secretary' },
+            { id: 'j_secretary', name: 'Joint Secretary', count: 3 },
+            { id: 'treasurer', name: 'Treasurer' },
+            { id: 'w_secretary', name: 'Working Secretary' }
+        ]},
+        { title: 'Coordinators', list: [
+            { id: 'adab_coord', name: 'Adab Coordinator' },
+            { id: 'tech_admin', name: 'Tech Admin' },
+            { id: 'alif_coord', name: 'Alif Coordinator' },
+            { id: 'khidma_coord', name: 'Khidma Coordinator' }
+        ]},
+        { title: 'Councilors & Members', list: [
+            { id: 'councilor', name: 'Councilor', count: 3 },
+            { id: 'member', name: 'Member', count: 3 }
+        ]}
     ];
 
     let committeeData = {};
@@ -350,40 +404,68 @@
     }
 
     function renderPositions() {
-        const list = document.getElementById('positionList');
-        list.innerHTML = '';
-        positions.forEach(pos => {
-            const assigned = committeeData[pos.id];
-            const item = document.createElement('div');
-            item.className = 'position-item';
-            
-            let assignedHtml = '';
-            if (assigned) {
-                assignedHtml = `
-                    <div class="assigned-student">
-                        <img src="${assigned.photo}" alt="">
-                        <span>${assigned.name} (${assigned.class})</span>
-                    </div>
-                `;
-            }
+        const container = document.getElementById('positionList');
+        container.innerHTML = '';
+        
+        positionGroups.forEach(group => {
+            const groupTitle = document.createElement('div');
+            groupTitle.className = 'pos-section-title';
+            groupTitle.innerText = group.title;
+            container.appendChild(groupTitle);
 
-            item.innerHTML = `
-                <div class="pos-name">${pos.name}</div>
-                ${assignedHtml}
-                <button class="btn-assign" onclick="openModal('${pos.id}', '${pos.name}')">
-                    ${assigned ? 'Change' : 'Assign'}
-                </button>
-            `;
-            list.appendChild(item);
+            const grid = document.createElement('div');
+            grid.className = 'position-list';
+
+            group.list.forEach(pos => {
+                const count = pos.count || 1;
+                for (let i = 1; i <= count; i++) {
+                    const posId = count > 1 ? `${pos.id}_${i}` : pos.id;
+                    const posName = count > 1 ? `${pos.name} ${i}` : pos.name;
+                    
+                    const assigned = committeeData[posId];
+                    const item = document.createElement('div');
+                    item.className = 'position-item';
+                    
+                    let assignedHtml = '';
+                    if (assigned) {
+                        assignedHtml = `
+                            <div class="assigned-student">
+                                <img src="${assigned.photo}" alt="">
+                                <span>${assigned.name} ${assigned.class ? `(${assigned.class})` : ''}</span>
+                            </div>
+                        `;
+                    }
+
+                    item.innerHTML = `
+                        <div class="pos-name">${posName}</div>
+                        ${assignedHtml}
+                        <button class="btn-assign" onclick="openModal('${posId}', '${posName}', ${pos.direct})">
+                            ${assigned ? 'Change' : 'Assign'}
+                        </button>
+                    `;
+                    grid.appendChild(item);
+                }
+            });
+            container.appendChild(grid);
         });
     }
 
-    function openModal(id, name) {
+    function openModal(id, name, isDirect) {
         document.getElementById('selectedPosId').value = id;
         document.getElementById('modalTitle').innerText = 'Assign ' + name;
+        document.getElementById('entryType').value = isDirect ? 'direct' : 'reg';
+        
+        // Reset Inputs
         document.getElementById('regNoInput').value = '';
+        document.getElementById('directNameInput').value = '';
+        document.getElementById('directPhotoInput').value = '';
         document.getElementById('studentPreview').style.display = 'none';
         document.getElementById('confirmBtn').disabled = true;
+        
+        // Toggle areas
+        document.getElementById('regFetchArea').style.display = isDirect ? 'none' : 'block';
+        document.getElementById('directEntryArea').style.display = isDirect ? 'block' : 'none';
+        
         document.getElementById('assignModal').style.display = 'flex';
         tempStudent = null;
     }
@@ -412,15 +494,10 @@
                     name: data.name,
                     photo: data.photo,
                     class: data.class,
-                    father: data.father,
                     regNo: data.number
                 };
                 
-                document.getElementById('prevImg').src = tempStudent.photo;
-                document.getElementById('prevName').innerText = tempStudent.name;
-                document.getElementById('prevClass').innerText = 'Class: ' + tempStudent.class;
-                document.getElementById('prevFather').innerText = 'Father: ' + tempStudent.father;
-                document.getElementById('studentPreview').style.display = 'block';
+                showPreview(tempStudent.photo, tempStudent.name, 'Class: ' + tempStudent.class);
                 document.getElementById('confirmBtn').disabled = false;
             }
         } catch (e) {
@@ -428,6 +505,40 @@
             console.error(e);
         }
         document.getElementById('fetchLoader').style.display = 'none';
+    }
+
+    function previewDirectPhoto(input) {
+        const file = input.files[0];
+        const name = document.getElementById('directNameInput').value;
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            tempStudent = {
+                name: name || 'Direct Entry',
+                photo: e.target.result,
+                class: '' // No class for direct entry
+            };
+            showPreview(tempStudent.photo, tempStudent.name, 'Direct Entry');
+            document.getElementById('confirmBtn').disabled = !tempStudent.name;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Update name dynamically for direct entry
+    document.getElementById('directNameInput').addEventListener('input', (e) => {
+        if (tempStudent && document.getElementById('entryType').value === 'direct') {
+            tempStudent.name = e.target.value;
+            document.getElementById('prevName').innerText = tempStudent.name;
+            document.getElementById('confirmBtn').disabled = !tempStudent.name || !tempStudent.photo;
+        }
+    });
+
+    function showPreview(img, name, subtext) {
+        document.getElementById('prevImg').src = img;
+        document.getElementById('prevName').innerText = name;
+        document.getElementById('prevClass').innerText = subtext;
+        document.getElementById('studentPreview').style.display = 'block';
     }
 
     async function confirmAssignment() {

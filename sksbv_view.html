@@ -53,25 +53,48 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: -40px auto 40px;
             padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin: 40px 0 20px;
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--secondary);
+            border-radius: 2px;
         }
 
         .committee-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 25px;
-            margin-top: 20px;
+            justify-content: center;
         }
 
-        /* Highlighted Top Positions */
-        .top-positions {
+        .top-execs-grid {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 25px;
-            margin-bottom: 40px;
+            gap: 30px;
+            margin-bottom: 20px;
         }
 
         .member-card {
@@ -83,6 +106,7 @@
             text-align: center;
             border: 1px solid rgba(0,0,0,0.05);
             position: relative;
+            width: 280px;
         }
 
         .member-card:hover {
@@ -126,14 +150,15 @@
         }
 
         .member-name {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 700;
             margin: 0 0 5px;
             color: var(--primary);
+            padding: 0 10px;
         }
 
         .member-class {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #7f8c8d;
             margin-bottom: 20px;
             font-weight: 500;
@@ -143,14 +168,13 @@
             background: #fdfdfd;
             padding: 15px;
             border-top: 1px solid #f5f5f5;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #bdc3c7;
         }
 
-        /* Loading & Empty State */
         .loading-state {
             text-align: center;
-            padding: 50px;
+            padding: 80px 20px;
         }
 
         .spinner {
@@ -186,14 +210,12 @@
             transition: 0.3s;
         }
 
-        .back-btn:hover {
-            transform: scale(1.1);
-            background: var(--secondary);
-        }
+        .back-btn:hover { transform: scale(1.1); background: var(--secondary); }
 
         @media (max-width: 600px) {
             .header h1 { font-size: 1.8rem; }
             .container { margin-top: -30px; }
+            .member-card { width: 100%; }
         }
     </style>
 </head>
@@ -211,11 +233,21 @@
     </div>
 
     <div id="mainContent" style="display: none;">
-        <!-- Top Executive Positions -->
-        <div class="top-positions" id="topExecs"></div>
+        <!-- Patrons Section (Chairman, Convener) -->
+        <div class="section-title">Patrons</div>
+        <div class="top-execs-grid" id="patronsList"></div>
 
-        <!-- Other Members -->
-        <div class="committee-grid" id="otherMembers"></div>
+        <!-- Executive Section -->
+        <div class="section-title">Executive Committee</div>
+        <div class="committee-grid" id="execList"></div>
+
+        <!-- Coordinators Section -->
+        <div class="section-title">Coordinators</div>
+        <div class="committee-grid" id="coordList"></div>
+
+        <!-- Councilors & Members Section -->
+        <div class="section-title">Councilors & Members</div>
+        <div class="committee-grid" id="membersList"></div>
     </div>
 </div>
 
@@ -236,15 +268,24 @@
     const db = firebase.firestore();
 
     const positionConfig = {
-        'president': { name: 'President', color: 'linear-gradient(135deg, #FFD700, #F39C12)', top: true },
-        'v_president': { name: 'Vice President', color: 'linear-gradient(135deg, #E0E0E0, #BDC3C7)', top: true },
-        'g_secretary': { name: 'General Secretary', color: 'linear-gradient(135deg, #FFD700, #F39C12)', top: true },
-        'secretary': { name: 'Secretary', color: 'linear-gradient(135deg, #E0E0E0, #BDC3C7)', top: true },
-        'treasurer': { name: 'Treasurer', color: 'linear-gradient(135deg, #CD7F32, #A0522D)', top: true },
-        'w_secretary': { name: 'Working Secretary', color: 'linear-gradient(135deg, #1abc9c, #16a085)', top: false },
-        'member1': { name: 'Member', color: 'linear-gradient(135deg, #3498db, #2980b9)', top: false },
-        'member2': { name: 'Member', color: 'linear-gradient(135deg, #3498db, #2980b9)', top: false },
-        'member3': { name: 'Member', color: 'linear-gradient(135deg, #3498db, #2980b9)', top: false }
+        'chairman': { name: 'Chairman', color: 'linear-gradient(135deg, #FFD700, #F39C12)', section: 'patrons' },
+        'convener': { name: 'Convener', color: 'linear-gradient(135deg, #FFD700, #F39C12)', section: 'patrons' },
+        
+        'president': { name: 'President', color: 'linear-gradient(135deg, #1e3c72, #2a5298)', section: 'exec' },
+        'v_president': { name: 'Vice President', color: 'linear-gradient(135deg, #2c5364, #203a43)', section: 'exec' },
+        'g_secretary': { name: 'General Secretary', color: 'linear-gradient(135deg, #1e3c72, #2a5298)', section: 'exec' },
+        'secretary': { name: 'Secretary', color: 'linear-gradient(135deg, #2c5364, #203a43)', section: 'exec' },
+        'j_secretary': { name: 'Joint Secretary', color: 'linear-gradient(135deg, #2c5364, #203a43)', section: 'exec' },
+        'treasurer': { name: 'Treasurer', color: 'linear-gradient(135deg, #eb3349, #f45c43)', section: 'exec' },
+        'w_secretary': { name: 'Working Secretary', color: 'linear-gradient(135deg, #11998e, #38ef7d)', section: 'exec' },
+        
+        'adab_coord': { name: 'Adab Coordinator', color: 'linear-gradient(135deg, #5f2c82, #49a09d)', section: 'coord' },
+        'tech_admin': { name: 'Tech Admin', color: 'linear-gradient(135deg, #000428, #004e92)', section: 'coord' },
+        'alif_coord': { name: 'Alif Coordinator', color: 'linear-gradient(135deg, #5f2c82, #49a09d)', section: 'coord' },
+        'khidma_coord': { name: 'Khidma Coordinator', color: 'linear-gradient(135deg, #5f2c82, #49a09d)', section: 'coord' },
+        
+        'councilor': { name: 'Councilor', color: 'linear-gradient(135deg, #3498db, #2980b9)', section: 'members' },
+        'member': { name: 'Member', color: 'linear-gradient(135deg, #3498db, #2980b9)', section: 'members' }
     };
 
     async function loadCommittee() {
@@ -257,40 +298,63 @@
             }
         } catch (e) {
             console.error(e);
-            document.getElementById('loading').innerHTML = '<p>Error loading data. Please try again.</p>';
+            document.getElementById('loading').innerHTML = '<p>Error loading data.</p>';
         }
     }
 
     function renderCommittee(data) {
-        const topExecs = document.getElementById('topExecs');
-        const otherMembers = document.getElementById('otherMembers');
+        const sections = {
+            patrons: document.getElementById('patronsList'),
+            exec: document.getElementById('execList'),
+            coord: document.getElementById('coordList'),
+            members: document.getElementById('membersList')
+        };
         
-        topExecs.innerHTML = '';
-        otherMembers.innerHTML = '';
+        Object.values(sections).forEach(s => s.innerHTML = '');
 
-        Object.keys(data).forEach(key => {
-            const member = data[key];
-            const config = positionConfig[key] || { name: 'Member', color: 'linear-gradient(135deg, #3498db, #2980b9)', top: false };
-            
-            const cardHtml = `
-                <div class="member-card" style="width: ${config.top ? '300px' : 'auto'}">
-                    <div class="card-accent" style="background: ${config.color}"></div>
-                    <div class="member-photo-wrap">
-                        <img src="${member.photo}" class="member-photo" alt="${member.name}">
-                    </div>
-                    <div class="pos-badge">${config.name}</div>
-                    <h3 class="member-name">${member.name}</h3>
-                    <div class="member-class">Class: ${member.class}</div>
-                    <div class="card-footer">
-                        SKSBV UNIT COMMITTEE 2026
-                    </div>
-                </div>
-            `;
+        // Sort keys to maintain order (Chairman/Convener first, then others)
+        // We can just iterate through our positionConfig sections if we want strict order
+        const sectionOrder = ['patrons', 'exec', 'coord', 'members'];
+        
+        sectionOrder.forEach(secKey => {
+            Object.keys(data).forEach(key => {
+                let matchKey = key;
+                if (key.includes('_')) {
+                    const parts = key.split('_');
+                    const lastPart = parts[parts.length - 1];
+                    if (!isNaN(lastPart)) {
+                        // It's a numbered key like v_president_1 or councilor_1
+                        matchKey = parts.slice(0, -1).join('_');
+                    }
+                }
+                
+                const config = positionConfig[matchKey] || { name: 'Member', color: 'linear-gradient(135deg, #3498db, #2980b9)', section: 'members' };
+                
+                if (config.section === secKey) {
+                    const member = data[key];
+                    const cardHtml = `
+                        <div class="member-card">
+                            <div class="card-accent" style="background: ${config.color}"></div>
+                            <div class="member-photo-wrap">
+                                <img src="${member.photo}" class="member-photo" alt="${member.name}">
+                            </div>
+                            <div class="pos-badge">${config.name}</div>
+                            <h3 class="member-name">${member.name}</h3>
+                            <div class="member-class">${member.class ? 'Class: ' + member.class : 'SKSBV UNIT'}</div>
+                            <div class="card-footer">
+                                SKSBV UNIT COMMITTEE 2026
+                            </div>
+                        </div>
+                    `;
+                    sections[secKey].innerHTML += cardHtml;
+                }
+            });
+        });
 
-            if (config.top) {
-                topExecs.innerHTML += cardHtml;
-            } else {
-                otherMembers.innerHTML += cardHtml;
+        // Hide empty sections
+        sectionOrder.forEach(secKey => {
+            if (sections[secKey].innerHTML === '') {
+                sections[secKey].previousElementSibling.style.display = 'none';
             }
         });
 
