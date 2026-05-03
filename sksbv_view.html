@@ -302,6 +302,46 @@
         }
     }
 
+    const committeeSections = [
+        { id: 'patrons', title: 'Patrons', positions: [
+            { id: 'chairman', name: 'Chairman' },
+            { id: 'convener', name: 'Convener' }
+        ]},
+        { id: 'exec', title: 'Executive Committee', positions: [
+            { id: 'president', name: 'President' },
+            { id: 'v_president', name: 'Vice President', count: 3 },
+            { id: 'g_secretary', name: 'General Secretary' },
+            { id: 'secretary', name: 'Secretary' },
+            { id: 'j_secretary', name: 'Joint Secretary', count: 3 },
+            { id: 'treasurer', name: 'Treasurer' },
+            { id: 'w_secretary', name: 'Working Secretary' }
+        ]},
+        { id: 'coord', title: 'Coordinators', positions: [
+            { id: 'adab_coord', name: 'Adab Coordinator' },
+            { id: 'tech_admin', name: 'Tech Admin' },
+            { id: 'alif_coord', name: 'Alif Coordinator' },
+            { id: 'khidma_coord', name: 'Khidma Coordinator' }
+        ]},
+        { id: 'members', title: 'Councilors & Members', positions: [
+            { id: 'councilor', name: 'Councilor', count: 3 },
+            { id: 'member', name: 'Member', count: 3 }
+        ]}
+    ];
+
+    async function loadCommittee() {
+        try {
+            const doc = await db.collection("sksbv_committee").doc("current").get();
+            if (doc.exists) {
+                renderCommittee(doc.data());
+            } else {
+                document.getElementById('loading').innerHTML = '<p>No committee data found.</p>';
+            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('loading').innerHTML = '<p>Error loading data.</p>';
+        }
+    }
+
     function renderCommittee(data) {
         const sections = {
             patrons: document.getElementById('patronsList'),
@@ -312,49 +352,45 @@
         
         Object.values(sections).forEach(s => s.innerHTML = '');
 
-        // Sort keys to maintain order (Chairman/Convener first, then others)
-        // We can just iterate through our positionConfig sections if we want strict order
-        const sectionOrder = ['patrons', 'exec', 'coord', 'members'];
-        
-        sectionOrder.forEach(secKey => {
-            Object.keys(data).forEach(key => {
-                let matchKey = key;
-                if (key.includes('_')) {
-                    const parts = key.split('_');
-                    const lastPart = parts[parts.length - 1];
-                    if (!isNaN(lastPart)) {
-                        // It's a numbered key like v_president_1 or councilor_1
-                        matchKey = parts.slice(0, -1).join('_');
-                    }
-                }
-                
-                const config = positionConfig[matchKey] || { name: 'Member', color: 'linear-gradient(135deg, #3498db, #2980b9)', section: 'members' };
-                
-                if (config.section === secKey) {
+        committeeSections.forEach(section => {
+            const container = sections[section.id];
+            
+            section.positions.forEach(pos => {
+                const count = pos.count || 1;
+                for (let i = 1; i <= count; i++) {
+                    const key = count > 1 ? `${pos.id}_${i}` : pos.id;
                     const member = data[key];
-                    const cardHtml = `
-                        <div class="member-card">
-                            <div class="card-accent" style="background: ${config.color}"></div>
-                            <div class="member-photo-wrap">
-                                <img src="${member.photo}" class="member-photo" alt="${member.name}">
+                    
+                    if (member) {
+                        const config = positionConfig[pos.id] || { name: pos.name, color: 'linear-gradient(135deg, #3498db, #2980b9)' };
+                        const displayName = count > 1 ? `${pos.name} ${i}` : pos.name;
+
+                        const cardHtml = `
+                            <div class="member-card">
+                                <div class="card-accent" style="background: ${config.color}"></div>
+                                <div class="member-photo-wrap">
+                                    <img src="${member.photo}" class="member-photo" alt="${member.name}">
+                                </div>
+                                <div class="pos-badge">${displayName}</div>
+                                <h3 class="member-name">${member.name}</h3>
+                                <div class="member-class">${member.class ? 'Class: ' + member.class : 'SKSBV UNIT'}</div>
+                                <div class="card-footer">
+                                    SKSBV UNIT COMMITTEE 2026
+                                </div>
                             </div>
-                            <div class="pos-badge">${config.name}</div>
-                            <h3 class="member-name">${member.name}</h3>
-                            <div class="member-class">${member.class ? 'Class: ' + member.class : 'SKSBV UNIT'}</div>
-                            <div class="card-footer">
-                                SKSBV UNIT COMMITTEE 2026
-                            </div>
-                        </div>
-                    `;
-                    sections[secKey].innerHTML += cardHtml;
+                        `;
+                        container.innerHTML += cardHtml;
+                    }
                 }
             });
         });
 
-        // Hide empty sections
+        const sectionOrder = ['patrons', 'exec', 'coord', 'members'];
         sectionOrder.forEach(secKey => {
             if (sections[secKey].innerHTML === '') {
                 sections[secKey].previousElementSibling.style.display = 'none';
+            } else {
+                sections[secKey].previousElementSibling.style.display = 'block';
             }
         });
 
