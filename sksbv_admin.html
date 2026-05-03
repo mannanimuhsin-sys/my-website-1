@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKSBV Committee Admin - Misbahul Uloom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --primary: #0b5d1e;
+            --secondary: #f39c12;
+            --bg: #f0f4f8;
+            --white: #ffffff;
+            --text: #2d3436;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--primary), #1a7a30);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 { margin: 0; font-size: 2rem; letter-spacing: 1px; }
+        .header p { margin: 10px 0 0; opacity: 0.9; font-weight: 300; }
+
+        .admin-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .position-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .position-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            border: 1px solid #eee;
+            transition: 0.3s;
+        }
+
+        .position-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .pos-name {
+            font-weight: 600;
+            color: var(--primary);
+            flex: 1;
+        }
+
+        .assigned-student {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 15px;
+        }
+
+        .assigned-student img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--secondary);
+        }
+
+        .assigned-student span {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .btn-assign {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+
+        .btn-assign:hover {
+            background: #1a7a30;
+            box-shadow: 0 4px 10px rgba(11,93,30,0.3);
+        }
+
+        /* Modal Styles */
+        #assignModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-family: inherit;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-fetch {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .student-preview {
+            display: none;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+            border: 1px dashed #ccc;
+        }
+
+        .student-preview img {
+            width: 100px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .student-preview h4 { margin: 5px 0; color: var(--primary); }
+        .student-preview p { margin: 0; font-size: 0.9rem; color: #666; }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-confirm {
+            flex: 2;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            background: #eee;
+            color: #666;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>SKSBV COMMITTEE</h1>
+        <p>Misbahul Uloom Madrasa Unit</p>
+    </div>
+
+    <div class="admin-card">
+        <h2 style="margin-top:0; color: var(--primary);">Formation Panel</h2>
+        <p style="font-size: 0.9rem; color: #666; margin-bottom: 25px;">Assign students to committee positions using their registration numbers.</p>
+        
+        <div class="position-list" id="positionList">
+            <!-- Positions will be rendered here -->
+            <div class="loading-spinner" id="mainLoader" style="display: block;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Modal -->
+<div id="assignModal">
+    <div class="modal-content">
+        <h3 id="modalTitle">Assign Position</h3>
+        <input type="hidden" id="selectedPosId">
+        
+        <div class="input-group">
+            <label>Registration Number</label>
+            <div class="input-row">
+                <input type="number" id="regNoInput" placeholder="Enter Reg. No...">
+                <button class="btn-fetch" onclick="fetchStudent()">Fetch</button>
+            </div>
+        </div>
+
+        <div class="loading-spinner" id="fetchLoader"></div>
+
+        <div class="student-preview" id="studentPreview">
+            <img src="" id="prevImg" alt="Student Photo">
+            <h4 id="prevName">Student Name</h4>
+            <p id="prevClass">Class: 0</p>
+            <p id="prevFather">Father: Name</p>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-confirm" id="confirmBtn" disabled onclick="confirmAssignment()">Confirm & Save</button>
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
+        authDomain: "mum-new-id.firebaseapp.com",
+        projectId: "mum-new-id",
+        storageBucket: "mum-new-id.firebasestorage.app",
+        messagingSenderId: "794343464244",
+        appId: "1:794343464244:web:f9083036490e3609bf1961"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const positions = [
+        { id: 'president', name: 'President' },
+        { id: 'v_president', name: 'Vice President' },
+        { id: 'g_secretary', name: 'General Secretary' },
+        { id: 'secretary', name: 'Secretary' },
+        { id: 'treasurer', name: 'Treasurer' },
+        { id: 'w_secretary', name: 'Working Secretary' },
+        { id: 'member1', name: 'Member 1' },
+        { id: 'member2', name: 'Member 2' },
+        { id: 'member3', name: 'Member 3' }
+    ];
+
+    let committeeData = {};
+    let tempStudent = null;
+
+    async function loadCommittee() {
+        document.getElementById('mainLoader').style.display = 'block';
+        try {
+            const doc = await db.collection("sksbv_committee").doc("current").get();
+            if (doc.exists) {
+                committeeData = doc.data();
+            }
+            renderPositions();
+        } catch (e) {
+            console.error(e);
+            renderPositions();
+        }
+        document.getElementById('mainLoader').style.display = 'none';
+    }
+
+    function renderPositions() {
+        const list = document.getElementById('positionList');
+        list.innerHTML = '';
+        positions.forEach(pos => {
+            const assigned = committeeData[pos.id];
+            const item = document.createElement('div');
+            item.className = 'position-item';
+            
+            let assignedHtml = '';
+            if (assigned) {
+                assignedHtml = `
+                    <div class="assigned-student">
+                        <img src="${assigned.photo}" alt="">
+                        <span>${assigned.name} (${assigned.class})</span>
+                    </div>
+                `;
+            }
+
+            item.innerHTML = `
+                <div class="pos-name">${pos.name}</div>
+                ${assignedHtml}
+                <button class="btn-assign" onclick="openModal('${pos.id}', '${pos.name}')">
+                    ${assigned ? 'Change' : 'Assign'}
+                </button>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    function openModal(id, name) {
+        document.getElementById('selectedPosId').value = id;
+        document.getElementById('modalTitle').innerText = 'Assign ' + name;
+        document.getElementById('regNoInput').value = '';
+        document.getElementById('studentPreview').style.display = 'none';
+        document.getElementById('confirmBtn').disabled = true;
+        document.getElementById('assignModal').style.display = 'flex';
+        tempStudent = null;
+    }
+
+    function closeModal() {
+        document.getElementById('assignModal').style.display = 'none';
+    }
+
+    async function fetchStudent() {
+        const regNo = document.getElementById('regNoInput').value;
+        if (!regNo) return alert('Please enter registration number');
+
+        document.getElementById('fetchLoader').style.display = 'block';
+        document.getElementById('studentPreview').style.display = 'none';
+        
+        try {
+            const snapshot = await db.collection("misbahul_uloom_students")
+                .where("number", "==", regNo.toString())
+                .get();
+
+            if (snapshot.empty) {
+                alert('No student found with this registration number');
+            } else {
+                const data = snapshot.docs[0].data();
+                tempStudent = {
+                    name: data.name,
+                    photo: data.photo,
+                    class: data.class,
+                    father: data.father,
+                    regNo: data.number
+                };
+                
+                document.getElementById('prevImg').src = tempStudent.photo;
+                document.getElementById('prevName').innerText = tempStudent.name;
+                document.getElementById('prevClass').innerText = 'Class: ' + tempStudent.class;
+                document.getElementById('prevFather').innerText = 'Father: ' + tempStudent.father;
+                document.getElementById('studentPreview').style.display = 'block';
+                document.getElementById('confirmBtn').disabled = false;
+            }
+        } catch (e) {
+            alert('Error fetching data');
+            console.error(e);
+        }
+        document.getElementById('fetchLoader').style.display = 'none';
+    }
+
+    async function confirmAssignment() {
+        const posId = document.getElementById('selectedPosId').value;
+        if (!tempStudent || !posId) return;
+
+        committeeData[posId] = tempStudent;
+
+        try {
+            await db.collection("sksbv_committee").doc("current").set(committeeData);
+            alert('Assignment confirmed! ✅');
+            closeModal();
+            loadCommittee();
+        } catch (e) {
+            alert('Error saving data');
+        }
+    }
+
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('assignModal')) closeModal();
+    }
+
+    loadCommittee();
+</script>
+
+</body>
+</html>

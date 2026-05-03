@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKSBV Committee - Misbahul Uloom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --primary: #0b5d1e;
+            --secondary: #f39c12;
+            --accent: #2ecc71;
+            --bg: #f8f9fa;
+            --white: #ffffff;
+            --text: #2c3e50;
+            --shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 0;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), #1a7a30);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: 0 0 50px 50px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            margin: 10px 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: -40px auto 40px;
+            padding: 0 20px;
+        }
+
+        .committee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        /* Highlighted Top Positions */
+        .top-positions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .member-card {
+            background: var(--white);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .member-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        }
+
+        .card-accent {
+            height: 80px;
+            background: linear-gradient(135deg, var(--secondary), #e67e22);
+        }
+
+        .member-photo-wrap {
+            width: 130px;
+            height: 130px;
+            margin: -65px auto 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .member-photo {
+            width: 100%;
+            height: 100%;
+            border-radius: 35px;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .pos-badge {
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .member-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0 0 5px;
+            color: var(--primary);
+        }
+
+        .member-class {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .card-footer {
+            background: #fdfdfd;
+            padding: 15px;
+            border-top: 1px solid #f5f5f5;
+            font-size: 0.8rem;
+            color: #bdc3c7;
+        }
+
+        /* Loading & Empty State */
+        .loading-state {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #eee;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: var(--primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 100;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1);
+            background: var(--secondary);
+        }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.8rem; }
+            .container { margin-top: -30px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>SKSBV UNIT COMMITTEE</h1>
+    <p>Misbahul Uloom Madrasa, Peruvana</p>
+</div>
+
+<div class="container">
+    <div id="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>കമ്മറ്റി വിവരം ലോഡ് ചെയ്യുന്നു...</p>
+    </div>
+
+    <div id="mainContent" style="display: none;">
+        <!-- Top Executive Positions -->
+        <div class="top-positions" id="topExecs"></div>
+
+        <!-- Other Members -->
+        <div class="committee-grid" id="otherMembers"></div>
+    </div>
+</div>
+
+<a href="index.html" class="back-btn">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+</a>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCe98Gw-si7idO0m8y5xbLLG8Z2HC3RCKE",
+        authDomain: "mum-new-id.firebaseapp.com",
+        projectId: "mum-new-id",
+        storageBucket: "mum-new-id.firebasestorage.app",
+        messagingSenderId: "794343464244",
+        appId: "1:794343464244:web:f9083036490e3609bf1961"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const positionConfig = {
+        'president': { name: 'President', color: 'linear-gradient(135deg, #FFD700, #F39C12)', top: true },
+        'v_president': { name: 'Vice President', color: 'linear-gradient(135deg, #E0E0E0, #BDC3C7)', top: true },
+        'g_secretary': { name: 'General Secretary', color: 'linear-gradient(135deg, #FFD700, #F39C12)', top: true },
+        'secretary': { name: 'Secretary', color: 'linear-gradient(135deg, #E0E0E0, #BDC3C7)', top: true },
+        'treasurer': { name: 'Treasurer', color: 'linear-gradient(135deg, #CD7F32, #A0522D)', top: true },
+        'w_secretary': { name: 'Working Secretary', color: 'linear-gradient(135deg, #1abc9c, #16a085)', top: false },
+        'member1': { name: 'Member', color: 'linear-gradient(135deg, #3498db, #2980b9)', top: false },
+        'member2': { name: 'Member', color: 'linear-gradient(135deg, #3498db, #2980b9)', top: false },
+        'member3': { name: 'Member', color: 'linear-gradient(135deg, #3498db, #2980b9)', top: false }
+    };
+
+    async function loadCommittee() {
+        try {
+            const doc = await db.collection("sksbv_committee").doc("current").get();
+            if (doc.exists) {
+                renderCommittee(doc.data());
+            } else {
+                document.getElementById('loading').innerHTML = '<p>No committee data found.</p>';
+            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('loading').innerHTML = '<p>Error loading data. Please try again.</p>';
+        }
+    }
+
+    function renderCommittee(data) {
+        const topExecs = document.getElementById('topExecs');
+        const otherMembers = document.getElementById('otherMembers');
+        
+        topExecs.innerHTML = '';
+        otherMembers.innerHTML = '';
+
+        Object.keys(data).forEach(key => {
+            const member = data[key];
+            const config = positionConfig[key] || { name: 'Member', color: 'linear-gradient(135deg, #3498db, #2980b9)', top: false };
+            
+            const cardHtml = `
+                <div class="member-card" style="width: ${config.top ? '300px' : 'auto'}">
+                    <div class="card-accent" style="background: ${config.color}"></div>
+                    <div class="member-photo-wrap">
+                        <img src="${member.photo}" class="member-photo" alt="${member.name}">
+                    </div>
+                    <div class="pos-badge">${config.name}</div>
+                    <h3 class="member-name">${member.name}</h3>
+                    <div class="member-class">Class: ${member.class}</div>
+                    <div class="card-footer">
+                        SKSBV UNIT COMMITTEE 2026
+                    </div>
+                </div>
+            `;
+
+            if (config.top) {
+                topExecs.innerHTML += cardHtml;
+            } else {
+                otherMembers.innerHTML += cardHtml;
+            }
+        });
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+    }
+
+    loadCommittee();
+</script>
+
+</body>
+</html>
