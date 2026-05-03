@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ml">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SKSBV Committee - Misbahul Uloom</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <style>
@@ -12,10 +12,11 @@
             --primary: #0b5d1e;
             --secondary: #f39c12;
             --accent: #2ecc71;
-            --bg: #f8f9fa;
+            --bg: #f4f7f6;
             --white: #ffffff;
             --text: #2c3e50;
-            --shadow: 0 15px 40px rgba(0,0,0,0.1);
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --glass: rgba(255, 255, 255, 0.9);
         }
 
         body {
@@ -24,157 +25,160 @@
             margin: 0;
             padding: 0;
             color: var(--text);
-            overflow-x: hidden;
+            line-height: 1.6;
         }
 
         .header {
             background: linear-gradient(135deg, var(--primary), #1a7a30);
             color: white;
-            padding: 60px 20px;
+            padding: 50px 20px;
             text-align: center;
-            border-radius: 0 0 50px 50px;
-            box-shadow: var(--shadow);
-            position: relative;
+            border-bottom: 5px solid var(--secondary);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
         .header h1 {
             margin: 0;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 800;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             text-transform: uppercase;
         }
 
         .header p {
-            margin: 10px 0 0;
+            margin: 8px 0 0;
             opacity: 0.9;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 300;
         }
 
         .container {
-            max-width: 1100px;
-            margin: -40px auto 40px;
-            padding: 0 20px;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 15px;
         }
 
-        .section-title {
-            text-align: center;
-            margin: 40px 0 20px;
-            font-weight: 800;
-            color: var(--primary);
-            font-size: 1.5rem;
+        .main-section {
+            margin-bottom: 50px;
+        }
+
+        .section-header {
+            background: var(--primary);
+            color: white;
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(11, 93, 30, 0.2);
             position: relative;
-            padding-bottom: 10px;
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 50px;
-            height: 3px;
-            background: var(--secondary);
-            border-radius: 2px;
         }
 
-        .committee-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            justify-content: center;
-        }
-
-        .top-execs-grid {
+        .committee-box {
+            background: var(--white);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border: 1px solid rgba(0,0,0,0.03);
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 30px;
+            gap: 25px;
+        }
+
+        .box-title {
+            width: 100%;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: -20px;
             margin-bottom: 20px;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .member-card {
-            background: var(--white);
-            border-radius: 25px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 220px;
             text-align: center;
-            border: 1px solid rgba(0,0,0,0.05);
-            position: relative;
-            width: 280px;
+            padding: 20px 10px;
+            transition: 0.3s;
         }
 
         .member-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
         }
 
-        .card-accent {
-            height: 80px;
-            background: linear-gradient(135deg, var(--secondary), #e67e22);
+        .pos-label {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            display: block;
+            letter-spacing: 0.5px;
         }
 
-        .member-photo-wrap {
-            width: 130px;
-            height: 130px;
-            margin: -65px auto 15px;
+        .photo-container {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 15px;
             position: relative;
-            z-index: 2;
+        }
+
+        .photo-container::after {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border: 3px solid var(--secondary);
+            border-radius: 50%;
+            opacity: 0.3;
         }
 
         .member-photo {
             width: 100%;
             height: 100%;
-            border-radius: 35px;
+            border-radius: 50%;
             object-fit: cover;
-            border: 5px solid white;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        .pos-badge {
-            background: var(--primary);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            display: inline-block;
-            margin-bottom: 10px;
-            letter-spacing: 0.5px;
+            border: 4px solid white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
 
         .member-name {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
+            color: #2c3e50;
             margin: 0 0 5px;
-            color: var(--primary);
-            padding: 0 10px;
+            text-transform: capitalize;
         }
 
         .member-class {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #7f8c8d;
-            margin-bottom: 20px;
             font-weight: 500;
+            background: #f0f2f1;
+            padding: 3px 12px;
+            border-radius: 20px;
+            display: inline-block;
         }
 
-        .card-footer {
-            background: #fdfdfd;
-            padding: 15px;
-            border-top: 1px solid #f5f5f5;
-            font-size: 0.75rem;
-            color: #bdc3c7;
-        }
+        /* Tier Specifics */
+        .tier-patrons .member-card { width: 260px; }
+        .tier-patrons .photo-container { width: 160px; height: 160px; }
+        .tier-patrons .member-name { font-size: 1.3rem; }
+
+        .tier-office .member-card { width: 240px; }
+        .tier-office .member-name { font-size: 1.2rem; }
 
         .loading-state {
             text-align: center;
-            padding: 80px 20px;
+            padding: 100px 20px;
         }
 
         .spinner {
@@ -213,9 +217,10 @@
         .back-btn:hover { transform: scale(1.1); background: var(--secondary); }
 
         @media (max-width: 600px) {
-            .header h1 { font-size: 1.8rem; }
-            .container { margin-top: -30px; }
-            .member-card { width: 100%; }
+            .header h1 { font-size: 1.6rem; }
+            .committee-box { padding: 20px 10px; }
+            .member-card { width: 45%; }
+            .tier-patrons .member-card, .tier-office .member-card { width: 100%; }
         }
     </style>
 </head>
@@ -229,25 +234,46 @@
 <div class="container">
     <div id="loading" class="loading-state">
         <div class="spinner"></div>
-        <p>കമ്മറ്റി വിവരം ലോഡ് ചെയ്യുന്നു...</p>
+        <p>Fetching Committee Details...</p>
     </div>
 
     <div id="mainContent" style="display: none;">
-        <!-- Patrons Section (Chairman, Convener) -->
-        <div class="section-title">Patrons</div>
-        <div class="top-execs-grid" id="patronsList"></div>
+        <!-- Patrons -->
+        <div class="main-section" id="section-patrons">
+            <div class="committee-box tier-patrons" id="box-patrons"></div>
+        </div>
 
-        <!-- Executive Section -->
-        <div class="section-title">Executive Committee</div>
-        <div class="committee-grid" id="execList"></div>
+        <!-- Executive -->
+        <div class="main-section" id="section-executive">
+            <div class="section-header">Executive Committee</div>
+            
+            <div class="committee-box tier-office" id="box-office">
+                <div class="box-title">Main Bearers</div>
+            </div>
 
-        <!-- Coordinators Section -->
-        <div class="section-title">Coordinators</div>
-        <div class="committee-grid" id="coordList"></div>
+            <div class="committee-box" id="box-vps">
+                <div class="box-title">Vice Presidents</div>
+            </div>
 
-        <!-- Councilors & Members Section -->
-        <div class="section-title">Councilors & Members</div>
-        <div class="committee-grid" id="membersList"></div>
+            <div class="committee-box" id="box-jss">
+                <div class="box-title">Joint Secretaries</div>
+            </div>
+        </div>
+
+        <!-- Coordinators -->
+        <div class="main-section" id="section-coordinators">
+            <div class="section-header">Coordinators</div>
+            <div class="committee-box" id="box-coords"></div>
+            <div class="committee-box" id="box-members">
+                <div class="box-title">Numbers</div>
+            </div>
+        </div>
+
+        <!-- Counselors -->
+        <div class="main-section" id="section-counselors">
+            <div class="section-header">Counselors</div>
+            <div class="committee-box" id="box-counselors"></div>
+        </div>
     </div>
 </div>
 
@@ -267,65 +293,56 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const positionConfig = {
-        'chairman': { name: 'Chairman', color: 'linear-gradient(135deg, #FFD700, #F39C12)', section: 'patrons' },
-        'convener': { name: 'Convener', color: 'linear-gradient(135deg, #FFD700, #F39C12)', section: 'patrons' },
-        
-        'president': { name: 'President', color: 'linear-gradient(135deg, #1e3c72, #2a5298)', section: 'exec' },
-        'v_president': { name: 'Vice President', color: 'linear-gradient(135deg, #2c5364, #203a43)', section: 'exec' },
-        'g_secretary': { name: 'General Secretary', color: 'linear-gradient(135deg, #1e3c72, #2a5298)', section: 'exec' },
-        'secretary': { name: 'Secretary', color: 'linear-gradient(135deg, #2c5364, #203a43)', section: 'exec' },
-        'j_secretary': { name: 'Joint Secretary', color: 'linear-gradient(135deg, #2c5364, #203a43)', section: 'exec' },
-        'treasurer': { name: 'Treasurer', color: 'linear-gradient(135deg, #eb3349, #f45c43)', section: 'exec' },
-        'w_secretary': { name: 'Working Secretary', color: 'linear-gradient(135deg, #11998e, #38ef7d)', section: 'exec' },
-        
-        'adab_coord': { name: 'Adab Coordinator', color: 'linear-gradient(135deg, #5f2c82, #49a09d)', section: 'coord' },
-        'tech_admin': { name: 'Tech Admin', color: 'linear-gradient(135deg, #000428, #004e92)', section: 'coord' },
-        'alif_coord': { name: 'Alif Coordinator', color: 'linear-gradient(135deg, #5f2c82, #49a09d)', section: 'coord' },
-        'khidma_coord': { name: 'Khidma Coordinator', color: 'linear-gradient(135deg, #5f2c82, #49a09d)', section: 'coord' },
-        
-        'councilor': { name: 'Councilor', color: 'linear-gradient(135deg, #3498db, #2980b9)', section: 'members' },
-        'member': { name: 'Member', color: 'linear-gradient(135deg, #3498db, #2980b9)', section: 'members' }
-    };
-
-    async function loadCommittee() {
-        try {
-            const doc = await db.collection("sksbv_committee").doc("current").get();
-            if (doc.exists) {
-                renderCommittee(doc.data());
-            } else {
-                document.getElementById('loading').innerHTML = '<p>No committee data found.</p>';
-            }
-        } catch (e) {
-            console.error(e);
-            document.getElementById('loading').innerHTML = '<p>Error loading data.</p>';
+    const hierarchy = [
+        {
+            container: 'box-patrons',
+            positions: [
+                { id: 'chairman', label: 'Chairman' },
+                { id: 'convener', label: 'Convener' }
+            ]
+        },
+        {
+            container: 'box-office',
+            positions: [
+                { id: 'president', label: 'President' },
+                { id: 'g_secretary', label: 'General Secretary' },
+                { id: 'treasurer', label: 'Treasurer' },
+                { id: 'w_secretary', label: 'Working Secretary' }
+            ]
+        },
+        {
+            container: 'box-vps',
+            positions: [
+                { id: 'v_president', label: 'Vice President', count: 3 }
+            ]
+        },
+        {
+            container: 'box-jss',
+            positions: [
+                { id: 'j_secretary', label: 'Joint Secretary', count: 3 }
+            ]
+        },
+        {
+            container: 'box-coords',
+            positions: [
+                { id: 'adab_coord', label: 'Adab Coordinator' },
+                { id: 'alif_coord', label: 'Alif Coordinator' },
+                { id: 'khidma_coord', label: 'Khidma Coordinator' },
+                { id: 'tech_admin', label: 'Tech Admin' }
+            ]
+        },
+        {
+            container: 'box-members',
+            positions: [
+                { id: 'member', label: 'Member', count: 3 }
+            ]
+        },
+        {
+            container: 'box-counselors',
+            positions: [
+                { id: 'councilor', label: 'Councilor', count: 3 }
+            ]
         }
-    }
-
-    const committeeSections = [
-        { id: 'patrons', title: 'Patrons', positions: [
-            { id: 'chairman', name: 'Chairman' },
-            { id: 'convener', name: 'Convener' }
-        ]},
-        { id: 'exec', title: 'Executive Committee', positions: [
-            { id: 'president', name: 'President' },
-            { id: 'v_president', name: 'Vice President', count: 3 },
-            { id: 'g_secretary', name: 'General Secretary' },
-            { id: 'secretary', name: 'Secretary' },
-            { id: 'j_secretary', name: 'Joint Secretary', count: 3 },
-            { id: 'treasurer', name: 'Treasurer' },
-            { id: 'w_secretary', name: 'Working Secretary' }
-        ]},
-        { id: 'coord', title: 'Coordinators', positions: [
-            { id: 'adab_coord', name: 'Adab Coordinator' },
-            { id: 'tech_admin', name: 'Tech Admin' },
-            { id: 'alif_coord', name: 'Alif Coordinator' },
-            { id: 'khidma_coord', name: 'Khidma Coordinator' }
-        ]},
-        { id: 'members', title: 'Councilors & Members', positions: [
-            { id: 'councilor', name: 'Councilor', count: 3 },
-            { id: 'member', name: 'Member', count: 3 }
-        ]}
     ];
 
     async function loadCommittee() {
@@ -343,54 +360,41 @@
     }
 
     function renderCommittee(data) {
-        const sections = {
-            patrons: document.getElementById('patronsList'),
-            exec: document.getElementById('execList'),
-            coord: document.getElementById('coordList'),
-            members: document.getElementById('membersList')
-        };
-        
-        Object.values(sections).forEach(s => s.innerHTML = '');
+        hierarchy.forEach(group => {
+            const container = document.getElementById(group.container);
+            let hasMembers = false;
 
-        committeeSections.forEach(section => {
-            const container = sections[section.id];
-            
-            section.positions.forEach(pos => {
+            group.positions.forEach(pos => {
                 const count = pos.count || 1;
                 for (let i = 1; i <= count; i++) {
                     const key = count > 1 ? `${pos.id}_${i}` : pos.id;
                     const member = data[key];
                     
-                    if (member) {
-                        const config = positionConfig[pos.id] || { name: pos.name, color: 'linear-gradient(135deg, #3498db, #2980b9)' };
-                        const displayName = count > 1 ? `${pos.name} ${i}` : pos.name;
-
-                        const cardHtml = `
-                            <div class="member-card">
-                                <div class="card-accent" style="background: ${config.color}"></div>
-                                <div class="member-photo-wrap">
-                                    <img src="${member.photo}" class="member-photo" alt="${member.name}">
-                                </div>
-                                <div class="pos-badge">${displayName}</div>
-                                <h3 class="member-name">${member.name}</h3>
-                                <div class="member-class">${member.class ? 'Class: ' + member.class : 'SKSBV UNIT'}</div>
-                                <div class="card-footer">
-                                    SKSBV UNIT COMMITTEE 2026
-                                </div>
+                    if (member && member.name) {
+                        hasMembers = true;
+                        const card = document.createElement('div');
+                        card.className = 'member-card';
+                        card.innerHTML = `
+                            <span class="pos-label">${pos.label}</span>
+                            <div class="photo-container">
+                                <img src="${member.photo}" class="member-photo" alt="${member.name}">
                             </div>
+                            <h3 class="member-name">${member.name}</h3>
+                            <div class="member-class">${member.class || 'SKSBV UNIT'}</div>
                         `;
-                        container.innerHTML += cardHtml;
+                        container.appendChild(card);
                     }
                 }
             });
-        });
 
-        const sectionOrder = ['patrons', 'exec', 'coord', 'members'];
-        sectionOrder.forEach(secKey => {
-            if (sections[secKey].innerHTML === '') {
-                sections[secKey].previousElementSibling.style.display = 'none';
-            } else {
-                sections[secKey].previousElementSibling.style.display = 'block';
+            // Hide section if empty
+            if (!hasMembers) {
+                const section = container.closest('.main-section');
+                if (section && section.querySelectorAll('.member-card').length === 0) {
+                    section.style.display = 'none';
+                } else {
+                    container.style.display = 'none';
+                }
             }
         });
 
