@@ -159,13 +159,11 @@
         }
 
         .member-class {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: #7f8c8d;
             font-weight: 500;
-            background: #f0f2f1;
-            padding: 3px 12px;
-            border-radius: 20px;
-            display: inline-block;
+            display: block;
+            margin-top: 5px;
         }
 
         /* Tier Specifics */
@@ -229,6 +227,7 @@
 <div class="header">
     <h1>SKSBV UNIT COMMITTEE</h1>
     <p>Misbahul Uloom Madrasa, Peruvana</p>
+    <div style="margin-top: 15px; font-size: 1.2rem; font-weight: 600; opacity: 0.8;">Committee 2026-27</div>
 </div>
 
 <div class="container">
@@ -380,7 +379,7 @@
                                 <img src="${member.photo}" class="member-photo" alt="${member.name}">
                             </div>
                             <h3 class="member-name">${member.name}</h3>
-                            <div class="member-class">${member.class || 'SKSBV UNIT'}</div>
+                            <div class="member-class">${member.class ? 'Std - ' + member.class : 'SKSBV UNIT'}</div>
                         `;
                         container.appendChild(card);
                     }
