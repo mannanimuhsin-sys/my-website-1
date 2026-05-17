@@ -86,26 +86,100 @@
             70% { box-shadow: 0 0 0 15px rgba(255, 71, 87, 0); }
             100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
         }
-        .gallery-card {
-            background: linear-gradient(135deg, #1e5128, #4e944f);
-            color: white; padding: 25px; border-radius: 20px;
-            text-align: center; margin-bottom: 25px; cursor: pointer;
-            position: relative; overflow: hidden;
-            box-shadow: 0 10px 20px rgba(30, 81, 40, 0.3);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .gallery-card:hover { transform: translateY(-5px); transition: 0.3s; }
-        .gallery-card h2 { margin-top: 10px; font-weight: 800; letter-spacing: 1px; }
-
-        .add-btn {
-            position: absolute; top: 15px; right: 15px;
-            background: #ffffff; color: #1e5128;
-            width: 45px; height: 45px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            transition: 0.3s; z-index: 5;
-        }
-        .add-btn:hover { background: #ffd700; color: #000; transform: rotate(90deg); }
+    /* Executive Sarga Vedi Card */
+    .sarga-vedi-premium {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 20px 25px;
+        margin: 0 auto 25px auto;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.03);
+        border-left: 6px solid #198754;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .sarga-vedi-premium:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(25, 135, 84, 0.15);
+        border-color: rgba(25, 135, 84, 0.2);
+    }
+    .sv-content {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        z-index: 2;
+        flex: 1;
+    }
+    .sv-icon {
+        min-width: 55px;
+        height: 55px;
+        background: linear-gradient(135deg, #198754, #20c997);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 24px;
+        box-shadow: 0 8px 15px rgba(25, 135, 84, 0.3);
+    }
+    .sv-text {
+        text-align: left;
+    }
+    .sv-text h2 {
+        margin: 0 0 5px 0;
+        font-size: 18px;
+        font-weight: 800;
+        color: #2d3436;
+        letter-spacing: 0.2px;
+    }
+    .sv-text p {
+        margin: 0;
+        font-size: 11px;
+        color: #636e72;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+    .sv-add-btn {
+        width: 45px;
+        height: 45px;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #198754;
+        font-size: 18px;
+        transition: 0.3s;
+        z-index: 5;
+        margin-left: 15px;
+        flex-shrink: 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+    .sarga-vedi-premium:hover .sv-add-btn {
+        background: #198754;
+        color: #ffffff;
+        border-color: #198754;
+        transform: scale(1.1) rotate(90deg);
+        box-shadow: 0 6px 15px rgba(25, 135, 84, 0.4);
+    }
+    .sv-bg-glow {
+        position: absolute;
+        right: -30px;
+        top: -30px;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(32, 201, 151, 0.1) 0%, rgba(32, 201, 151, 0) 70%);
+        border-radius: 50%;
+        z-index: 1;
+    }
         .admin-box { 
             background: #e9ecef; padding: 20px; border-radius: 15px; 
             margin-bottom: 20px; text-align: center; border: 1px dashed #6c757d;
@@ -266,14 +340,22 @@
         <p id="liveNoticeDesc" style="margin: 0; font-size: 14px;">പുതിയ അറിയിപ്പുകൾ ഉണ്ട്. കാണാൻ ഇവിടെ ക്ലിക്ക് ചെയ്യുക.</p>
     </div>
 
-<div class="gallery-card" onclick="window.location.href='https://mannanimuhsin-sys.github.io/my-website-1/gyalaryview.html'">
-    <div class="add-btn" onclick="event.stopPropagation(); window.location.href='https://mannanimuhsin-sys.github.io/my-website-1/gyalary.html'">
-        <i class="fas fa-plus"></i>
+<div class="sarga-vedi-premium" onclick="window.location.href='https://mannanimuhsin-sys.github.io/my-website-1/gyalaryview.html'">
+    <div class="sv-bg-glow"></div>
+    
+    <div class="sv-content">
+        <div class="sv-icon">
+            <i class="fas fa-palette"></i>
+        </div>
+        <div class="sv-text">
+            <h2>സർഗ്ഗവേദി ഡിജിറ്റൽ ഗാലറി</h2>
+            <p>വിദ്യാർത്ഥികളുടെ സർഗ്ഗവാസനകൾ കാണാനും പങ്കുവെക്കാനും ഇവിടെ ക്ലിക്ക് ചെയ്യുക</p>
+        </div>
     </div>
     
-    <i class="fas fa-palette fa-3 -3x" style="opacity: 0.8;"></i>
-    <h2>സർഗ്ഗവേദി ഡിജിറ്റൽ ഗാലറി</h2>
-    <p>വിദ്യാർത്ഥികളുടെ സർഗ്ഗവാസനകൾ കാണാനും പങ്കുവെക്കാനും ഇവിടെ ക്ലിക്ക് ചെയ്യുക</p>
+    <div class="sv-add-btn" onclick="event.stopPropagation(); window.location.href='https://mannanimuhsin-sys.github.io/my-website-1/gyalary.html'">
+        <i class="fas fa-plus"></i>
+    </div>
 </div>
 
 <div class="tea-card-main">
