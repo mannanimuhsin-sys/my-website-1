@@ -49,9 +49,91 @@
     <style>
         /* നിങ്ങളുടെ സിഎസ്എസ് സ്റ്റൈലുകൾ ഇവിടെ തുടരും */
         body{ background:#f4f7f6; font-family: 'Poppins', sans-serif; }
-        .jumbotron{
-            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url("madrasa.jpg");
-            background-size:cover; background-position:center; color:white; padding:70px 10px; border-radius: 0 0 30px 30px;
+        /* --- PREMIUM HERO SECTION --- */
+        .premium-hero {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            background-image: url("madrasa.jpg");
+            background-size: cover;
+            background-position: center;
+            border-radius: 0 0 45px 45px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 35px;
+        }
+        .hero-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(20,30,48,0.7) 0%, rgba(36,59,85,0.4) 50%, rgba(25,135,84,0.85) 100%);
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            padding: 0 20px;
+            width: 100%;
+            animation: fadeInDown 1.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .hero-logo-wrap {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 18px auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 50%;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transition: transform 0.4s ease;
+        }
+        .hero-logo-wrap:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+        .hero-logo-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2));
+        }
+        .hero-title {
+            font-size: 26px;
+            font-weight: 900;
+            margin: 0 0 12px 0;
+            letter-spacing: 1px;
+            text-shadow: 2px 4px 8px rgba(0,0,0,0.4);
+            font-family: 'Poppins', sans-serif;
+            text-transform: uppercase;
+            line-height: 1.3;
+        }
+        .hero-subtitle-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            letter-spacing: 0.5px;
+        }
+        .pill-divider { color: #ffd700; font-size: 16px; font-weight: 900; }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .box{ background:white; padding:20px; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.05); margin-bottom:20px; border-top: 4px solid #198754; }
 .eid-card { background: linear-gradient(135deg, #ffd700, #8e44ad);  color: white;  padding: 25px;  border-radius: 15px; text-align: center;  margin-bottom: 25px;  cursor: pointer; transition: 0.3s;  box-shadow: 0 6px 15px rgba(142,68,173,0.4);  border: 2px solid rgba(255,215,0,0.5); }
@@ -349,9 +431,19 @@
 </head>
 <body>
 
-<div class="jumbotron text-center">
-    <h1>MISBAHUL ULOOM MADRASA</h1>
-    <p>Peruvana | Under SKIMVB Reg.No: 4224</p>
+<div class="premium-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-logo-wrap">
+            <img src="madrasa-logo.png" alt="Madrasa Logo">
+        </div>
+        <h1 class="hero-title">MISBAHUL ULOOM MADRASA</h1>
+        <div class="hero-subtitle-pill">
+            <span><i class="fas fa-map-marker-alt" style="color: #ffd700;"></i> Peruvana</span>
+            <span class="pill-divider">•</span>
+            <span>SKIMVB Reg.No: 4224</span>
+        </div>
+    </div>
 </div>
 
     <div id="liveNoticeBox" class="live-notice-card" onclick="window.location.href='notice.html'">
