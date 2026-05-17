@@ -68,24 +68,44 @@
         #donorDisplay { display: none; margin-top: 15px; padding: 15px; background: #fffcfc; border: 1px solid #f5c6cb; border-radius: 12px; }
         .donor-card { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; }
         
-        .contact-card { background: white; padding: 15px; border-radius: 12px; border-left: 5px solid #198754; margin-bottom: 15px; }
-        .contact-btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .contact-btn { flex: 1; padding: 8px; text-align: center; border-radius: 6px; color: white; font-size: 18px; }
-        .btn-call { background: #007bff; } .btn-wa { background: #25d366; }
+        .contact-section-title { text-align: center; font-size: 18px; font-weight: 800; color: #2d3436; margin: 30px 0 15px 0; }
+        .contact-card-premium { background: #ffffff; border-radius: 16px; padding: 15px; margin: 0 auto 12px auto; width: 90%; max-width: 600px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.03); transition: transform 0.2s; }
+        .contact-card-premium:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .cp-info { display: flex; flex-direction: column; justify-content: center; padding-left: 12px; }
+        .cp-title { font-size: 10px; color: #8395a7; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+        .cp-name { font-size: 15px; font-weight: 800; color: #2d3436; margin: 0; }
+        .cp-actions { display: flex; gap: 10px; }
+        .cp-btn { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: 0.3s; text-decoration: none !important; }
+        .cp-btn-call { background: #e3f2fd; color: #007bff; border: 1px solid #bbdefb; }
+        .cp-btn-call:hover { background: #007bff; color: white; }
+        .cp-btn-wa { background: #e8f5e9; color: #25d366; border: 1px solid #c8e6c9; }
+        .cp-btn-wa:hover { background: #25d366; color: white; }
         footer{ background:#2c3e50; color:#fff; padding:20px; text-align:center; margin-top:40px; }
 
         .live-notice-card { 
-            background: linear-gradient(135deg, #ff4757, #ff6b81); 
-            color: white; padding: 20px; border-radius: 15px; 
-            text-align: center; margin-bottom: 25px; cursor: pointer; 
-            transition: 0.3s; box-shadow: 0 4px 15px rgba(255,71,87,0.4);
-            animation: pulse-red 2s infinite; display: none; 
+            background: #ffffff; 
+            border-radius: 16px; 
+            padding: 15px 20px; 
+            margin: 0 auto 25px auto; 
+            width: 90%; 
+            max-width: 600px; 
+            display: none; 
+            align-items: center; 
+            gap: 15px; 
+            cursor: pointer; 
+            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.15); 
+            border: 1px solid rgba(255, 71, 87, 0.2); 
+            border-left: 5px solid #ff4757; 
+            transition: transform 0.3s ease; 
         }
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(255, 71, 87, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
-        }
+        .live-notice-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255, 71, 87, 0.25); }
+        .ln-icon-wrap { width: 45px; height: 45px; background: linear-gradient(135deg, #ff4757, #ff6b81); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; flex-shrink: 0; animation: pulse-red-soft 2s infinite; }
+        .ln-content { flex: 1; text-align: left; }
+        .ln-title { margin: 0 0 3px 0; font-size: 16px; font-weight: 800; color: #2d3436; letter-spacing: 0.5px; }
+        .ln-desc { margin: 0; font-size: 12px; color: #636e72; font-weight: 600; }
+        .ln-arrow { color: #ff4757; font-size: 18px; transition: 0.3s; }
+        .live-notice-card:hover .ln-arrow { transform: translateX(5px); }
+        @keyframes pulse-red-soft { 0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); } }
     /* Executive Sarga Vedi Card */
     .sarga-vedi-premium {
         background: #ffffff;
@@ -334,10 +354,13 @@
     <p>Peruvana | Under SKIMVB Reg.No: 4224</p>
 </div>
 
-    <div id="liveNoticeBox" class="live-notice-card" onclick="window.location.href='notice.html'" style="border-radius: 15px; margin: 0 auto 25px auto; width: 90%; max-width: 600px; z-index: 1000;">
-        <i class="fas fa-bullhorn fa-2x"></i>
-        <h2 id="liveNoticeTitle" style="margin: 10px 0 5px; font-weight: 800; font-size: 20px;">LIVE NOTICE BOARD</h2>
-        <p id="liveNoticeDesc" style="margin: 0; font-size: 14px;">പുതിയ അറിയിപ്പുകൾ ഉണ്ട്. കാണാൻ ഇവിടെ ക്ലിക്ക് ചെയ്യുക.</p>
+    <div id="liveNoticeBox" class="live-notice-card" onclick="window.location.href='notice.html'">
+        <div class="ln-icon-wrap"><i class="fas fa-bullhorn"></i></div>
+        <div class="ln-content">
+            <h2 id="liveNoticeTitle" class="ln-title">LIVE NOTICE BOARD</h2>
+            <p id="liveNoticeDesc" class="ln-desc">പുതിയ അറിയിപ്പുകൾ ഉണ്ട്. കാണാൻ ഇവിടെ ക്ലിക്ക് ചെയ്യുക.</p>
+        </div>
+        <div class="ln-arrow"><i class="fas fa-chevron-right"></i></div>
     </div>
 
 <div class="sarga-vedi-premium" onclick="window.location.href='https://mannanimuhsin-sys.github.io/my-website-1/gyalaryview.html'">
@@ -423,8 +446,8 @@
 </div>
     </div>
 
-    <div class="box">
-        <h3 class="text-center">🩸 Blood Bank</h3>
+    <div class="box premium-box" style="width: 90%; max-width: 600px; margin: 0 auto 25px auto; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.03); border-top: 5px solid #d9534f; background: #ffffff;">
+        <h3 class="text-center" style="font-weight: 800; font-size: 18px; color: #2d3436; margin-bottom: 20px;"><i class="fas fa-tint" style="color: #d9534f;"></i> Blood Bank</h3>
         <div class="blood-grid">
             <div class="blood-btn" onclick="fetchDonors('A+')">A+</div>
             <div class="blood-btn" onclick="fetchDonors('A-')">A-</div>
@@ -437,29 +460,44 @@
         </div>
 
         <div id="donorDisplay">
-            <h4 id="donorTitle" class="text-center" style="color:#d9534f"></h4>
+            <h4 id="donorTitle" class="text-center" style="color:#d9534f; font-weight: bold; font-size: 16px;"></h4>
             <div id="donorList"></div>
         </div>
-        <hr>
-        <h4>🩸 രജിസ്റ്റർ ചെയ്യുക</h4>
-        <form id="bloodBankForm">
-            <input type="text" class="form-control" id="bbName" placeholder="പേര്" required><br>
-            <input type="tel" class="form-control" id="bbPhone" placeholder="മൊബൈൽ" required><br>
-            <input type="text" class="form-control" id="bbAddress" placeholder="സ്ഥലം" required><br>
-            <select class="form-control" id="bbGroup" required>
-                <option value="">ബ്ലഡ് ഗ്രൂപ്പ്</option>
-                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
-                <option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
-            </select><br>
-            <button type="submit" class="btn btn-danger btn-block">Submit Donor</button>
-        </form>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="document.getElementById('registerBloodSection').style.display = 'block'; this.style.display = 'none';" class="btn" style="background: #fff0f0; color: #d9534f; border: 1px solid #ffcaca; border-radius: 50px; font-weight: bold; padding: 8px 20px;"><i class="fas fa-plus"></i> പുതിയ രജിസ്റ്റർ</button>
+        </div>
+        
+        <div id="registerBloodSection" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #ddd;">
+            <h4 style="font-size: 15px; font-weight: bold; color: #2d3436; text-align: center; margin-bottom: 15px;">🩸 രജിസ്റ്റർ ചെയ്യുക</h4>
+            <form id="bloodBankForm">
+                <input type="text" class="form-control" id="bbName" placeholder="പേര്" required style="border-radius: 10px; margin-bottom: 10px;">
+                <input type="tel" class="form-control" id="bbPhone" placeholder="മൊബൈൽ" required style="border-radius: 10px; margin-bottom: 10px;">
+                <input type="text" class="form-control" id="bbAddress" placeholder="സ്ഥലം" required style="border-radius: 10px; margin-bottom: 10px;">
+                <select class="form-control" id="bbGroup" required style="border-radius: 10px; margin-bottom: 15px;">
+                    <option value="">ബ്ലഡ് ഗ്രൂപ്പ്</option>
+                    <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                    <option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
+                </select>
+                <button type="submit" class="btn btn-danger btn-block" style="border-radius: 10px; font-weight: bold; background: linear-gradient(135deg, #ff4757, #ff6b81); border: none; box-shadow: 0 4px 10px rgba(255,71,87,0.3);">Submit Donor</button>
+            </form>
+        </div>
     </div>
 
-    <h3 class="text-center">📞 ബന്ധപ്പെടുക</h3>
-    <div class="row">
-        <div class="col-sm-4"><div class="contact-card"><small>സദർ മുഅല്ലിം</small><h4>മുഹ്സിൻ മന്നാനി</h4><div class="contact-btn-group"><a href="tel:7559950633" class="contact-btn btn-call"><i class="fas fa-phone"></i></a><a href="https://wa.me/917559950633" class="contact-btn btn-wa"><i class="fab fa-whatsapp"></i></a></div></div></div>
-        <div class="col-sm-4"><div class="contact-card" style="border-left-color: #007bff;"><small>സെക്രട്ടറി</small><h4>മൊയ്‌ദു പി.കെ</h4><div class="contact-btn-group"><a href="tel:8304016701" class="contact-btn btn-call"><i class="fas fa-phone"></i></a><a href="https://wa.me/918304016701" class="contact-btn btn-wa"><i class="fab fa-whatsapp"></i></a></div></div></div>
-        <div class="col-sm-4"><div class="contact-card" style="border-left-color: #f1c40f;"><small>മദ്രസ ഇൻ ചാർജ്</small><h4>ജംഷീർ ദാരിമി</h4><div class="contact-btn-group"><a href="tel:9746969716" class="contact-btn btn-call"><i class="fas fa-phone"></i></a><a href="https://wa.me/919746969716" class="contact-btn btn-wa"><i class="fab fa-whatsapp"></i></a></div></div></div>
+    <h3 class="contact-section-title"><i class="fas fa-headset" style="color:#007bff;"></i> ബന്ധപ്പെടുക</h3>
+    <div style="padding-bottom: 20px;">
+        <div class="contact-card-premium" style="border-left: 4px solid #198754;">
+            <div class="cp-info"><span class="cp-title">സദർ മുഅല്ലിം</span><h4 class="cp-name">മുഹ്സിൻ മന്നാനി</h4></div>
+            <div class="cp-actions"><a href="tel:7559950633" class="cp-btn cp-btn-call"><i class="fas fa-phone"></i></a><a href="https://wa.me/917559950633" class="cp-btn cp-btn-wa"><i class="fab fa-whatsapp"></i></a></div>
+        </div>
+        <div class="contact-card-premium" style="border-left: 4px solid #007bff;">
+            <div class="cp-info"><span class="cp-title">സെക്രട്ടറി</span><h4 class="cp-name">മൊയ്‌ദു പി.കെ</h4></div>
+            <div class="cp-actions"><a href="tel:8304016701" class="cp-btn cp-btn-call"><i class="fas fa-phone"></i></a><a href="https://wa.me/918304016701" class="cp-btn cp-btn-wa"><i class="fab fa-whatsapp"></i></a></div>
+        </div>
+        <div class="contact-card-premium" style="border-left: 4px solid #f1c40f;">
+            <div class="cp-info"><span class="cp-title">മദ്രസ ഇൻ ചാർജ്</span><h4 class="cp-name">ജംഷീർ ദാരിമി</h4></div>
+            <div class="cp-actions"><a href="tel:9746969716" class="cp-btn cp-btn-call"><i class="fas fa-phone"></i></a><a href="https://wa.me/919746969716" class="cp-btn cp-btn-wa"><i class="fab fa-whatsapp"></i></a></div>
+        </div>
     </div>
 </div>
 <div class="admin-box">
@@ -579,7 +617,7 @@ window.addEventListener('appinstalled', () => {
         if (doc.exists) {
             const data = doc.data();
             if (data && data.title && data.title.trim() !== "") {
-                noticeBox.style.display = "block";
+                noticeBox.style.display = "flex";
                 noticeTitleDisplay.innerText = data.title;
                 // Add Red App Badge (Red Dot Notification)
                 if (navigator.setAppBadge) {
