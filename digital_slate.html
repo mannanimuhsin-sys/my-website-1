@@ -97,6 +97,7 @@
             border: 2px solid #222;
             border-radius: 12px;
             overflow: hidden;
+            touch-action: none;
         }
 
         canvas {
@@ -107,6 +108,7 @@
             height: 100%;
             z-index: 2;
             cursor: crosshair;
+            touch-action: none;
         }
 
         /* പശ്ചാത്തലത്തിലെ അക്ഷരം (Trace Text) */
@@ -243,6 +245,7 @@
 
         // എഴുതാനുള്ള പ്രധാന ഫങ്ഷനുകൾ (Mouse & Touch)
         function startDrawing(e) {
+            if (e.cancelable) e.preventDefault();
             drawing = true;
             ctx.beginPath();
             const pos = getPos(e);
@@ -251,7 +254,7 @@
 
         function draw(e) {
             if (!drawing) return;
-            e.preventDefault();
+            if (e.cancelable) e.preventDefault();
             const pos = getPos(e);
             
             ctx.lineWidth = isEraser ? 30 : strokeWidth;
