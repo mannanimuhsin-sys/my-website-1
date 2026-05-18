@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Strength Admin - Always Editable</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; padding: 15px; }
+        .container { max-width: 1100px; margin: auto; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th, td { border: 1px solid #dee2e6; padding: 10px; text-align: center; }
+        th { background: #2c3e50; color: #fff; }
+        
+        /* Input Styles */
+        input { width: 90%; padding: 8px; border: 1px solid #3498db; border-radius: 4px; text-align: center; font-size: 14px; }
+        input:focus { outline: 2px solid #2ecc71; border: none; }
+        .usthad-input { text-align: left; width: 95%; }
+        
+        .total-cell { font-weight: bold; color: #198754; background: #e9f7ef; }
+        .grand-total { background: #2c3e50 !important; color: white !important; font-weight: bold; }
+        
+        .save-bar { position: sticky; top: 0; background: #fff; padding: 15px; text-align: center; z-index: 100; border-bottom: 2px solid #3498db; margin-bottom: 10px; border-radius: 10px; }
+        .btn-save { background: #27ae60; color: white; border: none; padding: 12px 30px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .btn-save:hover { background: #219150; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="save-bar">
+        <button class="btn-save" onclick="saveToSystem()"><i class="fas fa-save"></i> SAVE ALL CHANGES</button>
+        <p style="margin: 5px 0 0; font-size: 12px; color: #666;">വിവരങ്ങൾ മാറ്റിയ ശേഷം സേവ് ബട്ടൺ അമർത്തുക.</p>
+    </div>
+
+    <h2>വിദ്യാർത്ഥി വിവര പട്ടിക (ADMIN)</h2>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th rowspan="2">CLASS</th>
+                    <th colspan="3">വിദ്യാർത്ഥികളുടെ എണ്ണം</th>
+                    <th rowspan="2">CLASS USTHAD</th>
+                    <th rowspan="2">PHONE NUMBER</th>
+                </tr>
+                <tr>
+                    <th>BOYS</th>
+                    <th>GIRLS</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tbody id="adminTableBody">
+                </tbody>
+            <tfoot>
+                <tr class="grand-total">
+                    <td>ആകെ</td>
+                    <td id="finalBoys">0</td>
+                    <td id="finalGirls">0</td>
+                    <td id="finalTotal">0</td>
+                    <td colspan="2">System Calculated</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Default Data
+    let classData = [
+        { class: "I", boys: 3, girls: 3, usthad: "SAITHALAVI FAIZY IRFANI", phone: "9447483109" },
+        { class: "II", boys: 8, girls: 6, usthad: "ABDU RAHMAN BADRI", phone: "7695020736" },
+        { class: "III", boys: 12, girls: 8, usthad: "ABDUL JALEEL FAIZY IRFANI", phone: "9961292787" },
+        { class: "IV", boys: 6, girls: 7, usthad: "MUHSIN MANNANI", phone: "7559950633" },
+        { class: "V", boys: 7, girls: 9, usthad: "ABDUL JALEEL FAIZY IRFANI", phone: "9961292787" },
+        { class: "VI", boys: 1, girls: 2, usthad: "ABDU RAHMAN BADRI", phone: "7695020736" },
+        { class: "VII", boys: 6, girls: 5, usthad: "MUHSIN MANNANI", phone: "7559950633" },
+        { class: "VIII", boys: 7, girls: 7, usthad: "SAITHALAVI FAIZY IRFANI", phone: "9447483109" },
+        { class: "IX", boys: 1, girls: 4, usthad: "ABDUL JALEEL FAIZY IRFANI", phone: "9961292787" },
+        { class: "X", boys: 2, girls: 2, usthad: "MUHSIN MANNANI", phone: "7559950633" }
+    ];
+
+    // ലോക്കൽ സ്റ്റോറേജിൽ നിന്ന് പഴയ ഡാറ്റ ഉണ്ടെങ്കിൽ അത് എടുക്കുന്നു
+    if(localStorage.getItem('madrasaData')) {
+        classData = JSON.parse(localStorage.getItem('madrasaData'));
+    }
+
+    function buildTable() {
+        let rows = "";
+        classData.forEach((item, index) => {
+            rows += `
+            <tr>
+                <td><b>${item.class}</b></td>
+                <td><input type="number" value="${item.boys}" oninput="updateData(${index}, 'boys', this.value)"></td>
+                <td><input type="number" value="${item.girls}" oninput="updateData(${index}, 'girls', this.value)"></td>
+                <td class="total-cell" id="rowTotal_${index}">${parseInt(item.boys) + parseInt(item.girls)}</td>
+                <td><input type="text" class="usthad-input" value="${item.usthad}" oninput="updateData(${index}, 'usthad', this.value)"></td>
+                <td><input type="tel" value="${item.phone}" oninput="updateData(${index}, 'phone', this.value)"></td>
+            </tr>`;
+        });
+        document.getElementById('adminTableBody').innerHTML = rows;
+        calculateGrandTotal();
+    }
+
+    function updateData(index, field, value) {
+        classData[index][field] = value;
+        
+        // ഓരോ വരിയിലെയും ടോട്ടൽ ഉടൻ മാറ്റുന്നു
+        if(field === 'boys' || field === 'girls') {
+            let b = parseInt(classData[index].boys) || 0;
+            let g = parseInt(classData[index].girls) || 0;
+            document.getElementById(`rowTotal_${index}`).innerText = b + g;
+            calculateGrandTotal();
+        }
+    }
+
+    function calculateGrandTotal() {
+        let tb = 0, tg = 0, tt = 0;
+        classData.forEach(item => {
+            let b = parseInt(item.boys) || 0;
+            let g = parseInt(item.girls) || 0;
+            tb += b;
+            tg += g;
+            tt += (b + g);
+        });
+        document.getElementById('finalBoys').innerText = tb;
+        document.getElementById('finalGirls').innerText = tg;
+        document.getElementById('finalTotal').innerText = tt;
+    }
+
+    function saveToSystem() {
+        localStorage.setItem('madrasaData', JSON.stringify(classData));
+        alert("വിവരങ്ങൾ വിജയകരമായി സേവ് ചെയ്തു!");
+    }
+
+    buildTable();
+</script>
+
+</body>
+</html>

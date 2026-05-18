@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ml">
 <head>
     <meta charset="utf-8">
@@ -421,12 +421,13 @@
     .card-exam .exec-icon-wrap { background: linear-gradient(135deg, #F2994A, #F2C94C); box-shadow: 0 6px 15px rgba(242,153,74,0.3); }
     .card-exam .exec-btn { background: #e67e22; box-shadow: 0 4px 10px rgba(230,126,34,0.2); }
 
-    .card-quiz { border-bottom: 4px solid #c0392b; grid-column: 1 / -1; }
+    .card-quiz { border-bottom: 4px solid #c0392b; }
     .card-quiz .exec-icon-wrap { background: linear-gradient(135deg, #FF416C, #FF4B2B); box-shadow: 0 6px 15px rgba(255,65,108,0.3); }
     .card-quiz .exec-btn { background: #c0392b; box-shadow: 0 4px 10px rgba(192,57,43,0.2); }
-    @media (min-width: 600px) {
-        .card-quiz { grid-column: span 1; }
-    }
+
+    .card-slate { border-bottom: 4px solid #16a085; }
+    .card-slate .exec-icon-wrap { background: linear-gradient(135deg, #16a085, #1abc9c); box-shadow: 0 6px 15px rgba(22,160,133,0.3); }
+    .card-slate .exec-btn { background: #16a085; box-shadow: 0 4px 10px rgba(22,160,133,0.2); }
     </style>
 </head>
 <body>
@@ -507,6 +508,13 @@
         <h4 class="exec-title">Special Day Quiz</h4>
         <p class="exec-subtitle">ONLINE COMPETITION</p>
         <div class="exec-btn">Open Quiz</div>
+    </div>
+
+    <div onclick="window.location.href='digital_slate.html'" class="exec-card card-slate" style="cursor: pointer;">
+        <div class="exec-icon-wrap"><i class="fas fa-chalkboard"></i></div>
+        <h4 class="exec-title">Digital Slate</h4>
+        <p class="exec-subtitle">ഡിജിറ്റൽ സ്ലേറ്റ്</p>
+        <div class="exec-btn">Open Slate</div>
     </div>
 </div>
     </div>
