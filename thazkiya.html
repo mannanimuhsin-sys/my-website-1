@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THAZKIYA - Prayer Learning App</title>
+    <style>
+        :root {
+            --primary-color: #0f5132;
+            --secondary-color: #198754;
+            --background-color: #f4f9f4;
+            --card-color: #ffffff;
+            --text-color: #212529;
+            --accent-color: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 25px 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 3rem;
+            letter-spacing: 4px;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-color);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            padding: 35px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid #e1efe1;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .welcome-screen p {
+            margin-bottom: 25px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* Study Screen Styles */
+        .title-badge {
+            background-color: #e8f5e9;
+            color: var(--primary-color);
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        /* SVG Illustration Container */
+        .illustration-container {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px auto;
+            background: #f0f7f0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px dashed var(--secondary-color);
+        }
+
+        .arabic-text {
+            font-size: 1.8rem;
+            line-height: 2.8rem;
+            direction: rtl;
+            margin: 25px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border-radius: 12px;
+            border-right: 5px solid var(--primary-color);
+            font-family: 'Traditional Arabic', 'Cairo', serif;
+            word-spacing: 4px;
+        }
+
+        /* Timer Styles */
+        .timer-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffeba2;
+            color: #856404;
+            padding: 12px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e9ecef;
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background-color: var(--secondary-color);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(15, 81, 50, 0.3);
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(25, 135, 84, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .completion-screen {
+            color: var(--primary-color);
+        }
+
+        .completion-screen h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>THAZKIYA</h1>
+        <p>നിസ്കാരത്തിലെ ദിക്റുകളും ദുആകളും പഠന സഹായി</p>
+    </header>
+
+    <main>
+        <div id="welcomeScreen" class="container welcome-screen">
+            <h2>പഠനം ആരംഭിക്കാം</h2>
+            <p>നിസ്കാരത്തിലെ പ്രധാനപ്പെട്ട ദിക്റുകളും ദുആകളും ലളിതമായി പഠിച്ചെടുക്കാനുള്ള ഒരു ഡിജിറ്റൽ സഹായിയാണിത്. ഓരോ ഭാഗവും നന്നായി പഠിച്ചുറപ്പിക്കാൻ 3 ദിവസത്തെ സമയം ലഭിക്കുന്നതാണ്.</p>
+            <button class="btn" onclick="startLearning()">START</button>
+        </div>
+
+        <div id="studyScreen" class="container hidden">
+            <div class="progress-bar-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            
+            <div id="titleBadge" class="title-badge">നിയ്യത്ത്</div>
+
+            <div class="illustration-container" id="illustration">
+                </div>
+
+            <div id="arabicContent" class="arabic-text">
+                أُصَلَّى فَرْضَ الصُّبْحِ رَകْعَتَيْنِ مُتَوَجِهَا إِلَى الْقِبْلَةِ لِلَّهِ تَعَالَى أَدَاءَ
+            </div>
+
+            <div class="timer-box">
+                <span>⏳ സമയപരിധി: 3 ദിവസം</span> 
+                <span id="countdownDisplay" style="font-weight: bold; color: var(--accent-color); margin-left: 10px;">(ബാക്കി സമയം: 2 ദി, 23 മണി)</span>
+            </div>
+
+            <button class="btn" onclick="nextStep()">പഠിച്ചു കഴിഞ്ഞു (Next)</button>
+        </div>
+
+        <div id="completionScreen" class="container completion-screen hidden">
+            <h2>അൽഹംദുലില്ലാഹ്! 🎉</h2>
+            <p style="font-size: 1.2rem; margin: 20px 0; color: #333;">നിങ്ങൾ നിസ്കാരത്തിലെ പ്രധാനപ്പെട്ട എല്ലാ ദിക്റുകളും ദുആകളും വിജയകരമായി പഠിച്ചു പൂർത്തിയാക്കിയിരിക്കുന്നു.</p>
+            <button class="btn" onclick="restartLearning()">വീണ്ടും പഠിക്കുക</button>
+        </div>
+    </main>
+
+    <script>
+        // PDF-ൽ നിന്നുള്ള വിവരങ്ങൾ ഘട്ടം ഘട്ടമായി (ചിത്രങ്ങളുടെ പ്രതീകാത്മക രൂപങ്ങളോടെ)
+        const learningData = [
+            {
+                title: "1. നിയ്യത്ത് (സുബ്ഹ്)",
+                arabic: "أُصَلَّى فَرْضَ الصُّبْحِ رَكْعَتَيْنِ مُتَوَجِهَا إِلَى الْقِبْلَةِ أَدَاءً لِلَّهِ تَعَالَى",
+                // നിൽക്കുന്ന രൂപം (Standing Position)
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80"><circle cx="50" cy="20" r="10" fill="#0f5132"/><path d="M50 30 v35 M40 35 h20 M45 65 v25 M55 65 v25" stroke="#0f5132" stroke-width="6" stroke-linecap="round"/></svg>`
+            },
+            {
+                title: "2. വജ്ജഹ്ത്തു (വജ്ജഹ്തു ദുആ)",
+                arabic: "وَجَّهْتُ وَجْهِيَ لِلَّذِي فَطَرَ السَّمَاوَاتِ وَالْأَرْضَ حَنِيفًا مُسْلِمًا وَمَا أَنَا مِنَ الْمُشْرِكِينَ إِنَّ صَلَاتِي وَنُسُكِي وَمَحْيَايَ وَمَمَاتِي لِلَّهِ رَبِّ الْعَالَمِينَ لَا شَرِيكَ لَهُ وَبِذَالِكَ أُمِرْتُ وَأَنَا مِنَ الْمُسْلِمِينَ",
+                // കൈ കെട്ടി നിൽക്കുന്ന രൂപം (Hands Folded)
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80"><circle cx="50" cy="20" r="10" fill="#0f5132"/><path d="M50 30 v35 M43 38 h14 M45 65 v25 M55 65 v25" stroke="#0f5132" stroke-width="6" stroke-linecap="round"/></svg>`
+            },
+            {
+                title: "3. റുകൂഹ്",
+                arabic: "سُبْحَانَ رَبِّيَ الْعَظِيمِ وَبِحَمْدِهِ (3 തവണ)",
+                // റുകൂഹ് രൂപം (Bowing Position)
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80"><circle cx="30" cy="35" r="10" fill="#0f5132"/><path d="M50 65 h-20 v-20 M45 65 v25 M55 65 v25" stroke="#0f5132" stroke-width="6" stroke-linecap="round"/></svg>`
+            },
+            {
+                title: "4. ഇഹ്തിദാൽ",
+                arabic: "رَبَّنَا لَكَ الْحَمْدُ مِلْءَ السَّمَوَاتِ وَمِلْءَ الْأَرْضِ وَمِلْ عَمَاشِئْتَ مِنْ شَيْءٍ بَعْدُ",
+                // റുകൂഹിൽ നിന്ന് നിവർന്നു നിൽക്കൽ
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80"><circle cx="50" cy="20" r="10" fill="#0f5132"/><path d="M50 30 v35 M38 45 v-10 M62 45 v-10 M45 65 v25 M55 65 v25" stroke="#0f5132" stroke-width="6" stroke-linecap="round"/></svg>`
+            },
+            {
+                title: "5. സുജൂദ്",
+                arabic: "سُبْحَانَ رَبِّيَ الْأَعْلَى وَبِحَمْدِهِ (3 തവണ)",
+                // സുജൂദ് രൂപം (Prostration)
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80"><circle cx="25" cy="75" r="9" fill="#0f5132"/><path d="M65 80 h-30 v-15 l-10 10" stroke="#0f5132" stroke-width="6" stroke-linecap="round" fill="none"/></svg>`
+            },
+            {
+                title: "6. ഇടയിലെ ഇരുത്തം",
+                arabic: "رَبِّ اغْفِرْ لِي وَارْحَمْنِي وَاجْبُرْنِي وَارْفَعْنِي وَارْზُقْنِي وَهْدِنِي وَعَافِنِي",
+                // ഇരുത്തം (Sitting Position)
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80"><circle cx="45" cy="40" r="10" fill="#0f5132"/><path d="M45 50 v20 h20 M40 70 h25" stroke="#0f5132" stroke-width="6" stroke-linecap="round" fill="none"/></svg>`
+            },
+            {
+                title: "7. അത്തഹിയ്യാത്ത്",
+                arabic: "التَّحِيَّاتُ الْمُبَارَكَاتُ الصَّلَوَاتُ الطَّيِّبَاتُ لِلَّهِ - السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ - السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ - أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا الله وَأَشْهَدُ അَنَّ مُحَمَّدًا رَسُولُ الله",
+                // ചൂണ്ടുവിരൽ നീട്ടിയുള്ള ഇരുത്തം
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80"><circle cx="45" cy="40" r="10" fill="#0f5132"/><path d="M45 50 v20 h20 M55 58 h10" stroke="#0f5132" stroke-width="6" stroke-linecap="round" fill="none"/></svg>`
+            },
+            {
+                title: "8. സ്വലാത്ത്",
+                arabic: "اللَّهُمْ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِ سَيِّദِنَا مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ وَبَارِكْ عَلَى സَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِ سَيِّدِنَا مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ فِي الْعَالَمِينَ إِنَّكَ حَمِيدٌ مَجِيدٌ",
+                // ഇരുത്തം തുടരുന്നു
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80"><circle cx="45" cy="40" r="10" fill="#0f5132"/><path d="M45 50 v20 h20" stroke="#0f5132" stroke-width="6" stroke-linecap="round" fill="none"/></svg>`
+            },
+            {
+                title: "9. സ്വലാത്തിന് ശേഷമുള്ള ദുആ",
+                arabic: "اَللَّهُمَّ اغْفِرْ لِي مَا قَدَّمْتُ وَمَا أَخَرْتُ وَمَا أَسْرَرْتُ وَمَا أَعْلَنْتُ وَمَا أَسْرَفْتُ وَمَا أَنْتَ أَعْلَمُ بِهِ مِنِّي إِنَّكَ أَنْتَ الْمُقَدِّمُ وَأَنْتَ الْمُؤَخِّرُ لَا إِلَهَ إِلَّا أَنْتَ താല്പര്യമുണ്ടെങ്കിൽ ഓതാം: اَللهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عَذَابِ الْقَبْرِ وَمِنْ عَذَابِ النَّارِ وَمِنْ فِتْنَةِ الْمَحْيَا وَالْمَمАТِ وَمِنْ فِتْنَةِ الْمَسِيحِ الدَّجَّالِ",
+                // പ്രാർത്ഥിക്കുന്ന രൂപം
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80"><circle cx="45" cy="40" r="10" fill="#0f5132"/><path d="M45 50 v20 h20 M50 48-5 5" stroke="#0f5132" stroke-width="5" stroke-linecap="round" fill="none"/></svg>`
+            },
+            {
+                title: "10. ഖുനൂത്ത് (സുബ്ഹ് നിസ്കാരത്തിൽ)",
+                arabic: "اللَّهُمَّ اهْدِنِي فِيمَنْ هَدَيْتَ وَعَافِنِي فِيمَنْ عَافَيْتَ وَتَوَلَّنِي فِيمَنْ تَوَلَّيتَ وَبَارِكْ لِي فِيمَا أَعْطَيْتَ وَقِنِي شَرِّ مَا قَضَيْتَ فَإِنَّكَ تَقْضِي وَلَا يُقْضَى عَلَيْكَ وَإِنَّهُ لَا يَذِلُّ مَنْ وَالَيْتَ وَلَا يَعِزُّ مَنْ عَادَيْتَ تَبَارَكْتَ رَبِّنَا وَتَعَالَيْتَ فَلَكَ الْحَمْدُ عَلَى مَا قَضَيْتَ اسْتَغْفِرُكَ وَأَتُوبُ إِلَيْكَ وَصَلَّى اللهُ عَلَى خَيْرِ خَلْقِهِ سَيِّദِنَا مُحَمَّدٍ النَّبِيِّ الْأُمِّيِّ وَعَلَى آلِهِ وَصَحْبِهِ وَسَلَّمَ",
+                // കൈകൾ ഉയർത്തി ദുആ ചെയ്യുന്ന രൂപം
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80"><circle cx="50" cy="20" r="10" fill="#0f5132"/><path d="M50 30 v35 M38 35 q12-10 12 0 M62 35 q-12-10 -12 0 M45 65 v25 M55 65 v25" stroke="#0f5132" stroke-width="5" stroke-linecap="round" fill="none"/></svg>`
+            }
+        ];
+
+        let currentStep = 0;
+        let timerInterval;
+
+        function startLearning() {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('studyScreen').classList.remove('hidden');
+            loadStep(0);
+        }
+
+        function loadStep(stepIndex) {
+            if (stepIndex >= learningData.length) {
+                showCompletion();
+                return;
+            }
+
+            currentStep = stepIndex;
+            const data = learningData[stepIndex];
+
+            // UI അപ്ഡേറ്റ് ചെയ്യുന്നു
+            document.getElementById('titleBadge').innerText = data.title;
+            document.getElementById('arabicContent').innerText = data.arabic;
+            document.getElementById('illustration').innerHTML = data.svg;
+
+            // പ്രോഗ്രസ് ബാർ മാറ്റുന്നു
+            const progressPercent = ((stepIndex) / learningData.length) * 100;
+            document.getElementById('progressBar').style.width = `${progressPercent}%`;
+
+            // 3 ദിവസത്തെ കൗണ്ട്ഡൗൺ ടൈമർ സെറ്റ് ചെയ്യുന്നു (ടെസ്റ്റിംഗിനായി ലളിതമാക്കിയത്)
+            startCountdown();
+        }
+
+        function startCountdown() {
+            clearInterval(timerInterval);
+            let totalHours = 72; // 3 ദിവസം = 72 മണിക്കൂർ
+            let totalMinutes = 0;
+            let totalSeconds = 0;
+
+            function updateDisplay() {
+                // വെബ്സൈറ്റ് ലൈവ് ആയിരിക്കുമ്പോൾ കുട്ടികൾക്ക് 3 ദിവസത്തെ സമയം കാണിക്കും
+                // ഇവിടെ പ്രതീകാത്മകമായി കുറയുന്നത് കാണാൻ സെക്കന്റുകൾ വെച്ച് ക്രമീകരിച്ചിരിക്കുന്നു
+                if(totalSeconds > 0) {
+                    totalSeconds--;
+                } else {
+                    totalSeconds = 59;
+                    if(totalMinutes > 0) {
+                        totalMinutes--;
+                    } else {
+                        totalMinutes = 59;
+                        if(totalHours > 0) {
+                            totalHours--;
+                        }
+                    }
+                }
+                
+                let days = Math.floor(totalHours / 24);
+                let hours = totalHours % 24;
+                
+                document.getElementById('countdownDisplay').innerText = `(ബാക്കി സമയം: ${days} ദി, ${hours} മണി, ${totalMinutes} മി)`;
+            }
+
+            updateDisplay();
+            timerInterval = setInterval(updateDisplay, 60000); // ഓരോ മിനിറ്റിലും അപ്ഡേറ്റ് ചെയ്യും
+        }
+
+        function nextStep() {
+            currentStep++;
+            if (currentStep < learningData.length) {
+                loadStep(currentStep);
+            } else {
+                // പ്രോഗ്രസ് ബാർ 100% ആക്കുന്നു
+                document.getElementById('progressBar').style.width = `100%`;
+                setTimeout(showCompletion, 400);
+            }
+        }
+
+        function showCompletion() {
+            document.getElementById('studyScreen').classList.add('hidden');
+            document.getElementById('completionScreen').classList.remove('hidden');
+            clearInterval(timerInterval);
+        }
+
+        function restartLearning() {
+            document.getElementById('completionScreen').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+            currentStep = 0;
+        }
+    </script>
+</body>
+</html>
