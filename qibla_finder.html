@@ -101,14 +101,20 @@ gap: 6px;
 }
 
 .status{
-background: rgba(10, 255, 141, 0.15);
+background: rgba(212, 175, 55, 0.15);
 padding: 6px 12px;
 border-radius: 20px;
 font-size: 11px;
 font-weight: 700;
-color: #5cffb1;
+color: #ffd700;
 letter-spacing: 0.5px;
-box-shadow: 0 0 10px rgba(10, 255, 141, 0.1);
+box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+}
+
+.status.live {
+background: rgba(10, 255, 141, 0.15);
+color: #5cffb1;
+box-shadow: 0 0 10px rgba(10, 255, 141, 0.15);
 }
 
 .status.manual {
@@ -362,6 +368,21 @@ color:#012413;
 box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
 }
 
+.btn.pulse {
+animation: goldPulse 1.6s infinite alternate;
+}
+
+@keyframes goldPulse {
+0% {
+box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+transform: scale(1);
+}
+100% {
+box-shadow: 0 8px 25px rgba(212, 175, 55, 0.85);
+transform: scale(1.02);
+}
+}
+
 .btn:hover{
 transform:scale(1.025);
 }
@@ -464,7 +485,7 @@ transform: translate(-50%, 0);
 
 <div class="top">
 <div class="title">🕋 Qibla Finder</div>
-<div class="status" id="app-status">LIVE</div>
+<div class="status" id="app-status">OFFLINE</div>
 </div>
 
 <div class="compass-wrapper">
@@ -492,7 +513,7 @@ transform: translate(-50%, 0);
 
 <div class="degree-box" id="degree-box">
 <div class="degree" id="degree">292.4°</div>
-<div class="small" id="facing-label">Facing Qibla Direction</div>
+<div class="small" id="facing-label">ക്ലിക്ക് ചെയ്ത് കോമ്പസ് ഓൺ ചെയ്യുക</div>
 </div>
 
 <div class="guide-tip">
@@ -501,7 +522,7 @@ transform: translate(-50%, 0);
 </div>
 
 <div class="location" id="location">
-📍 Coordinates & Distance: Malappuram | 4,082 km
+📍 Location coordinates will be loaded on click
 </div>
 
 <!-- Manual Simulation Fallback -->
@@ -512,8 +533,8 @@ Manual Mode: Drag dial or use slider to rotate
 <input type="range" id="heading-slider" min="0" max="359" value="0" oninput="onSliderChange(this.value)">
 </div>
 
-<button class="btn" id="btn-find" onclick="findQibla()">
-<i class="fa-solid fa-location-crosshairs"></i> Calibrate / Start Compass
+<button class="btn pulse" id="btn-find" onclick="startFinder()">
+<i class="fa-solid fa-location-crosshairs"></i> 🎯 Align & Start Compass
 </button>
 
 <a href="index.html" class="home-link"><i class="fa-solid fa-house"></i> Go Back to Home Portal</a>
@@ -539,7 +560,7 @@ let qiblaAngle = 292.4;    // Malappuram target Qibla bearing
 let currentHeading = 0;    
 let hasSensor = false;     
 let wasAligned = false;    
-let isAbsoluteMode = false; // Tracks absolute orientation sensor health
+let isAbsoluteMode = false; // Tracks absolute orientation sensor status
 
 const compass = document.getElementById("compass");
 const slider = document.getElementById("heading-slider");
@@ -677,28 +698,66 @@ slider.value = Math.round(currentHeading);
 }
 }
 
-// Sensor logic
-function startCompassTracking() {
-    // 1. Absolute sensor callback (Ideal for Android Chrome)
+// SYNCHRONOUS FLOW - Called directly from user click gesture
+async function startFinder() {
+    showToast("സെൻസറുകൾ ക്രമീകരിക്കുന്നു...");
+    
+    // Stop the gold pulsing animation as the activation has begun
+    document.getElementById("btn-find").classList.remove("pulse");
+    
+    // 1. Immediately request orientation permissions (Synchronously from click!)
+    await requestCompassPermission();
+    
+    // 2. Load high-accuracy GPS coordinates
+    requestGPS();
+}
+
+async function requestCompassPermission() {
+    // iOS Safari 13+ strict click-gesture rule
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+            const state = await DeviceOrientationEvent.requestPermission();
+            if (state === 'granted') {
+                bindOrientationListeners();
+                showToast("കോമ്പസ് സെൻസർ സജീവമായി! 🟢");
+            } else {
+                showToast("കോമ്പസ് അനുമതി നൽകിയില്ല. Manual Mode ആക്റ്റീവ്.");
+                enableManualMode();
+            }
+        } catch(e) {
+            console.error(e);
+            enableManualMode();
+        }
+    } else {
+        // Android, Windows, macOS standard flow
+        bindOrientationListeners();
+    }
+}
+
+function bindOrientationListeners() {
+    // Android Chrome absolute compass sensor
     const handleAbsoluteOrientation = (e) => {
         if (e.alpha !== null) {
             isAbsoluteMode = true;
             hasSensor = true;
-            currentHeading = 360 - e.alpha; // standard W3C alpha is counter-clockwise
+            currentHeading = 360 - e.alpha; 
             document.getElementById("manual-control").style.display = "none";
-            document.getElementById("app-status").innerHTML = "LIVE";
-            document.getElementById("app-status").className = "status";
+            
+            const status = document.getElementById("app-status");
+            status.innerHTML = "LIVE";
+            status.className = "status live";
+            
             updateCompassDOM();
         }
     };
 
-    // 2. Standard sensor callback (Ideal for iOS Webkit)
+    // iOS Safari & general absolute webkit compass
     const handleStandardOrientation = (e) => {
-        if (isAbsoluteMode) return; // Prioritise the absolute orientation sensor
+        if (isAbsoluteMode) return; 
 
         let heading = null;
         if (e.webkitCompassHeading !== undefined) {
-            heading = e.webkitCompassHeading; // iOS Safari absolute heading
+            heading = e.webkitCompassHeading; 
         } else if (e.absolute === true && e.alpha !== null) {
             heading = 360 - e.alpha;
         }
@@ -707,17 +766,19 @@ function startCompassTracking() {
             hasSensor = true;
             currentHeading = heading;
             document.getElementById("manual-control").style.display = "none";
-            document.getElementById("app-status").innerHTML = "LIVE";
-            document.getElementById("app-status").className = "status";
+            
+            const status = document.getElementById("app-status");
+            status.innerHTML = "LIVE";
+            status.className = "status live";
+            
             updateCompassDOM();
         }
     };
 
-    // Standard cross-device listener binding
     window.addEventListener("deviceorientationabsolute", handleAbsoluteOrientation, true);
     window.addEventListener("deviceorientation", handleStandardOrientation, true);
 
-    // Timeout fallback verification
+    // If no sensor updates within 1.5 seconds, activate manual mode
     setTimeout(() => {
         if (!hasSensor) {
             enableManualMode();
@@ -728,8 +789,9 @@ function startCompassTracking() {
 function enableManualMode() {
     hasSensor = false;
     document.getElementById("manual-control").style.display = "block";
-    document.getElementById("app-status").innerHTML = "MANUAL";
-    document.getElementById("app-status").className = "status manual";
+    const status = document.getElementById("app-status");
+    status.innerHTML = "MANUAL";
+    status.className = "status manual";
     updateCompassDOM();
 }
 
@@ -738,7 +800,7 @@ function onSliderChange(val) {
     updateCompassDOM();
 }
 
-// Drag dial to rotate (Fallback)
+// Drag dial to rotate (PC/Fallback)
 let isDragging = false;
 let startAngle = 0;
 let startHeading = 0;
@@ -789,10 +851,9 @@ document.removeEventListener("mouseup", stopDrag);
 document.removeEventListener("touchend", stopDrag);
 }
 
-// Calibrate Location & Sensor Trigger
-function findQibla() {
+// GPS coordinates request
+function requestGPS() {
     if (navigator.geolocation) {
-        showToast("ലൊക്കേഷൻ പരിശോധിക്കുന്നു (GPS)...");
         navigator.geolocation.getCurrentPosition(
             function(position) {
                 userLat = position.coords.latitude;
@@ -803,21 +864,18 @@ function findQibla() {
                 document.getElementById("location").innerHTML = `
                     📍 Malappuram | Lat: ${userLat.toFixed(2)}° | Lng: ${userLng.toFixed(2)}° | ${distanceToKaaba.toLocaleString(undefined, {maximumFractionDigits: 0})} km
                 `;
-                showToast("ലൊക്കേഷൻ അപ്‌ഡേറ്റ് ചെയ്തു! ഖിബ്‌ല കണ്ടെത്തി.");
+                showToast("ലൊക്കേഷൻ ലഭിച്ചു! ഖിബ്‌ല ദിശ ക്രമീകരിച്ചു.");
                 updateCompassDOM();
-                requestCompassPermission();
             },
             function(err) {
-                console.warn(err);
-                showToast("ലൊക്കേഷൻ തടസ്സപ്പെട്ടു. കേരള ലൊക്കേഷൻ ഉപയോഗിക്കുന്നു.");
+                console.warn("GPS failed", err);
+                showToast("ലൊക്കേഷൻ കാണാൻ സാധിച്ചില്ല. കേരളം സെറ്റ് ചെയ്യുന്നു.");
                 fallbackCoordinates();
-                requestCompassPermission();
             },
             { enableHighAccuracy: true, timeout: 5000 }
         );
     } else {
         fallbackCoordinates();
-        requestCompassPermission();
     }
 }
 
@@ -832,46 +890,10 @@ function fallbackCoordinates() {
     updateCompassDOM();
 }
 
-async function requestCompassPermission() {
-    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        try {
-            const state = await DeviceOrientationEvent.requestPermission();
-            if (state === 'granted') {
-                startCompassTracking();
-            } else {
-                showToast("കോമ്പസ് അനുമതി ലഭ്യമല്ല. മാനുവൽ മോഡ് ആക്റ്റീവ്.");
-                enableManualMode();
-            }
-        } catch(e) {
-            console.error(e);
-            enableManualMode();
-        }
-    } else {
-        startCompassTracking();
-    }
-}
-
-// Visual Toast System
-function showToast(message) {
-    let toast = document.getElementById("toast");
-    if (!toast) {
-        toast = document.createElement("div");
-        toast.id = "toast";
-        toast.className = "toast";
-        document.body.appendChild(toast);
-    }
-    toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${message}`;
-    toast.classList.add("active");
-    setTimeout(() => {
-        toast.classList.remove("active");
-    }, 2500);
-}
-
 // Initialise page components
 window.addEventListener("DOMContentLoaded", () => {
     generateCompassTicks();
-    fallbackCoordinates(); // Initialize with Malappuram coordinates initially
-    findQibla();
+    fallbackCoordinates(); 
 });
 
 </script>
