@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0"/>
 
-<title>Premium Qibla Finder</title>
+<title>Qibla Finder</title>
 
 <!-- Font Awesome for sleek modern icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
@@ -37,7 +37,7 @@ position: relative;
 position:absolute;
 width:300px;
 height:300px;
-background:rgba(212, 175, 55, 0.15);
+background:rgba(212, 175, 55, 0.12);
 border-radius:50%;
 top:-50px;
 left:-80px;
@@ -50,7 +50,7 @@ pointer-events: none;
 position:absolute;
 width:300px;
 height:300px;
-background:rgba(10, 255, 141, 0.08);
+background:rgba(10, 255, 141, 0.06);
 border-radius:50%;
 bottom:-80px;
 right:-80px;
@@ -61,7 +61,7 @@ pointer-events: none;
 
 .container{
 width:100%;
-max-width:410px;
+max-width:400px;
 position:relative;
 z-index: 2;
 }
@@ -77,21 +77,22 @@ box-shadow: 0 20px 50px rgba(0,0,0,0.4);
 position: relative;
 overflow: hidden;
 transition: border-color 0.5s ease;
+text-align: center;
 }
 
 .card.aligned {
-border-color: rgba(10, 255, 141, 0.3);
+border-color: rgba(10, 255, 141, 0.35);
 }
 
 .top{
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:20px;
+margin-bottom:15px;
 }
 
 .title{
-font-size:24px;
+font-size:22px;
 font-weight:700;
 color: #fff;
 display: flex;
@@ -99,44 +100,20 @@ align-items: center;
 gap: 6px;
 }
 
-.top-controls {
-display: flex;
-align-items: center;
-gap: 8px;
-}
-
-.control-btn {
-background: rgba(255, 255, 255, 0.07);
-border: 1px solid rgba(255, 255, 255, 0.12);
-color: white;
-width: 38px;
-height: 38px;
-border-radius: 50%;
-cursor: pointer;
-display: flex;
-justify-content: center;
-align-items: center;
-font-size: 13px;
-font-weight: 600;
-transition: all 0.3s ease;
-}
-
-.control-btn:hover {
-background: rgba(212, 175, 55, 0.2);
-border-color: #ffd700;
-color: #ffd700;
-transform: scale(1.05);
-}
-
 .status{
 background: rgba(10, 255, 141, 0.15);
 padding: 6px 12px;
 border-radius: 20px;
-font-size: 12px;
-font-weight: 600;
+font-size: 11px;
+font-weight: 700;
 color: #5cffb1;
 letter-spacing: 0.5px;
 box-shadow: 0 0 10px rgba(10, 255, 141, 0.1);
+}
+
+.status.manual {
+background: rgba(212, 175, 55, 0.15);
+color: #ffd700;
 }
 
 .compass-wrapper{
@@ -149,8 +126,8 @@ position: relative;
 
 .compass{
 position:relative;
-width:280px;
-height:280px;
+width:270px;
+height:270px;
 border-radius:50%;
 background: radial-gradient(circle, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.4));
 border: 6px solid #d4af37;
@@ -167,13 +144,13 @@ touch-action: none;
 cursor: grabbing;
 }
 
-/* Beautiful dynamic aligned state */
+/* Glowing aligned state */
 .compass.aligned {
 border-color: #0aff8d;
 box-shadow: 
 0 0 35px rgba(10, 255, 141, 0.6),
 inset 0 0 30px rgba(10, 255, 141, 0.15);
-animation: pulseGlow 2s infinite alternate;
+animation: pulseGlow 2.0s infinite alternate;
 }
 
 @keyframes pulseGlow {
@@ -223,7 +200,7 @@ color: #012413;
 margin-left: 1px;
 }
 
-/* Beautiful Tick Marks */
+/* Tick Marks on Compass Bezel */
 .tick {
 position: absolute;
 width: 2px;
@@ -240,7 +217,7 @@ pointer-events: none;
 .needle{
 position:absolute;
 width: 5px;
-height: 105px;
+height: 100px;
 background: linear-gradient(to top, rgba(212,175,55,0.1) 40%, #ffd700 40%);
 top:50%;
 left:50%;
@@ -250,7 +227,7 @@ border-radius: 4px 4px 0 0;
 z-index:4;
 filter: drop-shadow(0 0 6px rgba(255,215,0,0.6));
 pointer-events: none;
-transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .needle::before{
@@ -268,27 +245,27 @@ text-shadow: 0 0 6px #ffd700;
 position: absolute;
 top:50%;
 left:50%;
-font-size:26px;
+font-size:24px;
 z-index: 5;
 pointer-events: none;
 filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
-transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .direction-label{
 position:absolute;
-font-size:16px;
+font-size:15px;
 font-weight:800;
 color: rgba(255, 255, 255, 0.5);
 pointer-events: none;
 }
 
-.n{ top:15px; left:50%; transform:translateX(-50%); color: #ffd700; font-size: 18px; text-shadow: 0 0 8px rgba(255,215,0,0.4); }
+.n{ top:15px; left:50%; transform:translateX(-50%); color: #ffd700; font-size: 17px; text-shadow: 0 0 8px rgba(255,215,0,0.4); }
 .s{ bottom:15px; left:50%; transform:translateX(-50%);}
 .e{ right:18px; top:50%; transform:translateY(-50%);}
 .w{ left:18px; top:50%; transform:translateY(-50%);}
 
-/* Stationary alignment notch at 0 degrees */
+/* Top stationary alignment notch */
 .alignment-notch {
 position: absolute;
 top: -8px;
@@ -311,13 +288,12 @@ animation: pulseNotch 1.5s infinite alternate;
 }
 
 .degree-box{
-margin-top:10px;
 background: rgba(255, 255, 255, 0.03);
 border: 1px solid rgba(255, 255, 255, 0.05);
 padding: 16px;
 border-radius:20px;
-text-align:center;
 transition: all 0.3s ease;
+margin-bottom: 12px;
 }
 
 .degree-box.aligned {
@@ -326,7 +302,7 @@ border-color: rgba(10, 255, 141, 0.25);
 }
 
 .degree{
-font-size:32px;
+font-size:30px;
 font-weight:800;
 color:#ffd700;
 transition: color 0.3s ease;
@@ -334,7 +310,7 @@ transition: color 0.3s ease;
 
 .small{
 margin-top:4px;
-font-size:14px;
+font-size:13px;
 color:#b3ccc0;
 font-weight: 500;
 display: flex;
@@ -344,25 +320,32 @@ gap: 5px;
 }
 
 .location{
-margin-top:12px;
 background: rgba(255, 255, 255, 0.02);
 border: 1px solid rgba(255, 255, 255, 0.04);
-padding: 12px 16px;
+padding: 12px;
 border-radius:18px;
-font-size:13px;
+font-size:12px;
 line-height:1.6;
 color:#b3ccc0;
-text-align: center;
+margin-bottom: 16px;
 }
 
-.buttons{
-display:flex;
-gap:10px;
-margin-top:16px;
+.guide-tip {
+font-size: 11px;
+color: #ffd700;
+background: rgba(212, 175, 55, 0.08);
+border: 1px dashed rgba(212, 175, 55, 0.2);
+border-radius: 12px;
+padding: 8px 12px;
+margin-bottom: 16px;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
 }
 
 .btn{
-flex:1;
+width: 100%;
 padding:14px;
 border:none;
 border-radius:16px;
@@ -374,18 +357,9 @@ display: flex;
 justify-content: center;
 align-items: center;
 gap: 6px;
-}
-
-.primary{
 background: linear-gradient(135deg, #ffd700, #d4af37);
 color:#012413;
 box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-}
-
-.secondary{
-background: rgba(255, 255, 255, 0.06);
-color:white;
-border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .btn:hover{
@@ -395,7 +369,7 @@ transform:scale(1.025);
 transform:scale(0.97);
 }
 
-/* Dynamic Manual Control Sliders */
+/* Manual Rotation Slider */
 .manual-control {
 margin-top: 15px;
 background: rgba(212, 175, 55, 0.05);
@@ -429,140 +403,29 @@ box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
 cursor: pointer;
 }
 
-.bottom{
-margin-top:20px;
-display:flex;
-justify-content:space-between;
-}
-
-.box{
-flex:1;
-background: rgba(255, 255, 255, 0.03);
-border: 1px solid rgba(255, 255, 255, 0.05);
-margin: 0 5px;
-padding: 12px 8px;
-border-radius:16px;
-text-align: center;
-cursor: pointer;
-transition: all 0.3s ease;
-}
-
-.box:hover{
-background: rgba(212, 175, 55, 0.1);
-border-color: rgba(212, 175, 55, 0.3);
-transform: translateY(-2px);
-}
-
-.box i{
-font-size:20px;
-margin-bottom:6px;
-color:#ffd700;
-}
-
-.box p{
-font-size:12px;
-color:#b3ccc0;
+.home-link {
+display: inline-block;
+margin-top: 20px;
+color: rgba(255, 255, 255, 0.5);
+text-decoration: none;
+font-size: 13px;
 font-weight: 500;
+transition: color 0.3s;
+}
+
+.home-link:hover {
+color: #ffd700;
 }
 
 .footer{
 text-align:center;
-margin-top:20px;
-font-size:12px;
-color: rgba(255,255,255,0.4);
+margin-top:16px;
+font-size:11px;
+color: rgba(255,255,255,0.3);
 font-weight: 500;
 }
 
-/* Sleek Premium Modals */
-.modal-overlay {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0, 0, 0, 0.7);
-backdrop-filter: blur(10px);
--webkit-backdrop-filter: blur(10px);
-z-index: 100;
-opacity: 0;
-visibility: hidden;
-transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-display: flex;
-justify-content: center;
-align-items: flex-end;
-}
-
-.modal-overlay.active {
-opacity: 1;
-visibility: visible;
-}
-
-.modal-content {
-background: linear-gradient(180deg, #01311b, #00190c);
-border: 1px solid rgba(212, 175, 55, 0.25);
-border-radius: 30px 30px 0 0;
-width: 100%;
-max-width: 410px;
-padding: 24px;
-box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
-transform: translateY(100%);
-transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-color: white;
-}
-
-.modal-overlay.active .modal-content {
-transform: translateY(0);
-}
-
-@media (min-width: 410px) {
-.modal-overlay {
-align-items: center;
-}
-.modal-content {
-border-radius: 28px;
-margin: 15px;
-}
-}
-
-.modal-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 18px;
-}
-
-.modal-title {
-font-size: 20px;
-color: #ffd700;
-font-weight: 700;
-}
-
-.modal-close {
-background: rgba(255, 255, 255, 0.08);
-border: 1px solid rgba(255, 255, 255, 0.1);
-color: white;
-width: 32px;
-height: 32px;
-border-radius: 50%;
-display: flex;
-justify-content: center;
-align-items: center;
-cursor: pointer;
-font-size: 16px;
-transition: 0.3s;
-}
-
-.modal-close:hover {
-background: rgba(212, 175, 55, 0.2);
-border-color: #ffd700;
-}
-
-.modal-body {
-font-size: 14px;
-line-height: 1.6;
-}
-
-/* Toast Notification */
+/* Visual Toast */
 .toast {
 position: fixed;
 top: 20px;
@@ -600,14 +463,8 @@ transform: translate(-50%, 0);
 <div class="card" id="qibla-card">
 
 <div class="top">
-<div>
-<div class="title" id="app-title" data-key="title">🕋 Qibla Finder</div>
-</div>
-<div class="top-controls">
-<button class="control-btn" id="lang-btn" onclick="toggleLanguage()">മല</button>
-<button class="control-btn" id="sound-btn" onclick="toggleMute()"><i class="fa-solid fa-volume-high"></i></button>
-<div class="status" id="app-status" data-key="status">LIVE</div>
-</div>
+<div class="title">🕋 Qibla Finder</div>
+<div class="status" id="app-status">LIVE</div>
 </div>
 
 <div class="compass-wrapper">
@@ -622,10 +479,10 @@ transform: translate(-50%, 0);
 <div class="direction-label e">E</div>
 <div class="direction-label w">W</div>
 
-<!-- Rotating needle pointing to Qibla bearing relative to dial -->
+<!-- Qibla needle -->
 <div class="needle" id="needle"></div>
 
-<!-- Target Kaaba icon on outer dial representing the bearing -->
+<!-- Target Kaaba marker -->
 <div class="qibla-marker" id="qibla-marker">🕋</div>
 </div>
 
@@ -635,44 +492,31 @@ transform: translate(-50%, 0);
 
 <div class="degree-box" id="degree-box">
 <div class="degree" id="degree">292.4°</div>
-<div class="small" id="facing-label" data-key="facing">Facing Qibla Direction</div>
+<div class="small" id="facing-label">Facing Qibla Direction</div>
 </div>
 
-<div class="location" id="location" data-key="detecting">
-📍 Detecting your location...
+<div class="guide-tip">
+<i class="fa-solid fa-mobile-screen-button"></i>
+<span>കൃത്യമായ ദിശ ലഭിക്കാൻ ഫോൺ കൈയിൽ നേരെ പരത്തിപ്പിടിക്കുക.</span>
 </div>
 
-<!-- Manual Compass Rotator Slider (Hidden when hardware sensor is active) -->
+<div class="location" id="location">
+📍 Coordinates & Distance: Malappuram | 4,082 km
+</div>
+
+<!-- Manual Simulation Fallback -->
 <div class="manual-control" id="manual-control" style="display:none;">
-<p style="font-size:11px; color:#ffd700; text-align:center; font-weight:600;" id="manual-label" data-key="manual">
+<p style="font-size:11px; color:#ffd700; font-weight:600;" id="manual-label">
 Manual Mode: Drag dial or use slider to rotate
 </p>
 <input type="range" id="heading-slider" min="0" max="359" value="0" oninput="onSliderChange(this.value)">
 </div>
 
-<div class="buttons">
-<button class="btn primary" id="btn-find" onclick="findQibla()">
-<i class="fa-solid fa-location-crosshairs"></i> <span data-key="btnFind">Find Qibla</span>
+<button class="btn" id="btn-find" onclick="findQibla()">
+<i class="fa-solid fa-location-crosshairs"></i> Calibrate / Start Compass
 </button>
-<button class="btn secondary" id="btn-vibrate" onclick="vibratePhone()">
-<i class="fa-solid fa-bolt"></i> <span data-key="btnVibrate">Vibrate</span>
-</button>
-</div>
 
-<div class="bottom">
-<div class="box" onclick="openGpsModal()">
-<i class="fa-solid fa-location-dot"></i>
-<p id="label-gps" data-key="gps">Live GPS</p>
-</div>
-<div class="box" onclick="openCompassModal()">
-<i class="fa-solid fa-compass"></i>
-<p id="label-compass" data-key="compass">Compass</p>
-</div>
-<div class="box" onclick="openKaabaModal()">
-<i class="fa-solid fa-mosque"></i>
-<p id="label-kaaba" data-key="kaaba">Kaaba</p>
-</div>
-</div>
+<a href="index.html" class="home-link"><i class="fa-solid fa-house"></i> Go Back to Home Portal</a>
 
 <div class="footer">
 Premium Madrasa Qibla Finder
@@ -682,114 +526,25 @@ Premium Madrasa Qibla Finder
 
 </div>
 
-<!-- Interactive Premium Modal System -->
-<div class="modal-overlay" id="info-modal" onclick="closeModal(event)">
-<div class="modal-content" onclick="event.stopPropagation()">
-<div class="modal-header">
-<h3 class="modal-title" id="modal-title">Modal Title</h3>
-<button class="modal-close" onclick="closeModal()">&times;</button>
-</div>
-<div class="modal-body" id="modal-body">
-<!-- Dynamic Content Injected Here -->
-</div>
-</div>
-</div>
-
 <script>
 // Kaaba Coordinates
 const kaabaLat = 21.4225;
 const kaabaLng = 39.8262;
 
-// State Variables
-let userLat = 11.0720;  // Default: Malappuram, Kerala, India
-let userLng = 76.0740;  // Default: Malappuram, Kerala, India
-let gpsAccuracy = null;
-let distanceToKaaba = 4082; // Defaults from Malappuram
-let qiblaAngle = 292.4;    // Default Qibla for Kerala
-let currentHeading = 0;    // Phone rotation
-let isMuted = localStorage.getItem("qibla_muted") === "true";
-let currentLang = localStorage.getItem("qibla_lang") || "en";
-let hasSensor = false;     // Hardware sensor detected
-let wasAligned = false;    // Sync haptics and chime once per alignment
+// Initial States
+let userLat = 11.0720;  // Default: Malappuram, Kerala
+let userLng = 76.0740;  // Default: Malappuram, Kerala
+let distanceToKaaba = 4082; 
+let qiblaAngle = 292.4;    // Malappuram target Qibla bearing
+let currentHeading = 0;    
+let hasSensor = false;     
+let wasAligned = false;    
+let isAbsoluteMode = false; // Tracks absolute orientation sensor health
 
-// HTML element references
 const compass = document.getElementById("compass");
 const slider = document.getElementById("heading-slider");
-const soundBtn = document.getElementById("sound-btn");
 
-// Translation Dictionary (English and Malayalam)
-const translations = {
-en: {
-title: "🕋 Qibla Finder",
-status: "LIVE",
-facing: "Facing Qibla Direction",
-detecting: "📍 Detecting your location...",
-btnFind: "Find Qibla",
-btnVibrate: "Vibrate",
-gps: "Live GPS",
-compass: "Compass",
-kaaba: "Kaaba Info",
-aligned: "Qibla Aligned! 🕋",
-manual: "Manual Mode: Drag dial or use slider to rotate",
-gpsModalTitle: "GPS & Location Details",
-lat: "Latitude",
-lng: "Longitude",
-accuracy: "GPS Accuracy",
-dist: "Distance to Kaaba",
-refresh: "Refresh Location",
-compassModalTitle: "Compass Sensor Status",
-compassStatus: "Compass Status",
-sensorActive: "🟢 Active (Hardware Sensor)",
-sensorManual: "🟡 Manual Mode (Drag Compass)",
-calibrateTitle: "Sensor Calibration Guide",
-calibrateDesc: "If the direction seems inaccurate, hold your phone and rotate it in a figure-8 motion a few times to calibrate the magnetometer sensor.",
-kaabaModalTitle: "Al-Kaaba Al-Musharrafah",
-kaabaDesc: "The Holy Kaaba is the most sacred sanctuary in Islam, located at the center of the Masjid al-Haram in Mecca, Saudi Arabia. Muslims everywhere align themselves towards the Kaaba for prayer.",
-kaabaCoord: "Coordinates",
-bearing: "Qibla Angle",
-openMaps: "Navigate on Google Maps",
-turnLeft: "◀ Turn Left",
-turnRight: "Turn Right ▶",
-perfect: "✨ Aligned Perfect! ✨",
-close: "Close"
-},
-ml: {
-title: "🕋 ഖിബ്‌ല ഫൈൻഡർ",
-status: "ലൈവ്",
-facing: "ഖിബ്‌ലയുടെ ദിശയിൽ",
-detecting: "📍 ലൊക്കേഷൻ കണ്ടെത്തുന്നു...",
-btnFind: "കണ്ടെത്തുക",
-btnVibrate: "വൈബ്രേറ്റ് ചെയ്യുക",
-gps: "തത്സമയ ജിപിഎസ്",
-compass: "കോമ്പസ്",
-kaaba: "കഅബ വിവരങ്ങൾ",
-aligned: "ഖിബ്‌ല കൃത്യമാണ്! 🕋",
-manual: "മാനുഷിക റൊട്ടേഷൻ: ഡയൽ തിരിക്കുകയോ സ്ലൈഡർ ഉപയോഗിക്കുകയോ ചെയ്യുക",
-gpsModalTitle: "ജി.പി.എസ് & ലൊക്കേഷൻ വിവരങ്ങൾ",
-lat: "അക്ഷാംശം (Latitude)",
-lng: "രേഖാംശം (Longitude)",
-accuracy: "ജിപിഎസ് കൃത്യത",
-dist: "കഅബയിലേക്കുള്ള ദൂരം",
-refresh: "ലൊക്കേഷൻ പുതുക്കുക",
-compassModalTitle: "കോമ്പസ് സെൻസർ വിവരങ്ങൾ",
-compassStatus: "കോമ്പസ് നില",
-sensorActive: "🟢 ആക്റ്റീവ് (ഹാർഡ്‌വെയർ സെൻസർ)",
-sensorManual: "🟡 മാനുഷിക റൊട്ടേഷൻ മോഡ്",
-calibrateTitle: "സെൻസർ കാലിബ്രേഷൻ സഹായി",
-calibrateDesc: "കോമ്പസ് ദിശ തെറ്റായി കാണിക്കുകയാണെങ്കിൽ, നിങ്ങളുടെ ഫോൺ കൈയിലെടുത്ത് വായുവിൽ '8' ആകൃതിയിൽ തിരിച്ച് സെൻസർ ക്രമീകരിക്കുക (Calibrate ചെയ്യുക).",
-kaabaModalTitle: "അൽ-കഅബ അൽ-മുഷറഫ",
-kaabaDesc: "സൗദി അറേബ്യയിലെ മക്കയിലുള്ള മസ്ജിദുൽ ഹറാമിന്റെ മധ്യഭാഗത്ത് സ്ഥിതി ചെയ്യുന്ന ഇസ്‌ലാമിലെ ഏറ്റവും പവിത്രമായ സ്ഥലമാണ് കഅബ. ലോകമെമ്പാടുമുള്ള മുസ്‌ലിംകൾ പ്രാർത്ഥിക്കുമ്പോൾ കഅബയ്ക്ക് അഭിമുഖമായാണ് നിൽക്കുന്നത്.",
-kaabaCoord: "സ്ഥാനം (Coordinates)",
-bearing: "ഖിബ്‌ല കോൺ (Angle)",
-openMaps: "ഗൂഗിൾ മാപ്പ് വഴി നോക്കുക",
-turnLeft: "◀ ഇടത്തോട്ട് തിരിയുക",
-turnRight: "വലത്തോട്ട് തിരിയുക ▶",
-perfect: "✨ ഖിബ്‌ല ദിശ കൃത്യമാണ്! ✨",
-close: "അടയ്ക്കുക"
-}
-};
-
-// Math Helpers
+// Math helpers
 function toRadians(deg){ return deg * Math.PI / 180; }
 function toDegrees(rad){ return rad * 180 / Math.PI; }
 
@@ -806,7 +561,6 @@ let direction = toDegrees(Math.atan2(y, x));
 return (direction + 360) % 360;
 }
 
-// Distance Calculation (Haversine Formula)
 function calculateDistance(lat1, lon1, lat2, lon2) {
 const R = 6371; // Radius of Earth in km
 const dLat = toRadians(lat2 - lat1);
@@ -819,7 +573,7 @@ const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 return R * c;
 }
 
-// Dynamically generate premium scale ticks on compass dial
+// Generate premium bezel ticks
 function generateCompassTicks() {
 const dial = document.getElementById("compass-dial");
 for (let i = 0; i < 36; i++) {
@@ -833,15 +587,14 @@ tick.classList.add("medium");
 } else {
 tick.classList.add("minor");
 }
-tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateY(-120px)`;
+tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateY(-115px)`;
 dial.appendChild(tick);
 }
 }
 
-// Web Audio API Synthesized Premium Chime
+// Synthesize nice chime on alignment
 let audioCtx = null;
 function playChime() {
-if (isMuted) return;
 try {
 if (!audioCtx) {
 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -855,36 +608,35 @@ osc.connect(gainNode);
 gainNode.connect(audioCtx.destination);
 
 osc.type = 'sine';
-// Pleasant double-note harmonic synth chime
 osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
 osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.15); // G5
-gainNode.gain.setValueAtTime(0.25, audioCtx.currentTime);
-gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
 
 osc.start(audioCtx.currentTime);
-osc.stop(audioCtx.currentTime + 0.8);
+osc.stop(audioCtx.currentTime + 0.6);
 } catch(e) {
-console.error("Audio playback error:", e);
+console.error(e);
 }
 }
 
-// Update DOM elements on rotation or location change
+// Render dynamic rotations
 function updateCompassDOM() {
 const dial = document.getElementById("compass-dial");
 const needle = document.getElementById("needle");
 const qiblaMarker = document.getElementById("qibla-marker");
 const facingLabel = document.getElementById("facing-label");
 
-// Spin the dial to point 'N' to absolute North
+// Rotate dial by -currentHeading so North is absolute North
 dial.style.transform = `rotate(${-currentHeading}deg)`;
 
-// Point the needle to the calculated Qibla bearing relative to the dial
+// Point needle relative to dial
 needle.style.transform = `translate(-50%, -100%) rotate(${qiblaAngle}deg)`;
 
-// Place the Kaaba icon target at the outer perimeter of the dial at Qibla angle
-qiblaMarker.style.transform = `translate(-50%, -50%) rotate(${qiblaAngle}deg) translateY(-106px) rotate(${-qiblaAngle}deg)`;
+// Center Kaaba marker on dial circumference
+qiblaMarker.style.transform = `translate(-50%, -50%) rotate(${qiblaAngle}deg) translateY(-102px) rotate(${-qiblaAngle}deg)`;
 
-// Compute direction difference for user alignment helper
+// Guide cues
 let relAngle = (qiblaAngle - currentHeading + 360) % 360;
 const minDiff = Math.min(Math.abs(currentHeading - qiblaAngle), 360 - Math.min(Math.abs(currentHeading - qiblaAngle)));
 
@@ -893,12 +645,11 @@ const degBox = document.getElementById("degree-box");
 const card = document.getElementById("qibla-card");
 
 if (minDiff <= 3.5) {
-// Target Aligned! Trigger Glowing CSS styles and audio/haptics
 cmp.classList.add("aligned");
 degBox.classList.add("aligned");
 card.classList.add("aligned");
 document.getElementById("degree").innerHTML = qiblaAngle.toFixed(1) + "°";
-facingLabel.innerHTML = `<span style="color:#0aff8d; font-weight:bold;">${getTrans('perfect')}</span>`;
+facingLabel.innerHTML = `<span style="color:#0aff8d; font-weight:bold;">✨ ഖിബ്‌ല ദിശ കൃത്യമാണ്! (Perfect) ✨</span>`;
 
 if (!wasAligned) {
 playChime();
@@ -913,11 +664,10 @@ degBox.classList.remove("aligned");
 card.classList.remove("aligned");
 document.getElementById("degree").innerHTML = qiblaAngle.toFixed(1) + "°";
 
-// Guides user on which way to rotate
 if (relAngle > 3.5 && relAngle <= 180) {
-facingLabel.innerHTML = `<span style="color:#ffd700;">${getTrans('turnRight')} (${minDiff.toFixed(0)}°)</span>`;
+facingLabel.innerHTML = `<span style="color:#ffd700;">വലത്തോട്ട് തിരിയുക ▶ (${minDiff.toFixed(0)}°)</span>`;
 } else {
-facingLabel.innerHTML = `<span style="color:#ffd700;">${getTrans('turnLeft')} (${minDiff.toFixed(0)}°)</span>`;
+facingLabel.innerHTML = `<span style="color:#ffd700;">◀ ഇടത്തോട്ട് തിരിയുക (${minDiff.toFixed(0)}°)</span>`;
 }
 wasAligned = false;
 }
@@ -927,23 +677,68 @@ slider.value = Math.round(currentHeading);
 }
 }
 
-// Fallback to manual slider and drag-spin orientation
+// Sensor logic
+function startCompassTracking() {
+    // 1. Absolute sensor callback (Ideal for Android Chrome)
+    const handleAbsoluteOrientation = (e) => {
+        if (e.alpha !== null) {
+            isAbsoluteMode = true;
+            hasSensor = true;
+            currentHeading = 360 - e.alpha; // standard W3C alpha is counter-clockwise
+            document.getElementById("manual-control").style.display = "none";
+            document.getElementById("app-status").innerHTML = "LIVE";
+            document.getElementById("app-status").className = "status";
+            updateCompassDOM();
+        }
+    };
+
+    // 2. Standard sensor callback (Ideal for iOS Webkit)
+    const handleStandardOrientation = (e) => {
+        if (isAbsoluteMode) return; // Prioritise the absolute orientation sensor
+
+        let heading = null;
+        if (e.webkitCompassHeading !== undefined) {
+            heading = e.webkitCompassHeading; // iOS Safari absolute heading
+        } else if (e.absolute === true && e.alpha !== null) {
+            heading = 360 - e.alpha;
+        }
+
+        if (heading !== null) {
+            hasSensor = true;
+            currentHeading = heading;
+            document.getElementById("manual-control").style.display = "none";
+            document.getElementById("app-status").innerHTML = "LIVE";
+            document.getElementById("app-status").className = "status";
+            updateCompassDOM();
+        }
+    };
+
+    // Standard cross-device listener binding
+    window.addEventListener("deviceorientationabsolute", handleAbsoluteOrientation, true);
+    window.addEventListener("deviceorientation", handleStandardOrientation, true);
+
+    // Timeout fallback verification
+    setTimeout(() => {
+        if (!hasSensor) {
+            enableManualMode();
+        }
+    }, 1500);
+}
+
 function enableManualMode() {
-hasSensor = false;
-document.getElementById("manual-control").style.display = "block";
-document.getElementById("app-status").innerHTML = getTrans("status") === "LIVE" ? "MANUAL" : "മാനുവൽ";
-document.getElementById("app-status").style.background = "rgba(212, 175, 55, 0.15)";
-document.getElementById("app-status").style.color = "#ffd700";
-updateCompassDOM();
+    hasSensor = false;
+    document.getElementById("manual-control").style.display = "block";
+    document.getElementById("app-status").innerHTML = "MANUAL";
+    document.getElementById("app-status").className = "status manual";
+    updateCompassDOM();
 }
 
-// Handle Slider Input
 function onSliderChange(val) {
-currentHeading = parseFloat(val);
-updateCompassDOM();
+    currentHeading = parseFloat(val);
+    updateCompassDOM();
 }
 
-// Drag & Spin Compass Dial (Polar math for premium mouse/touch interactions)
+// Drag dial to rotate (Fallback)
 let isDragging = false;
 let startAngle = 0;
 let startHeading = 0;
@@ -952,7 +747,7 @@ compass.addEventListener("mousedown", startDrag);
 compass.addEventListener("touchstart", startDrag, { passive: true });
 
 function startDrag(e) {
-if (hasSensor) return; // Prevent manual spin if sensor works
+if (hasSensor) return;
 isDragging = true;
 const rect = compass.getBoundingClientRect();
 const centerX = rect.left + rect.width / 2;
@@ -994,308 +789,89 @@ document.removeEventListener("mouseup", stopDrag);
 document.removeEventListener("touchend", stopDrag);
 }
 
-// Live GPS and Bearing Lookup
+// Calibrate Location & Sensor Trigger
 function findQibla() {
-if (navigator.geolocation) {
-showToast(currentLang === 'en' ? "Detecting high-accuracy GPS..." : "ജിപിഎസ് ലൊക്കേഷൻ പരിശോധിക്കുന്നു...");
-navigator.geolocation.getCurrentPosition(
-function(position) {
-userLat = position.coords.latitude;
-userLng = position.coords.longitude;
-gpsAccuracy = position.coords.accuracy;
+    if (navigator.geolocation) {
+        showToast("ലൊക്കേഷൻ പരിശോധിക്കുന്നു (GPS)...");
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                userLat = position.coords.latitude;
+                userLng = position.coords.longitude;
+                qiblaAngle = calculateQibla(userLat, userLng);
+                distanceToKaaba = calculateDistance(userLat, userLng, kaabaLat, kaabaLng);
 
-qiblaAngle = calculateQibla(userLat, userLng);
-distanceToKaaba = calculateDistance(userLat, userLng, kaabaLat, kaabaLng);
-
-document.getElementById("location").innerHTML = `
-📍 ${getTrans('lat')}: ${userLat.toFixed(4)}<br>
-📍 ${getTrans('lng')}: ${userLng.toFixed(4)}
-`;
-
-showToast(currentLang === 'en' ? "Location Updated! Qibla Recalculated." : "ലൊക്കേഷൻ കണ്ടെത്തി! ഖിബ്‌ല ദിശ ക്രമീകരിച്ചു.");
-updateCompassDOM();
-requestCompassSensor();
-},
-function(error) {
-console.warn("GPS Permission Denied, falling back to default.", error);
-showToast(currentLang === 'en' ? "GPS denied. Using Kerala coordinates." : "ലൊക്കേഷൻ ലഭ്യമല്ല, കേരള ലൊക്കേഷൻ ഉപയോഗിക്കുന്നു.");
-fallbackCoordinates();
-requestCompassSensor();
-},
-{ enableHighAccuracy: true, timeout: 5000 }
-);
-} else {
-showToast("Geolocation is not supported by your browser.");
-fallbackCoordinates();
-requestCompassSensor();
-}
+                document.getElementById("location").innerHTML = `
+                    📍 Malappuram | Lat: ${userLat.toFixed(2)}° | Lng: ${userLng.toFixed(2)}° | ${distanceToKaaba.toLocaleString(undefined, {maximumFractionDigits: 0})} km
+                `;
+                showToast("ലൊക്കേഷൻ അപ്‌ഡേറ്റ് ചെയ്തു! ഖിബ്‌ല കണ്ടെത്തി.");
+                updateCompassDOM();
+                requestCompassPermission();
+            },
+            function(err) {
+                console.warn(err);
+                showToast("ലൊക്കേഷൻ തടസ്സപ്പെട്ടു. കേരള ലൊക്കേഷൻ ഉപയോഗിക്കുന്നു.");
+                fallbackCoordinates();
+                requestCompassPermission();
+            },
+            { enableHighAccuracy: true, timeout: 5000 }
+        );
+    } else {
+        fallbackCoordinates();
+        requestCompassPermission();
+    }
 }
 
 function fallbackCoordinates() {
-// Kerala, Malappuram coordinates as perfect defaults
-userLat = 11.0720;
-userLng = 76.0740;
-gpsAccuracy = null;
-qiblaAngle = calculateQibla(userLat, userLng);
-distanceToKaaba = calculateDistance(userLat, userLng, kaabaLat, kaabaLng);
-updateCompassDOM();
+    userLat = 11.0720;
+    userLng = 76.0740;
+    qiblaAngle = calculateQibla(userLat, userLng);
+    distanceToKaaba = calculateDistance(userLat, userLng, kaabaLat, kaabaLng);
+    document.getElementById("location").innerHTML = `
+        📍 Malappuram | Lat: ${userLat.toFixed(2)}° | Lng: ${userLng.toFixed(2)}° | ${distanceToKaaba.toLocaleString(undefined, {maximumFractionDigits: 0})} km
+    `;
+    updateCompassDOM();
 }
 
-// Active Compass orientation sensor tracking
-async function requestCompassSensor() {
-if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-// iOS Safe flow requires direct button interaction to trigger permission request
-try {
-const permissionState = await DeviceOrientationEvent.requestPermission();
-if (permissionState === 'granted') {
-activateCompassSensor();
-} else {
-showToast("Compass permission denied. Manual Mode active.");
-enableManualMode();
-}
-} catch (e) {
-console.error("Orientation error:", e);
-enableManualMode();
-}
-} else {
-// Android and non-iOS standard browsers
-activateCompassSensor();
-}
+async function requestCompassPermission() {
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+            const state = await DeviceOrientationEvent.requestPermission();
+            if (state === 'granted') {
+                startCompassTracking();
+            } else {
+                showToast("കോമ്പസ് അനുമതി ലഭ്യമല്ല. മാനുവൽ മോഡ് ആക്റ്റീവ്.");
+                enableManualMode();
+            }
+        } catch(e) {
+            console.error(e);
+            enableManualMode();
+        }
+    } else {
+        startCompassTracking();
+    }
 }
 
-function activateCompassSensor() {
-let orientationCallback = function(e) {
-hasSensor = true;
-document.getElementById("manual-control").style.display = "none";
-document.getElementById("app-status").innerHTML = getTrans("status");
-document.getElementById("app-status").style.background = "rgba(10, 255, 141, 0.15)";
-document.getElementById("app-status").style.color = "#5cffb1";
-
-let heading = null;
-if (e.webkitCompassHeading !== undefined) {
-heading = e.webkitCompassHeading;
-} else if (e.alpha !== null) {
-heading = 360 - e.alpha; // standard alpha is counter-clockwise
-}
-
-if (heading !== null) {
-currentHeading = heading;
-updateCompassDOM();
-}
-};
-
-// Check and bind browser orientation absolute event
-if ('ondeviceorientationabsolute' in window) {
-window.addEventListener("deviceorientationabsolute", orientationCallback, true);
-} else if ('ondeviceorientation' in window) {
-window.addEventListener("deviceorientation", orientationCallback, true);
-} else {
-enableManualMode();
-}
-
-// Verify sensor actually triggers
-setTimeout(() => {
-if (!hasSensor) {
-enableManualMode();
-}
-}, 1500);
-}
-
-// Multilingual Helper
-function getTrans(key) {
-return translations[currentLang][key] || translations['en'][key];
-}
-
-function toggleLanguage() {
-currentLang = currentLang === 'en' ? 'ml' : 'en';
-document.getElementById("lang-btn").innerText = currentLang === 'en' ? 'മല' : 'EN';
-localStorage.setItem("qibla_lang", currentLang);
-updateLanguageDOM();
-}
-
-function updateLanguageDOM() {
-const keys = document.querySelectorAll("[data-key]");
-keys.forEach(el => {
-const key = el.getAttribute("data-key");
-const text = getTrans(key);
-if (text) el.innerText = text;
-});
-
-// Update dynamic coordinates
-if (userLat) {
-document.getElementById("location").innerHTML = `
-📍 ${getTrans('lat')}: ${userLat.toFixed(4)}<br>
-📍 ${getTrans('lng')}: ${userLng.toFixed(4)}
-`;
-}
-
-// Keep status indicators matched
-if (hasSensor) {
-document.getElementById("app-status").innerHTML = getTrans("status");
-} else {
-document.getElementById("app-status").innerHTML = currentLang === 'en' ? "MANUAL" : "മാനുവൽ";
-}
-
-updateCompassDOM();
-}
-
-// Haptic & Vibration feedback trigger
-function vibratePhone() {
-if (navigator.vibrate) {
-navigator.vibrate([200, 100, 200]);
-showToast(currentLang === 'en' ? "Vibrating device..." : "വൈബ്രേഷൻ ടെസ്റ്റ് ചെയ്യുന്നു...");
-} else {
-playChime();
-showToast(currentLang === 'en' ? "Haptics simulated (Vibrate not supported)" : "ഹപ്റ്റിക്സ് സിമുലേറ്റ് ചെയ്തു!");
-}
-}
-
-// Mute & Audio state controller
-function toggleMute() {
-isMuted = !isMuted;
-localStorage.setItem("qibla_muted", isMuted);
-soundBtn.innerHTML = isMuted ? '<i class="fa-solid fa-volume-xmark"></i>' : '<i class="fa-solid fa-volume-high"></i>';
-showToast(isMuted ? "Sound muted" : "Sound enabled");
-}
-
-// Premium Modal Managers
-const modal = document.getElementById("info-modal");
-const modalTitle = document.getElementById("modal-title");
-const modalBody = document.getElementById("modal-body");
-
-function showModal(title, bodyHtml) {
-modalTitle.innerText = title;
-modalBody.innerHTML = bodyHtml;
-modal.classList.add("active");
-}
-
-function closeModal(e) {
-modal.classList.remove("active");
-}
-
-function openGpsModal() {
-const title = getTrans('gpsModalTitle');
-const modalHtml = `
-<div style="display:flex; flex-direction:column; gap:14px;">
-<div style="background:rgba(255,255,255,0.04); padding:16px; border-radius:18px; border: 1px solid rgba(255,255,255,0.08);">
-<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-<span style="color:#b3ccc0;">${getTrans('lat')}</span>
-<span style="font-weight:700; color:#ffd700;">${userLat ? userLat.toFixed(6) + '°' : 'Detecting...'}</span>
-</div>
-<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-<span style="color:#b3ccc0;">${getTrans('lng')}</span>
-<span style="font-weight:700; color:#ffd700;">${userLng ? userLng.toFixed(6) + '°' : 'Detecting...'}</span>
-</div>
-<div style="display:flex; justify-content:space-between;">
-<span style="color:#b3ccc0;">${getTrans('accuracy')}</span>
-<span style="font-weight:700; color:#5cffb1;">${gpsAccuracy ? '± ' + gpsAccuracy.toFixed(1) + ' m' : 'N/A'}</span>
-</div>
-</div>
-
-<div style="background:rgba(212,175,55,0.1); padding:16px; border-radius:18px; border: 1px solid rgba(212,175,55,0.25); text-align:center;">
-<p style="font-size:12px; color:#b3ccc0; margin-bottom:4px;">${getTrans('dist')}</p>
-<p style="font-size:24px; font-weight:800; color:#ffd700;">${distanceToKaaba ? distanceToKaaba.toLocaleString(undefined, {maximumFractionDigits: 1}) + ' km' : 'N/A'}</p>
-</div>
-
-<button class="btn primary" onclick="closeModal(); findQibla();" style="width:100%;">
-<i class="fa-solid fa-arrows-rotate"></i> ${getTrans('refresh')}
-</button>
-</div>
-`;
-showModal(title, modalHtml);
-}
-
-function openCompassModal() {
-const title = getTrans('compassModalTitle');
-const statusText = hasSensor ? getTrans('sensorActive') : getTrans('sensorManual');
-const modalHtml = `
-<div style="display:flex; flex-direction:column; gap:14px;">
-<div style="background:rgba(255,255,255,0.04); padding:16px; border-radius:18px; border: 1px solid rgba(255,255,255,0.08);">
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-<span style="color:#b3ccc0;">${getTrans('compassStatus')}</span>
-<span style="font-weight:700; font-size:13px;">${statusText}</span>
-</div>
-<div style="display:flex; justify-content:space-between;">
-<span style="color:#b3ccc0;">${getTrans('bearing')}</span>
-<span style="font-weight:700; color:#ffd700;">${currentHeading.toFixed(1)}°</span>
-</div>
-</div>
-
-<div style="background:rgba(255,255,255,0.02); padding:16px; border-radius:18px; border: 1px solid rgba(255,255,255,0.05);">
-<h4 style="color:#ffd700; margin-bottom:6px; display:flex; align-items:center; gap:6px; font-size:14px; font-weight:700;">
-<i class="fa-solid fa-wand-magic-sparkles"></i> ${getTrans('calibrateTitle')}
-</h4>
-<p style="font-size:12px; color:#b3ccc0; line-height:1.5;">${getTrans('calibrateDesc')}</p>
-<div style="display:flex; justify-content:center; margin-top:16px;">
-<!-- Beautiful dynamic figure-8 vector track -->
-<svg width="100" height="40" viewBox="0 0 100 50">
-<path d="M 25,25 C 10,5 0,25 25,25 C 50,25 75,5 90,25 C 100,25 75,45 50,25 C 25,5 0,25 25,25 Z" fill="none" stroke="rgba(212,175,55,0.25)" stroke-width="3" stroke-dasharray="100" stroke-dashoffset="100">
-<animate attributeName="stroke-dashoffset" values="100;0" dur="3s" repeatCount="indefinite"/>
-</path>
-<circle r="4.5" fill="#ffd700">
-<animateMotion dur="3s" repeatCount="indefinite" path="M 25,25 C 10,5 0,25 25,25 C 50,25 75,5 90,25 C 100,25 75,45 50,25 C 25,5 0,25 25,25 Z"/>
-</circle>
-</svg>
-</div>
-</div>
-</div>
-`;
-showModal(title, modalHtml);
-}
-
-function openKaabaModal() {
-const title = getTrans('kaabaModalTitle');
-const modalHtml = `
-<div style="display:flex; flex-direction:column; gap:14px;">
-<p style="font-size:13px; color:#b3ccc0; line-height:1.6; text-align:justify;">
-${getTrans('kaabaDesc')}
-</p>
-
-<div style="background:rgba(255,255,255,0.04); padding:16px; border-radius:18px; border: 1px solid rgba(255,255,255,0.08);">
-<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-<span style="color:#b3ccc0;">${getTrans('kaabaCoord')}</span>
-<span style="font-weight:700; color:#ffd700;">21.4225° N, 39.8262° E</span>
-</div>
-<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-<span style="color:#b3ccc0;">${getTrans('bearing')}</span>
-<span style="font-weight:700; color:#ffd700;">${qiblaAngle.toFixed(1)}°</span>
-</div>
-<div style="display:flex; justify-content:space-between;">
-<span style="color:#b3ccc0;">${getTrans('dist')}</span>
-<span style="font-weight:700; color:#ffd700;">${distanceToKaaba.toLocaleString(undefined, {maximumFractionDigits: 1})} km</span>
-</div>
-</div>
-
-<a href="https://www.google.com/maps/dir/?api=1&destination=21.4225,39.8262" target="_blank" class="btn primary" style="text-decoration:none;">
-<i class="fa-solid fa-map-location-dot"></i> ${getTrans('openMaps')}
-</a>
-</div>
-`;
-showModal(title, modalHtml);
-}
-
-// Visual Toast System helper
+// Visual Toast System
 function showToast(message) {
-let toast = document.getElementById("toast");
-if (!toast) {
-toast = document.createElement("div");
-toast.id = "toast";
-toast.className = "toast";
-document.body.appendChild(toast);
-}
-toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${message}`;
-toast.classList.add("active");
-setTimeout(() => {
-toast.classList.remove("active");
-}, 2500);
+    let toast = document.getElementById("toast");
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "toast";
+        toast.className = "toast";
+        document.body.appendChild(toast);
+    }
+    toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${message}`;
+    toast.classList.add("active");
+    setTimeout(() => {
+        toast.classList.remove("active");
+    }, 2500);
 }
 
-// Initialise Compass on Load
+// Initialise page components
 window.addEventListener("DOMContentLoaded", () => {
-soundBtn.innerHTML = isMuted ? '<i class="fa-solid fa-volume-xmark"></i>' : '<i class="fa-solid fa-volume-high"></i>';
-generateCompassTicks();
-updateLanguageDOM();
-findQibla();
+    generateCompassTicks();
+    fallbackCoordinates(); // Initialize with Malappuram coordinates initially
+    findQibla();
 });
 
 </script>
