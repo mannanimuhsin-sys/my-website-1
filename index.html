@@ -282,6 +282,100 @@
         border-radius: 50%;
         z-index: 1;
     }
+    /* Executive Qibla Finder Banner */
+    .qibla-banner-premium {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 20px 25px;
+        margin: 0 auto 25px auto;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.03);
+        border-left: 6px solid #013e22;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .qibla-banner-premium:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(1, 62, 34, 0.15);
+        border-color: rgba(1, 62, 34, 0.2);
+    }
+    .qb-content {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        z-index: 2;
+        flex: 1;
+    }
+    .qb-icon {
+        min-width: 55px;
+        height: 55px;
+        background: linear-gradient(135deg, #013e22, #028043);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffd700;
+        font-size: 24px;
+        box-shadow: 0 8px 15px rgba(1, 62, 34, 0.3);
+    }
+    .qb-text {
+        text-align: left;
+    }
+    .qb-text h2 {
+        margin: 0 0 5px 0;
+        font-size: 18px;
+        font-weight: 800;
+        color: #2d3436;
+        letter-spacing: 0.2px;
+    }
+    .qb-text p {
+        margin: 0;
+        font-size: 11px;
+        color: #636e72;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+    .qb-arrow-btn {
+        width: 45px;
+        height: 45px;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #013e22;
+        font-size: 18px;
+        transition: 0.3s;
+        z-index: 5;
+        margin-left: 15px;
+        flex-shrink: 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+    .qibla-banner-premium:hover .qb-arrow-btn {
+        background: #013e22;
+        color: #ffd700;
+        border-color: #013e22;
+        transform: scale(1.1);
+        box-shadow: 0 6px 15px rgba(1, 62, 34, 0.4);
+    }
+    .qb-bg-glow {
+        position: absolute;
+        right: -30px;
+        top: -30px;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(1, 62, 34, 0.08) 0%, rgba(1, 62, 34, 0) 70%);
+        border-radius: 50%;
+        z-index: 1;
+    }
         .admin-box { 
             background: #ffffff; padding: 12px 15px; border-radius: 16px; 
             margin: 0 auto 25px auto; text-align: center; border: 1px solid rgba(0,0,0,0.03);
@@ -476,6 +570,24 @@
     
     <div class="sv-add-btn" onclick="event.stopPropagation(); window.location.href='https://mannanimuhsin-sys.github.io/my-website-1/gyalary.html'">
         <i class="fas fa-plus"></i>
+    </div>
+</div>
+
+<div class="qibla-banner-premium" onclick="window.location.href='qibla_finder.html'">
+    <div class="qb-bg-glow"></div>
+    
+    <div class="qb-content">
+        <div class="qb-icon">
+            <i class="fas fa-compass"></i>
+        </div>
+        <div class="qb-text">
+            <h2>ഖിബ്‌ല ഫൈൻഡർ (Qibla Finder)</h2>
+            <p>നിങ്ങളുടെ മൊബൈൽ ലൊക്കേഷൻ ഉപയോഗിച്ച് കഅബയുടെ ദിശ കൃത്യമായി കണ്ടെത്താം</p>
+        </div>
+    </div>
+    
+    <div class="qb-arrow-btn">
+        <i class="fas fa-chevron-right"></i>
     </div>
 </div>
 
